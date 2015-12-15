@@ -1,22 +1,39 @@
 {
+  
   "name": "code-settings-sync",
   "displayName": "Visual Studio Code Settings Sync",
   "description": "Syncronize your Visual Studio Code Settings Across Multiple Machines using Github GIST. Currently its only syncing Settings , Snippets , launch and keybindings files.",
   "version": "0.0.1",
-  "publisher": "Shan Khan",
+  "publisher": "Shan",
   "engines": {
     "vscode": "^0.10.1"
   },
   "categories": [
     "Other"
   ],
+  "bugs": {
+    "url": "https://github.com/shanalikhan1/code-settings-sync/issues"
+  },
+   "license": "MIT",
   "activationEvents": [
     "onCommand:extension.updateSettings",
     "onCommand:extension.downloadSettings",
     "onCommand:extension.resetSettings"
   ],
+  "galleryBanner": {
+    "color": "#CFB69A",
+    "theme": "light"
+  },
+  
   "main": "./out/src/extension",
+  
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/shanalikhan1/code-settings-sync"
+    
+  },
   "contributes": {
+    
     "commands": [
       {
         "command": "extension.downloadSettings",
@@ -44,7 +61,7 @@
       }
     ]
   },
-  "scripts": {
+  "scripts": { 
     "vscode:prepublish": "node ./node_modules/vscode/bin/compile",
     "compile": "node ./node_modules/vscode/bin/compile -watch -p ./"
   },

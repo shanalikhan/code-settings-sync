@@ -13,35 +13,32 @@
 ## Steps To Get the Github Key.
 
 This extension required your GitHub Account Personal Access Token. You can create one simple by looking into the following pictures.
+**Goto Settings / Personal Access Tokens / Generate New Token**
 
-<strong>Goto Settings / Personal Access Tokens / Generate New Token</strong>
 
 ![Goto Settings / Personal Access Tokens](http://shanalikhan1.github.io/img/github1.PNG)
 
-<strong>Select Scopes</strong>
+**Select Scopes**
 
 ![Select Scopes](http://shanalikhan1.github.io/img/github2.PNG)
 
-<strong>Get Unique Key</strong>
+**Get Unique Key**
 
 ![Get Unique Key](http://shanalikhan1.github.io/img/github3.PNG)
 
-<blockquote>
-<p>
-You need to save this key for this extension for future use, and dont share this key with anyone as it will get your data without needing to logg in.
-</p>
-</blockquote>
+
+> You need to save this key for this extension for future use, and dont share this key with anyone as it will get your data without needing to logg in.
 
 
 ## Upload Your Settings For the first time
 
 
-<strong>Press Ctrl + Alt + u it will ask your github account access token.</strong>
+**Press Ctrl + Alt + u it will ask your github account access token.**
 Enter the github account in the window and click enter.
 
 ![github account access token](http://shanalikhan1.github.io/img/upload1.png)
 
-<strong>Upload your settings automatically and give you GIST ID.</strong>
+**Upload your settings automatically and give you GIST ID.**
 Copy this Gist ID in order to download the settings in other machines.
 
 ![uploaded automatically](http://shanalikhan1.github.io/img/upload2.png)
@@ -49,17 +46,17 @@ Copy this Gist ID in order to download the settings in other machines.
 
 ## Download your Settings
 
-<strong>Press Ctrl + Alt + d it will ask your github account access token.</strong>
+**Press Ctrl + Alt + d it will ask your github account access token.**
 Enter the github account in the window and click enter.
 
 ![github account access token](http://shanalikhan1.github.io/img/upload1.png)
 
-<strong>Enter Your GIST ID.</strong>
+**Enter Your GIST ID.**
 you need to enter your Gist ID in order to get the all files
 
 ![Enter Your GIST ID](http://shanalikhan1.github.io/img/download2.png)
 
-<strong>Settings Downloaded.</strong>
+**Settings Downloaded.**
 You are Done ! All your files are downloaded
 
 ![Enter Your GIST ID](http://shanalikhan1.github.io/img/download3.png)
