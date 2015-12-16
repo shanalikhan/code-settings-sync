@@ -199,15 +199,17 @@ export function activate(context: vscode.ExtensionContext) {
 
 					github.getGistsApi().get({ id: GIST }, function(er, res) {
 
-						var list = fs.readdirSync(FOLDER_SNIPPETS);
-						for (var i: number = 0; i < list.length; i++) {
-							var fileName = list[i];
-							var filePath = FOLDER_SNIPPETS.concat(fileName);
-							var fileText: string = fs.readFileSync(filePath, { encoding: 'utf8' });
-							var jsonObjName = fileName.split('.')[0];
-							res.files[jsonObjName] = {};
-							res.files[jsonObjName].content = fileText;
-							//debugger;
+						if (!fs.existsSync(FOLDER_SNIPPETS)) {
+							var list = fs.readdirSync(FOLDER_SNIPPETS);
+							for (var i: number = 0; i < list.length; i++) {
+								var fileName = list[i];
+								var filePath = FOLDER_SNIPPETS.concat(fileName);
+								var fileText: string = fs.readFileSync(filePath, { encoding: 'utf8' });
+								var jsonObjName = fileName.split('.')[0];
+								res.files[jsonObjName] = {};
+								res.files[jsonObjName].content = fileText;
+								//debugger;
+							}
 						}
 						res.files.settings.content = settingtext;
 						res.files.launch.content = launchtext;
