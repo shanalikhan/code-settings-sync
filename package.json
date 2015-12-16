@@ -8,18 +8,18 @@
 		"name": "Shan Khan",
 		"url": "http://shanalikhan1.github.io"
 	},
-  "license": "MIT",
   "galleryBanner": {
 		"color": "#3B4859",
 		"theme": "dark"
 	},
-  "homepage": "https://github.com/shanalikhan1/code-settings-sync",
+  "homepage": "https://github.com/shanalikhan1/code-settings-sync/blob/master/README.md",
 	"repository": {
 		"type": "git",
 		"url": "https://github.com/shanalikhan1/code-settings-sync.git"
 	},
 	"bugs": {
-		"url": "https://github.com/shanalikhan1/code-settings-sync/issues"
+		"url": "https://github.com/shanalikhan1/code-settings-sync/issues",
+    "email": "shanalikhan@hotmail.com"
 	},
   "engines": {
     "vscode": "^0.10.1"
