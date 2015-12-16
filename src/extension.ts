@@ -72,6 +72,7 @@ export function activate(context: vscode.ExtensionContext) {
 					prompt: "Link is opened to get the github token"
 				};
 				vscode.window.showInputBox(options).then((value) => {
+					value = value.trim();
 					if (value) {
 						fs.writeFile(FILE_TOKEN, value, function(err, data) {
 							if (err) {
@@ -231,6 +232,7 @@ export function activate(context: vscode.ExtensionContext) {
 					};
 					vscode.window.showInputBox(options).then((value) => {
 						if (value) {
+							value = value.trim();
 							fs.writeFile(FILE_TOKEN, value, function(err, data) {
 								if (err) {
 									vscode.window.showErrorMessage("ERROR ! See detail on console.");
@@ -264,6 +266,7 @@ export function activate(context: vscode.ExtensionContext) {
 					};
 					vscode.window.showInputBox(options).then((value) => {
 						if (value) {
+							value = value.trim();
 							fs.writeFile(FILE_GIST, value, function(err, data) {
 								if (err) {
 									vscode.window.showErrorMessage("ERROR ! See detail on console.");
