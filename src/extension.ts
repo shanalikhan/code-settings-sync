@@ -57,7 +57,7 @@ export function activate(context: vscode.ExtensionContext) {
 
 	var disposable = vscode.commands.registerCommand('extension.updateSettings', () => {
 
-		vscode.extensions.getExtension("johnpapa.Angular1")
+		
 		vscode.window.setStatusBarMessage("Loading Your Settings.", 5000);
 		tokenChecked = false;
 		gistChecked = false;
