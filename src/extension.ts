@@ -151,7 +151,7 @@ export function activate(context: vscode.ExtensionContext) {
 						token: TOKEN
 					});
 
-					if (!fs.existsSync(FOLDER_SNIPPETS)) {
+					if (fs.existsSync(FOLDER_SNIPPETS)) {
 						//create new gist and upload all files there
 						var list = fs.readdirSync(FOLDER_SNIPPETS);
 						for (var i: number = 0; i < list.length; i++) {
@@ -199,7 +199,7 @@ export function activate(context: vscode.ExtensionContext) {
 
 					github.getGistsApi().get({ id: GIST }, function(er, res) {
 
-						if (!fs.existsSync(FOLDER_SNIPPETS)) {
+						if (fs.existsSync(FOLDER_SNIPPETS)) {
 							var list = fs.readdirSync(FOLDER_SNIPPETS);
 							for (var i: number = 0; i < list.length; i++) {
 								var fileName = list[i];
