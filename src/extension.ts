@@ -57,7 +57,7 @@ export function activate(context: vscode.ExtensionContext) {
 
 	var disposable = vscode.commands.registerCommand('extension.updateSettings', () => {
 
-		
+
 		vscode.window.setStatusBarMessage("Loading Your Settings.", 5000);
 		tokenChecked = false;
 		gistChecked = false;
@@ -129,9 +129,19 @@ export function activate(context: vscode.ExtensionContext) {
 		function startGitProcess() {
 
 			if (TOKEN != null) {
-				var settingtext: string = fs.readFileSync(FILE_SETTING, { encoding: 'utf8' });
-				var launchtext: string = fs.readFileSync(FILE_LAUNCH, { encoding: 'utf8' });
-				var keybindingtext: string = fs.readFileSync(FILE_KEYBINDING, { encoding: 'utf8' });
+				var settingtext: string = "//setting";
+				var launchtext: string = "//lanuch";
+				var keybindingtext: string = "//keybinding";
+
+				if (fs.existsSync(FILE_SETTING)) {
+					settingtext = fs.readFileSync(FILE_SETTING, { encoding: 'utf8' });
+				}
+				if (fs.existsSync(FILE_LAUNCH)) {
+					launchtext = fs.readFileSync(FILE_LAUNCH, { encoding: 'utf8' });
+				}
+				if (fs.existsSync(FILE_KEYBINDING)) {
+					keybindingtext = fs.readFileSync(FILE_KEYBINDING, { encoding: 'utf8' });
+				}
 
 
 				if (GIST == null) {
@@ -140,20 +150,24 @@ export function activate(context: vscode.ExtensionContext) {
 						type: "oauth",
 						token: TOKEN
 					});
-					//create new gist and upload all files there
-					var list = fs.readdirSync(FOLDER_SNIPPETS);
-					for (var i: number = 0; i < list.length; i++) {
-						var fileName = list[i];
-						var filePath = FOLDER_SNIPPETS.concat(fileName);
-						var fileText: string = fs.readFileSync(filePath, { encoding: 'utf8' });
-						var jsonObjName = fileName.split('.')[0];
-						var obj = {};
-						obj[jsonObjName] = {};
-						obj[jsonObjName].content = fileText;
-						GIST_JSON.files[jsonObjName] = {};
-						GIST_JSON.files[jsonObjName].content = fileText;
-						//debugger;
+
+					if (!fs.existsSync(FOLDER_SNIPPETS)) {
+						//create new gist and upload all files there
+						var list = fs.readdirSync(FOLDER_SNIPPETS);
+						for (var i: number = 0; i < list.length; i++) {
+							var fileName = list[i];
+							var filePath = FOLDER_SNIPPETS.concat(fileName);
+							var fileText: string = fs.readFileSync(filePath, { encoding: 'utf8' });
+							var jsonObjName = fileName.split('.')[0];
+							var obj = {};
+							obj[jsonObjName] = {};
+							obj[jsonObjName].content = fileText;
+							GIST_JSON.files[jsonObjName] = {};
+							GIST_JSON.files[jsonObjName].content = fileText;
+							//debugger;
+						}
 					}
+
 					GIST_JSON.files.settings.content = settingtext;
 					GIST_JSON.files.launch.content = launchtext;
 					GIST_JSON.files.keybindings.content = keybindingtext;
@@ -171,7 +185,7 @@ export function activate(context: vscode.ExtensionContext) {
 									console.log(err);
 									return false;
 								}
-								vscode.window.showInformationMessage("GIST ID : " + res.id + ". Please copy this ID and insert this on other machines to sync across multiple machines.");
+								vscode.window.showInformationMessage("GIST ID :  " + res.id + " . Please copy this ID and insert this on other machines to sync across multiple machines.");
 
 							});
 
