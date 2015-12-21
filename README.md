@@ -67,3 +67,26 @@ you need to enter your Gist ID in order to get the all files
 You are Done ! All your files are downloaded
 
 ![Enter Your GIST ID](http://shanalikhan1.github.io/img/download3.png)
+
+# How To Contribute
+   1. Download source code and install dependencies  
+        <code>
+        git clone https://github.com/shanalikhan1/code-settings-sync.git
+        cd code-settings-sync
+        npm install
+        code .
+        </code>
+   2. Make the respective code changes.
+   3. Go to the debugger in VS Code, choose `Launch Extension` and click run. You can test your changes.
+   4. Submit a Pull Request.
+   
+
+# Backlog
+    - Make it work for Linux or Mac. As I have only tested and made it worked for windows.
+    - Extensions Synchronization 
+    
+# Contributors
+    [Shan Ali Khan](https://github.com/shanalikhan1)
+    
+# License
+MIT
