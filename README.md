@@ -3,13 +3,14 @@
 > Type "Sync" In Command Palette in order to download / upload
 
 ## Key Features
-    * Use your github account token.
-    * Easy to Upload and Download on one click.
-    * Saves all settings and snippets files.
-    * Upload Key : Ctrl + Alt + u
-    * Download Key : Ctrl + Alt + d
-    * Type Sync In Order to View all sync options
-      
+```
+1. Use your github account token.
+2. Easy to Upload and Download on one click.
+3. Saves all settings and snippets files.
+4. Upload Key : Ctrl + Alt + u
+5. Download Key : Ctrl + Alt + d
+6. Type Sync In Order to View all sync options
+```      
     
 ## Steps To Get the Github Key.
 
@@ -69,14 +70,16 @@ You are Done ! All your files are downloaded
 ![Enter Your GIST ID](http://shanalikhan1.github.io/img/download3.png)
 
 # How To Contribute
-   1. Download source code and install dependencies  
-    - git clone https://github.com/shanalikhan1/code-settings-sync.git
-    - cd code-settings-sync
-    - npm install
-    - code .
-   2. Make the respective code changes.
-   3. Go to the debugger in VS Code, choose `Launch Extension` and click run. You can test your changes.
-   4. Submit a Pull Request.
+1. Download source code and install dependencies
+```
+git clone https://github.com/shanalikhan1/code-settings-sync.git
+cd code-settings-sync
+npm install
+code .
+````
+2. Make the respective code changes.
+3. Go to the debugger in VS Code, choose `Launch Extension` and click run. You can test your changes.
+4. Submit a Pull Request.
    
 
 # Backlog
