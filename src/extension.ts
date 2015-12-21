@@ -3,6 +3,7 @@
 import * as vscode from 'vscode';
 
 
+
 // this method is called when your extension is activated
 // your extension is activated the very first time the command is executed
 export function activate(context: vscode.ExtensionContext) {
@@ -24,9 +25,7 @@ export function activate(context: vscode.ExtensionContext) {
     var GIST: string = null;
     var tokenChecked: boolean = false;
     var gistChecked: boolean = false;
-    // The command has been defined in the package.json file
-    // Now provide the implementation of the command with  registerCommand
-    // The commandId parameter must match the command field in package.json
+    var tempValue: string = "";
     var PATH: string = process.env.APPDATA || (process.platform == 'darwin' ? process.env.HOME + 'Library/Preference' : '/var/local');
     var FILE_GIST: string = PATH.concat("\\Code\\User\\gist_sync.txt");
     var FILE_TOKEN: string = PATH.concat("\\Code\\User\\token.txt");
@@ -54,47 +53,73 @@ export function activate(context: vscode.ExtensionContext) {
 
 
 
+
     var disposable = vscode.commands.registerCommand('extension.updateSettings', () => {
 
 
-        vscode.window.setStatusBarMessage("Loading Your Settings.", 5000);
+        tempValue = "";
+        vscode.window.setStatusBarMessage("Loading Your Settings.", 1000);
         tokenChecked = false;
         gistChecked = false;
 
 
-        fs.readFile(FILE_TOKEN, { encoding: 'utf8' }, function read(err, data) {
 
-            if (!data) {
+        function GetInputBox(token: boolean) {
+            if (token) {
                 let options: vscode.InputBoxOptions = {
                     placeHolder: "Enter Github Personal Access Token",
                     password: false,
-                    prompt: "Link is opened to get the github token"
+                    prompt: "Link is opened to get the github token."
                 };
+                return options;
+            }
+            else {
+                let options: vscode.InputBoxOptions = {
+                    placeHolder: "Enter GIST ID",
+                    password: false,
+                    prompt: "If you never upload the files in any machine before then upload it before."
+                };
+                return options;
+            }
+        };
+
+        function ReadTokenFileResult(err: any, data: any) {
+
+            if (!data) {
+                var opt = GetInputBox(true);
                 openurl("https://github.com/settings/tokens");
-                vscode.window.showInputBox(options).then((value) => {
+                vscode.window.showInputBox(opt).then((value) => {
                     value = value.trim();
                     if (value) {
-                        fs.writeFile(FILE_TOKEN, value, function(err, data) {
-                            if (err) {
-                                vscode.window.showErrorMessage("ERROR ! See detail on console.");
-                                console.log(err);
-                                return false;
-                            }
-                            TOKEN = value;
-                            InitGist("token");
-                        });
+                        tempValue = value;
+                        fs.writeFile(FILE_TOKEN, value, WriteTokenFileResult);
                     }
+
                 });
             }
             else {
                 TOKEN = data;
-                InitGist("token");
+                ReadGist();
             }
-        });
+        };
 
 
-        fs.readFile(FILE_GIST, { encoding: 'utf8' }, function read(err, data) {
+        function WriteTokenFileResult(err: any, data: any) {
+            if (err) {
+                vscode.window.showErrorMessage("ERROR ! See detail on console.");
+                console.log(err);
+                return false;
+            }
+            TOKEN = tempValue;
+            ReadGist();
+            //InitGist("token");
+        };
 
+        function ReadGist() {
+
+            fs.readFile(FILE_GIST, { encoding: 'utf8' }, ReadGistFileResult);
+        };
+        function ReadGistFileResult(err: any, data: any) {
             if (err) {
                 if (err.code != "ENOENT") {
                     vscode.window.showErrorMessage("ERROR ! See detail on console.");
@@ -102,33 +127,108 @@ export function activate(context: vscode.ExtensionContext) {
                     return false;
                 }
             }
-            GIST = data;
-            InitGist("gist");
+            if (data) {
+                GIST = data;
+            }
+            else {
+                GIST = null;
+            }
+            vscode.window.setStatusBarMessage("Uploading / Updating Your Settings In Github.", 2000);
+            startGitProcess();
+        };
 
 
-        });
 
-        function InitGist(type) {
-            switch (type) {
-                case "token": {
-                    tokenChecked = true;
-                    break;
-                }
-                case "gist": {
-                    gistChecked = true;
-                    break;
+
+
+
+
+        function CreateNewGist(settingtext: string, launchtext: string, keybindingtext: string) {
+            github.authenticate({
+                type: "oauth",
+                token: TOKEN
+            });
+
+            if (fs.existsSync(FOLDER_SNIPPETS)) {
+                //create new gist and upload all files there
+                var list = fs.readdirSync(FOLDER_SNIPPETS);
+                for (var i: number = 0; i < list.length; i++) {
+                    var fileName = list[i];
+                    var filePath = FOLDER_SNIPPETS.concat(fileName);
+                    var fileText: string = fs.readFileSync(filePath, { encoding: 'utf8' });
+                    var jsonObjName = fileName.split('.')[0];
+                    var obj = {};
+                    obj[jsonObjName] = {};
+                    obj[jsonObjName].content = fileText;
+                    GIST_JSON.files[jsonObjName] = {};
+                    GIST_JSON.files[jsonObjName].content = fileText;
+                    //debugger;
                 }
             }
-            if ((gistChecked) && (tokenChecked)) {
-                vscode.window.setStatusBarMessage("Uploading / Updating Your Settings In Github.", 2000);
-                startGitProcess();
-            }
 
-        }
+            GIST_JSON.files.settings.content = settingtext;
+            GIST_JSON.files.launch.content = launchtext;
+            GIST_JSON.files.keybindings.content = keybindingtext;
+
+            github.getGistsApi().create(GIST_JSON
+                , function(err, res) {
+                    if (err) {
+                        vscode.window.showErrorMessage("ERROR ! See detail on console.");
+                        console.log(err);
+                        return false;
+                    }
+                    vscode.window.showInformationMessage("Uploaded Successfully." + "GIST ID :  " + res.id + " .Please copy and use this ID in other machines to sync all settings.");
+                    fs.writeFile(FILE_GIST, res.id, function(err, data) {
+                        if (err) {
+                            vscode.window.showErrorMessage("ERROR ! Unable to Save GIST ID In this machine. You need to enter it manually from Download Settings.");
+                            console.log(err);
+                            return false;
+                        }
+                        vscode.window.showInformationMessage("GIST ID Saved in your machine.");
+
+                    });
+
+                });
+        };
+
+        function ExistingGist(settingtext: string, launchtext: string, keybindingtext: string) {
+            github.authenticate({
+                type: "oauth",
+                token: TOKEN
+            });
+
+            github.getGistsApi().get({ id: GIST }, function(er, res) {
+
+                if (fs.existsSync(FOLDER_SNIPPETS)) {
+                    var list = fs.readdirSync(FOLDER_SNIPPETS);
+                    for (var i: number = 0; i < list.length; i++) {
+                        var fileName = list[i];
+                        var filePath = FOLDER_SNIPPETS.concat(fileName);
+                        var fileText: string = fs.readFileSync(filePath, { encoding: 'utf8' });
+                        var jsonObjName = fileName.split('.')[0];
+                        res.files[jsonObjName] = {};
+                        res.files[jsonObjName].content = fileText;
+                    }
+                }
+                res.files.settings.content = settingtext;
+                res.files.launch.content = launchtext;
+                res.files.keybindings.content = keybindingtext;
+                github.getGistsApi().edit(res, function(ere, ress) {
+                    if (ere) {
+                        vscode.window.showErrorMessage("ERROR ! See detail on console.");
+                        console.log(ere);
+                        return false;
+                    }
+                    vscode.window.showInformationMessage("Settings Updated Successfully");
+                    //console.log(ress);
+                });
+            });
+        };
 
         function startGitProcess() {
 
             if (TOKEN != null) {
+
                 var settingtext: string = "//setting";
                 var launchtext: string = "//lanuch";
                 var keybindingtext: string = "//keybinding";
@@ -145,91 +245,23 @@ export function activate(context: vscode.ExtensionContext) {
 
 
                 if (GIST == null) {
-                    console.log("READY");
-                    github.authenticate({
-                        type: "oauth",
-                        token: TOKEN
-                    });
-
-                    if (fs.existsSync(FOLDER_SNIPPETS)) {
-                        //create new gist and upload all files there
-                        var list = fs.readdirSync(FOLDER_SNIPPETS);
-                        for (var i: number = 0; i < list.length; i++) {
-                            var fileName = list[i];
-                            var filePath = FOLDER_SNIPPETS.concat(fileName);
-                            var fileText: string = fs.readFileSync(filePath, { encoding: 'utf8' });
-                            var jsonObjName = fileName.split('.')[0];
-                            var obj = {};
-                            obj[jsonObjName] = {};
-                            obj[jsonObjName].content = fileText;
-                            GIST_JSON.files[jsonObjName] = {};
-                            GIST_JSON.files[jsonObjName].content = fileText;
-                            //debugger;
-                        }
-                    }
-
-                    GIST_JSON.files.settings.content = settingtext;
-                    GIST_JSON.files.launch.content = launchtext;
-                    GIST_JSON.files.keybindings.content = keybindingtext;
-
-                    github.getGistsApi().create(GIST_JSON
-                        , function(err, res) {
-                            if (err) {
-                                vscode.window.showErrorMessage("ERROR ! See detail on console.");
-                                console.log(err);
-                            }
-                            vscode.window.showInformationMessage("Settings Updated Successfully");
-                            fs.writeFile(FILE_GIST, res.id, function(err, data) {
-                                if (err) {
-                                    vscode.window.showErrorMessage("ERROR ! See detail on console.");
-                                    console.log(err);
-                                    return false;
-                                }
-                                vscode.window.showInformationMessage("GIST ID :  " + res.id + " . Please copy this ID and insert this on other machines to sync across multiple machines.");
-
-                            });
-
-                        });
+                    CreateNewGist(settingtext, launchtext, keybindingtext);
                 }
                 else if (GIST != null) {
-                    github.authenticate({
-                        type: "oauth",
-                        token: TOKEN
-                    });
-
-                    github.getGistsApi().get({ id: GIST }, function(er, res) {
-
-                        if (fs.existsSync(FOLDER_SNIPPETS)) {
-                            var list = fs.readdirSync(FOLDER_SNIPPETS);
-                            for (var i: number = 0; i < list.length; i++) {
-                                var fileName = list[i];
-                                var filePath = FOLDER_SNIPPETS.concat(fileName);
-                                var fileText: string = fs.readFileSync(filePath, { encoding: 'utf8' });
-                                var jsonObjName = fileName.split('.')[0];
-                                res.files[jsonObjName] = {};
-                                res.files[jsonObjName].content = fileText;
-                                //debugger;
-                            }
-                        }
-                        res.files.settings.content = settingtext;
-                        res.files.launch.content = launchtext;
-                        res.files.keybindings.content = keybindingtext;
-                        github.getGistsApi().edit(res, function(ere, ress) {
-                            if (ere) {
-                                vscode.window.showErrorMessage("ERROR ! See detail on console.");
-                                console.log(ere);
-                                return false;
-                            }
-                            vscode.window.showInformationMessage("Settings Updated Successfully");
-                            //console.log(ress);
-                        });
-                    });
+                    ExistingGist(settingtext, launchtext, keybindingtext);
 
                 }
             }
-
+            vscode.window.showErrorMessage("ERROR ! Github Account Token Not Set");
 
         }
+        
+        
+        
+        
+        //// start here
+        
+        fs.readFile(FILE_TOKEN, { encoding: 'utf8' }, ReadTokenFileResult);
     });
 
 
@@ -237,92 +269,94 @@ export function activate(context: vscode.ExtensionContext) {
         var tokenChecked: boolean = false;
         var gistChecked: boolean = false;
 
-        function InitalizeTokenandGIST() {
-            fs.readFile(FILE_TOKEN, { encoding: 'utf8' }, function read(err, data) {
-
-                if (!data) {
-                    let options: vscode.InputBoxOptions = {
-                        placeHolder: "Enter Github Personal Access Token",
-                        password: false,
-                        prompt: "Link is opened to get the github token"
-                    };
-                    openurl("https://github.com/settings/tokens");
-                    vscode.window.showInputBox(options).then((value) => {
-                        if (value) {
-                            value = value.trim();
-                            fs.writeFile(FILE_TOKEN, value, function(err, data) {
-                                if (err) {
-                                    vscode.window.showErrorMessage("ERROR ! See detail on console.");
-                                    console.log(err);
-                                    return false;
-                                }
-                                TOKEN = value;
-                                InitGist("token");
-                                SetGIST();
-                            });
-                        }
-                    });
-                }
-                else {
-                    TOKEN = data;
-                    InitGist("token");
-                    SetGIST();
-                }
-            });
+        function GetInputBox(token: boolean) {
+            if (token) {
+                let options: vscode.InputBoxOptions = {
+                    placeHolder: "Enter Github Personal Access Token",
+                    password: false,
+                    prompt: "Link is opened to get the github token."
+                };
+                return options;
+            }
+            else {
+                let options: vscode.InputBoxOptions = {
+                    placeHolder: "Enter GIST ID",
+                    password: false,
+                    prompt: "If you never upload the files in any machine before then upload it before."
+                };
+                return options;
+            }
         };
 
-
-        function SetGIST() {
-            fs.readFile(FILE_GIST, { encoding: 'utf8' }, function read(err, data) {
-
-                if (!data) {
-                    let options: vscode.InputBoxOptions = {
-                        placeHolder: "Enter GIST ID",
-                        password: false,
-                        prompt: "If you never upload the files in any machine before then upload it before."
-                    };
-                    vscode.window.showInputBox(options).then((value) => {
-                        if (value) {
-                            value = value.trim();
-                            fs.writeFile(FILE_GIST, value, function(err, data) {
-                                if (err) {
-                                    vscode.window.showErrorMessage("ERROR ! See detail on console.");
-                                    console.log(err);
-                                    return false;
-                                }
-                                GIST = value;
-                                InitGist("gist");
-                            });
-                        }
-                    });
-                }
-                else {
-                    GIST = data;
-                    InitGist("gist");
-
-                }
-            });
+        function Initialize() {
+            fs.readFile(FILE_TOKEN, { encoding: 'utf8' }, ReadTokenFileResult);
         }
 
-
-
-        function InitGist(type) {
-            switch (type) {
-                case "token": {
-                    tokenChecked = true;
-                    break;
-                }
-                case "gist": {
-                    gistChecked = true;
-                    break;
-                }
+        function ReadTokenFileResult(err: any, data: any) {
+            if (err) {
+                vscode.window.showErrorMessage("ERROR ! See detail on console.");
+                console.log(err);
+                return false;
             }
-            if ((gistChecked) && (tokenChecked)) {
-                vscode.window.setStatusBarMessage("Downloading Your Settings In Github.", 2000);
+            if (!data) {
+                openurl("https://github.com/settings/tokens");
+                var opt = GetInputBox(false);
+                vscode.window.showInputBox(opt).then((value) => {
+                    if (value) {
+                        value = value.trim();
+                        tempValue = value;
+                        fs.writeFile(FILE_TOKEN, value, WriteTokenFileResult);
+                    }
+                });
+            }
+            else {
+                TOKEN = data;
+                ReadGist();
+            }
+
+        };
+
+        function WriteTokenFileResult(err: any, data: any) {
+            if (err) {
+                vscode.window.showErrorMessage("ERROR ! See detail on console.");
+                console.log(err);
+                return false;
+            }
+            TOKEN = tempValue;
+            ReadGist();
+        }
+
+        function ReadGist() {
+            fs.readFile(FILE_GIST, { encoding: 'utf8' }, ReadGistFileResult);
+        };
+
+        function ReadGistFileResult(err: any, data: any) {
+
+            if (!data) {
+                var opt = GetInputBox(false);
+                vscode.window.showInputBox(opt).then((value) => {
+                    if (value) {
+                        value = value.trim();
+                        tempValue = value;
+                        fs.writeFile(FILE_GIST, value, WriteGistFileResult);
+                    }
+                });
+            }
+            else {
+                GIST = data;
                 StartDownload();
             }
+        };
 
-        }
+        function WriteGistFileResult(err: any, data: any) {
+            if (err) {
+                vscode.window.showErrorMessage("ERROR ! See detail on console.");
+                console.log(err);
+                return false;
+            }
+            GIST = tempValue;
+            StartDownload();
+        };
 
         function StartDownload() {
             github.getGistsApi().get({ id: GIST }, function(er, res) {
@@ -365,26 +399,26 @@ export function activate(context: vscode.ExtensionContext) {
                                     return false;
                                 }
                                 vscode.window.showInformationMessage("Keybinding Settings downloaded Successfully");
-                                //console.log("keybindings");
-                                //console.log(data);
                             });
                             break;
                         }
                         default: {
-                            if (!fs.existsSync(FOLDER_SNIPPETS)) {
-                                fs.mkdirSync(FOLDER_SNIPPETS);
-                            }
-                            var file = FOLDER_SNIPPETS.concat(keys[i]).concat(".json");
-                            fs.writeFile(file, res.files[keys[i]].content, function(err, data) {
-                                if (err) {
-                                    vscode.window.showErrorMessage("ERROR ! See detail on console.");
-                                    console.log(err);
-                                    return false;
+                            if (i < keys.length) {
+                                if (!fs.existsSync(FOLDER_SNIPPETS)) {
+                                    fs.mkdirSync(FOLDER_SNIPPETS);
                                 }
-                                //vscode.window.showInformationMessage(keys[i] +" snippets downloaded Successfully");
-                                //console.log("keybindings");
-                                //console.log(data);
-                            });
+                                var file = FOLDER_SNIPPETS.concat(keys[i]).concat(".json");
+                                var fileName = keys[i].concat(".json");
+                                fs.writeFile(file, res.files[keys[i]].content, function(err, data) {
+                                    if (err) {
+                                        vscode.window.showErrorMessage("ERROR ! See detail on console.");
+                                        console.log(err);
+                                        return false;
+                                    }
+                                    vscode.window.showInformationMessage(fileName + " snippet added successfully.");
+                                });
+                            }
+
                             break;
                         }
 
@@ -399,7 +433,7 @@ export function activate(context: vscode.ExtensionContext) {
             });
         }
 
-        InitalizeTokenandGIST();
+        Initialize();
 
     });
 
