@@ -70,23 +70,21 @@ You are Done ! All your files are downloaded
 
 # How To Contribute
    1. Download source code and install dependencies  
-        <code>
-        git clone https://github.com/shanalikhan1/code-settings-sync.git
-        cd code-settings-sync
-        npm install
-        code .
-        </code>
+    - git clone https://github.com/shanalikhan1/code-settings-sync.git
+    - cd code-settings-sync
+    - npm install
+    - code .
    2. Make the respective code changes.
    3. Go to the debugger in VS Code, choose `Launch Extension` and click run. You can test your changes.
    4. Submit a Pull Request.
    
 
 # Backlog
-    - Make it work for Linux or Mac. As I have only tested and made it worked for windows.
-    - Extensions Synchronization 
+1. Make it work for Linux or Mac. As I have only tested and made it worked for windows.
+2. Extensions Synchronization [ Currently Not Possible ] 
     
 # Contributors
-    [Shan Ali Khan](https://github.com/shanalikhan1)
+[Shan Ali Khan](https://github.com/shanalikhan1)
     
 # License
 MIT
