@@ -252,7 +252,10 @@ export function activate(context: vscode.ExtensionContext) {
 
                 }
             }
-            vscode.window.showErrorMessage("ERROR ! Github Account Token Not Set");
+            else{
+                vscode.window.showErrorMessage("ERROR ! Github Account Token Not Set");    
+            }
+            
 
         }
         
