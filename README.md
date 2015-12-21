@@ -70,16 +70,16 @@ You are Done ! All your files are downloaded
 ![Enter Your GIST ID](http://shanalikhan1.github.io/img/download3.png)
 
 # How To Contribute
-1. Download source code and install dependencies
+Download source code and install dependencies
 ```
 git clone https://github.com/shanalikhan1/code-settings-sync.git
 cd code-settings-sync
 npm install
 code .
 ````
-2. Make the respective code changes.
-3. Go to the debugger in VS Code, choose `Launch Extension` and click run. You can test your changes.
-4. Submit a Pull Request.
+Make the respective code changes.
+Go to the debugger in VS Code, choose `Launch Extension` and click run. You can test your changes.
+Submit a Pull Request.
    
 
 # Backlog
