@@ -71,6 +71,7 @@ You are Done ! All your files are downloaded
 
 # How To Contribute
 Download source code and install dependencies
+
 ```
 git clone https://github.com/shanalikhan1/code-settings-sync.git
 cd code-settings-sync
@@ -78,7 +79,9 @@ npm install
 code .
 ````
 Make the respective code changes.
+
 Go to the debugger in VS Code, choose `Launch Extension` and click run. You can test your changes.
+
 Submit a Pull Request.
    
 
