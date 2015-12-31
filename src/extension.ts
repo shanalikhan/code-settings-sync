@@ -58,7 +58,7 @@ export function activate(context: vscode.ExtensionContext) {
 
 
         tempValue = "";
-        vscode.window.setStatusBarMessage("Loading Your Settings.", 1000);
+        vscode.window.setStatusBarMessage("Checking for Github Token and GIST.", 2000);
         tokenChecked = false;
         gistChecked = false;
 
@@ -177,7 +177,7 @@ export function activate(context: vscode.ExtensionContext) {
                         console.log(err);
                         return false;
                     }
-                    vscode.window.showInformationMessage("Uploaded Successfully." + "GIST ID :  " + res.id + " .Please copy and use this ID in other machines to sync all settings.");
+                    vscode.window.showInformationMessage("Uploaded Successfully." + " GIST ID :  " + res.id + " . Please copy and use this ID in other machines to sync all settings.");
                     fs.writeFile(FILE_GIST, res.id, function(err, data) {
                         if (err) {
                             vscode.window.showErrorMessage("ERROR ! Unable to Save GIST ID In this machine. You need to enter it manually from Download Settings.");
@@ -259,16 +259,35 @@ export function activate(context: vscode.ExtensionContext) {
 
         }
         
+        function Initialize(){
+             if (fs.existsSync(FILE_TOKEN)) {
+                fs.readFile(FILE_TOKEN, { encoding: 'utf8' }, ReadTokenFileResult);    
+            }
+            else{
+                openurl("https://github.com/settings/tokens");
+                var opt = GetInputBox(false);
+                vscode.window.showInputBox(opt).then((value) => {
+                    if (value) {
+                        value = value.trim();
+                        tempValue = value;
+                        fs.writeFile(FILE_TOKEN, value, WriteTokenFileResult);
+                    }
+                });
+            }
+                
+        } 
         
         
         
         //// start here
+        Initialize();
         
-        fs.readFile(FILE_TOKEN, { encoding: 'utf8' }, ReadTokenFileResult);
     });
 
 
     var disposable = vscode.commands.registerCommand('extension.downloadSettings', () => {
+        vscode.window.setStatusBarMessage("Downloading Your Settings...", 2000);
+        
         var tokenChecked: boolean = false;
         var gistChecked: boolean = false;
 
@@ -291,22 +310,7 @@ export function activate(context: vscode.ExtensionContext) {
             }
         };
 
-        function Initialize() {
-            if (fs.existsSync(FILE_TOKEN)) {
-                fs.readFile(FILE_TOKEN, { encoding: 'utf8' }, ReadTokenFileResult);    
-            }
-            else{
-                openurl("https://github.com/settings/tokens");
-                var opt = GetInputBox(false);
-                vscode.window.showInputBox(opt).then((value) => {
-                    if (value) {
-                        value = value.trim();
-                        tempValue = value;
-                        fs.writeFile(FILE_TOKEN, value, WriteTokenFileResult);
-                    }
-                });
-            }
-        }
+        
 
         function ReadTokenFileResult(err: any, data: any) {
             if (err) {
@@ -448,13 +452,31 @@ export function activate(context: vscode.ExtensionContext) {
 
             });
         }
+        
+        function Initialize() {
+            if (fs.existsSync(FILE_TOKEN)) {
+                fs.readFile(FILE_TOKEN, { encoding: 'utf8' }, ReadTokenFileResult);    
+            }
+            else{
+                openurl("https://github.com/settings/tokens");
+                var opt = GetInputBox(false);
+                vscode.window.showInputBox(opt).then((value) => {
+                    if (value) {
+                        value = value.trim();
+                        tempValue = value;
+                        fs.writeFile(FILE_TOKEN, value, WriteTokenFileResult);
+                    }
+                });
+                
+            }
+        }
 
         Initialize();
 
     });
 
     var disposable = vscode.commands.registerCommand('extension.resetSettings', () => {
-        vscode.window.setStatusBarMessage("Resetting Your Sync Settings.", 2000);
+        vscode.window.setStatusBarMessage("Resetting Your Settings.", 2000);
         try {
             if (fs.existsSync(FILE_GIST)) {
                 fs.unlinkSync(FILE_GIST);
@@ -462,7 +484,7 @@ export function activate(context: vscode.ExtensionContext) {
             if (fs.existsSync(FILE_TOKEN)) {
                 fs.unlinkSync(FILE_TOKEN);
             }
-            vscode.window.showInformationMessage("Sync Settings Cleared.");
+            vscode.window.showInformationMessage("GIST and Github Token Cleared.");
         }
         catch (err) {
             console.log(err);

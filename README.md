@@ -86,8 +86,7 @@ Submit a Pull Request.
    
 
 # Backlog
-1. Make it work for Linux or Mac. As I have only tested and made it worked for windows.
-2. Extensions Synchronization [ Currently Not Possible ] 
+1. Extensions Synchronization ( Currently Not Possible ). 
     
 # Contributors
 [Shan Ali Khan](https://github.com/shanalikhan1)
