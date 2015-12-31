@@ -26,7 +26,7 @@ export function activate(context: vscode.ExtensionContext) {
     var tokenChecked: boolean = false;
     var gistChecked: boolean = false;
     var tempValue: string = "";
-    var PATH = process.env.APPDATA || (process.platform == 'darwin' ? process.env.HOME + '/Library/Application Support' : '/var/local');
+    var PATH: string  = process.env.APPDATA || (process.platform == 'darwin' ? process.env.HOME + '/Library/Application Support' : '/var/local');
     var FILE_GIST: string = PATH.concat("/Code/User/gist_sync.txt");
     var FILE_TOKEN: string = PATH.concat("/Code/User/token.txt");
     var FILE_SETTING: string = PATH.concat("/Code/User/settings.json");
