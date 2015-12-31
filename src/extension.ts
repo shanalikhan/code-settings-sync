@@ -26,13 +26,13 @@ export function activate(context: vscode.ExtensionContext) {
     var tokenChecked: boolean = false;
     var gistChecked: boolean = false;
     var tempValue: string = "";
-    var PATH: string = process.env.APPDATA || (process.platform == 'darwin' ? process.env.HOME + 'Library/Preference' : '/var/local');
-    var FILE_GIST: string = PATH.concat("\\Code\\User\\gist_sync.txt");
-    var FILE_TOKEN: string = PATH.concat("\\Code\\User\\token.txt");
-    var FILE_SETTING: string = PATH.concat("\\Code\\User\\settings.json");
-    var FILE_LAUNCH: string = PATH.concat("\\Code\\User\\launch.json");
-    var FILE_KEYBINDING: string = PATH.concat("\\Code\\User\\keybindings.json");
-    var FOLDER_SNIPPETS: string = PATH.concat("\\Code\\User\\snippets\\");
+    var PATH: string  = process.env.APPDATA || (process.platform == 'darwin' ? process.env.HOME + '/Library/Application Support' : '/var/local');
+    var FILE_GIST: string = PATH.concat("/Code/User/gist_sync.txt");
+    var FILE_TOKEN: string = PATH.concat("/Code/User/token.txt");
+    var FILE_SETTING: string = PATH.concat("/Code/User/settings.json");
+    var FILE_LAUNCH: string = PATH.concat("/Code/User/launch.json");
+    var FILE_KEYBINDING: string = PATH.concat("/Code/User/keybindings.json");
+    var FOLDER_SNIPPETS: string = PATH.concat("/Code/User/snippets/");
     var GIST_JSON: any = {
         "description": "Visual Studio code settings",
         "public": false,
