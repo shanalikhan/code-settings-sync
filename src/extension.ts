@@ -292,7 +292,20 @@ export function activate(context: vscode.ExtensionContext) {
         };
 
         function Initialize() {
-            fs.readFile(FILE_TOKEN, { encoding: 'utf8' }, ReadTokenFileResult);
+            if (fs.existsSync(FILE_TOKEN)) {
+                fs.readFile(FILE_TOKEN, { encoding: 'utf8' }, ReadTokenFileResult);    
+            }
+            else{
+                openurl("https://github.com/settings/tokens");
+                var opt = GetInputBox(false);
+                vscode.window.showInputBox(opt).then((value) => {
+                    if (value) {
+                        value = value.trim();
+                        tempValue = value;
+                        fs.writeFile(FILE_TOKEN, value, WriteTokenFileResult);
+                    }
+                });
+            }
         }
 
         function ReadTokenFileResult(err: any, data: any) {
