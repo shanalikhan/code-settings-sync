@@ -26,13 +26,14 @@ export function activate(context: vscode.ExtensionContext) {
     var tokenChecked: boolean = false;
     var gistChecked: boolean = false;
     var tempValue: string = "";
-    var PATH: string  = process.env.APPDATA || (process.platform == 'darwin' ? process.env.HOME + '/Library/Application Support' : '/var/local');
+    var PATH: string = process.env.APPDATA || (process.platform == 'darwin' ? process.env.HOME + '/Library/Application Support' : '/var/local');
     var FILE_GIST: string = PATH.concat("/Code/User/gist_sync.txt");
     var FILE_TOKEN: string = PATH.concat("/Code/User/token.txt");
     var FILE_SETTING: string = PATH.concat("/Code/User/settings.json");
     var FILE_LAUNCH: string = PATH.concat("/Code/User/launch.json");
     var FILE_KEYBINDING: string = PATH.concat("/Code/User/keybindings.json");
     var FOLDER_SNIPPETS: string = PATH.concat("/Code/User/snippets/");
+    var ERROR_MESSAGE: string = "ERROR ! Logged In Console. Please open an issue in Github Repo."
     var GIST_JSON: any = {
         "description": "Visual Studio code settings",
         "public": false,
@@ -106,7 +107,7 @@ export function activate(context: vscode.ExtensionContext) {
 
         function WriteTokenFileResult(err: any, data: any) {
             if (err) {
-                vscode.window.showErrorMessage("ERROR ! See detail on console.");
+                vscode.window.showErrorMessage(ERROR_MESSAGE);
                 console.log(err);
                 return false;
             }
@@ -122,7 +123,7 @@ export function activate(context: vscode.ExtensionContext) {
         function ReadGistFileResult(err: any, data: any) {
             if (err) {
                 if (err.code != "ENOENT") {
-                    vscode.window.showErrorMessage("ERROR ! See detail on console.");
+                    vscode.window.showErrorMessage(ERROR_MESSAGE);
                     console.log(err);
                     return false;
                 }
@@ -173,7 +174,7 @@ export function activate(context: vscode.ExtensionContext) {
             github.getGistsApi().create(GIST_JSON
                 , function(err, res) {
                     if (err) {
-                        vscode.window.showErrorMessage("ERROR ! See detail on console.");
+                        vscode.window.showErrorMessage(ERROR_MESSAGE);
                         console.log(err);
                         return false;
                     }
@@ -199,29 +200,37 @@ export function activate(context: vscode.ExtensionContext) {
 
             github.getGistsApi().get({ id: GIST }, function(er, res) {
 
-                if (fs.existsSync(FOLDER_SNIPPETS)) {
-                    var list = fs.readdirSync(FOLDER_SNIPPETS);
-                    for (var i: number = 0; i < list.length; i++) {
-                        var fileName = list[i];
-                        var filePath = FOLDER_SNIPPETS.concat(fileName);
-                        var fileText: string = fs.readFileSync(filePath, { encoding: 'utf8' });
-                        var jsonObjName = fileName.split('.')[0];
-                        res.files[jsonObjName] = {};
-                        res.files[jsonObjName].content = fileText;
-                    }
+                if (er) {
+                    vscode.window.showErrorMessage(ERROR_MESSAGE);
+                    console.log(er);
+                    return false;
                 }
-                res.files.settings.content = settingtext;
-                res.files.launch.content = launchtext;
-                res.files.keybindings.content = keybindingtext;
-                github.getGistsApi().edit(res, function(ere, ress) {
-                    if (ere) {
-                        vscode.window.showErrorMessage("ERROR ! See detail on console.");
-                        console.log(ere);
-                        return false;
+                else {
+                    if (fs.existsSync(FOLDER_SNIPPETS)) {
+                        var list = fs.readdirSync(FOLDER_SNIPPETS);
+                        for (var i: number = 0; i < list.length; i++) {
+                            var fileName = list[i];
+                            var filePath = FOLDER_SNIPPETS.concat(fileName);
+                            var fileText: string = fs.readFileSync(filePath, { encoding: 'utf8' });
+                            var jsonObjName = fileName.split('.')[0];
+                            res.files[jsonObjName] = {};
+                            res.files[jsonObjName].content = fileText;
+                        }
                     }
-                    vscode.window.showInformationMessage("Settings Updated Successfully");
-                    //console.log(ress);
-                });
+                    res.files.settings.content = settingtext;
+                    res.files.launch.content = launchtext;
+                    res.files.keybindings.content = keybindingtext;
+                    github.getGistsApi().edit(res, function(ere, ress) {
+                        if (ere) {
+                            vscode.window.showErrorMessage(ERROR_MESSAGE);
+                            console.log(ere);
+                            return false;
+                        }
+                        vscode.window.showInformationMessage("Settings Updated Successfully");
+                        //console.log(ress);
+                    });
+                }
+
             });
         };
 
@@ -252,20 +261,20 @@ export function activate(context: vscode.ExtensionContext) {
 
                 }
             }
-            else{
-                vscode.window.showErrorMessage("ERROR ! Github Account Token Not Set");    
+            else {
+                vscode.window.showErrorMessage("ERROR ! Github Account Token Not Set");
             }
-            
+
 
         }
-        
-        function Initialize(){
-             if (fs.existsSync(FILE_TOKEN)) {
-                fs.readFile(FILE_TOKEN, { encoding: 'utf8' }, ReadTokenFileResult);    
+
+        function Initialize() {
+            if (fs.existsSync(FILE_TOKEN)) {
+                fs.readFile(FILE_TOKEN, { encoding: 'utf8' }, ReadTokenFileResult);
             }
-            else{
+            else {
                 openurl("https://github.com/settings/tokens");
-                var opt = GetInputBox(false);
+                var opt = GetInputBox(true);
                 vscode.window.showInputBox(opt).then((value) => {
                     if (value) {
                         value = value.trim();
@@ -274,20 +283,20 @@ export function activate(context: vscode.ExtensionContext) {
                     }
                 });
             }
-                
+
         } 
         
         
         
         //// start here
         Initialize();
-        
+
     });
 
 
     var disposable = vscode.commands.registerCommand('extension.downloadSettings', () => {
         vscode.window.setStatusBarMessage("Downloading Your Settings...", 2000);
-        
+
         var tokenChecked: boolean = false;
         var gistChecked: boolean = false;
 
@@ -310,11 +319,11 @@ export function activate(context: vscode.ExtensionContext) {
             }
         };
 
-        
+
 
         function ReadTokenFileResult(err: any, data: any) {
             if (err) {
-                vscode.window.showErrorMessage("ERROR ! See detail on console.");
+                vscode.window.showErrorMessage(ERROR_MESSAGE);
                 console.log(err);
                 return false;
             }
@@ -338,7 +347,7 @@ export function activate(context: vscode.ExtensionContext) {
 
         function WriteTokenFileResult(err: any, data: any) {
             if (err) {
-                vscode.window.showErrorMessage("ERROR ! See detail on console.");
+                vscode.window.showErrorMessage(ERROR_MESSAGE);
                 console.log(err);
                 return false;
             }
@@ -370,7 +379,7 @@ export function activate(context: vscode.ExtensionContext) {
 
         function WriteGistFileResult(err: any, data: any) {
             if (err) {
-                vscode.window.showErrorMessage("ERROR ! See detail on console.");
+                vscode.window.showErrorMessage(ERROR_MESSAGE);
                 console.log(err);
                 return false;
             }
@@ -381,6 +390,11 @@ export function activate(context: vscode.ExtensionContext) {
         function StartDownload() {
             github.getGistsApi().get({ id: GIST }, function(er, res) {
 
+                if (er) {
+                    vscode.window.showErrorMessage(ERROR_MESSAGE);
+                    console.log(er);
+                    return false;
+                }
 
                 var keys = Object.keys(res.files);
                 for (var i: number = 0; i < keys.length; i++) {
@@ -388,7 +402,7 @@ export function activate(context: vscode.ExtensionContext) {
                         case "launch": {
                             fs.writeFile(FILE_LAUNCH, res.files.launch.content, function(err, data) {
                                 if (err) {
-                                    vscode.window.showErrorMessage("ERROR ! See detail on console.");
+                                    vscode.window.showErrorMessage(ERROR_MESSAGE);
                                     console.log(err);
                                     return false;
                                 }
@@ -401,7 +415,7 @@ export function activate(context: vscode.ExtensionContext) {
                         case "settings": {
                             fs.writeFile(FILE_SETTING, res.files.settings.content, function(err, data) {
                                 if (err) {
-                                    vscode.window.showErrorMessage("ERROR ! See detail on console.");
+                                    vscode.window.showErrorMessage(ERROR_MESSAGE);
                                     console.log(err);
                                     return false;
                                 }
@@ -414,7 +428,7 @@ export function activate(context: vscode.ExtensionContext) {
                         case "keybindings": {
                             fs.writeFile(FILE_KEYBINDING, res.files.keybindings.content, function(err, data) {
                                 if (err) {
-                                    vscode.window.showErrorMessage("ERROR ! See detail on console.");
+                                    vscode.window.showErrorMessage(ERROR_MESSAGE);
                                     console.log(err);
                                     return false;
                                 }
@@ -431,7 +445,7 @@ export function activate(context: vscode.ExtensionContext) {
                                 var fileName = keys[i].concat(".json");
                                 fs.writeFile(file, res.files[keys[i]].content, function(err, data) {
                                     if (err) {
-                                        vscode.window.showErrorMessage("ERROR ! See detail on console.");
+                                        vscode.window.showErrorMessage(ERROR_MESSAGE);
                                         console.log(err);
                                         return false;
                                     }
@@ -452,14 +466,14 @@ export function activate(context: vscode.ExtensionContext) {
 
             });
         }
-        
+
         function Initialize() {
             if (fs.existsSync(FILE_TOKEN)) {
-                fs.readFile(FILE_TOKEN, { encoding: 'utf8' }, ReadTokenFileResult);    
+                fs.readFile(FILE_TOKEN, { encoding: 'utf8' }, ReadTokenFileResult);
             }
-            else{
+            else {
                 openurl("https://github.com/settings/tokens");
-                var opt = GetInputBox(false);
+                var opt = GetInputBox(true);
                 vscode.window.showInputBox(opt).then((value) => {
                     if (value) {
                         value = value.trim();
@@ -467,7 +481,7 @@ export function activate(context: vscode.ExtensionContext) {
                         fs.writeFile(FILE_TOKEN, value, WriteTokenFileResult);
                     }
                 });
-                
+
             }
         }
 
@@ -484,11 +498,11 @@ export function activate(context: vscode.ExtensionContext) {
             if (fs.existsSync(FILE_TOKEN)) {
                 fs.unlinkSync(FILE_TOKEN);
             }
-            vscode.window.showInformationMessage("GIST and Github Token Cleared.");
+            vscode.window.showInformationMessage("GIST ID and Github Token Cleared.");
         }
         catch (err) {
             console.log(err);
-            vscode.window.showErrorMessage("Unable to clear settings. Error Logged on console.");
+            vscode.window.showErrorMessage("Unable to clear settings. Error Logged on console. Please open an issue.");
         }
 
 
