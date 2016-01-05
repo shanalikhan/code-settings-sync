@@ -462,6 +462,7 @@ export function activate(context: vscode.ExtensionContext) {
                             else {
 
                                 var actionList = new Array<Promise<void>>();
+                                vscode.window.setStatusBarMessage("Installing Extensions in background.",4000);
                                 missingList.forEach(element => {
                                     actionList.push(pluginService.PluginService.InstallExtension(element)
                                         .then(function() {
