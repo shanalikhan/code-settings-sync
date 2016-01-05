@@ -1,6 +1,7 @@
 // The module 'vscode' contains the VS Code extensibility API
 // Import the module and reference it with the alias vscode in your code below
 import * as vscode from 'vscode';
+import * as pluginService from './pluginService'
 
 
 
@@ -18,7 +19,6 @@ export function activate(context: vscode.ExtensionContext) {
         // required
         version: "3.0.0"
     });
-
 
 
     var TOKEN: string = null;
@@ -45,6 +45,9 @@ export function activate(context: vscode.ExtensionContext) {
                 "content": ""
             },
             "keybindings": {
+                "content": ""
+            },
+            "extensions": {
                 "content": ""
             }
 
@@ -144,7 +147,7 @@ export function activate(context: vscode.ExtensionContext) {
 
 
 
-        function CreateNewGist(settingtext: string, launchtext: string, keybindingtext: string) {
+        function CreateNewGist(settingtext: string, launchtext: string, keybindingtext: string, extensiontext: string) {
             github.authenticate({
                 type: "oauth",
                 token: TOKEN
@@ -170,6 +173,7 @@ export function activate(context: vscode.ExtensionContext) {
             GIST_JSON.files.settings.content = settingtext;
             GIST_JSON.files.launch.content = launchtext;
             GIST_JSON.files.keybindings.content = keybindingtext;
+            GIST_JSON.files.extensions.content = extensiontext;
 
             github.getGistsApi().create(GIST_JSON
                 , function(err, res) {
@@ -192,7 +196,7 @@ export function activate(context: vscode.ExtensionContext) {
                 });
         };
 
-        function ExistingGist(settingtext: string, launchtext: string, keybindingtext: string) {
+        function ExistingGist(settingtext: string, launchtext: string, keybindingtext: string, extensiontext: string) {
             github.authenticate({
                 type: "oauth",
                 token: TOKEN
@@ -220,6 +224,8 @@ export function activate(context: vscode.ExtensionContext) {
                     res.files.settings.content = settingtext;
                     res.files.launch.content = launchtext;
                     res.files.keybindings.content = keybindingtext;
+                    res.files.extensions.content = extensiontext;
+            
                     github.getGistsApi().edit(res, function(ere, ress) {
                         if (ere) {
                             vscode.window.showErrorMessage(ERROR_MESSAGE);
@@ -251,13 +257,15 @@ export function activate(context: vscode.ExtensionContext) {
                 if (fs.existsSync(FILE_KEYBINDING)) {
                     keybindingtext = fs.readFileSync(FILE_KEYBINDING, { encoding: 'utf8' });
                 }
+                
+                var extensiontext = JSON.stringify(pluginService.PluginService.CreateExtensionList());
 
 
                 if (GIST == null) {
-                    CreateNewGist(settingtext, launchtext, keybindingtext);
+                    CreateNewGist(settingtext, launchtext, keybindingtext, extensiontext);
                 }
                 else if (GIST != null) {
-                    ExistingGist(settingtext, launchtext, keybindingtext);
+                    ExistingGist(settingtext, launchtext, keybindingtext, extensiontext);
 
                 }
             }
@@ -435,6 +443,34 @@ export function activate(context: vscode.ExtensionContext) {
                                 vscode.window.showInformationMessage("Keybinding Settings downloaded Successfully");
                             });
                             break;
+                        }
+                        case "extensions": {
+                            var remoteList = pluginService.ExtensionInformation.fromJSONList(res.files.extensions.content);
+                            var missingList = pluginService.PluginService.GetMissingExtensions(remoteList);
+                            if(missingList.length == 0){
+                                vscode.window.showInformationMessage("No extension need to be installed");
+                            }else{
+                            
+                                var actionList = new Array<Promise<void>>();
+                                missingList.forEach(element => {
+                                    actionList.push(pluginService.PluginService.InstallExtension(element)
+                                    .then(function(){
+                                        var name = element.publisher + '.' + element.name + '-' + element.version;
+                                        vscode.window.showInformationMessage("Extension " + name + " installed Successfully"); 
+                                    }));
+                                });
+                                
+                                Promise.all(actionList)
+                                .then(function(){
+                                    vscode.window.showInformationMessage("Extension installed Successfully, please restart"); 
+                                })
+                                .catch(function(e){
+                                    console.log(e);
+                                    vscode.window.showErrorMessage("Extension download failed")
+                                });
+                            }
+                            
+                            break;   
                         }
                         default: {
                             if (i < keys.length) {
