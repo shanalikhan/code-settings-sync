@@ -224,8 +224,14 @@ export function activate(context: vscode.ExtensionContext) {
                     res.files.settings.content = settingtext;
                     res.files.launch.content = launchtext;
                     res.files.keybindings.content = keybindingtext;
-                    res.files.extensions.content = extensiontext;
-            
+                    if (res.files.extensions) {
+                        res.files.extensions.content = extensiontext;
+                    }
+                    else {
+                        vscode.window.showInformationMessage("Announcement : Extension Sync feature has been Added. You need to Reset Settings Or Manually Remove GIST ID File in order to sync your extensions.");
+                    }
+
+
                     github.getGistsApi().edit(res, function(ere, ress) {
                         if (ere) {
                             vscode.window.showErrorMessage(ERROR_MESSAGE);
@@ -247,6 +253,7 @@ export function activate(context: vscode.ExtensionContext) {
                 var settingtext: string = "//setting";
                 var launchtext: string = "//lanuch";
                 var keybindingtext: string = "//keybinding";
+                var extensiontext = "";
 
                 if (fs.existsSync(FILE_SETTING)) {
                     settingtext = fs.readFileSync(FILE_SETTING, { encoding: 'utf8' });
@@ -257,8 +264,8 @@ export function activate(context: vscode.ExtensionContext) {
                 if (fs.existsSync(FILE_KEYBINDING)) {
                     keybindingtext = fs.readFileSync(FILE_KEYBINDING, { encoding: 'utf8' });
                 }
-                
-                var extensiontext = JSON.stringify(pluginService.PluginService.CreateExtensionList());
+
+                extensiontext = JSON.stringify(pluginService.PluginService.CreateExtensionList());
 
 
                 if (GIST == null) {
@@ -447,30 +454,33 @@ export function activate(context: vscode.ExtensionContext) {
                         case "extensions": {
                             var remoteList = pluginService.ExtensionInformation.fromJSONList(res.files.extensions.content);
                             var missingList = pluginService.PluginService.GetMissingExtensions(remoteList);
-                            if(missingList.length == 0){
+                            if (missingList.length == 0) {
+
                                 vscode.window.showInformationMessage("No extension need to be installed");
-                            }else{
-                            
+
+                            }
+                            else {
+
                                 var actionList = new Array<Promise<void>>();
                                 missingList.forEach(element => {
                                     actionList.push(pluginService.PluginService.InstallExtension(element)
-                                    .then(function(){
-                                        var name = element.publisher + '.' + element.name + '-' + element.version;
-                                        vscode.window.showInformationMessage("Extension " + name + " installed Successfully"); 
-                                    }));
+                                        .then(function() {
+                                            var name = element.publisher + '.' + element.name + '-' + element.version;
+                                            vscode.window.showInformationMessage("Extension " + name + " installed Successfully");
+                                        }));
                                 });
-                                
+
                                 Promise.all(actionList)
-                                .then(function(){
-                                    vscode.window.showInformationMessage("Extension installed Successfully, please restart"); 
-                                })
-                                .catch(function(e){
-                                    console.log(e);
-                                    vscode.window.showErrorMessage("Extension download failed")
-                                });
+                                    .then(function() {
+                                        vscode.window.showInformationMessage("Extension installed Successfully, please restart");
+                                    })
+                                    .catch(function(e) {
+                                        console.log(e);
+                                        vscode.window.showErrorMessage("Extension download failed." + ERROR_MESSAGE)
+                                    });
                             }
-                            
-                            break;   
+
+                            break;
                         }
                         default: {
                             if (i < keys.length) {
