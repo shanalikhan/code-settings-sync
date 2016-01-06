@@ -1,8 +1,8 @@
 {
   "name": "code-settings-sync",
   "displayName": "Visual Studio Code Settings Sync",
-  "description": "Syncronize your VS Code Settings, Snippets, launch, keybindings files and extensions Across Multiple Machines using Github GIST.",
-  "version": "0.0.9",
+  "description": "Synchronize Settings, Snippets, launch, keybindings files and extensions Across Multiple Machines using Github GIST.",
+  "version": "0.1.0",
   "icon": "images/cloud.png",
   "publisher": "Shan",
   "author": {

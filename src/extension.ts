@@ -116,7 +116,6 @@ export function activate(context: vscode.ExtensionContext) {
             }
             TOKEN = tempValue;
             ReadGist();
-            //InitGist("token");
         };
 
         function ReadGist() {
@@ -239,7 +238,6 @@ export function activate(context: vscode.ExtensionContext) {
                             return false;
                         }
                         vscode.window.showInformationMessage("Settings Updated Successfully");
-                        //console.log(ress);
                     });
                 }
 
