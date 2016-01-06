@@ -8,7 +8,8 @@ var fs = require('fs');
 var ncp = require('ncp').ncp;
 
 var apiPath = 'https://marketplace.visualstudio.com/_apis/public/gallery/extensionquery';
-var ExtensionFolder: string = path.join(process.env.USERPROFILE, '.vscode', 'extensions');
+var homeDir = process.env[(process.platform == 'win32') ? 'USERPROFILE' : 'HOME']
+var ExtensionFolder: string = path.join(homeDir, '.vscode', 'extensions');
     
 export class ExtensionInformation{
     metadata: ExtensionMetadata;
