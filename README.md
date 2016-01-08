@@ -1,14 +1,14 @@
 # Visual Studio Code Settings Sync
 
-> Type "Sync" In Command Palette in order to download / upload
+> Type ">Sync" In Command Palette in order to download / upload
 
 ## Key Features
 ```
 1. Use your github account token.
 2. Easy to Upload and Download on one click.
 3. Saves all settings and snippets files.
-4. Upload Key : Ctrl + Alt + u
-5. Download Key : Ctrl + Alt + d
+4. Upload Key : Shift + Alt + u
+5. Download Key : Shift + Alt + d
 6. Type Sync In Order to View all sync options
 ```      
 ## It Sync
@@ -43,9 +43,9 @@ This extension required your GitHub Account Personal Access Token. You can creat
 ## Upload Your Settings For the first time
 
 
-**Press Ctrl + Alt + u it will ask your github account access token.**
+**Press Shift + Alt + u it will ask your github account access token.**
 
-> Type "Sync" In Command Palette into order download / upload
+> Type ">Sync" In Command Palette into order download / upload
 
 Enter the github account in the window and click enter.
 
@@ -59,9 +59,9 @@ Copy this Gist ID in order to download the settings in other machines.
 
 ## Download your Settings
 
-**Press Ctrl + Alt + d it will ask your github account access token.**
+**Press Shift + Alt + d it will ask your github account access token.**
 
-> Type "Sync" In Command Palette into order download / upload
+> Type ">Sync" In Command Palette into order download / upload
 
 Enter the github account in the window and click enter.
 
