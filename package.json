@@ -7,7 +7,7 @@
   "publisher": "Shan",
   "author": {
         "name": "Shan Khan",
-        "url": "http://shanalikhan1.github.io"
+        "url": "http://shanalikhan.github.io"
     },
   "galleryBanner": {
         "color": "#3B4859",
@@ -15,10 +15,10 @@
     },
     "repository": {
         "type": "git",
-        "url": "https://github.com/shanalikhan1/code-settings-sync.git"
+        "url": "https://github.com/shanalikhan/code-settings-sync.git"
     },
     "bugs": {
-        "url": "https://github.com/shanalikhan1/code-settings-sync/issues",
+        "url": "https://github.com/shanalikhan/code-settings-sync/issues",
     "email": "shanalikhan@hotmail.com"
     },
   "engines": {

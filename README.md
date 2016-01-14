@@ -26,15 +26,15 @@ This extension required your GitHub Account Personal Access Token. You can creat
 **Goto Settings / Personal Access Tokens / Generate New Token**
 
 
-![Goto Settings / Personal Access Tokens](http://shanalikhan1.github.io/img/github1.PNG)
+![Goto Settings / Personal Access Tokens](http://shanalikhan.github.io/img/github1.PNG)
 
 **Select Scopes**
 
-![Select Scopes](http://shanalikhan1.github.io/img/github2.PNG)
+![Select Scopes](http://shanalikhan.github.io/img/github2.PNG)
 
 **Get Unique Key**
 
-![Get Unique Key](http://shanalikhan1.github.io/img/github3.PNG)
+![Get Unique Key](http://shanalikhan.github.io/img/github3.PNG)
 
 
 > You need to save this key for this extension for future use, and dont share this key with anyone as it will get your data without needing to logg in.
@@ -49,12 +49,12 @@ This extension required your GitHub Account Personal Access Token. You can creat
 
 Enter the github account in the window and click enter.
 
-![github account access token](http://shanalikhan1.github.io/img/upload1.png)
+![github account access token](http://shanalikhan.github.io/img/upload1.png)
 
 **Upload your settings automatically and give you GIST ID.**
 Copy this Gist ID in order to download the settings in other machines.
 
-![uploaded automatically](http://shanalikhan1.github.io/img/upload2.png)
+![uploaded automatically](http://shanalikhan.github.io/img/upload2.png)
 
 
 ## Download your Settings
@@ -65,23 +65,23 @@ Copy this Gist ID in order to download the settings in other machines.
 
 Enter the github account in the window and click enter.
 
-![github account access token](http://shanalikhan1.github.io/img/upload1.png)
+![github account access token](http://shanalikhan.github.io/img/upload1.png)
 
 **Enter Your GIST ID.**
 you need to enter your Gist ID in order to get the all files
 
-![Enter Your GIST ID](http://shanalikhan1.github.io/img/download2.png)
+![Enter Your GIST ID](http://shanalikhan.github.io/img/download2.png)
 
 **Settings Downloaded.**
 You are Done ! All your files are downloaded
 
-![Enter Your GIST ID](http://shanalikhan1.github.io/img/download3.png)
+![Enter Your GIST ID](http://shanalikhan.github.io/img/download3.png)
 
 # How To Contribute
 Download source code and install dependencies
 
 ```
-git clone https://github.com/shanalikhan1/code-settings-sync.git
+git clone https://github.com/shanalikhan/code-settings-sync.git
 cd code-settings-sync
 npm install
 code .
@@ -95,7 +95,7 @@ Submit a Pull Request.
 
     
 # Contributors
-[Shan Ali Khan](https://github.com/shanalikhan1)
+[Shan Ali Khan](https://github.com/shanalikhan)
     
 # License
 MIT
