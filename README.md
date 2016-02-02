@@ -77,6 +77,11 @@ You are Done ! All your files are downloaded
 
 ![Enter Your GIST ID](http://shanalikhan.github.io/img/download3.png)
 
+## Reset Token / GIST Settings
+
+> Type ">Sync" In Command Palette and select Reset Token and GIST Settings
+
+
 # How To Contribute
 Download source code and install dependencies
 
