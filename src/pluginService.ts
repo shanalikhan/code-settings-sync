@@ -8,8 +8,6 @@ var fs = require('fs');
 var ncp = require('ncp').ncp;
 
 var apiPath = 'https://marketplace.visualstudio.com/_apis/public/gallery/extensionquery';
-var homeDir = process.env[(process.platform == 'win32') ? 'USERPROFILE' : 'HOME']
-var ExtensionFolder: string = path.join(homeDir, '.vscode', 'extensions');
     
 export class ExtensionInformation{
     metadata: ExtensionMetadata;
@@ -64,7 +62,7 @@ export class ExtensionMetadata{
 }
 
 export class PluginService{
-    
+
     private static CopyExtension(destination: string, source: string){
            return new Promise(
                 function(resolve, reject){
@@ -163,7 +161,7 @@ export class PluginService{
         return list;
     }
     
-    public static InstallExtension(item: ExtensionInformation){
+    public static InstallExtension(item: ExtensionInformation, ExtensionFolder: string){
         var header = {
             'Accept': 'application/json;api-version=3.0-preview.1'
         };

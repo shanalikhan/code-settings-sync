@@ -3,17 +3,23 @@
 import * as vscode from 'vscode';
 import * as pluginService from './pluginService'
 
+import * as path from 'path';
 
 
 // this method is called when your extension is activated
 // your extension is activated the very first time the command is executed
 export function activate(context: vscode.ExtensionContext) {
 
+    
     // Use the console to output diagnostic information (console.log) and errors (console.error)
     // This line of code will only be executed once when your extension is activated
     var openurl = require('open');
     var fs = require('fs');
     var GitHubApi = require("github");
+    
+    var isInsiders = /insiders/.test(context.asAbsolutePath(""))
+    var homeDir = process.env[(process.platform == 'win32') ? 'USERPROFILE' : 'HOME']
+    var ExtensionFolder: string = path.join(homeDir, isInsiders ? '.vscode-insiders' : '.vscode' , 'extensions');
 
     var github = new GitHubApi({
         // required
@@ -36,13 +42,16 @@ export function activate(context: vscode.ExtensionContext) {
         }else
             PATH = '/var/local'
     }
+    
+    var codePath = isInsiders ? '/Code - Insiders' : '/Code';
+    PATH = PATH + codePath;
 
-    var FILE_GIST: string = PATH.concat("/Code/User/gist_sync.txt");
-    var FILE_TOKEN: string = PATH.concat("/Code/User/token.txt");
-    var FILE_SETTING: string = PATH.concat("/Code/User/settings.json");
-    var FILE_LAUNCH: string = PATH.concat("/Code/User/launch.json");
-    var FILE_KEYBINDING: string = PATH.concat("/Code/User/keybindings.json");
-    var FOLDER_SNIPPETS: string = PATH.concat("/Code/User/snippets/");
+    var FILE_GIST: string = PATH.concat("/User/gist_sync.txt");
+    var FILE_TOKEN: string = PATH.concat("/User/token.txt");
+    var FILE_SETTING: string = PATH.concat("/User/settings.json");
+    var FILE_LAUNCH: string = PATH.concat("/User/launch.json");
+    var FILE_KEYBINDING: string = PATH.concat("/User/keybindings.json");
+    var FOLDER_SNIPPETS: string = PATH.concat("/User/snippets/");
     var ERROR_MESSAGE: string = "ERROR ! Logged In Console. Please open an issue in Github Repo."
     var GIST_JSON: any = {
         "description": "Visual Studio code settings",
@@ -472,7 +481,7 @@ export function activate(context: vscode.ExtensionContext) {
                                 var actionList = new Array<Promise<void>>();
                                 vscode.window.setStatusBarMessage("Installing Extensions in background.",4000);
                                 missingList.forEach(element => {
-                                    actionList.push(pluginService.PluginService.InstallExtension(element)
+                                    actionList.push(pluginService.PluginService.InstallExtension(element, ExtensionFolder)
                                         .then(function() {
                                             var name = element.publisher + '.' + element.name + '-' + element.version;
                                             vscode.window.showInformationMessage("Extension " + name + " installed Successfully");
