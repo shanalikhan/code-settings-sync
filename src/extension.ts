@@ -22,7 +22,6 @@ export function activate(context: vscode.ExtensionContext) {
     var ExtensionFolder: string = path.join(homeDir, isInsiders ? '.vscode-insiders' : '.vscode' , 'extensions');
 
     var github = new GitHubApi({
-        // required
         version: "3.0.0"
     });
 
@@ -87,29 +86,11 @@ export function activate(context: vscode.ExtensionContext) {
 
 
 
-        function GetInputBox(token: boolean) {
-            if (token) {
-                let options: vscode.InputBoxOptions = {
-                    placeHolder: "Enter Github Personal Access Token",
-                    password: false,
-                    prompt: "Link is opened to get the github token."
-                };
-                return options;
-            }
-            else {
-                let options: vscode.InputBoxOptions = {
-                    placeHolder: "Enter GIST ID",
-                    password: false,
-                    prompt: "If you never upload the files in any machine before then upload it before."
-                };
-                return options;
-            }
-        };
 
         function ReadTokenFileResult(err: any, data: any) {
 
             if (!data) {
-                var opt = GetInputBox(true);
+                var opt =pluginService.Common.GetInputBox(true);
                 openurl("https://github.com/settings/tokens");
                 vscode.window.showInputBox(opt).then((value) => {
                     value = value.trim();
@@ -306,7 +287,7 @@ export function activate(context: vscode.ExtensionContext) {
             }
             else {
                 openurl("https://github.com/settings/tokens");
-                var opt = GetInputBox(true);
+                var opt = pluginService.Common.GetInputBox(true);
                 vscode.window.showInputBox(opt).then((value) => {
                     if (value) {
                         value = value.trim();
@@ -332,26 +313,6 @@ export function activate(context: vscode.ExtensionContext) {
         var tokenChecked: boolean = false;
         var gistChecked: boolean = false;
 
-        function GetInputBox(token: boolean) {
-            if (token) {
-                let options: vscode.InputBoxOptions = {
-                    placeHolder: "Enter Github Personal Access Token",
-                    password: false,
-                    prompt: "Link is opened to get the github token."
-                };
-                return options;
-            }
-            else {
-                let options: vscode.InputBoxOptions = {
-                    placeHolder: "Enter GIST ID",
-                    password: false,
-                    prompt: "If you never upload the files in any machine before then upload it before."
-                };
-                return options;
-            }
-        };
-
-
 
         function ReadTokenFileResult(err: any, data: any) {
             if (err) {
@@ -361,7 +322,7 @@ export function activate(context: vscode.ExtensionContext) {
             }
             if (!data) {
                 openurl("https://github.com/settings/tokens");
-                var opt = GetInputBox(false);
+                var opt = pluginService.Common.GetInputBox(false);
                 vscode.window.showInputBox(opt).then((value) => {
                     if (value) {
                         value = value.trim();
@@ -394,7 +355,7 @@ export function activate(context: vscode.ExtensionContext) {
         function ReadGistFileResult(err: any, data: any) {
 
             if (!data) {
-                var opt = GetInputBox(false);
+                var opt = pluginService.Common.GetInputBox(false);
                 vscode.window.showInputBox(opt).then((value) => {
                     if (value) {
                         value = value.trim();
@@ -537,7 +498,7 @@ export function activate(context: vscode.ExtensionContext) {
             }
             else {
                 openurl("https://github.com/settings/tokens");
-                var opt = GetInputBox(true);
+                var opt = pluginService.Common.GetInputBox(true);
                 vscode.window.showInputBox(opt).then((value) => {
                     if (value) {
                         value = value.trim();

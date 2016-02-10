@@ -72,7 +72,6 @@
   "dependencies": {
     "fs": "^0.0.2",
     "github": "^0.2.4",
-    "node-github": "0.0.3",
     "open": "^0.0.5",
     "temp": "^0.8.3",
     "adm-zip": "^0.4.7",
