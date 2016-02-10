@@ -81,6 +81,8 @@ You are Done ! All your files are downloaded
 
 > Type ">Sync" In Command Palette and select Reset Token and GIST Settings
 
+# RoadMap
+1. Add Proxy Support 
 
 # How To Contribute
 Download source code and install dependencies
