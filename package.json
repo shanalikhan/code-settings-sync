@@ -22,7 +22,7 @@
     "email": "shanalikhan@hotmail.com"
     },
   "engines": {
-    "vscode": "^0.10.1"
+    "vscode": "^0.10.7"
   },
   "categories": [
     "Other"
@@ -63,11 +63,12 @@
   },
   "scripts": {
     "vscode:prepublish": "node ./node_modules/vscode/bin/compile",
-    "compile": "node ./node_modules/vscode/bin/compile -watch -p ./"
+    "compile": "node ./node_modules/vscode/bin/compile -watch -p ./",
+    "postinstall": "node ./node_modules/vscode/bin/install"
   },
   "devDependencies": {
     "typescript": "^1.6.2",
-    "vscode": "0.10.x"
+    "vscode": "^0.11.x"
   },
   "dependencies": {
     "fs": "^0.0.2",
