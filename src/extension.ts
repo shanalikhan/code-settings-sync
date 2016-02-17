@@ -263,7 +263,11 @@ export function activate(context: vscode.ExtensionContext) {
                     keybindingtext = fs.readFileSync(FILE_KEYBINDING, { encoding: 'utf8' });
                 }
 
-                extensiontext = JSON.stringify(pluginService.PluginService.CreateExtensionList());
+                var extensionlist = pluginService.PluginService.CreateExtensionList();
+                extensionlist.sort(function(a, b) {
+                    return a.name.localeCompare(b.name);
+                });
+                extensiontext = JSON.stringify(extensionlist, undefined, 2);
 
 
                 if (GIST == null) {
