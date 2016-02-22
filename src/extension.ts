@@ -249,7 +249,7 @@ export function activate(context: vscode.ExtensionContext) {
             if (TOKEN != null) {
 
                 var settingtext: string = "//setting";
-                var launchtext: string = "//lanuch";
+                var launchtext: string = "//launch";
                 var keybindingtext: string = "//keybinding";
                 var extensiontext = "";
 
