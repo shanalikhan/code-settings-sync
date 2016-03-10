@@ -8,7 +8,7 @@ import * as vscode from 'vscode';
 import * as pluginService from './pluginService'
 
 import * as path from 'path';
-
+import * as envi from './environmentPath';
 
 // this method is called when your extension is activated
 // your extension is activated the very first time the command is executed
@@ -17,6 +17,8 @@ export function activate(context: vscode.ExtensionContext) {
     
     // Use the console to output diagnostic information (console.log) and errors (console.error)
     // This line of code will only be executed once when your extension is activated
+    var en : envi.Environment = new envi.Environment();
+    
     var openurl = require('open');
     var fs = require('fs');
     var GitHubApi = require("github");
