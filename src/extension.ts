@@ -1,5 +1,9 @@
 // The module 'vscode' contains the VS Code extensibility API
 // Import the module and reference it with the alias vscode in your code below
+
+/// <reference path="../node_modules/vscode/typings/node.d.ts" />
+
+
 import * as vscode from 'vscode';
 import * as pluginService from './pluginService'
 
@@ -16,10 +20,10 @@ export function activate(context: vscode.ExtensionContext) {
     var openurl = require('open');
     var fs = require('fs');
     var GitHubApi = require("github");
-    
+
     var isInsiders = /insiders/.test(context.asAbsolutePath(""))
     var homeDir = process.env[(process.platform == 'win32') ? 'USERPROFILE' : 'HOME']
-    var ExtensionFolder: string = path.join(homeDir, isInsiders ? '.vscode-insiders' : '.vscode' , 'extensions');
+    var ExtensionFolder: string = path.join(homeDir, isInsiders ? '.vscode-insiders' : '.vscode', 'extensions');
 
     var github = new GitHubApi({
         version: "3.0.0"
@@ -35,13 +39,13 @@ export function activate(context: vscode.ExtensionContext) {
     if (!PATH) {
         if (process.platform == 'darwin')
             PATH = process.env.HOME + '/Library/Application Support';
-        else if (process.platform == 'linux'){
+        else if (process.platform == 'linux') {
             var os = require("os")
-            PATH = os.homedir()+'/.config';
-        }else
+            PATH = os.homedir() + '/.config';
+        } else
             PATH = '/var/local'
     }
-    
+
     var codePath = isInsiders ? '/Code - Insiders' : '/Code';
     PATH = PATH + codePath;
 
@@ -87,10 +91,111 @@ export function activate(context: vscode.ExtensionContext) {
 
 
 
+        function TokenFileExists(): Promise<boolean> {
+
+            return new Promise<boolean>((resolve, reject) => {
+                var stat: boolean = fs.existsSync(FILE_TOKEN);
+                if (stat) {
+                    resolve(stat);
+                }
+                else reject(stat);
+
+            });
+        };
+
+        function SaveToken(token: string): Promise<boolean> {
+            return new Promise<boolean>((resolve, reject) => {
+                if (token) {
+                    token = token.trim();
+                    fs.writeFile(FILE_TOKEN, token, function(err: any, data: any) {
+                        if (err) {
+                            vscode.window.showErrorMessage(ERROR_MESSAGE);
+                            console.error(err);
+                            reject(false);
+                        }
+                        else {
+                            TOKEN = token;
+                            resolve(true);
+                        }
+
+                    });
+                }
+                else {
+                    vscode.window.showErrorMessage(ERROR_MESSAGE);
+                    console.error("TOKEN IS EMPTY.");
+                    reject(false);
+                }
+
+            });
+        }
+
+        function ReadToken(): Promise<string> {
+            return new Promise<string>((resolve, reject) => {
+                fs.readFile(FILE_TOKEN, { encoding: 'utf8' }, function(err: any, data: any) {
+                    if (err) {
+                        vscode.window.showErrorMessage(ERROR_MESSAGE);
+                        console.error(err);
+                        reject(null);
+                    }
+                    resolve(data);
+
+                });
+            });
+        }
+
+        function GistFileExists(): Promise<boolean> {
+            return new Promise<boolean>((resolve, reject) => {
+                return new Promise<boolean>((resolve, reject) => {
+                    var stat: boolean = fs.existsSync(FILE_GIST);
+                    if (stat) {
+                        resolve(stat);
+                    }
+                    else reject(stat);
+
+                });
+            });
+        }
+
+        function ReadGist1(): Promise<string> {
+            return new Promise<string>((resolve, reject) => {
+                fs.readFile(FILE_GIST, { encoding: 'utf8' }, function(err: any, data: any) {
+                    if (err) {
+                        if (err.code != "ENOENT") {
+                            vscode.window.showErrorMessage(ERROR_MESSAGE);
+                            console.error(err);
+                            reject(null);
+                        }
+                    }
+                    if (data) {
+                        GIST = data;
+                        resolve(data);
+                    }
+
+
+                });
+
+            });
+        }
+
+        function SaveGist(gist: string): Promise<boolean> {
+            return new Promise<boolean>((resolve, reject) => {
+                fs.writeFile(FILE_GIST, gist, function(err, data) {
+                    if (err) {
+                        vscode.window.showErrorMessage("ERROR ! Unable to Save GIST ID In this machine. You need to enter it manually from Download Settings.");
+                        console.error(err);
+                        reject(false);
+                    }
+                    resolve(true);
+                    //vscode.window.showInformationMessage("GIST ID Saved in your machine.");
+
+                });
+            });
+        }
+
         function ReadTokenFileResult(err: any, data: any) {
 
             if (!data) {
-                var opt =pluginService.Common.GetInputBox(true);
+                var opt = pluginService.Common.GetInputBox(true);
                 openurl("https://github.com/settings/tokens");
                 vscode.window.showInputBox(opt).then((value) => {
                     value = value.trim();
@@ -307,6 +412,11 @@ export function activate(context: vscode.ExtensionContext) {
         
         //// start here
         Initialize();
+        // TokenFileExists().then(function(data) {
+        //     debugger;
+        // }, function(err) {
+
+        // });
 
     });
 
@@ -444,7 +554,7 @@ export function activate(context: vscode.ExtensionContext) {
                             else {
 
                                 var actionList = new Array<Promise<void>>();
-                                vscode.window.setStatusBarMessage("Installing Extensions in background.",4000);
+                                vscode.window.setStatusBarMessage("Installing Extensions in background.", 4000);
                                 missingList.forEach(element => {
                                     actionList.push(pluginService.PluginService.InstallExtension(element, ExtensionFolder)
                                         .then(function() {
