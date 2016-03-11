@@ -30,16 +30,12 @@
   "activationEvents": [
     "onCommand:extension.updateSettings",
     "onCommand:extension.downloadSettings",
-    "onCommand:extension.resetSettings",
-    "onCommand:extension.SetupSettings"
+    "onCommand:extension.resetSettings"
   ],
   "main": "./out/src/extension",
   "contributes": {
     "commands": [
-      {
-        "command": "extension.SetupSettings",
-        "title": "Sync : Setup"
-      },
+     
       {
         "command": "extension.downloadSettings",
         "title": "Sync : Download Settings"

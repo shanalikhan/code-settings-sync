@@ -81,63 +81,6 @@ export function activate(context: vscode.ExtensionContext) {
     };
 
 
-    var disposable = vscode.commands.registerCommand('extension.SetupSettings', () => {
-        var en: envir.Environment = new envir.Environment(context);
-        var fManager: fileManager.FileManager;
-        var common: commons.Commons = new commons.Commons(en);
-
-        vscode.window.setStatusBarMessage("Reading Settings.", 1000);
-
-        common.TokenFileExists().then(function(exist: boolean) {
-            if (exist) {
-                vscode.window.showErrorMessage("Old Settings Found. Please reset settings to setup again.");
-                return;
-            }
-            else {
-                common.GISTFileExists().then(function(gistExists: boolean) {
-                    if (gistExists) {
-                        vscode.window.showErrorMessage("Old Settings Found. Please reset settings to setup again.");
-                        return;
-                    }
-                    else {
-                        var opt = pluginService.Common.GetInputBox(true);
-                        vscode.window.showInputBox(opt).then((token) => {
-                            token = token.trim();
-                            if (token) {
-                                fileManager.FileManager.WriteFile(en.FILE_TOKEN, token).then(function(added: boolean) {
-                                    vscode.window.setStatusBarMessage("Token Saved.", 1000);
-                                    var opt = pluginService.Common.GetInputBox(false);
-                                    vscode.window.showInputBox(opt).then((gist) => {
-                                        gist = gist.trim();
-                                        if (gist) {
-                                            fileManager.FileManager.WriteFile(en.FILE_GIST, gist).then(function(added: boolean) {
-                                                vscode.window.setStatusBarMessage("GIST Saved.", 1000);
-
-                                            }, function(error: any) {
-                                                vscode.window.showErrorMessage(ERROR_MESSAGE);
-
-                                            });;
-                                        }
-                                    });
-
-                                }, function(error: any) {
-                                    vscode.window.showErrorMessage(ERROR_MESSAGE);
-
-                                });
-                            }
-
-                        });
-
-
-                    }
-                });
-            }
-        })
-
-
-    });
-
-
     var disposable = vscode.commands.registerCommand('extension.updateSettings', () => {
         var en: envir.Environment = new envir.Environment(context);
         var fManager: fileManager.FileManager;
@@ -162,15 +105,13 @@ export function activate(context: vscode.ExtensionContext) {
 
                             }
                             else {
-                                common.GetGistAndSave().then(function(saved: boolean) {
-                                    if (saved) {
-                                        Init();
-                                    }
-                                })
+                                GIST = null;
+                                vscode.window.setStatusBarMessage("Uploading / Updating Your Settings In Github.", 2000);
+                                startGitProcess();
                             }
 
                         });
-                    })
+                    });
                 }
                 else {
                     openurl("https://github.com/settings/tokens");
@@ -333,77 +274,53 @@ export function activate(context: vscode.ExtensionContext) {
 
 
     var disposable = vscode.commands.registerCommand('extension.downloadSettings', () => {
-        vscode.window.setStatusBarMessage("Downloading Your Settings...", 2000);
 
-        var tokenChecked: boolean = false;
-        var gistChecked: boolean = false;
+        var en: envir.Environment = new envir.Environment(context);
+        var fManager: fileManager.FileManager;
+        var common: commons.Commons = new commons.Commons(en);
 
 
-        function ReadTokenFileResult(err: any, data: any) {
-            if (err) {
-                vscode.window.showErrorMessage(ERROR_MESSAGE);
-                console.log(err);
-                return false;
-            }
-            if (!data) {
-                openurl("https://github.com/settings/tokens");
-                var opt = pluginService.Common.GetInputBox(false);
-                vscode.window.showInputBox(opt).then((value) => {
-                    if (value) {
-                        value = value.trim();
-                        tempValue = value;
-                        fs.writeFile(FILE_TOKEN, value, WriteTokenFileResult);
-                    }
-                });
-            }
-            else {
-                TOKEN = data;
-                ReadGist();
-            }
+        function Init() {
 
-        };
+            vscode.window.setStatusBarMessage("Checking for Github Token and GIST.", 2000);
+            common.TokenFileExists().then(function(tokenExists: boolean) {
+                if (tokenExists) {
+                    fileManager.FileManager.ReadFile(en.FILE_TOKEN).then(function(token: string) {
+                        TOKEN = token;
+                        common.GISTFileExists().then(function(gistExists: boolean) {
+                            if (gistExists) {
+                                fileManager.FileManager.ReadFile(en.FILE_GIST).then(function(gist: string) {
+                                    GIST = gist;
+                                    vscode.window.setStatusBarMessage("Downloading Your Settings...", 2000);
+                                    StartDownload();
+                                });
 
-        function WriteTokenFileResult(err: any, data: any) {
-            if (err) {
-                vscode.window.showErrorMessage(ERROR_MESSAGE);
-                console.log(err);
-                return false;
-            }
-            TOKEN = tempValue;
-            ReadGist();
+                            }
+                            else {
+                                common.GetGistAndSave().then(function(saved: boolean) {
+                                    if (saved) {
+                                        Init();
+                                    }
+                                })
+                            }
+
+                        });
+                    })
+                }
+                else {
+                    openurl("https://github.com/settings/tokens");
+                    common.GetTokenAndSave().then(function(saved: boolean) {
+                        if (saved) {
+                            Init();
+                        }
+                    })
+                }
+            }, function(err: boolean) {
+
+            });
+
+
         }
-
-        function ReadGist() {
-            fs.readFile(FILE_GIST, { encoding: 'utf8' }, ReadGistFileResult);
-        };
-
-        function ReadGistFileResult(err: any, data: any) {
-
-            if (!data) {
-                var opt = pluginService.Common.GetInputBox(false);
-                vscode.window.showInputBox(opt).then((value) => {
-                    if (value) {
-                        value = value.trim();
-                        tempValue = value;
-                        fs.writeFile(FILE_GIST, value, WriteGistFileResult);
-                    }
-                });
-            }
-            else {
-                GIST = data;
-                StartDownload();
-            }
-        };
-
-        function WriteGistFileResult(err: any, data: any) {
-            if (err) {
-                vscode.window.showErrorMessage(ERROR_MESSAGE);
-                console.log(err);
-                return false;
-            }
-            GIST = tempValue;
-            StartDownload();
-        };
 
         function StartDownload() {
             github.getGistsApi().get({ id: GIST }, function(er, res) {
@@ -508,35 +425,9 @@ export function activate(context: vscode.ExtensionContext) {
 
                     }
                 }
-
-
-
-
-
-
             });
         }
-
-        function Initialize() {
-            if (fs.existsSync(FILE_TOKEN)) {
-                fs.readFile(FILE_TOKEN, { encoding: 'utf8' }, ReadTokenFileResult);
-            }
-            else {
-                openurl("https://github.com/settings/tokens");
-                var opt = pluginService.Common.GetInputBox(true);
-                vscode.window.showInputBox(opt).then((value) => {
-                    if (value) {
-                        value = value.trim();
-                        tempValue = value;
-                        fs.writeFile(FILE_TOKEN, value, WriteTokenFileResult);
-                    }
-                });
-
-            }
-        }
-
-        Initialize();
-
+        Init();
     });
 
     var disposable = vscode.commands.registerCommand('extension.resetSettings', () => {
