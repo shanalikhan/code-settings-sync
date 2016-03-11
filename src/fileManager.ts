@@ -1,7 +1,7 @@
-
+"use strict";
 export class FileManager {
     private fs = null;
-    public FileManager() {
+   constructor() {
         this.fs = require('fs');
     }
     public FileExists(filePath: string): Promise<boolean> {

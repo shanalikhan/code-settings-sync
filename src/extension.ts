@@ -1,7 +1,6 @@
 // The module 'vscode' contains the VS Code extensibility API
 // Import the module and reference it with the alias vscode in your code below
 
-/// <reference path="../node_modules/vscode/typings/node.d.ts" />
 
 
 import * as vscode from 'vscode';
@@ -10,6 +9,8 @@ import * as pluginService from './pluginService'
 import * as path from 'path';
 import * as envir from './environmentPath';
 import * as fileManager from './fileManager';
+import * as commons from './commons';
+
 
 // this method is called when your extension is activated
 // your extension is activated the very first time the command is executed
@@ -18,8 +19,7 @@ export function activate(context: vscode.ExtensionContext) {
     
     // Use the console to output diagnostic information (console.log) and errors (console.error)
     // This line of code will only be executed once when your extension is activated
-    var en: envir.Environment = new envir.Environment();
-    var fManager: fileManager.FileManager = new fileManager.FileManager();
+    
 
     var openurl = require('open');
     var fs = require('fs');
@@ -81,7 +81,52 @@ export function activate(context: vscode.ExtensionContext) {
     };
 
 
+    var disposable = vscode.commands.registerCommand('extension.SetupSettings', () => {
+        var en: envir.Environment = new envir.Environment(context);
+        var fManager: fileManager.FileManager = new fileManager.FileManager();
+        var common: commons.Commons = new commons.Commons(en, fManager);
 
+        vscode.window.setStatusBarMessage("Reading Settings.", 1000);
+        common.FilesExist().then(
+            function(filesexist) {
+                vscode.window.showErrorMessage("Old Settings Found. Please reset settings to setup again.");
+                return;
+            }, function(err: any) {
+                vscode.window.showErrorMessage(ERROR_MESSAGE);
+                return;
+            }
+        );
+
+        var opt = pluginService.Common.GetInputBox(true);
+        //openurl("https://github.com/settings/tokens");
+        vscode.window.showInputBox(opt).then((value) => {
+            value = value.trim();
+            if (value) {
+                fManager.WriteFile(en.FILE_TOKEN, value).then(function(added: boolean) {
+                    vscode.window.setStatusBarMessage("Token Saved.", 1000);
+
+                }, function(error: any) {
+                    vscode.window.showErrorMessage(ERROR_MESSAGE);
+
+                });
+            }
+
+        });
+
+        var opt = pluginService.Common.GetInputBox(false);
+        vscode.window.showInputBox(opt).then((value) => {
+            value = value.trim();
+            if (value) {
+                fManager.WriteFile(en.FILE_GIST, value).then(function(added: boolean) {
+                    vscode.window.setStatusBarMessage("GIST Saved.", 1000);
+
+                }, function(error: any) {
+                    vscode.window.showErrorMessage(ERROR_MESSAGE);
+
+                });;
+            }
+        });
+    });
 
 
     var disposable = vscode.commands.registerCommand('extension.updateSettings', () => {
@@ -94,31 +139,10 @@ export function activate(context: vscode.ExtensionContext) {
 
 
         function Init() {
-            
+
             vscode.window.setStatusBarMessage("Checking for Github Token and GIST.", 2000);
-            
-            fManager.FileExists(en.FILE_TOKEN).then(function(fileExist: boolean) {
-                if (fileExist) {
-                    fManager.ReadFile(en.FILE_TOKEN).then(function(token: string) {
-                            token = token.trim();
-                            fManager.FileExists(en.FILE_GIST).then(function (gistFileExists:boolean) {
-                                if (gistFileExists) {
-                                    
-                                }
-                                else{
-                                    //ask for gist here 
-                                }
-                            },function (gistFileExistErr:any) {
-                                
-                            });
-                    }, function(err: any) { 
-                        
-                    });
-                }
-                else {
-                    //token file not exist check ask for token.
-                }
-            });
+
+
         }
 
 

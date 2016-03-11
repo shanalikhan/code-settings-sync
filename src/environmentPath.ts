@@ -1,4 +1,4 @@
-
+"use strict";
 import * as vscode from 'vscode';
 import * as path from 'path';
 
@@ -17,7 +17,7 @@ export class Environment {
     public FILE_KEYBINDING: string = null;
     public FOLDER_SNIPPETS: string = null;
 
-    public Environment(context: vscode.ExtensionContext) {
+    constructor(context: vscode.ExtensionContext) {
         this.context = context;
         this.isInsiders = /insiders/.test(context.asAbsolutePath(""));
         this.homeDir = process.env[(process.platform == 'win32') ? 'USERPROFILE' : 'HOME'];
