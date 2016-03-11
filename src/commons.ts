@@ -72,13 +72,16 @@ export class Commons {
         var me = this;
         var opt = Commons.GetInputBox(true);
         return new Promise<boolean>((resolve, reject) => {
+            
             vscode.window.showInputBox(opt).then((token) => {
                 token = token.trim();
                 if (token) {
                     fManager.FileManager.WriteFile(me.en.FILE_TOKEN, token).then(function(added: boolean) {
                         vscode.window.setStatusBarMessage("Token Saved.", 1000);
+                        resolve(added);
                     }, function(error: any) {
                         vscode.window.showErrorMessage(me.ERROR_MESSAGE);
+                        reject(error);
                     });
                 }
             });
@@ -86,15 +89,17 @@ export class Commons {
     }
     public GetGistAndSave(): Promise<boolean> {
         var me = this;
-        var opt = Commons.GetInputBox(true);
+        var opt = Commons.GetInputBox(false);
         return new Promise<boolean>((resolve, reject) => {
             vscode.window.showInputBox(opt).then((gist) => {
                 gist = gist.trim();
                 if (gist) {
                     fManager.FileManager.WriteFile(me.en.FILE_GIST, gist).then(function(added: boolean) {
                         vscode.window.setStatusBarMessage("Gist Saved.", 1000);
+                        resolve(added);
                     }, function(error: any) {
                         vscode.window.showErrorMessage(me.ERROR_MESSAGE);
+                        reject(error);
                     });
                 }
             });
