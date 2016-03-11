@@ -36,6 +36,10 @@
   "contributes": {
     "commands": [
       {
+        "command": "extension.SetupSettings",
+        "title": "Sync : Setup"
+      },
+      {
         "command": "extension.downloadSettings",
         "title": "Sync : Download Settings"
       },
@@ -45,7 +49,7 @@
       },
       {
         "command": "extension.resetSettings",
-        "title": "Sync : Reset Token and GIST Data"
+        "title": "Sync : Reset"
       }
     ],
     "keybindings": [

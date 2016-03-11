@@ -18,8 +18,9 @@ export function activate(context: vscode.ExtensionContext) {
     
     // Use the console to output diagnostic information (console.log) and errors (console.error)
     // This line of code will only be executed once when your extension is activated
-    var en : envir.Environment = new envir.Environment();
-    
+    var en: envir.Environment = new envir.Environment();
+    var fManager: fileManager.FileManager = new fileManager.FileManager();
+
     var openurl = require('open');
     var fs = require('fs');
     var GitHubApi = require("github");
@@ -92,9 +93,35 @@ export function activate(context: vscode.ExtensionContext) {
         gistChecked = false;
 
 
+        function Init() {
+            
+            vscode.window.setStatusBarMessage("Checking for Github Token and GIST.", 2000);
+            
+            fManager.FileExists(en.FILE_TOKEN).then(function(fileExist: boolean) {
+                if (fileExist) {
+                    fManager.ReadFile(en.FILE_TOKEN).then(function(token: string) {
+                            token = token.trim();
+                            fManager.FileExists(en.FILE_GIST).then(function (gistFileExists:boolean) {
+                                if (gistFileExists) {
+                                    
+                                }
+                                else{
+                                    //ask for gist here 
+                                }
+                            },function (gistFileExistErr:any) {
+                                
+                            });
+                    }, function(err: any) { 
+                        
+                    });
+                }
+                else {
+                    //token file not exist check ask for token.
+                }
+            });
+        }
 
 
-        
         function ReadTokenFileResult(err: any, data: any) {
 
             if (!data) {

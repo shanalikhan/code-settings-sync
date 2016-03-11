@@ -10,7 +10,7 @@ export class FileManager {
             if (stat) {
                 resolve(stat);
             }
-            else reject(stat);
+            else resolve(stat);
 
         });
     }
