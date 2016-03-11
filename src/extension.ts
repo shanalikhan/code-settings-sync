@@ -4,7 +4,7 @@
 
 
 import * as vscode from 'vscode';
-import * as pluginService from './pluginService'
+import * as pluginService from './pluginService';
 
 import * as path from 'path';
 import * as envir from './environmentPath';

@@ -51,4 +51,18 @@ export class FileManager {
 
             });
     }
+    
+    public static ListFiles(directory : string) : Promise<Array<string>>
+    {
+        return new Promise<Array<string>>((resolve,reject)=>{
+            fs.readdir(directory, function (err:any , data:Array<string>) {
+                if (err) {
+                    console.error(err);
+                    reject(null);
+                }
+                resolve(data);    
+            });
+             
+        });
+    }
 }
