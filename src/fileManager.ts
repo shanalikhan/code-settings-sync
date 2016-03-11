@@ -1,12 +1,10 @@
 "use strict";
+var fs = require('fs');
 export class FileManager {
-    private fs = null;
-   constructor() {
-        this.fs = require('fs');
-    }
-    public FileExists(filePath: string): Promise<boolean> {
+    
+    public static FileExists(filePath: string): Promise<boolean> {
         return new Promise<boolean>((resolve, reject) => {
-            var stat: boolean = this.fs.existsSync(filePath);
+            var stat: boolean = fs.existsSync(filePath);
             if (stat) {
                 resolve(stat);
             }
@@ -15,9 +13,9 @@ export class FileManager {
         });
     }
 
-    public ReadFile(filePath: string): Promise<string> {
+    public static ReadFile(filePath: string): Promise<string> {
         return new Promise<string>((resolve, reject) => {
-            this.fs.readFile(filePath, { encoding: 'utf8' }, function(err: any, data: any) {
+            fs.readFile(filePath, { encoding: 'utf8' }, function(err: any, data: any) {
                 if (err) {
                     //vscode.window.showErrorMessage(ERROR_MESSAGE);
                     console.error(err);
@@ -28,11 +26,11 @@ export class FileManager {
             });
         });
     }
-    public WriteFile(filePath : string , data : string) : Promise<boolean>{
+    public static WriteFile(filePath : string , data : string) : Promise<boolean>{
          return new Promise<boolean>((resolve, reject) => {
                 if (data) {
                     
-                    this.fs.writeFile(filePath, data, function(err: any, data: any) {
+                    fs.writeFile(filePath, data, function(err: any, data: any) {
                         if (err) {
                             //vscode.window.showErrorMessage(ERROR_MESSAGE);
                             console.error(err);

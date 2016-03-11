@@ -83,49 +83,58 @@ export function activate(context: vscode.ExtensionContext) {
 
     var disposable = vscode.commands.registerCommand('extension.SetupSettings', () => {
         var en: envir.Environment = new envir.Environment(context);
-        var fManager: fileManager.FileManager = new fileManager.FileManager();
-        var common: commons.Commons = new commons.Commons(en, fManager);
+        var fManager: fileManager.FileManager;
+        var common: commons.Commons = new commons.Commons(en);
 
         vscode.window.setStatusBarMessage("Reading Settings.", 1000);
-        common.FilesExist().then(
-            function(filesexist) {
+
+        common.TokenFileExists().then(function(exist: boolean) {
+            if (exist) {
                 vscode.window.showErrorMessage("Old Settings Found. Please reset settings to setup again.");
                 return;
-            }, function(err: any) {
-                vscode.window.showErrorMessage(ERROR_MESSAGE);
-                return;
             }
-        );
+            else {
+                common.GISTFileExists().then(function(gistExists: boolean) {
+                    if (gistExists) {
+                        vscode.window.showErrorMessage("Old Settings Found. Please reset settings to setup again.");
+                        return;
+                    }
+                    else {
+                        var opt = pluginService.Common.GetInputBox(true);
+                        vscode.window.showInputBox(opt).then((token) => {
+                            token = token.trim();
+                            if (token) {
+                                fileManager.FileManager.WriteFile(en.FILE_TOKEN, token).then(function(added: boolean) {
+                                    vscode.window.setStatusBarMessage("Token Saved.", 1000);
+                                    var opt = pluginService.Common.GetInputBox(false);
+                                    vscode.window.showInputBox(opt).then((gist) => {
+                                        gist = gist.trim();
+                                        if (gist) {
+                                            fileManager.FileManager.WriteFile(en.FILE_GIST, gist).then(function(added: boolean) {
+                                                vscode.window.setStatusBarMessage("GIST Saved.", 1000);
+                                                
+                                            }, function(error: any) {
+                                                vscode.window.showErrorMessage(ERROR_MESSAGE);
 
-        var opt = pluginService.Common.GetInputBox(true);
-        //openurl("https://github.com/settings/tokens");
-        vscode.window.showInputBox(opt).then((value) => {
-            value = value.trim();
-            if (value) {
-                fManager.WriteFile(en.FILE_TOKEN, value).then(function(added: boolean) {
-                    vscode.window.setStatusBarMessage("Token Saved.", 1000);
+                                            });;
+                                        }
+                                    });
 
-                }, function(error: any) {
-                    vscode.window.showErrorMessage(ERROR_MESSAGE);
+                                }, function(error: any) {
+                                    vscode.window.showErrorMessage(ERROR_MESSAGE);
 
+                                });
+                            }
+
+                        });
+
+
+                    }
                 });
             }
+        })
 
-        });
 
-        var opt = pluginService.Common.GetInputBox(false);
-        vscode.window.showInputBox(opt).then((value) => {
-            value = value.trim();
-            if (value) {
-                fManager.WriteFile(en.FILE_GIST, value).then(function(added: boolean) {
-                    vscode.window.setStatusBarMessage("GIST Saved.", 1000);
-
-                }, function(error: any) {
-                    vscode.window.showErrorMessage(ERROR_MESSAGE);
-
-                });;
-            }
-        });
     });
 
 
