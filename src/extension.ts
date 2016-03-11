@@ -25,41 +25,13 @@ export function activate(context: vscode.ExtensionContext) {
     var fs = require('fs');
     var GitHubApi = require("github");
 
-    var isInsiders = /insiders/.test(context.asAbsolutePath(""))
-    var homeDir = process.env[(process.platform == 'win32') ? 'USERPROFILE' : 'HOME']
-    var ExtensionFolder: string = path.join(homeDir, isInsiders ? '.vscode-insiders' : '.vscode', 'extensions');
-
     var github = new GitHubApi({
         version: "3.0.0"
     });
 
-
     var TOKEN: string = null;
     var GIST: string = null;
-    var tokenChecked: boolean = false;
-    var gistChecked: boolean = false;
-    var tempValue: string = "";
-    var PATH: string = process.env.APPDATA
-    if (!PATH) {
-        if (process.platform == 'darwin')
-            PATH = process.env.HOME + '/Library/Application Support';
-        else if (process.platform == 'linux') {
-            var os = require("os")
-            PATH = os.homedir() + '/.config';
-        } else
-            PATH = '/var/local'
-    }
 
-    var codePath = isInsiders ? '/Code - Insiders' : '/Code';
-    PATH = PATH + codePath;
-
-    var FILE_GIST: string = PATH.concat("/User/gist_sync.txt");
-    var FILE_TOKEN: string = PATH.concat("/User/token.txt");
-    var FILE_SETTING: string = PATH.concat("/User/settings.json");
-    var FILE_LAUNCH: string = PATH.concat("/User/launch.json");
-    var FILE_KEYBINDING: string = PATH.concat("/User/keybindings.json");
-    var FOLDER_SNIPPETS: string = PATH.concat("/User/snippets/");
-    var ERROR_MESSAGE: string = "ERROR ! Logged In Console. Please open an issue in Github Repo."
     var GIST_JSON: any = {
         "description": "Visual Studio code settings",
         "public": false,
@@ -81,12 +53,11 @@ export function activate(context: vscode.ExtensionContext) {
     };
 
 
+
     var disposable = vscode.commands.registerCommand('extension.updateSettings', () => {
         var en: envir.Environment = new envir.Environment(context);
         var fManager: fileManager.FileManager;
         var common: commons.Commons = new commons.Commons(en);
-
-
 
         function Init() {
 
@@ -124,8 +95,6 @@ export function activate(context: vscode.ExtensionContext) {
             }, function(err: boolean) {
 
             });
-
-
         }
 
         function CreateNewGist(settingtext: string, launchtext: string, keybindingtext: string, extensiontext: string) {
@@ -134,12 +103,12 @@ export function activate(context: vscode.ExtensionContext) {
                 token: TOKEN
             });
 
-            if (fs.existsSync(FOLDER_SNIPPETS)) {
+            if (fs.existsSync(en.FOLDER_SNIPPETS)) {
                 //create new gist and upload all files there
-                var list = fs.readdirSync(FOLDER_SNIPPETS);
+                var list = fs.readdirSync(en.FOLDER_SNIPPETS);
                 for (var i: number = 0; i < list.length; i++) {
                     var fileName = list[i];
-                    var filePath = FOLDER_SNIPPETS.concat(fileName);
+                    var filePath = en.FOLDER_SNIPPETS.concat(fileName);
                     var fileText: string = fs.readFileSync(filePath, { encoding: 'utf8' });
                     var jsonObjName = fileName.split('.')[0];
                     var obj = {};
@@ -159,12 +128,12 @@ export function activate(context: vscode.ExtensionContext) {
             github.getGistsApi().create(GIST_JSON
                 , function(err, res) {
                     if (err) {
-                        vscode.window.showErrorMessage(ERROR_MESSAGE);
+                        vscode.window.showErrorMessage(common.ERROR_MESSAGE);
                         console.log(err);
                         return false;
                     }
                     vscode.window.showInformationMessage("Uploaded Successfully." + " GIST ID :  " + res.id + " . Please copy and use this ID in other machines to sync all settings.");
-                    fs.writeFile(FILE_GIST, res.id, function(err, data) {
+                    fs.writeFile(en.FILE_GIST, res.id, function(err, data) {
                         if (err) {
                             vscode.window.showErrorMessage("ERROR ! Unable to Save GIST ID In this machine. You need to enter it manually from Download Settings.");
                             console.log(err);
@@ -186,16 +155,16 @@ export function activate(context: vscode.ExtensionContext) {
             github.getGistsApi().get({ id: GIST }, function(er, res) {
 
                 if (er) {
-                    vscode.window.showErrorMessage(ERROR_MESSAGE);
+                    vscode.window.showErrorMessage(common.ERROR_MESSAGE);
                     console.log(er);
                     return false;
                 }
                 else {
-                    if (fs.existsSync(FOLDER_SNIPPETS)) {
-                        var list = fs.readdirSync(FOLDER_SNIPPETS);
+                    if (fs.existsSync(en.FOLDER_SNIPPETS)) {
+                        var list = fs.readdirSync(en.FOLDER_SNIPPETS);
                         for (var i: number = 0; i < list.length; i++) {
                             var fileName = list[i];
-                            var filePath = FOLDER_SNIPPETS.concat(fileName);
+                            var filePath = en.FOLDER_SNIPPETS.concat(fileName);
                             var fileText: string = fs.readFileSync(filePath, { encoding: 'utf8' });
                             var jsonObjName = fileName.split('.')[0];
                             res.files[jsonObjName] = {};
@@ -212,37 +181,34 @@ export function activate(context: vscode.ExtensionContext) {
                         vscode.window.showInformationMessage("Announcement : Extension Sync feature has been Added. You need to Reset Settings Or Manually Remove GIST ID File in order to sync your extensions.");
                     }
 
-
                     github.getGistsApi().edit(res, function(ere, ress) {
                         if (ere) {
-                            vscode.window.showErrorMessage(ERROR_MESSAGE);
+                            vscode.window.showErrorMessage(common.ERROR_MESSAGE);
                             console.log(ere);
                             return false;
                         }
                         vscode.window.showInformationMessage("Settings Updated Successfully");
                     });
                 }
-
             });
         };
 
         function startGitProcess() {
 
             if (TOKEN != null) {
-
                 var settingtext: string = "//setting";
                 var launchtext: string = "//launch";
                 var keybindingtext: string = "//keybinding";
                 var extensiontext = "";
 
-                if (fs.existsSync(FILE_SETTING)) {
-                    settingtext = fs.readFileSync(FILE_SETTING, { encoding: 'utf8' });
+                if (fs.existsSync(en.FILE_SETTING)) {
+                    settingtext = fs.readFileSync(en.FILE_SETTING, { encoding: 'utf8' });
                 }
-                if (fs.existsSync(FILE_LAUNCH)) {
-                    launchtext = fs.readFileSync(FILE_LAUNCH, { encoding: 'utf8' });
+                if (fs.existsSync(en.FILE_LAUNCH)) {
+                    launchtext = fs.readFileSync(en.FILE_LAUNCH, { encoding: 'utf8' });
                 }
-                if (fs.existsSync(FILE_KEYBINDING)) {
-                    keybindingtext = fs.readFileSync(FILE_KEYBINDING, { encoding: 'utf8' });
+                if (fs.existsSync(en.FILE_KEYBINDING)) {
+                    keybindingtext = fs.readFileSync(en.FILE_KEYBINDING, { encoding: 'utf8' });
                 }
 
                 var extensionlist = pluginService.PluginService.CreateExtensionList();
@@ -257,16 +223,12 @@ export function activate(context: vscode.ExtensionContext) {
                 }
                 else if (GIST != null) {
                     ExistingGist(settingtext, launchtext, keybindingtext, extensiontext);
-
                 }
             }
             else {
                 vscode.window.showErrorMessage("ERROR ! Github Account Token Not Set");
             }
-
-
         }
-
 
         Init();
 
@@ -294,7 +256,6 @@ export function activate(context: vscode.ExtensionContext) {
                                     vscode.window.setStatusBarMessage("Downloading Your Settings...", 2000);
                                     StartDownload();
                                 });
-
                             }
                             else {
                                 common.GetGistAndSave().then(function(saved: boolean) {
@@ -303,7 +264,6 @@ export function activate(context: vscode.ExtensionContext) {
                                     }
                                 })
                             }
-
                         });
                     })
                 }
@@ -326,7 +286,7 @@ export function activate(context: vscode.ExtensionContext) {
             github.getGistsApi().get({ id: GIST }, function(er, res) {
 
                 if (er) {
-                    vscode.window.showErrorMessage(ERROR_MESSAGE);
+                    vscode.window.showErrorMessage(common.ERROR_MESSAGE);
                     console.log(er);
                     return false;
                 }
@@ -335,9 +295,9 @@ export function activate(context: vscode.ExtensionContext) {
                 for (var i: number = 0; i < keys.length; i++) {
                     switch (keys[i]) {
                         case "launch": {
-                            fs.writeFile(FILE_LAUNCH, res.files.launch.content, function(err, data) {
+                            fs.writeFile(en.FILE_LAUNCH, res.files.launch.content, function(err, data) {
                                 if (err) {
-                                    vscode.window.showErrorMessage(ERROR_MESSAGE);
+                                    vscode.window.showErrorMessage(common.ERROR_MESSAGE);
                                     console.log(err);
                                     return false;
                                 }
@@ -348,9 +308,9 @@ export function activate(context: vscode.ExtensionContext) {
                             break;
                         }
                         case "settings": {
-                            fs.writeFile(FILE_SETTING, res.files.settings.content, function(err, data) {
+                            fs.writeFile(en.FILE_SETTING, res.files.settings.content, function(err, data) {
                                 if (err) {
-                                    vscode.window.showErrorMessage(ERROR_MESSAGE);
+                                    vscode.window.showErrorMessage(common.ERROR_MESSAGE);
                                     console.log(err);
                                     return false;
                                 }
@@ -361,9 +321,9 @@ export function activate(context: vscode.ExtensionContext) {
                             break;
                         }
                         case "keybindings": {
-                            fs.writeFile(FILE_KEYBINDING, res.files.keybindings.content, function(err, data) {
+                            fs.writeFile(en.FILE_KEYBINDING, res.files.keybindings.content, function(err, data) {
                                 if (err) {
-                                    vscode.window.showErrorMessage(ERROR_MESSAGE);
+                                    vscode.window.showErrorMessage(common.ERROR_MESSAGE);
                                     console.log(err);
                                     return false;
                                 }
@@ -377,14 +337,13 @@ export function activate(context: vscode.ExtensionContext) {
                             if (missingList.length == 0) {
 
                                 vscode.window.showInformationMessage("No extension need to be installed");
-
                             }
                             else {
 
                                 var actionList = new Array<Promise<void>>();
                                 vscode.window.setStatusBarMessage("Installing Extensions in background.", 4000);
                                 missingList.forEach(element => {
-                                    actionList.push(pluginService.PluginService.InstallExtension(element, ExtensionFolder)
+                                    actionList.push(pluginService.PluginService.InstallExtension(element, en.ExtensionFolder)
                                         .then(function() {
                                             var name = element.publisher + '.' + element.name + '-' + element.version;
                                             vscode.window.showInformationMessage("Extension " + name + " installed Successfully");
@@ -397,22 +356,21 @@ export function activate(context: vscode.ExtensionContext) {
                                     })
                                     .catch(function(e) {
                                         console.log(e);
-                                        vscode.window.showErrorMessage("Extension download failed." + ERROR_MESSAGE)
+                                        vscode.window.showErrorMessage("Extension download failed." + common.ERROR_MESSAGE)
                                     });
                             }
-
                             break;
                         }
                         default: {
                             if (i < keys.length) {
-                                if (!fs.existsSync(FOLDER_SNIPPETS)) {
-                                    fs.mkdirSync(FOLDER_SNIPPETS);
+                                if (!fs.existsSync(en.FOLDER_SNIPPETS)) {
+                                    fs.mkdirSync(en.FOLDER_SNIPPETS);
                                 }
-                                var file = FOLDER_SNIPPETS.concat(keys[i]).concat(".json");
+                                var file = en.FOLDER_SNIPPETS.concat(keys[i]).concat(".json");
                                 var fileName = keys[i].concat(".json");
                                 fs.writeFile(file, res.files[keys[i]].content, function(err, data) {
                                     if (err) {
-                                        vscode.window.showErrorMessage(ERROR_MESSAGE);
+                                        vscode.window.showErrorMessage(common.ERROR_MESSAGE);
                                         console.log(err);
                                         return false;
                                     }
@@ -422,7 +380,6 @@ export function activate(context: vscode.ExtensionContext) {
 
                             break;
                         }
-
                     }
                 }
             });
@@ -431,13 +388,16 @@ export function activate(context: vscode.ExtensionContext) {
     });
 
     var disposable = vscode.commands.registerCommand('extension.resetSettings', () => {
+        var en: envir.Environment = new envir.Environment(context);
+        var fManager: fileManager.FileManager;
+        var common: commons.Commons = new commons.Commons(en);
         vscode.window.setStatusBarMessage("Resetting Your Settings.", 2000);
         try {
-            if (fs.existsSync(FILE_GIST)) {
-                fs.unlinkSync(FILE_GIST);
+            if (fs.existsSync(en.FILE_GIST)) {
+                fs.unlinkSync(en.FILE_GIST);
             }
-            if (fs.existsSync(FILE_TOKEN)) {
-                fs.unlinkSync(FILE_TOKEN);
+            if (fs.existsSync(en.FILE_TOKEN)) {
+                fs.unlinkSync(en.FILE_TOKEN);
             }
             vscode.window.showInformationMessage("GIST ID and Github Token Cleared.");
         }
@@ -445,8 +405,6 @@ export function activate(context: vscode.ExtensionContext) {
             console.log(err);
             vscode.window.showErrorMessage("Unable to clear settings. Error Logged on console. Please open an issue.");
         }
-
-
     });
 
     context.subscriptions.push(disposable);
