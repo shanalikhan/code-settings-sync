@@ -113,11 +113,20 @@ export function activate(context: vscode.ExtensionContext) {
                 extensiontext = JSON.stringify(extensionlist, undefined, 2);
 
                 var snippetFiles = await fileManager.FileManager.ListFiles(en.FOLDER_SNIPPETS);
-                
+
                 if (GIST == null) {
                     await myGi.CreateNewGist(settingtext, launchtext, keybindingtext, extensiontext, snippetFiles).then(function(gistID: string) {
-                        vscode.window.showInformationMessage("Uploaded Successfully." + " GIST ID :  " + gistID + " . Please copy and use this ID in other machines to sync all settings.");
-                        vscode.window.setStatusBarMessage("Gist Saved.", 1000);
+                        
+                        fileManager.FileManager.WriteFile(en.FILE_GIST, gistID).then(function(added: boolean) {
+                            if (added) {
+                                vscode.window.showInformationMessage("Uploaded Successfully." + " GIST ID :  " + gistID + " . Please copy and use this ID in other machines to sync all settings.");
+                                vscode.window.setStatusBarMessage("Gist Saved.", 1000);
+                            }
+                        }, function(error: any) {
+                            console.error(error);
+
+                        });
+
                     }, function(error: any) {
                         vscode.window.showErrorMessage(common.ERROR_MESSAGE);
                     });

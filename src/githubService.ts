@@ -67,24 +67,18 @@ export class GithubService {
                         console.error(err);
                         reject(false);
                     }
-
-                    fileManager.FileManager.WriteFile(me.envir.FILE_GIST, res.id).then(function(added: boolean) {
-                        
-                        resolve(res.id);
-                    }, function(error: any) {
-                        console.error(error);
-                        reject(error);
-                    });
+                    resolve(res.id);
+                   
 
                 });
         });
 
     }
 
-   public async ExistingGist(GIST: string, settingstext: string, launchtext: string, keybindingtext: string, extensiontext: string, snippetsFiles: Array<fileManager.File>): Promise<boolean> {
+    public async ExistingGist(GIST: string, settingstext: string, launchtext: string, keybindingtext: string, extensiontext: string, snippetsFiles: Array<fileManager.File>): Promise<boolean> {
         var me = this;
-        return new Promise<boolean>(async(resolve, reject) => {
-          await github.getGistsApi().get({ id: GIST }, async function(er, res) {
+        return new Promise<boolean>(async (resolve, reject) => {
+            await github.getGistsApi().get({ id: GIST }, async function(er, res) {
 
                 if (er) {
                     console.error(er);
@@ -99,7 +93,7 @@ export class GithubService {
                         res.files.extensions.content = extensiontext;
                     }
 
-                   await github.getGistsApi().edit(res, function(ere, ress) {
+                    await github.getGistsApi().edit(res, function(ere, ress) {
                         if (ere) {
                             console.error(er);
                             reject(false);
