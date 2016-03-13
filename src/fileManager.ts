@@ -91,7 +91,7 @@ export class FileManager {
                         await fs.unlinkSync(filePath);
                         resolve(true);
                     }
-                    
+
                 });
             }
             else {
@@ -100,4 +100,23 @@ export class FileManager {
             }
         });
     }
+
+    public static async CreateDirectory(name: string): Promise<boolean> {
+        return new Promise<boolean>((resolve, reject) => {
+            if (name) {
+                this.FileExists(name).then(async function(dirExist: boolean) {
+                    if (!dirExist) {
+                        await fs.mkdirSync(name);
+                       
+                    }
+                     resolve(true);
+                });
+            }
+            else {
+                console.error("DATA is EMPTY for " + name);
+                reject(false);
+            }
+        });
+    }
+
 }

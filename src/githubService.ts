@@ -104,5 +104,19 @@ export class GithubService {
             });
         });
     }
+    
+    public async DownloadGist(gistID : string) : Promise<any>
+    {
+        return new Promise<any>(async(resolve,reject)=>{
+            await  github.getGistsApi().get({ id: gistID }, function(er, res) {
+
+                if (er) {
+                    console.log(er);
+                    reject(er);
+                }
+                resolve(res);
+             });
+        });
+    }
 
 }

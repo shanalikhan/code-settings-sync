@@ -32,12 +32,12 @@ export function activate(context: vscode.ExtensionContext) {
 
 
 
-    var disposable = vscode.commands.registerCommand('extension.updateSettings', async() => {
+    var disposable = vscode.commands.registerCommand('extension.updateSettings', async () => {
         var en: envir.Environment = new envir.Environment(context);
         var common: commons.Commons = new commons.Commons(en);
         var myGi: myGit.GithubService = null;
 
-      async function Init() {
+        async function Init() {
 
             vscode.window.setStatusBarMessage("Checking for Github Token and GIST.", 2000);
             common.TokenFileExists().then(function(tokenExists: boolean) {
@@ -146,17 +146,16 @@ export function activate(context: vscode.ExtensionContext) {
             }
         }
 
-       await Init();
+        await Init();
 
     });
 
 
-    var disposable = vscode.commands.registerCommand('extension.downloadSettings', () => {
+    var disposable = vscode.commands.registerCommand('extension.downloadSettings', async () => {
 
         var en: envir.Environment = new envir.Environment(context);
-        var fManager: fileManager.FileManager;
         var common: commons.Commons = new commons.Commons(en);
-
+        var myGi: myGit.GithubService = null;
 
         function Init() {
 
@@ -164,13 +163,14 @@ export function activate(context: vscode.ExtensionContext) {
             common.TokenFileExists().then(function(tokenExists: boolean) {
                 if (tokenExists) {
                     fileManager.FileManager.ReadFile(en.FILE_TOKEN).then(function(token: string) {
-
+                        myGi = new myGit.GithubService(token);
                         common.GISTFileExists().then(function(gistExists: boolean) {
                             if (gistExists) {
                                 fileManager.FileManager.ReadFile(en.FILE_GIST).then(function(gist: string) {
-
-                                    vscode.window.setStatusBarMessage("Downloading Your Settings...", 2000);
-                                    StartDownload(gist);
+                                    if (gist) {
+                                        vscode.window.setStatusBarMessage("Downloading Your Settings...", 2000);
+                                        StartDownload(gist);
+                                    }
                                 });
                             }
                             else {
@@ -194,59 +194,56 @@ export function activate(context: vscode.ExtensionContext) {
                     })
                 }
             }, function(err: boolean) {
-
+                console.error(err);
+                vscode.window.showErrorMessage(common.ERROR_MESSAGE);
+                return;
             });
 
 
         }
 
-        function StartDownload(gist: string) {
-            github.getGistsApi().get({ id: gist }, function(er, res) {
+        async function StartDownload(gist: string) {
 
-                if (er) {
-                    vscode.window.showErrorMessage(common.ERROR_MESSAGE);
-                    console.log(er);
-                    return false;
-                }
-
+            myGi.DownloadGist(gist).then(async function(res: any) {
                 var keys = Object.keys(res.files);
                 for (var i: number = 0; i < keys.length; i++) {
                     switch (keys[i]) {
                         case "launch": {
-                            fs.writeFile(en.FILE_LAUNCH, res.files.launch.content, function(err, data) {
-                                if (err) {
+                            await fileManager.FileManager.WriteFile(en.FILE_LAUNCH, res.files.launch.content).then(
+                                function(added: boolean) {
+                                    vscode.window.showInformationMessage("Launch Settings downloaded Successfully");
+                                }, function(error: any) {
                                     vscode.window.showErrorMessage(common.ERROR_MESSAGE);
-                                    console.log(err);
-                                    return false;
+                                    return;
                                 }
-                                vscode.window.showInformationMessage("Launch Settings downloaded Successfully");
-                                // console.log("launch");
-                                // console.log(data);
-                            });
+                            );
+
+
                             break;
                         }
                         case "settings": {
-                            fs.writeFile(en.FILE_SETTING, res.files.settings.content, function(err, data) {
-                                if (err) {
+                            await fileManager.FileManager.WriteFile(en.FILE_SETTING, res.files.settings.content).then(
+                                function(added: boolean) {
+                                    vscode.window.showInformationMessage("Editor Settings downloaded Successfully");
+                                }, function(error: any) {
                                     vscode.window.showErrorMessage(common.ERROR_MESSAGE);
-                                    console.log(err);
-                                    return false;
+                                    return;
                                 }
-                                vscode.window.showInformationMessage("Editor Settings downloaded Successfully");
-                                // console.log("setting");
-                                // console.log(data);
-                            });
+                            );
+
                             break;
                         }
                         case "keybindings": {
-                            fs.writeFile(en.FILE_KEYBINDING, res.files.keybindings.content, function(err, data) {
-                                if (err) {
+
+                            await fileManager.FileManager.WriteFile(en.FILE_KEYBINDING, res.files.keybindings.content).then(
+                                function(added: boolean) {
+                                    vscode.window.showInformationMessage("Keybinding Settings downloaded Successfully");
+                                }, function(error: any) {
                                     vscode.window.showErrorMessage(common.ERROR_MESSAGE);
-                                    console.log(err);
-                                    return false;
+                                    return;
                                 }
-                                vscode.window.showInformationMessage("Keybinding Settings downloaded Successfully");
-                            });
+                            );
+
                             break;
                         }
                         case "extensions": {
@@ -281,26 +278,30 @@ export function activate(context: vscode.ExtensionContext) {
                         }
                         default: {
                             if (i < keys.length) {
-                                if (!fs.existsSync(en.FOLDER_SNIPPETS)) {
-                                    fs.mkdirSync(en.FOLDER_SNIPPETS);
-                                }
+                                await fileManager.FileManager.CreateDirectory(en.FOLDER_SNIPPETS)
+                               
                                 var file = en.FOLDER_SNIPPETS.concat(keys[i]).concat(".json");
                                 var fileName = keys[i].concat(".json");
-                                fs.writeFile(file, res.files[keys[i]].content, function(err, data) {
-                                    if (err) {
+
+                                await fileManager.FileManager.WriteFile(file, res.files[keys[i]].content).then(
+                                    function(added: boolean) {
+                                        vscode.window.showInformationMessage(fileName + " snippet added successfully.");
+                                    }, function(error: any) {
                                         vscode.window.showErrorMessage(common.ERROR_MESSAGE);
-                                        console.log(err);
-                                        return false;
+                                        return;
                                     }
-                                    vscode.window.showInformationMessage(fileName + " snippet added successfully.");
-                                });
+                                );
                             }
 
                             break;
                         }
                     }
                 }
+            }, function(err: any) {
+                vscode.window.showErrorMessage(common.ERROR_MESSAGE);
+                return;
             });
+
         }
         Init();
     });
