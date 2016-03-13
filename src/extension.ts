@@ -10,6 +10,7 @@ import * as path from 'path';
 import * as envir from './environmentPath';
 import * as fileManager from './fileManager';
 import * as commons from './commons';
+import * as myGit from './githubService';
 
 
 // this method is called when your extension is activated
@@ -32,32 +33,10 @@ export function activate(context: vscode.ExtensionContext) {
     var TOKEN: string = null;
     var GIST: string = null;
 
-    var GIST_JSON: any = {
-        "description": "Visual Studio code settings",
-        "public": false,
-        "files": {
-            "settings": {
-                "content": ""
-            },
-            "launch": {
-                "content": ""
-            },
-            "keybindings": {
-                "content": ""
-            },
-            "extensions": {
-                "content": ""
-            }
-
-        }
-    };
-
-
-
     var disposable = vscode.commands.registerCommand('extension.updateSettings', () => {
         var en: envir.Environment = new envir.Environment(context);
-        var fManager: fileManager.FileManager;
         var common: commons.Commons = new commons.Commons(en);
+        var myGi: myGit.GithubService = null;
 
         function Init() {
 
@@ -66,6 +45,7 @@ export function activate(context: vscode.ExtensionContext) {
                 if (tokenExists) {
                     fileManager.FileManager.ReadFile(en.FILE_TOKEN).then(function(token: string) {
                         TOKEN = token;
+                        myGi = new myGit.GithubService(TOKEN, en);
                         common.GISTFileExists().then(function(gistExists: boolean) {
                             if (gistExists) {
                                 fileManager.FileManager.ReadFile(en.FILE_GIST).then(function(gist: string) {
@@ -97,103 +77,8 @@ export function activate(context: vscode.ExtensionContext) {
             });
         }
 
-        function CreateNewGist(settingtext: string, launchtext: string, keybindingtext: string, extensiontext: string) {
-            github.authenticate({
-                type: "oauth",
-                token: TOKEN
-            });
 
-            if (fs.existsSync(en.FOLDER_SNIPPETS)) {
-                //create new gist and upload all files there
-                var list = fs.readdirSync(en.FOLDER_SNIPPETS);
-                for (var i: number = 0; i < list.length; i++) {
-                    var fileName = list[i];
-                    var filePath = en.FOLDER_SNIPPETS.concat(fileName);
-                    var fileText: string = fs.readFileSync(filePath, { encoding: 'utf8' });
-                    var jsonObjName = fileName.split('.')[0];
-                    var obj = {};
-                    obj[jsonObjName] = {};
-                    obj[jsonObjName].content = fileText;
-                    GIST_JSON.files[jsonObjName] = {};
-                    GIST_JSON.files[jsonObjName].content = fileText;
-                    //debugger;
-                }
-            }
-
-            GIST_JSON.files.settings.content = settingtext;
-            GIST_JSON.files.launch.content = launchtext;
-            GIST_JSON.files.keybindings.content = keybindingtext;
-            GIST_JSON.files.extensions.content = extensiontext;
-
-            github.getGistsApi().create(GIST_JSON
-                , function(err, res) {
-                    if (err) {
-                        vscode.window.showErrorMessage(common.ERROR_MESSAGE);
-                        console.log(err);
-                        return false;
-                    }
-                    vscode.window.showInformationMessage("Uploaded Successfully." + " GIST ID :  " + res.id + " . Please copy and use this ID in other machines to sync all settings.");
-                    fs.writeFile(en.FILE_GIST, res.id, function(err, data) {
-                        if (err) {
-                            vscode.window.showErrorMessage("ERROR ! Unable to Save GIST ID In this machine. You need to enter it manually from Download Settings.");
-                            console.log(err);
-                            return false;
-                        }
-                        vscode.window.showInformationMessage("GIST ID Saved in your machine.");
-
-                    });
-
-                });
-        };
-
-        function ExistingGist(settingtext: string, launchtext: string, keybindingtext: string, extensiontext: string) {
-            github.authenticate({
-                type: "oauth",
-                token: TOKEN
-            });
-
-            github.getGistsApi().get({ id: GIST }, function(er, res) {
-
-                if (er) {
-                    vscode.window.showErrorMessage(common.ERROR_MESSAGE);
-                    console.log(er);
-                    return false;
-                }
-                else {
-                    if (fs.existsSync(en.FOLDER_SNIPPETS)) {
-                        var list = fs.readdirSync(en.FOLDER_SNIPPETS);
-                        for (var i: number = 0; i < list.length; i++) {
-                            var fileName = list[i];
-                            var filePath = en.FOLDER_SNIPPETS.concat(fileName);
-                            var fileText: string = fs.readFileSync(filePath, { encoding: 'utf8' });
-                            var jsonObjName = fileName.split('.')[0];
-                            res.files[jsonObjName] = {};
-                            res.files[jsonObjName].content = fileText;
-                        }
-                    }
-                    res.files.settings.content = settingtext;
-                    res.files.launch.content = launchtext;
-                    res.files.keybindings.content = keybindingtext;
-                    if (res.files.extensions) {
-                        res.files.extensions.content = extensiontext;
-                    }
-                    else {
-                        vscode.window.showInformationMessage("Announcement : Extension Sync feature has been Added. You need to Reset Settings Or Manually Remove GIST ID File in order to sync your extensions.");
-                    }
-
-                    github.getGistsApi().edit(res, function(ere, ress) {
-                        if (ere) {
-                            vscode.window.showErrorMessage(common.ERROR_MESSAGE);
-                            console.log(ere);
-                            return false;
-                        }
-                        vscode.window.showInformationMessage("Settings Updated Successfully");
-                    });
-                }
-            });
-        };
-
-        function startGitProcess() {
+        async function startGitProcess() {
 
             if (TOKEN != null) {
                 var settingtext: string = "//setting";
@@ -201,15 +86,25 @@ export function activate(context: vscode.ExtensionContext) {
                 var keybindingtext: string = "//keybinding";
                 var extensiontext = "";
 
-                if (fs.existsSync(en.FILE_SETTING)) {
-                    settingtext = fs.readFileSync(en.FILE_SETTING, { encoding: 'utf8' });
-                }
-                if (fs.existsSync(en.FILE_LAUNCH)) {
-                    launchtext = fs.readFileSync(en.FILE_LAUNCH, { encoding: 'utf8' });
-                }
-                if (fs.existsSync(en.FILE_KEYBINDING)) {
-                    keybindingtext = fs.readFileSync(en.FILE_KEYBINDING, { encoding: 'utf8' });
-                }
+                await fileManager.FileManager.ReadFile(en.FILE_SETTING).then(async function(settings: string) {
+                    if (settings) {
+                        settingtext = settings;
+
+                    }
+                });
+
+                await fileManager.FileManager.ReadFile(en.FILE_LAUNCH).then(async function(launch: string) {
+                    if (launch) {
+                        launchtext = launch;
+
+                    }
+                });
+
+                await fileManager.FileManager.ReadFile(en.FILE_KEYBINDING).then(function(keybinding: string) {
+                    if (keybinding) {
+                        keybindingtext = keybinding;
+                    }
+                });
 
                 var extensionlist = pluginService.PluginService.CreateExtensionList();
                 extensionlist.sort(function(a, b) {
@@ -217,12 +112,24 @@ export function activate(context: vscode.ExtensionContext) {
                 });
                 extensiontext = JSON.stringify(extensionlist, undefined, 2);
 
-
+                var snippetFiles = await fileManager.FileManager.ListFiles(en.FOLDER_SNIPPETS);
+                
                 if (GIST == null) {
-                    CreateNewGist(settingtext, launchtext, keybindingtext, extensiontext);
+                    await myGi.CreateNewGist(settingtext, launchtext, keybindingtext, extensiontext, snippetFiles).then(function(gistID: string) {
+                        vscode.window.showInformationMessage("Uploaded Successfully." + " GIST ID :  " + gistID + " . Please copy and use this ID in other machines to sync all settings.");
+                        vscode.window.setStatusBarMessage("Gist Saved.", 1000);
+                    }, function(error: any) {
+                        vscode.window.showErrorMessage(common.ERROR_MESSAGE);
+                    });
                 }
                 else if (GIST != null) {
-                    ExistingGist(settingtext, launchtext, keybindingtext, extensiontext);
+                    await myGi.ExistingGist(GIST, settingtext, launchtext, keybindingtext, extensiontext, snippetFiles).then(function(added: boolean) {
+                        vscode.window.showInformationMessage("Settings Updated Successfully");
+
+                    }, function(error: any) {
+                        vscode.window.showErrorMessage(common.ERROR_MESSAGE);
+
+                    });
                 }
             }
             else {
