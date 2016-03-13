@@ -32,12 +32,12 @@ export function activate(context: vscode.ExtensionContext) {
 
 
 
-    var disposable = vscode.commands.registerCommand('extension.updateSettings', () => {
+    var disposable = vscode.commands.registerCommand('extension.updateSettings', async() => {
         var en: envir.Environment = new envir.Environment(context);
         var common: commons.Commons = new commons.Commons(en);
         var myGi: myGit.GithubService = null;
 
-        function Init() {
+      async function Init() {
 
             vscode.window.setStatusBarMessage("Checking for Github Token and GIST.", 2000);
             common.TokenFileExists().then(function(tokenExists: boolean) {
@@ -46,22 +46,18 @@ export function activate(context: vscode.ExtensionContext) {
 
                         myGi = new myGit.GithubService(token);
 
-                        common.GISTFileExists().then(function(gistExists: boolean) {
+                        common.GISTFileExists().then(async function(gistExists: boolean) {
+                            vscode.window.setStatusBarMessage("Uploading / Updating Your Settings In Github.", 3000);
                             if (gistExists) {
-                                fileManager.FileManager.ReadFile(en.FILE_GIST).then(function(gist: string) {
-
-                                    vscode.window.setStatusBarMessage("Uploading / Updating Your Settings In Github.", 2000);
-                                    startGitProcess(token, gist);
-
+                                fileManager.FileManager.ReadFile(en.FILE_GIST).then(async function(gist: string) {
+                                    await startGitProcess(token, gist);
+                                    return;
                                 });
-
                             }
                             else {
-
-                                vscode.window.setStatusBarMessage("Uploading / Updating Your Settings In Github.", 2000);
-                                startGitProcess(token, null);
+                                await startGitProcess(token, null);
+                                return;
                             }
-
                         });
                     });
                 }
@@ -90,13 +86,13 @@ export function activate(context: vscode.ExtensionContext) {
                 var keybindingtext: string = "//keybinding";
                 var extensiontext = "";
                 vscode.window.setStatusBarMessage("Reading Settings and Extensions.", 1000);
-                await fileManager.FileManager.ReadFile(en.FILE_SETTING).then(async function(settings: string) {
+                await fileManager.FileManager.ReadFile(en.FILE_SETTING).then(function(settings: string) {
                     if (settings) {
                         settingtext = settings;
                     }
                 });
 
-                await fileManager.FileManager.ReadFile(en.FILE_LAUNCH).then(async function(launch: string) {
+                await fileManager.FileManager.ReadFile(en.FILE_LAUNCH).then(function(launch: string) {
                     if (launch) {
                         launchtext = launch;
                     }
@@ -150,7 +146,7 @@ export function activate(context: vscode.ExtensionContext) {
             }
         }
 
-        Init();
+       await Init();
 
     });
 
