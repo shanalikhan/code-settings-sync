@@ -157,7 +157,7 @@ export function activate(context: vscode.ExtensionContext) {
         var common: commons.Commons = new commons.Commons(en);
         var myGi: myGit.GithubService = null;
 
-        function Init() {
+        async function Init() {
 
             vscode.window.setStatusBarMessage("Checking for Github Token and GIST.", 2000);
             common.TokenFileExists().then(function(tokenExists: boolean) {
@@ -243,7 +243,6 @@ export function activate(context: vscode.ExtensionContext) {
                                     return;
                                 }
                             );
-
                             break;
                         }
                         case "extensions": {
@@ -254,7 +253,6 @@ export function activate(context: vscode.ExtensionContext) {
                                 vscode.window.showInformationMessage("No extension need to be installed");
                             }
                             else {
-
                                 var actionList = new Array<Promise<void>>();
                                 vscode.window.setStatusBarMessage("Installing Extensions in background.", 4000);
                                 missingList.forEach(element => {
@@ -264,7 +262,6 @@ export function activate(context: vscode.ExtensionContext) {
                                             vscode.window.showInformationMessage("Extension " + name + " installed Successfully");
                                         }));
                                 });
-
                                 Promise.all(actionList)
                                     .then(function() {
                                         vscode.window.showInformationMessage("Extension installed Successfully, please restart");
@@ -278,11 +275,10 @@ export function activate(context: vscode.ExtensionContext) {
                         }
                         default: {
                             if (i < keys.length) {
-                                await fileManager.FileManager.CreateDirectory(en.FOLDER_SNIPPETS)
+                                await fileManager.FileManager.CreateDirectory(en.FOLDER_SNIPPETS);
                                
                                 var file = en.FOLDER_SNIPPETS.concat(keys[i]).concat(".json");
                                 var fileName = keys[i].concat(".json");
-
                                 await fileManager.FileManager.WriteFile(file, res.files[keys[i]].content).then(
                                     function(added: boolean) {
                                         vscode.window.showInformationMessage(fileName + " snippet added successfully.");
@@ -292,7 +288,6 @@ export function activate(context: vscode.ExtensionContext) {
                                     }
                                 );
                             }
-
                             break;
                         }
                     }
@@ -301,9 +296,8 @@ export function activate(context: vscode.ExtensionContext) {
                 vscode.window.showErrorMessage(common.ERROR_MESSAGE);
                 return;
             });
-
         }
-        Init();
+        await Init();
     });
 
     var disposable = vscode.commands.registerCommand('extension.resetSettings', async () => {
