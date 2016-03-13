@@ -43,22 +43,23 @@ export function activate(context: vscode.ExtensionContext) {
             common.TokenFileExists().then(function(tokenExists: boolean) {
                 if (tokenExists) {
                     fileManager.FileManager.ReadFile(en.FILE_TOKEN).then(function(token: string) {
-                        
+
                         myGi = new myGit.GithubService(token);
-                        
+
                         common.GISTFileExists().then(function(gistExists: boolean) {
                             if (gistExists) {
                                 fileManager.FileManager.ReadFile(en.FILE_GIST).then(function(gist: string) {
-                                    
+
                                     vscode.window.setStatusBarMessage("Uploading / Updating Your Settings In Github.", 2000);
                                     startGitProcess(token, gist);
+
                                 });
 
                             }
                             else {
-                               
+
                                 vscode.window.setStatusBarMessage("Uploading / Updating Your Settings In Github.", 2000);
-                                startGitProcess(token,null);
+                                startGitProcess(token, null);
                             }
 
                         });
@@ -74,19 +75,21 @@ export function activate(context: vscode.ExtensionContext) {
                     })
                 }
             }, function(err: boolean) {
-
+                console.error(err);
+                vscode.window.showErrorMessage(common.ERROR_MESSAGE);
+                return;
             });
         }
 
 
-        async function startGitProcess(token : string , gist : string) {
+        async function startGitProcess(token: string, gist: string) {
 
             if (token != null) {
                 var settingtext: string = "//setting";
                 var launchtext: string = "//launch";
                 var keybindingtext: string = "//keybinding";
                 var extensiontext = "";
-
+                vscode.window.setStatusBarMessage("Reading Settings and Extensions.", 1000);
                 await fileManager.FileManager.ReadFile(en.FILE_SETTING).then(async function(settings: string) {
                     if (settings) {
                         settingtext = settings;
@@ -115,7 +118,7 @@ export function activate(context: vscode.ExtensionContext) {
 
                 if (gist == null) {
                     await myGi.CreateNewGist(settingtext, launchtext, keybindingtext, extensiontext, snippetFiles).then(function(gistID: string) {
-                        
+
                         fileManager.FileManager.WriteFile(en.FILE_GIST, gistID).then(function(added: boolean) {
                             if (added) {
                                 vscode.window.showInformationMessage("Uploaded Successfully." + " GIST ID :  " + gistID + " . Please copy and use this ID in other machines to sync all settings.");
@@ -123,11 +126,13 @@ export function activate(context: vscode.ExtensionContext) {
                             }
                         }, function(error: any) {
                             console.error(error);
-
+                            vscode.window.showErrorMessage(common.ERROR_MESSAGE);
+                            return;
                         });
 
                     }, function(error: any) {
                         vscode.window.showErrorMessage(common.ERROR_MESSAGE);
+                        return;
                     });
                 }
                 else if (gist != null) {
@@ -136,7 +141,7 @@ export function activate(context: vscode.ExtensionContext) {
 
                     }, function(error: any) {
                         vscode.window.showErrorMessage(common.ERROR_MESSAGE);
-
+                        return;
                     });
                 }
             }
@@ -163,11 +168,11 @@ export function activate(context: vscode.ExtensionContext) {
             common.TokenFileExists().then(function(tokenExists: boolean) {
                 if (tokenExists) {
                     fileManager.FileManager.ReadFile(en.FILE_TOKEN).then(function(token: string) {
-                        
+
                         common.GISTFileExists().then(function(gistExists: boolean) {
                             if (gistExists) {
                                 fileManager.FileManager.ReadFile(en.FILE_GIST).then(function(gist: string) {
-                                  
+
                                     vscode.window.setStatusBarMessage("Downloading Your Settings...", 2000);
                                     StartDownload(gist);
                                 });
@@ -199,7 +204,7 @@ export function activate(context: vscode.ExtensionContext) {
 
         }
 
-        function StartDownload(gist : string) {
+        function StartDownload(gist: string) {
             github.getGistsApi().get({ id: gist }, function(er, res) {
 
                 if (er) {
@@ -304,18 +309,15 @@ export function activate(context: vscode.ExtensionContext) {
         Init();
     });
 
-    var disposable = vscode.commands.registerCommand('extension.resetSettings', () => {
+    var disposable = vscode.commands.registerCommand('extension.resetSettings', async () => {
         var en: envir.Environment = new envir.Environment(context);
         var fManager: fileManager.FileManager;
         var common: commons.Commons = new commons.Commons(en);
         vscode.window.setStatusBarMessage("Resetting Your Settings.", 2000);
         try {
-            if (fs.existsSync(en.FILE_GIST)) {
-                fs.unlinkSync(en.FILE_GIST);
-            }
-            if (fs.existsSync(en.FILE_TOKEN)) {
-                fs.unlinkSync(en.FILE_TOKEN);
-            }
+            var result = await fileManager.FileManager.DeleteFile(en.FILE_TOKEN);
+            var result2 = await fileManager.FileManager.DeleteFile(en.FILE_GIST);
+
             vscode.window.showInformationMessage("GIST ID and Github Token Cleared.");
         }
         catch (err) {

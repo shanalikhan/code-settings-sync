@@ -16,7 +16,6 @@ export class FileManager {
                 resolve(stat);
             }
             else resolve(stat);
-
         });
     }
 
@@ -26,16 +25,15 @@ export class FileManager {
                 if (fileExists) {
                     fs.readFile(filePath, { encoding: 'utf8' }, function(err: any, data: any) {
                         if (err) {
-                            //vscode.window.showErrorMessage(ERROR_MESSAGE);
                             console.error(err);
-                            reject(null);
+                            reject(err);
                         }
                         resolve(data);
 
                     });
                 }
                 else {
-                    reject(null);
+                    reject("File Not Exists");
                 }
             });
 
@@ -45,26 +43,20 @@ export class FileManager {
     public static WriteFile(filePath: string, data: string): Promise<boolean> {
         return new Promise<boolean>((resolve, reject) => {
             if (data) {
-
                 fs.writeFile(filePath, data, function(err: any, data: any) {
                     if (err) {
-                        //vscode.window.showErrorMessage(ERROR_MESSAGE);
                         console.error(err);
                         reject(false);
                     }
                     else {
-                        //TOKEN = token;
                         resolve(true);
                     }
-
                 });
             }
             else {
-                //vscode.window.showErrorMessage(ERROR_MESSAGE);
                 console.error("DATA is EMPTY for " + filePath);
                 reject(false);
             }
-
         });
     }
 
@@ -85,10 +77,27 @@ export class FileManager {
                     var file: File = new File(fileName, fileContent, filePath);
                     files.push(file);
                 }
-
                 resolve(files);
             });
 
+        });
+    }
+
+    public static async DeleteFile(filePath: string): Promise<boolean> {
+        return new Promise<boolean>((resolve, reject) => {
+            if (filePath) {
+                this.FileExists(filePath).then(async function(fileExists: boolean) {
+                    if (fileExists) {
+                        await fs.unlinkSync(filePath);
+                        resolve(true);
+                    }
+                    
+                });
+            }
+            else {
+                console.error("DATA is EMPTY for " + filePath);
+                reject(false);
+            }
         });
     }
 }
