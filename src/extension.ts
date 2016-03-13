@@ -30,8 +30,7 @@ export function activate(context: vscode.ExtensionContext) {
         version: "3.0.0"
     });
 
-    var TOKEN: string = null;
-    var GIST: string = null;
+
 
     var disposable = vscode.commands.registerCommand('extension.updateSettings', () => {
         var en: envir.Environment = new envir.Environment(context);
@@ -44,21 +43,22 @@ export function activate(context: vscode.ExtensionContext) {
             common.TokenFileExists().then(function(tokenExists: boolean) {
                 if (tokenExists) {
                     fileManager.FileManager.ReadFile(en.FILE_TOKEN).then(function(token: string) {
-                        TOKEN = token;
-                        myGi = new myGit.GithubService(TOKEN, en);
+                        
+                        myGi = new myGit.GithubService(token);
+                        
                         common.GISTFileExists().then(function(gistExists: boolean) {
                             if (gistExists) {
                                 fileManager.FileManager.ReadFile(en.FILE_GIST).then(function(gist: string) {
-                                    GIST = gist;
+                                    
                                     vscode.window.setStatusBarMessage("Uploading / Updating Your Settings In Github.", 2000);
-                                    startGitProcess();
+                                    startGitProcess(token, gist);
                                 });
 
                             }
                             else {
-                                GIST = null;
+                               
                                 vscode.window.setStatusBarMessage("Uploading / Updating Your Settings In Github.", 2000);
-                                startGitProcess();
+                                startGitProcess(token,null);
                             }
 
                         });
@@ -69,6 +69,7 @@ export function activate(context: vscode.ExtensionContext) {
                     common.GetTokenAndSave().then(function(saved: boolean) {
                         if (saved) {
                             Init();
+                            return;
                         }
                     })
                 }
@@ -78,9 +79,9 @@ export function activate(context: vscode.ExtensionContext) {
         }
 
 
-        async function startGitProcess() {
+        async function startGitProcess(token : string , gist : string) {
 
-            if (TOKEN != null) {
+            if (token != null) {
                 var settingtext: string = "//setting";
                 var launchtext: string = "//launch";
                 var keybindingtext: string = "//keybinding";
@@ -89,14 +90,12 @@ export function activate(context: vscode.ExtensionContext) {
                 await fileManager.FileManager.ReadFile(en.FILE_SETTING).then(async function(settings: string) {
                     if (settings) {
                         settingtext = settings;
-
                     }
                 });
 
                 await fileManager.FileManager.ReadFile(en.FILE_LAUNCH).then(async function(launch: string) {
                     if (launch) {
                         launchtext = launch;
-
                     }
                 });
 
@@ -114,7 +113,7 @@ export function activate(context: vscode.ExtensionContext) {
 
                 var snippetFiles = await fileManager.FileManager.ListFiles(en.FOLDER_SNIPPETS);
 
-                if (GIST == null) {
+                if (gist == null) {
                     await myGi.CreateNewGist(settingtext, launchtext, keybindingtext, extensiontext, snippetFiles).then(function(gistID: string) {
                         
                         fileManager.FileManager.WriteFile(en.FILE_GIST, gistID).then(function(added: boolean) {
@@ -131,8 +130,8 @@ export function activate(context: vscode.ExtensionContext) {
                         vscode.window.showErrorMessage(common.ERROR_MESSAGE);
                     });
                 }
-                else if (GIST != null) {
-                    await myGi.ExistingGist(GIST, settingtext, launchtext, keybindingtext, extensiontext, snippetFiles).then(function(added: boolean) {
+                else if (gist != null) {
+                    await myGi.ExistingGist(gist, settingtext, launchtext, keybindingtext, extensiontext, snippetFiles).then(function(added: boolean) {
                         vscode.window.showInformationMessage("Settings Updated Successfully");
 
                     }, function(error: any) {
@@ -164,19 +163,20 @@ export function activate(context: vscode.ExtensionContext) {
             common.TokenFileExists().then(function(tokenExists: boolean) {
                 if (tokenExists) {
                     fileManager.FileManager.ReadFile(en.FILE_TOKEN).then(function(token: string) {
-                        TOKEN = token;
+                        
                         common.GISTFileExists().then(function(gistExists: boolean) {
                             if (gistExists) {
                                 fileManager.FileManager.ReadFile(en.FILE_GIST).then(function(gist: string) {
-                                    GIST = gist;
+                                  
                                     vscode.window.setStatusBarMessage("Downloading Your Settings...", 2000);
-                                    StartDownload();
+                                    StartDownload(gist);
                                 });
                             }
                             else {
                                 common.GetGistAndSave().then(function(saved: boolean) {
                                     if (saved) {
                                         Init();
+                                        return;
                                     }
                                 })
                             }
@@ -188,6 +188,7 @@ export function activate(context: vscode.ExtensionContext) {
                     common.GetTokenAndSave().then(function(saved: boolean) {
                         if (saved) {
                             Init();
+                            return;
                         }
                     })
                 }
@@ -198,8 +199,8 @@ export function activate(context: vscode.ExtensionContext) {
 
         }
 
-        function StartDownload() {
-            github.getGistsApi().get({ id: GIST }, function(er, res) {
+        function StartDownload(gist : string) {
+            github.getGistsApi().get({ id: gist }, function(er, res) {
 
                 if (er) {
                     vscode.window.showErrorMessage(common.ERROR_MESSAGE);

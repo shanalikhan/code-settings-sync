@@ -34,7 +34,7 @@ export class GithubService {
     };
     private GIST_JSON: any = null;
 
-    constructor(private TOKEN: string, private envir: envir.Environment) {
+    constructor(private TOKEN: string) {
         github.authenticate({
             type: "oauth",
             token: TOKEN
