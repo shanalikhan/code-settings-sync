@@ -9,26 +9,6 @@ var ncp = require('ncp').ncp;
 
 var apiPath = 'https://marketplace.visualstudio.com/_apis/public/gallery/extensionquery';
 
-export class Common{
-    public static GetInputBox(token: boolean) {
-            if (token) {
-                let options: vscode.InputBoxOptions = {
-                    placeHolder: "Enter Github Personal Access Token",
-                    password: false,
-                    prompt: "Link is opened to get the github token."
-                };
-                return options;
-            }
-            else {
-                let options: vscode.InputBoxOptions = {
-                    placeHolder: "Enter GIST ID",
-                    password: false,
-                    prompt: "If you never upload the files in any machine before then upload it before."
-                };
-                return options;
-            }
-        };
-}
     
 export class ExtensionInformation{
     metadata: ExtensionMetadata;
