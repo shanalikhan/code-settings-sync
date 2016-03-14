@@ -89,9 +89,8 @@ export class FileManager {
                 this.FileExists(filePath).then(async function(fileExists: boolean) {
                     if (fileExists) {
                         await fs.unlinkSync(filePath);
-                        resolve(true);
                     }
-
+                    resolve(true);
                 });
             }
             else {
@@ -107,9 +106,9 @@ export class FileManager {
                 this.FileExists(name).then(async function(dirExist: boolean) {
                     if (!dirExist) {
                         await fs.mkdirSync(name);
-                       
+
                     }
-                     resolve(true);
+                    resolve(true);
                 });
             }
             else {

@@ -217,8 +217,6 @@ export function activate(context: vscode.ExtensionContext) {
                                     return;
                                 }
                             );
-
-
                             break;
                         }
                         case "settings": {
@@ -228,9 +226,7 @@ export function activate(context: vscode.ExtensionContext) {
                                 }, function(error: any) {
                                     vscode.window.showErrorMessage(common.ERROR_MESSAGE);
                                     return;
-                                }
-                            );
-
+                                });
                             break;
                         }
                         case "keybindings": {
@@ -241,15 +237,13 @@ export function activate(context: vscode.ExtensionContext) {
                                 }, function(error: any) {
                                     vscode.window.showErrorMessage(common.ERROR_MESSAGE);
                                     return;
-                                }
-                            );
+                                });
                             break;
                         }
                         case "extensions": {
                             var remoteList = pluginService.ExtensionInformation.fromJSONList(res.files.extensions.content);
                             var missingList = pluginService.PluginService.GetMissingExtensions(remoteList);
                             if (missingList.length == 0) {
-
                                 vscode.window.showInformationMessage("No extension need to be installed");
                             }
                             else {

@@ -46,7 +46,7 @@
       },
       {
         "command": "extension.resetSettings",
-        "title": "Sync : Reset"
+        "title": "Sync : Reset Sync Settings"
       }
     ],
     "keybindings": [
