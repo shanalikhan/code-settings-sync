@@ -17,16 +17,16 @@ export class GithubService {
         "description": "Visual Studio code settings",
         "public": false,
         "files": {
-            "settings": {
+            "settings.json": {
                 "content": ""
             },
-            "launch": {
+            "launch.json": {
                 "content": ""
             },
-            "keybindings": {
+            "keybindings.json": {
                 "content": ""
             },
-            "extensions": {
+            "extensions.json": {
                 "content": ""
             }
 
@@ -92,7 +92,8 @@ export class GithubService {
                     if (res.files["extensions.json"]) {
                         res.files["extensions.json"].content = extensiontext;
                     }
-
+                    res = me.AddFile(snippetsFiles, res);
+                    
                     await github.getGistsApi().edit(res, function(ere, ress) {
                         if (ere) {
                             console.error(er);

@@ -208,8 +208,8 @@ export function activate(context: vscode.ExtensionContext) {
                 var keys = Object.keys(res.files);
                 for (var i: number = 0; i < keys.length; i++) {
                     switch (keys[i]) {
-                        case "launch": {
-                            await fileManager.FileManager.WriteFile(en.FILE_LAUNCH, res.files.launch.content).then(
+                        case "launch.json": {
+                            await fileManager.FileManager.WriteFile(en.FILE_LAUNCH, res.files["launch.json"].content).then(
                                 function(added: boolean) {
                                     vscode.window.showInformationMessage("Launch Settings downloaded Successfully");
                                 }, function(error: any) {
@@ -220,7 +220,7 @@ export function activate(context: vscode.ExtensionContext) {
                             break;
                         }
                         case "settings.json": {
-                            await fileManager.FileManager.WriteFile(en.FILE_SETTING, res.files.settings.content).then(
+                            await fileManager.FileManager.WriteFile(en.FILE_SETTING, res.files["settings.json"].content).then(
                                 function(added: boolean) {
                                     vscode.window.showInformationMessage("Editor Settings downloaded Successfully");
                                 }, function(error: any) {
@@ -231,7 +231,7 @@ export function activate(context: vscode.ExtensionContext) {
                         }
                         case "keybindings.json": {
 
-                            await fileManager.FileManager.WriteFile(en.FILE_KEYBINDING, res.files.keybindings.content).then(
+                            await fileManager.FileManager.WriteFile(en.FILE_KEYBINDING, res.files["keybindings.json"].content).then(
                                 function(added: boolean) {
                                     vscode.window.showInformationMessage("Keybinding Settings downloaded Successfully");
                                 }, function(error: any) {
@@ -241,7 +241,7 @@ export function activate(context: vscode.ExtensionContext) {
                             break;
                         }
                         case "extensions.json": {
-                            var remoteList = pluginService.ExtensionInformation.fromJSONList(res.files.extensions.content);
+                            var remoteList = pluginService.ExtensionInformation.fromJSONList(res.files["extensions.json"].content);
                             var missingList = pluginService.PluginService.GetMissingExtensions(remoteList);
                             if (missingList.length == 0) {
                                 vscode.window.showInformationMessage("No extension need to be installed");
@@ -271,8 +271,8 @@ export function activate(context: vscode.ExtensionContext) {
                             if (i < keys.length) {
                                 await fileManager.FileManager.CreateDirectory(en.FOLDER_SNIPPETS);
                                
-                                var file = en.FOLDER_SNIPPETS.concat(keys[i]).concat(".json");
-                                var fileName = keys[i].concat(".json");
+                                var file = en.FOLDER_SNIPPETS.concat(keys[i]);//.concat(".json");
+                                var fileName = keys[i]//.concat(".json");
                                 await fileManager.FileManager.WriteFile(file, res.files[keys[i]].content).then(
                                     function(added: boolean) {
                                         vscode.window.showInformationMessage(fileName + " snippet added successfully.");
