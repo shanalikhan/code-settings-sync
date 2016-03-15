@@ -219,7 +219,7 @@ export function activate(context: vscode.ExtensionContext) {
                             );
                             break;
                         }
-                        case "settings": {
+                        case "settings.json": {
                             await fileManager.FileManager.WriteFile(en.FILE_SETTING, res.files.settings.content).then(
                                 function(added: boolean) {
                                     vscode.window.showInformationMessage("Editor Settings downloaded Successfully");
@@ -229,7 +229,7 @@ export function activate(context: vscode.ExtensionContext) {
                                 });
                             break;
                         }
-                        case "keybindings": {
+                        case "keybindings.json": {
 
                             await fileManager.FileManager.WriteFile(en.FILE_KEYBINDING, res.files.keybindings.content).then(
                                 function(added: boolean) {
@@ -240,7 +240,7 @@ export function activate(context: vscode.ExtensionContext) {
                                 });
                             break;
                         }
-                        case "extensions": {
+                        case "extensions.json": {
                             var remoteList = pluginService.ExtensionInformation.fromJSONList(res.files.extensions.content);
                             var missingList = pluginService.PluginService.GetMissingExtensions(remoteList);
                             if (missingList.length == 0) {

@@ -55,10 +55,10 @@ export class GithubService {
         var me = this;
         return new Promise<string>((resolve, reject) => {
 
-            me.GIST_JSON_EMPTY.files.settings.content = settingstext;
-            me.GIST_JSON_EMPTY.files.launch.content = launchtext;
-            me.GIST_JSON_EMPTY.files.keybindings.content = keybindingtext;
-            me.GIST_JSON_EMPTY.files.extensions.content = extensiontext;
+            me.GIST_JSON_EMPTY.files["settings.json"].content = settingstext;
+            me.GIST_JSON_EMPTY.files["launch.json"].content = launchtext;
+            me.GIST_JSON_EMPTY.files["keybindings.json"].content = keybindingtext;
+            me.GIST_JSON_EMPTY.files["extensions.json"].content = extensiontext;
             me.GIST_JSON_EMPTY = me.AddFile(snippetsFiles, me.GIST_JSON_EMPTY);
 
             github.getGistsApi().create(me.GIST_JSON_EMPTY
@@ -86,11 +86,11 @@ export class GithubService {
                 }
                 else {
 
-                    res.files.settings.content = settingstext;
-                    res.files.launch.content = launchtext;
-                    res.files.keybindings.content = keybindingtext;
-                    if (res.files.extensions) {
-                        res.files.extensions.content = extensiontext;
+                    res.files["settings.json"].content = settingstext;
+                    res.files["launch.json"].content = launchtext;
+                    res.files["keybindings.json"].content = keybindingtext;
+                    if (res.files["extensions.json"]) {
+                        res.files["extensions.json"].content = extensiontext;
                     }
 
                     await github.getGistsApi().edit(res, function(ere, ress) {
