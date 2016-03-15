@@ -16,6 +16,7 @@ export class Environment {
     public FILE_LAUNCH: string = null;
     public FILE_KEYBINDING: string = null;
     public FOLDER_SNIPPETS: string = null;
+    public APP_SETTINGS : string = null;
 
     constructor(context: vscode.ExtensionContext) {
         this.context = context;
@@ -43,6 +44,7 @@ export class Environment {
         this.FILE_LAUNCH = this.PATH.concat("/User/launch.json");
         this.FILE_KEYBINDING = this.PATH.concat("/User/keybindings.json");
         this.FOLDER_SNIPPETS = this.PATH.concat("/User/snippets/");
+        this.APP_SETTINGS = this.PATH.concat("/User/syncSettings.json");
     }
 
 

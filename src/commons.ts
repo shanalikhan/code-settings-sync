@@ -10,6 +10,44 @@ export class Commons {
     constructor(private en: envi.Environment) {
 
     }
+    public InitSettings(): Promise<boolean> {
+        var me = this;
+        var setting = {
+            TOKEN: "",
+            GIST: ""
+        };
+        return new Promise<boolean>((resolve, reject) => {
+            fManager.FileManager.WriteFile(me.en.APP_SETTINGS, JSON.stringify(setting)).then(function(added: boolean) {
+                if (added) {
+                    resolve(added);
+                }
+                else {
+                    resolve(false);
+                }
+            }, function(a: any) {
+                reject(a);
+            });
+        });
+    }
+    public GetSettings(): Promise<Object> {
+        var me = this;
+        return new Promise<Object>((resolve, reject) => {
+            fManager.FileManager.FileExists(me.en.APP_SETTINGS).then(function(fileExist: boolean) {
+                //resolve(fileExist);
+                 fManager.FileManager.ReadFile(me.en.APP_SETTINGS).then(function (settingsData:string) {
+                     if(settingsData){
+                         resolve(JSON.parse(settingsData));
+                     }
+                     else {
+                         resolve(null);
+                     }
+                 });
+
+            }, function(err: any) {
+                reject(null);
+            });
+        });
+    }
 
     public TokenFileExists(): Promise<boolean> {
         var me = this;
@@ -72,7 +110,7 @@ export class Commons {
         var me = this;
         var opt = Commons.GetInputBox(true);
         return new Promise<boolean>((resolve, reject) => {
-            
+
             vscode.window.showInputBox(opt).then((token) => {
                 token = token.trim();
                 if (token) {
