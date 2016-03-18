@@ -102,15 +102,21 @@ export class Commons {
         return new Promise<Object>(async (resolve, reject) => {
             await fManager.FileManager.FileExists(me.en.APP_SETTINGS).then(async function(fileExist: boolean) {
                 //resolve(fileExist);
-                await fManager.FileManager.ReadFile(me.en.APP_SETTINGS).then(function(settingsData: string) {
-                    if (settingsData) {
-                        resolve(JSON.parse(settingsData));
-                    }
-                    else {
-                        console.error(me.en.APP_SETTINGS + " not Found.");
-                        resolve(null);
-                    }
-                });
+                if (fileExist) {
+                    await fManager.FileManager.ReadFile(me.en.APP_SETTINGS).then(function(settingsData: string) {
+                        if (settingsData) {
+                            resolve(JSON.parse(settingsData));
+                        }
+                        else {
+                            console.error(me.en.APP_SETTINGS + " not Found.");
+                            resolve(null);
+                        }
+                    });
+                }
+                else {
+                    resolve(null);
+                }
+
 
             }, function(err: any) {
                 reject(err);
