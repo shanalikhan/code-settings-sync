@@ -61,16 +61,18 @@ export function activate(context: vscode.ExtensionContext) {
                 });
             }
             else {
+                myGi = new myGit.GithubService(syncSetting.Token);
+
                 vscode.window.setStatusBarMessage("Uploading / Updating Your Settings In Github.", 3000);
-                await startGitProcess(syncSetting.Token, syncSetting.Gist);
+                await startGitProcess(syncSetting);
                 return;
             }
         }
 
 
-        async function startGitProcess(token: string, gist: string) {
+        async function startGitProcess(sett : Setting) {
 
-            if (token != null) {
+            if (sett.Token != null) {
                 var settingtext: string = "//setting";
                 var launchtext: string = "//launch";
                 var keybindingtext: string = "//keybinding";
@@ -102,27 +104,28 @@ export function activate(context: vscode.ExtensionContext) {
 
                 var snippetFiles = await fileManager.FileManager.ListFiles(en.FOLDER_SNIPPETS);
 
-                if (gist == null) {
-                    await myGi.CreateNewGist(settingtext, launchtext, keybindingtext, extensiontext, snippetFiles).then(function(gistID: string) {
-
-                        fileManager.FileManager.WriteFile(en.FILE_GIST, gistID).then(function(added: boolean) {
+                if (sett.Gist == null) {
+                    await myGi.CreateNewGist(settingtext, launchtext, keybindingtext, extensiontext, snippetFiles).then(async function(gistID: string) {
+                        
+                        await common.SaveSettings(sett).then(function (added:boolean) {
                             if (added) {
                                 vscode.window.showInformationMessage("Uploaded Successfully." + " GIST ID :  " + gistID + " . Please copy and use this ID in other machines to sync all settings.");
                                 vscode.window.setStatusBarMessage("Gist Saved.", 1000);
                             }
-                        }, function(error: any) {
-                            console.error(error);
+                        },function (err:any) {
+                             console.error(err);
                             vscode.window.showErrorMessage(common.ERROR_MESSAGE);
                             return;
                         });
+                       
 
                     }, function(error: any) {
                         vscode.window.showErrorMessage(common.ERROR_MESSAGE);
                         return;
                     });
                 }
-                else if (gist != null) {
-                    await myGi.ExistingGist(gist, settingtext, launchtext, keybindingtext, extensiontext, snippetFiles).then(function(added: boolean) {
+                else if (sett.Gist != null) {
+                    await myGi.ExistingGist(sett.Gist, settingtext, launchtext, keybindingtext, extensiontext, snippetFiles).then(function(added: boolean) {
                         vscode.window.showInformationMessage("Settings Updated Successfully");
 
                     }, function(error: any) {
@@ -168,7 +171,7 @@ export function activate(context: vscode.ExtensionContext) {
                     return;
                 });
             }
-            
+            myGi = new myGit.GithubService(syncSetting.Token);
             if (syncSetting.Gist == null) {
                 await common.GetGistAndSave(syncSetting).then(function(saved: boolean) {
                     if (saved) {
@@ -186,7 +189,7 @@ export function activate(context: vscode.ExtensionContext) {
                 });
             }
             await StartDownload(syncSetting.Gist);
-            
+
         }
 
         async function StartDownload(gist: string) {
