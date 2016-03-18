@@ -11,6 +11,7 @@ import * as envir from './environmentPath';
 import * as fileManager from './fileManager';
 import * as commons from './commons';
 import * as myGit from './githubService';
+import {Setting} from './setting';
 
 
 // this method is called when your extension is activated
@@ -36,9 +37,11 @@ export function activate(context: vscode.ExtensionContext) {
         var en: envir.Environment = new envir.Environment(context);
         var common: commons.Commons = new commons.Commons(en);
         var myGi: myGit.GithubService = null;
-
+        var syncSetting : Setting = await common.InitSettings();
+        
         async function Init() {
 
+            
             vscode.window.setStatusBarMessage("Checking for Github Token and GIST.", 2000);
             common.TokenFileExists().then(function(tokenExists: boolean) {
                 if (tokenExists) {

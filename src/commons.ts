@@ -2,6 +2,7 @@
 import * as vscode from 'vscode';
 import * as envi from './environmentPath';
 import * as fManager from './fileManager';
+import {Setting} from './setting';
 
 export class Commons {
 
@@ -10,22 +11,19 @@ export class Commons {
     constructor(private en: envi.Environment) {
 
     }
-    public async InitSettings(): Promise<Object> {
-
+    public async InitSettings(): Promise<Setting> {
+        
         var me = this;
-        var setting = {
-            TOKEN: "",
-            GIST: "",
-            migration: false,
-            proxy: "",
-            port: ""
-        };
-        return new Promise<Object>(async (resolve, reject) => {
+        var setting : Setting = new Setting();
+        setting.Migrated = false;
+        
+        return new Promise<Setting>(async (resolve, reject) => {
 
             await fManager.FileManager.FileExists(me.en.APP_SETTINGS).then(async function(fileExist: boolean) {
                 if (fileExist) {
-                    await fManager.FileManager.ReadFile(me.en.APP_SETTINGS).then(function(setting: Object) {
-                        resolve(setting);
+                    await fManager.FileManager.ReadFile(me.en.APP_SETTINGS).then(function(settin: string) {
+                        var set : Setting = JSON.parse(settin);
+                        resolve(set);
                     }, function(settingError: any) {
                         reject(settingError);
                     });
@@ -79,9 +77,9 @@ export class Commons {
                         reject(err);
                     });
 
-                    setting.GIST = oldGist;
-                    setting.TOKEN = oldToken;
-                    setting.migration = true;
+                    setting.Gist = oldGist;
+                    setting.Token = oldToken;
+                    setting.Migrated = true;
 
                     await fManager.FileManager.WriteFile(me.en.APP_SETTINGS, JSON.stringify(setting)).then(function(added: boolean) {
                         resolve(setting);
