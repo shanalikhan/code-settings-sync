@@ -106,6 +106,7 @@ export function activate(context: vscode.ExtensionContext) {
 
                 if (sett.Gist == null) {
                     await myGi.CreateNewGist(settingtext, launchtext, keybindingtext, extensiontext, snippetFiles).then(async function(gistID: string) {
+                        sett.Gist = gistID;
                         
                         await common.SaveSettings(sett).then(function (added:boolean) {
                             if (added) {

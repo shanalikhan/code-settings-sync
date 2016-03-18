@@ -29,7 +29,7 @@ export class Commons {
                     });
                 }
                 else {
-                    
+                    vscode.window.showInformationMessage("For the purpose of adding more features in the future. GIST Layout has been changed. The Old GIST in the github is not compatible with this version. On Update command extension will create new GIST.");
                     // check for migration process by creating new file and adding old settings there.
                     
                     var oldToken = null;
@@ -40,6 +40,8 @@ export class Commons {
                             await fManager.FileManager.ReadFile(me.en.FILE_TOKEN).then(async function(token: string) {
                                 if (token) {
                                     oldToken = token;
+                                    var result = await fManager.FileManager.DeleteFile(me.en.FILE_TOKEN);
+
                                 }
 
                             }, function(tokenErr: any) {
@@ -56,26 +58,27 @@ export class Commons {
                     });
 
 
+                    var result2 = await fManager.FileManager.DeleteFile(me.en.FILE_GIST);
+                    // await fManager.FileManager.FileExists(me.en.FILE_GIST).then(async function(gistExist: boolean) {
+                    //     if (gistExist) {
+                    //         await fManager.FileManager.ReadFile(me.en.FILE_GIST).then(async function(gist: string) {
+                    //             if (gist) {
+                    //                 oldGist = gist;
+                    //                 var result2 = await fManager.FileManager.DeleteFile(me.en.FILE_GIST);
+                    //             }
 
-                    await fManager.FileManager.FileExists(me.en.FILE_GIST).then(async function(gistExist: boolean) {
-                        if (gistExist) {
-                            await fManager.FileManager.ReadFile(me.en.FILE_GIST).then(async function(gist: string) {
-                                if (gist) {
-                                    oldGist = gist;
-                                }
-
-                            }, function(tokenErr: any) {
-                                reject(tokenErr);
-                            });
-                        }
-                        else {
-                            oldGist = null;
-                        }
+                    //         }, function(tokenErr: any) {
+                    //             reject(tokenErr);
+                    //         });
+                    //     }
+                    //     else {
+                    //         oldGist = null;
+                    //     }
 
 
-                    }, function(err: any) {
-                        reject(err);
-                    });
+                    // }, function(err: any) {
+                    //     reject(err);
+                    // });
 
                     setting.Gist = oldGist;
                     setting.Token = oldToken;
@@ -208,7 +211,7 @@ export class Commons {
                     sett.Token = token;
                     await me.SaveSettings(sett).then(function(saved: boolean) {
                         if (saved) {
-                            vscode.window.setStatusBarMessage("Token Saved",1000);
+                            vscode.window.setStatusBarMessage("Token Saved", 1000);
                         }
                         resolve(saved);
                     }, function(err: any) {
@@ -228,7 +231,7 @@ export class Commons {
                     sett.Gist = gist;
                     await me.SaveSettings(sett).then(function(saved: boolean) {
                         if (saved) {
-                            vscode.window.setStatusBarMessage("Gist Saved",1000);
+                            vscode.window.setStatusBarMessage("Gist Saved", 1000);
                         }
                         resolve(saved);
                     }, function(err: any) {
