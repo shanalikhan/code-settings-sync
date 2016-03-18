@@ -207,6 +207,9 @@ export class Commons {
                 if (token) {
                     sett.Token = token;
                     await me.SaveSettings(sett).then(function(saved: boolean) {
+                        if (saved) {
+                            vscode.window.setStatusBarMessage("Token Saved",1000);
+                        }
                         resolve(saved);
                     }, function(err: any) {
                         reject(err);
@@ -224,6 +227,9 @@ export class Commons {
                 if (gist) {
                     sett.Gist = gist;
                     await me.SaveSettings(sett).then(function(saved: boolean) {
+                        if (saved) {
+                            vscode.window.setStatusBarMessage("Gist Saved",1000);
+                        }
                         resolve(saved);
                     }, function(err: any) {
                         reject(err);

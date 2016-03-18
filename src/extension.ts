@@ -37,52 +37,34 @@ export function activate(context: vscode.ExtensionContext) {
         var en: envir.Environment = new envir.Environment(context);
         var common: commons.Commons = new commons.Commons(en);
         var myGi: myGit.GithubService = null;
-        
-        
+
+
         async function Init() {
 
-            
             vscode.window.setStatusBarMessage("Checking for Github Token and GIST.", 2000);
-            var syncSetting : Setting = await common.InitSettings();
-            if (syncSetting.Token==null) {
-                //await common.GetTokenAndSave(syncSetting)
+            var syncSetting: Setting = await common.InitSettings();
+            if (syncSetting.Token == null) {
+                openurl("https://github.com/settings/tokens");
+                await common.GetTokenAndSave(syncSetting).then(function(saved: boolean) {
+                    if (saved) {
+                        Init();
+                        return;
+                    }
+                    else {
+                        vscode.window.showErrorMessage("TOKEN NOT SAVED");
+                        return;
+                    }
+                }, function(err: any) {
+                    console.error(err);
+                    vscode.window.showErrorMessage(common.ERROR_MESSAGE);
+                    return;
+                });
             }
-            
-            common.TokenFileExists().then(function(tokenExists: boolean) {
-                if (tokenExists) {
-                    fileManager.FileManager.ReadFile(en.FILE_TOKEN).then(function(token: string) {
-
-                        myGi = new myGit.GithubService(token);
-
-                        common.GISTFileExists().then(async function(gistExists: boolean) {
-                            vscode.window.setStatusBarMessage("Uploading / Updating Your Settings In Github.", 3000);
-                            if (gistExists) {
-                                fileManager.FileManager.ReadFile(en.FILE_GIST).then(async function(gist: string) {
-                                    await startGitProcess(token, gist);
-                                    return;
-                                });
-                            }
-                            else {
-                                await startGitProcess(token, null);
-                                return;
-                            }
-                        });
-                    });
-                }
-                else {
-                    openurl("https://github.com/settings/tokens");
-                    common.GetTokenAndSave().then(function(saved: boolean) {
-                        if (saved) {
-                            Init();
-                            return;
-                        }
-                    })
-                }
-            }, function(err: boolean) {
-                console.error(err);
-                vscode.window.showErrorMessage(common.ERROR_MESSAGE);
+            else {
+                vscode.window.setStatusBarMessage("Uploading / Updating Your Settings In Github.", 3000);
+                await startGitProcess(syncSetting.Token, syncSetting.Gist);
                 return;
-            });
+            }
         }
 
 
@@ -168,46 +150,43 @@ export function activate(context: vscode.ExtensionContext) {
         async function Init() {
 
             vscode.window.setStatusBarMessage("Checking for Github Token and GIST.", 2000);
-            common.TokenFileExists().then(function(tokenExists: boolean) {
-                if (tokenExists) {
-                    fileManager.FileManager.ReadFile(en.FILE_TOKEN).then(function(token: string) {
-                        myGi = new myGit.GithubService(token);
-                        common.GISTFileExists().then(function(gistExists: boolean) {
-                            if (gistExists) {
-                                fileManager.FileManager.ReadFile(en.FILE_GIST).then(function(gist: string) {
-                                    if (gist) {
-                                        vscode.window.setStatusBarMessage("Downloading Your Settings...", 2000);
-                                        StartDownload(gist);
-                                    }
-                                });
-                            }
-                            else {
-                                common.GetGistAndSave().then(function(saved: boolean) {
-                                    if (saved) {
-                                        Init();
-                                        return;
-                                    }
-                                })
-                            }
-                        });
-                    })
-                }
-                else {
-                    openurl("https://github.com/settings/tokens");
-                    common.GetTokenAndSave().then(function(saved: boolean) {
-                        if (saved) {
-                            Init();
-                            return;
-                        }
-                    })
-                }
-            }, function(err: boolean) {
-                console.error(err);
-                vscode.window.showErrorMessage(common.ERROR_MESSAGE);
-                return;
-            });
-
-
+            var syncSetting: Setting = await common.InitSettings();
+            if (syncSetting.Token == null) {
+                openurl("https://github.com/settings/tokens");
+                await common.GetTokenAndSave(syncSetting).then(function(saved: boolean) {
+                    if (saved) {
+                        Init();
+                        return;
+                    }
+                    else {
+                        vscode.window.showErrorMessage("TOKEN NOT SAVED");
+                        return;
+                    }
+                }, function(err: any) {
+                    console.error(err);
+                    vscode.window.showErrorMessage(common.ERROR_MESSAGE);
+                    return;
+                });
+            }
+            
+            if (syncSetting.Gist == null) {
+                await common.GetGistAndSave(syncSetting).then(function(saved: boolean) {
+                    if (saved) {
+                        Init();
+                        return;
+                    }
+                    else {
+                        vscode.window.showErrorMessage("GIST NOT SAVED");
+                        return;
+                    }
+                }, function(err: any) {
+                    console.error(err);
+                    vscode.window.showErrorMessage(common.ERROR_MESSAGE);
+                    return;
+                });
+            }
+            await StartDownload(syncSetting.Gist);
+            
         }
 
         async function StartDownload(gist: string) {
@@ -278,7 +257,7 @@ export function activate(context: vscode.ExtensionContext) {
                         default: {
                             if (i < keys.length) {
                                 await fileManager.FileManager.CreateDirectory(en.FOLDER_SNIPPETS);
-                               
+
                                 var file = en.FOLDER_SNIPPETS.concat(keys[i]);//.concat(".json");
                                 var fileName = keys[i]//.concat(".json");
                                 await fileManager.FileManager.WriteFile(file, res.files[keys[i]].content).then(
