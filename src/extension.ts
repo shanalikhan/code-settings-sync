@@ -37,12 +37,17 @@ export function activate(context: vscode.ExtensionContext) {
         var en: envir.Environment = new envir.Environment(context);
         var common: commons.Commons = new commons.Commons(en);
         var myGi: myGit.GithubService = null;
-        var syncSetting : Setting = await common.InitSettings();
+        
         
         async function Init() {
 
             
             vscode.window.setStatusBarMessage("Checking for Github Token and GIST.", 2000);
+            var syncSetting : Setting = await common.InitSettings();
+            if (syncSetting.Token==null) {
+                //await common.GetTokenAndSave(syncSetting)
+            }
+            
             common.TokenFileExists().then(function(tokenExists: boolean) {
                 if (tokenExists) {
                     fileManager.FileManager.ReadFile(en.FILE_TOKEN).then(function(token: string) {

@@ -12,17 +12,17 @@ export class Commons {
 
     }
     public async InitSettings(): Promise<Setting> {
-        
+
         var me = this;
-        var setting : Setting = new Setting();
+        var setting: Setting = new Setting();
         setting.Migrated = false;
-        
+
         return new Promise<Setting>(async (resolve, reject) => {
 
             await fManager.FileManager.FileExists(me.en.APP_SETTINGS).then(async function(fileExist: boolean) {
                 if (fileExist) {
                     await fManager.FileManager.ReadFile(me.en.APP_SETTINGS).then(function(settin: string) {
-                        var set : Setting = JSON.parse(settin);
+                        var set: Setting = JSON.parse(settin);
                         resolve(set);
                     }, function(settingError: any) {
                         reject(settingError);
@@ -81,8 +81,13 @@ export class Commons {
                     setting.Token = oldToken;
                     setting.Migrated = true;
 
-                    await fManager.FileManager.WriteFile(me.en.APP_SETTINGS, JSON.stringify(setting)).then(function(added: boolean) {
-                        resolve(setting);
+                    await me.SaveSettings(setting).then(function(added: boolean) {
+                        if (added) {
+                            resolve(setting);
+                        }
+                        else {
+                            resolve(null);
+                        }
                     }, function(err: any) {
                         reject(err);
                     });
@@ -95,6 +100,19 @@ export class Commons {
 
         });
     }
+
+    public async SaveSettings(setting: Setting): Promise<boolean> {
+        var me = this;
+        return new Promise<boolean>(async (resolve, reject) => {
+            await fManager.FileManager.WriteFile(me.en.APP_SETTINGS, JSON.stringify(setting)).then(function(added: boolean) {
+                resolve(added);
+            }, function(err: any) {
+                reject(err);
+            });
+        });
+
+    }
+
     public async GetSettings(): Promise<Object> {
         var me = this;
         return new Promise<Object>(async (resolve, reject) => {
@@ -179,41 +197,40 @@ export class Commons {
         });
     }
 
-    public GetTokenAndSave(): Promise<boolean> {
+    public async GetTokenAndSave(sett: Setting): Promise<boolean> {
         var me = this;
         var opt = Commons.GetInputBox(true);
         return new Promise<boolean>((resolve, reject) => {
 
-            vscode.window.showInputBox(opt).then((token) => {
+            vscode.window.showInputBox(opt).then(async (token) => {
                 token = token.trim();
                 if (token) {
-                    fManager.FileManager.WriteFile(me.en.FILE_TOKEN, token).then(function(added: boolean) {
-                        vscode.window.setStatusBarMessage("Token Saved.", 1000);
-                        resolve(added);
-                    }, function(error: any) {
-                        vscode.window.showErrorMessage(me.ERROR_MESSAGE);
-                        reject(error);
+                    sett.Token = token;
+                    await me.SaveSettings(sett).then(function(saved: boolean) {
+                        resolve(saved);
+                    }, function(err: any) {
+                        reject(err);
                     });
                 }
             });
         });
     }
-    public GetGistAndSave(): Promise<boolean> {
+    public async GetGistAndSave(sett: Setting): Promise<boolean> {
         var me = this;
         var opt = Commons.GetInputBox(false);
         return new Promise<boolean>((resolve, reject) => {
-            vscode.window.showInputBox(opt).then((gist) => {
+            vscode.window.showInputBox(opt).then(async (gist) => {
                 gist = gist.trim();
                 if (gist) {
-                    fManager.FileManager.WriteFile(me.en.FILE_GIST, gist).then(function(added: boolean) {
-                        vscode.window.setStatusBarMessage("Gist Saved.", 1000);
-                        resolve(added);
-                    }, function(error: any) {
-                        vscode.window.showErrorMessage(me.ERROR_MESSAGE);
-                        reject(error);
+                    sett.Gist = gist;
+                    await me.SaveSettings(sett).then(function(saved: boolean) {
+                        resolve(saved);
+                    }, function(err: any) {
+                        reject(err);
                     });
                 }
             });
+
         });
     }
 
