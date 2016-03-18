@@ -70,7 +70,7 @@ export function activate(context: vscode.ExtensionContext) {
         }
 
 
-        async function startGitProcess(sett : Setting) {
+        async function startGitProcess(sett: Setting) {
 
             if (sett.Token != null) {
                 var settingtext: string = "//setting";
@@ -107,18 +107,18 @@ export function activate(context: vscode.ExtensionContext) {
                 if (sett.Gist == null) {
                     await myGi.CreateNewGist(settingtext, launchtext, keybindingtext, extensiontext, snippetFiles).then(async function(gistID: string) {
                         sett.Gist = gistID;
-                        
-                        await common.SaveSettings(sett).then(function (added:boolean) {
+
+                        await common.SaveSettings(sett).then(function(added: boolean) {
                             if (added) {
                                 vscode.window.showInformationMessage("Uploaded Successfully." + " GIST ID :  " + gistID + " . Please copy and use this ID in other machines to sync all settings.");
                                 vscode.window.setStatusBarMessage("Gist Saved.", 1000);
                             }
-                        },function (err:any) {
-                             console.error(err);
+                        }, function(err: any) {
+                            console.error(err);
                             vscode.window.showErrorMessage(common.ERROR_MESSAGE);
                             return;
                         });
-                       
+
 
                     }, function(error: any) {
                         vscode.window.showErrorMessage(common.ERROR_MESSAGE);
@@ -289,12 +289,22 @@ export function activate(context: vscode.ExtensionContext) {
         var en: envir.Environment = new envir.Environment(context);
         var fManager: fileManager.FileManager;
         var common: commons.Commons = new commons.Commons(en);
+        var syncSetting: Setting = await common.InitSettings();
+
         vscode.window.setStatusBarMessage("Resetting Your Settings.", 2000);
         try {
-            var result = await fileManager.FileManager.DeleteFile(en.FILE_TOKEN);
-            var result2 = await fileManager.FileManager.DeleteFile(en.FILE_GIST);
+            syncSetting.Token = null;
+            syncSetting.Gist = null;
+            await common.SaveSettings(syncSetting).then(function(added: boolean) {
+                if (added) {
+                    vscode.window.showInformationMessage("GIST ID and Github Token Cleared.");
+                }
+            }, function(err: any) {
+                console.error(err);
+                vscode.window.showErrorMessage(common.ERROR_MESSAGE);
+                return;
+            });
 
-            vscode.window.showInformationMessage("GIST ID and Github Token Cleared.");
         }
         catch (err) {
             console.log(err);
