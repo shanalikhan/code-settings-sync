@@ -10,41 +10,110 @@ export class Commons {
     constructor(private en: envi.Environment) {
 
     }
-    public InitSettings(): Promise<boolean> {
+    public async InitSettings(): Promise<Object> {
+
         var me = this;
         var setting = {
             TOKEN: "",
-            GIST: ""
+            GIST: "",
+            migration: false,
+            proxy: "",
+            port: ""
         };
-        return new Promise<boolean>((resolve, reject) => {
-            fManager.FileManager.WriteFile(me.en.APP_SETTINGS, JSON.stringify(setting)).then(function(added: boolean) {
-                if (added) {
-                    resolve(added);
+        return new Promise<Object>(async (resolve, reject) => {
+
+            await fManager.FileManager.FileExists(me.en.APP_SETTINGS).then(async function(fileExist: boolean) {
+                if (fileExist) {
+                    await fManager.FileManager.ReadFile(me.en.APP_SETTINGS).then(function(setting: Object) {
+                        resolve(setting);
+                    }, function(settingError: any) {
+                        reject(settingError);
+                    });
                 }
                 else {
-                    resolve(false);
+                    
+                    // check for migration process by creating new file and adding old settings there.
+                    
+                    var oldToken = null;
+                    var oldGist = null;
+
+                    await fManager.FileManager.FileExists(me.en.FILE_TOKEN).then(async function(tokenExist: boolean) {
+                        if (tokenExist) {
+                            await fManager.FileManager.ReadFile(me.en.FILE_TOKEN).then(async function(token: string) {
+                                if (token) {
+                                    oldToken = token;
+                                }
+
+                            }, function(tokenErr: any) {
+                                reject(tokenErr);
+                            });
+                        }
+                        else {
+                            oldToken = null;
+                        }
+
+
+                    }, function(err: any) {
+                        reject(err);
+                    });
+
+
+
+                    await fManager.FileManager.FileExists(me.en.FILE_GIST).then(async function(gistExist: boolean) {
+                        if (gistExist) {
+                            await fManager.FileManager.ReadFile(me.en.FILE_GIST).then(async function(gist: string) {
+                                if (gist) {
+                                    oldGist = gist;
+                                }
+
+                            }, function(tokenErr: any) {
+                                reject(tokenErr);
+                            });
+                        }
+                        else {
+                            oldGist = null;
+                        }
+
+
+                    }, function(err: any) {
+                        reject(err);
+                    });
+
+                    setting.GIST = oldGist;
+                    setting.TOKEN = oldToken;
+                    setting.migration = true;
+
+                    await fManager.FileManager.WriteFile(me.en.APP_SETTINGS, JSON.stringify(setting)).then(function(added: boolean) {
+                        resolve(setting);
+                    }, function(err: any) {
+                        reject(err);
+                    });
+
                 }
-            }, function(a: any) {
-                reject(a);
+            }, function(err: any) {
+                reject(err);
             });
+
+
         });
     }
-    public GetSettings(): Promise<Object> {
+    public async GetSettings(): Promise<Object> {
         var me = this;
-        return new Promise<Object>((resolve, reject) => {
-            fManager.FileManager.FileExists(me.en.APP_SETTINGS).then(function(fileExist: boolean) {
+        return new Promise<Object>(async (resolve, reject) => {
+            await fManager.FileManager.FileExists(me.en.APP_SETTINGS).then(async function(fileExist: boolean) {
                 //resolve(fileExist);
-                 fManager.FileManager.ReadFile(me.en.APP_SETTINGS).then(function (settingsData:string) {
-                     if(settingsData){
-                         resolve(JSON.parse(settingsData));
-                     }
-                     else {
-                         resolve(null);
-                     }
-                 });
+                await fManager.FileManager.ReadFile(me.en.APP_SETTINGS).then(function(settingsData: string) {
+                    if (settingsData) {
+                        resolve(JSON.parse(settingsData));
+                    }
+                    else {
+                        console.error(me.en.APP_SETTINGS + " not Found.");
+                        resolve(null);
+                    }
+                });
 
             }, function(err: any) {
-                reject(null);
+                reject(err);
             });
         });
     }

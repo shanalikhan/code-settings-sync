@@ -4,7 +4,7 @@ var fs = require('fs');
 export class File {
     public fileName: string = null;
     constructor(private file: string, public content: string, private filePath) {
-       // this.fileName = file.split('.')[0];
+        // this.fileName = file.split('.')[0];
         this.fileName = file;
     }
 }
@@ -20,27 +20,20 @@ export class FileManager {
         });
     }
 
-    public static ReadFile(filePath: string): Promise<string> {
-        return new Promise<string>((resolve, reject) => {
-            this.FileExists(filePath).then(function(fileExists: boolean) {
-                if (fileExists) {
-                    fs.readFile(filePath, { encoding: 'utf8' }, function(err: any, data: any) {
-                        if (err) {
-                            console.error(err);
-                            reject(err);
-                        }
-                        resolve(data);
+    public static async ReadFile(filePath: string): Promise<string> {
+        return new Promise<string>(async(resolve, reject) => {
 
-                    });
+            await fs.readFile(filePath, { encoding: 'utf8' }, function(err: any, data: any) {
+                if (err) {
+                    console.error(err);
+                    reject(err);
                 }
-                else {
-                    reject("File Not Exists");
-                }
+                resolve(data);
+
             });
-
-
         });
     }
+
     public static WriteFile(filePath: string, data: string): Promise<boolean> {
         return new Promise<boolean>((resolve, reject) => {
             if (data) {
