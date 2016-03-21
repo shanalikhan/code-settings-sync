@@ -63,7 +63,7 @@ export class GithubService {
 
             github.getGistsApi().create(me.GIST_JSON_EMPTY
                 , function(err, res) {
-                    if (err) {
+                    if (err!=null) {
                         console.error(err);
                         reject(false);
                     }
