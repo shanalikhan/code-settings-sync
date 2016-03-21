@@ -78,23 +78,36 @@ export function activate(context: vscode.ExtensionContext) {
                 var keybindingtext: string = "//keybinding";
                 var extensiontext = "";
                 vscode.window.setStatusBarMessage("Reading Settings and Extensions.", 1000);
-                await fileManager.FileManager.ReadFile(en.FILE_SETTING).then(function(settings: string) {
-                    if (settings) {
-                        settingtext = settings;
+                await fileManager.FileManager.FileExists(en.FILE_SETTING).then(async function(fileExists: boolean) {
+                    if (fileExists) {
+                        await fileManager.FileManager.ReadFile(en.FILE_SETTING).then(function(settings: string) {
+                            if (settings) {
+                                settingtext = settings;
+                            }
+                        });
                     }
-                });
+                })
 
-                await fileManager.FileManager.ReadFile(en.FILE_LAUNCH).then(function(launch: string) {
-                    if (launch) {
-                        launchtext = launch;
+                await fileManager.FileManager.FileExists(en.FILE_LAUNCH).then(async function(fileExists: boolean) {
+                    if (fileExists) {
+                        await fileManager.FileManager.ReadFile(en.FILE_LAUNCH).then(function(launch: string) {
+                            if (launch) {
+                                launchtext = launch;
+                            }
+                        });
                     }
-                });
+                })
 
-                await fileManager.FileManager.ReadFile(en.FILE_KEYBINDING).then(function(keybinding: string) {
-                    if (keybinding) {
-                        keybindingtext = keybinding;
+                await fileManager.FileManager.FileExists(en.FILE_KEYBINDING).then(async function(fileExists: boolean) {
+                    if (fileExists) {
+                        await fileManager.FileManager.ReadFile(en.FILE_KEYBINDING).then(function(keybinding: string) {
+                            if (keybinding) {
+                                keybindingtext = keybinding;
+                            }
+                        });
                     }
-                });
+                })
+
 
                 var extensionlist = pluginService.PluginService.CreateExtensionList();
                 extensionlist.sort(function(a, b) {
