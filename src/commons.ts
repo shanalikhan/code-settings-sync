@@ -29,9 +29,10 @@ export class Commons {
                     });
                 }
                 else {
+                    var openurl = require('open');
                     vscode.window.showInformationMessage("For the purpose of adding more features in the future. GIST Layout has been changed. The Old GIST in the github is not compatible with this version. On Update command extension will create new GIST.");
                     // check for migration process by creating new file and adding old settings there.
-                    
+                    openurl("http://shanalikhan.github.io/2016/03/19/Visual-Studio-code-sync-setting-migration.html");
                     var oldToken = null;
                     var oldGist = null;
 
