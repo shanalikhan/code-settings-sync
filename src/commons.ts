@@ -86,8 +86,12 @@ export class Commons {
 
                     await me.SaveSettings(setting).then(async function(added: boolean) {
                         if (added) {
-                            var result = await fManager.FileManager.DeleteFile(me.en.FILE_TOKEN);
-                            var result2 = await fManager.FileManager.DeleteFile(me.en.FILE_GIST);
+                            await fManager.FileManager.DeleteFile(me.en.FILE_TOKEN).then(function (deleted:boolean) {
+                                
+                            });
+                            await fManager.FileManager.DeleteFile(me.en.FILE_GIST).then(function (deleted:boolean) {
+                                
+                            });
                             resolve(setting);
                         }
                         else {
