@@ -40,7 +40,7 @@ export class Commons {
                             await fManager.FileManager.ReadFile(me.en.FILE_TOKEN).then(async function(token: string) {
                                 if (token) {
                                     oldToken = token;
-                                    var result = await fManager.FileManager.DeleteFile(me.en.FILE_TOKEN);
+
 
                                 }
 
@@ -57,8 +57,7 @@ export class Commons {
                         reject(err);
                     });
 
-
-                    var result2 = await fManager.FileManager.DeleteFile(me.en.FILE_GIST);
+ 
                     // await fManager.FileManager.FileExists(me.en.FILE_GIST).then(async function(gistExist: boolean) {
                     //     if (gistExist) {
                     //         await fManager.FileManager.ReadFile(me.en.FILE_GIST).then(async function(gist: string) {
@@ -84,8 +83,10 @@ export class Commons {
                     setting.Token = oldToken;
                     setting.Migrated = true;
 
-                    await me.SaveSettings(setting).then(function(added: boolean) {
+                    await me.SaveSettings(setting).then(async function(added: boolean) {
                         if (added) {
+                            var result = await fManager.FileManager.DeleteFile(me.en.FILE_TOKEN);
+                            var result2 = await fManager.FileManager.DeleteFile(me.en.FILE_GIST);
                             resolve(setting);
                         }
                         else {
