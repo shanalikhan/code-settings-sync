@@ -63,12 +63,12 @@ export class GithubService {
 
             github.getGistsApi().create(me.GIST_JSON_EMPTY
                 , function(err, res) {
-                    if (err!=null) {
+                    if (err != null) {
                         console.error(err);
                         reject(false);
                     }
                     resolve(res.id);
-                   
+
 
                 });
         });
@@ -85,7 +85,18 @@ export class GithubService {
                     reject(false);
                 }
                 else {
-
+                    
+                    var allFiles : string[] = Object.keys(res.files);
+                    for (var file = 0; file < allFiles.length; file++) {
+                        var fileName = allFiles[file];
+                        if (fileName.indexOf(".")<0) {
+                            res.files[fileName]  = null;    
+                        }
+                        
+                    }
+                    res.files["settings.json"] = {};
+                    res.files["launch.json"] = {};
+                    res.files["keybindings.json"] = {};                    
                     res.files["settings.json"].content = settingstext;
                     res.files["launch.json"].content = launchtext;
                     res.files["keybindings.json"].content = keybindingtext;
@@ -93,7 +104,7 @@ export class GithubService {
                         res.files["extensions.json"].content = extensiontext;
                     }
                     res = me.AddFile(snippetsFiles, res);
-                    
+
                     await github.getGistsApi().edit(res, function(ere, ress) {
                         if (ere) {
                             console.error(er);
@@ -105,18 +116,17 @@ export class GithubService {
             });
         });
     }
-    
-    public async DownloadGist(gistID : string) : Promise<any>
-    {
-        return new Promise<any>(async(resolve,reject)=>{
-            await  github.getGistsApi().get({ id: gistID }, function(er, res) {
+
+    public async DownloadGist(gistID: string): Promise<any> {
+        return new Promise<any>(async (resolve, reject) => {
+            await github.getGistsApi().get({ id: gistID }, function(er, res) {
 
                 if (er) {
                     console.log(er);
                     reject(er);
                 }
                 resolve(res);
-             });
+            });
         });
     }
 
