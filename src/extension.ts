@@ -9,6 +9,7 @@ import * as pluginService from './pluginService';
 import * as path from 'path';
 import * as envir from './environmentPath';
 import * as fileManager from './fileManager';
+import {File} from './fileManager';
 import * as commons from './commons';
 import * as myGit from './githubService';
 import {Setting} from './setting';
@@ -73,16 +74,23 @@ export function activate(context: vscode.ExtensionContext) {
         async function startGitProcess(sett: Setting) {
 
             if (sett.Token != null) {
-                var settingtext: string = "//setting";
-                var launchtext: string = "//launch";
-                var keybindingtext: string = "//keybinding";
-                var extensiontext = "";
+                //var settingtext: string = "//setting";
+                //var launchtext: string = "//launch";
+                //var keybindingtext: string = "//keybinding";
+                //var extensiontext = "";
+                var allSettingFiles = new Array<File>();
+
                 vscode.window.setStatusBarMessage("Reading Settings and Extensions.", 1000);
                 await fileManager.FileManager.FileExists(en.FILE_SETTING).then(async function(fileExists: boolean) {
                     if (fileExists) {
                         await fileManager.FileManager.ReadFile(en.FILE_SETTING).then(function(settings: string) {
                             if (settings) {
-                                settingtext = settings;
+                                //settingtext = settings;
+                                var fileName = en.FILE_SETTING_NAME;
+                                var filePath = en.FILE_SETTING;
+                                var fileContent = settings;
+                                var file: File = new File(fileName, fileContent, filePath);
+                                allSettingFiles.push(file);
                             }
                         });
                     }
@@ -92,7 +100,12 @@ export function activate(context: vscode.ExtensionContext) {
                     if (fileExists) {
                         await fileManager.FileManager.ReadFile(en.FILE_LAUNCH).then(function(launch: string) {
                             if (launch) {
-                                launchtext = launch;
+                                //launchtext = launch;
+                                var fileName = en.FILE_LAUNCH_NAME;
+                                var filePath = en.FILE_LAUNCH;
+                                var fileContent = launch;
+                                var file: File = new File(fileName, fileContent, filePath);
+                                allSettingFiles.push(file);
                             }
                         });
                     }
@@ -102,7 +115,12 @@ export function activate(context: vscode.ExtensionContext) {
                     if (fileExists) {
                         await fileManager.FileManager.ReadFile(en.FILE_KEYBINDING).then(function(keybinding: string) {
                             if (keybinding) {
-                                keybindingtext = keybinding;
+                                //keybindingtext = keybinding;
+                                var fileName = en.FILE_KEYBINDING_NAME;
+                                var filePath = en.FILE_KEYBINDING;
+                                var fileContent = keybinding;
+                                var file: File = new File(fileName, fileContent, filePath);
+                                allSettingFiles.push(file);
                             }
                         });
                     }
@@ -113,12 +131,22 @@ export function activate(context: vscode.ExtensionContext) {
                 extensionlist.sort(function(a, b) {
                     return a.name.localeCompare(b.name);
                 });
-                extensiontext = JSON.stringify(extensionlist, undefined, 2);
+
+                var fileName = en.FILE_EXTENSION_NAME;
+                var filePath = en.FILE_EXTENSION;
+                var fileContent = JSON.stringify(extensionlist, undefined, 2);;
+                var file: File = new File(fileName, fileContent, filePath);
+                allSettingFiles.push(file);
+                
 
                 var snippetFiles = await fileManager.FileManager.ListFiles(en.FOLDER_SNIPPETS);
+                snippetFiles.forEach(snippetFile => {
+                    allSettingFiles.push(snippetFile);
+                });
+                
 
                 if (sett.Gist == null) {
-                    await myGi.CreateNewGist(settingtext, launchtext, keybindingtext, extensiontext, snippetFiles).then(async function(gistID: string) {
+                    await myGi.CreateNewGist(allSettingFiles).then(async function(gistID: string) {
                         sett.Gist = gistID;
 
                         await common.SaveSettings(sett).then(function(added: boolean) {
@@ -139,7 +167,7 @@ export function activate(context: vscode.ExtensionContext) {
                     });
                 }
                 else if (sett.Gist != null) {
-                    await myGi.ExistingGist(sett.Gist, settingtext, launchtext, keybindingtext, extensiontext, snippetFiles).then(function(added: boolean) {
+                    await myGi.ExistingGist(sett.Gist, allSettingFiles).then(function(added: boolean) {
                         vscode.window.showInformationMessage("Settings Updated Successfully");
 
                     }, function(error: any) {
@@ -210,7 +238,7 @@ export function activate(context: vscode.ExtensionContext) {
 
             myGi.DownloadGist(gist).then(async function(res: any) {
                 var keys = Object.keys(res.files);
-                if (keys[0].indexOf(".")<0) {
+                if (keys[0].indexOf(".") < 0) {
                     vscode.window.showErrorMessage("GIST Not Compatible With this version, Please Reset Settings. Important Release note has been opened in browser.");
                     openurl("http://shanalikhan.github.io/2016/03/19/Visual-Studio-code-sync-setting-migration.html");
                     return;
