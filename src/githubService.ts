@@ -56,7 +56,6 @@ export class GithubService {
         return new Promise<string>((resolve, reject) => {
 
             me.GIST_JSON_EMPTY = me.AddFile(files, me.GIST_JSON_EMPTY);
-
             github.getGistsApi().create(me.GIST_JSON_EMPTY
                 , function(err, res) {
                     if (err != null) {
