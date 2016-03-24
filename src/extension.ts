@@ -44,7 +44,7 @@ export function activate(context: vscode.ExtensionContext) {
 
             vscode.window.setStatusBarMessage("Checking for Github Token and GIST.", 2000);
             var syncSetting: Setting = await common.InitSettings();
-            if (syncSetting.Token == null) {
+            if (syncSetting.Token == null || syncSetting.Token == "") {
                 openurl("https://github.com/settings/tokens");
                 await common.GetTokenAndSave(syncSetting).then(function(saved: boolean) {
                     if (saved) {
@@ -145,7 +145,7 @@ export function activate(context: vscode.ExtensionContext) {
                 });
                 
 
-                if (sett.Gist == null) {
+                if (sett.Gist == null || sett.Gist == "") {
                     await myGi.CreateNewGist(allSettingFiles).then(async function(gistID: string) {
                         sett.Gist = gistID;
 
@@ -166,7 +166,7 @@ export function activate(context: vscode.ExtensionContext) {
                         return;
                     });
                 }
-                else if (sett.Gist != null) {
+                else {
                     await myGi.ExistingGist(sett.Gist, allSettingFiles).then(function(added: boolean) {
                         vscode.window.showInformationMessage("Settings Updated Successfully");
 
