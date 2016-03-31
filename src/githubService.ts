@@ -18,16 +18,16 @@ export class GithubService {
         "public": false,
         "files": {
             "settings.json": {
-                "content": ""
+                "content": "// Empty"
             },
             "launch.json": {
-                "content": ""
+                "content": "// Empty"
             },
             "keybindings.json": {
-                "content": ""
+                "content": "// Empty"
             },
             "extensions.json": {
-                "content": ""
+                "content": "// Empty"
             }
 
         }
