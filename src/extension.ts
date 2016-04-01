@@ -32,13 +32,10 @@ export function activate(context: vscode.ExtensionContext) {
         version: "3.0.0"
     });
 
-
-
     var disposable = vscode.commands.registerCommand('extension.updateSettings', async () => {
         var en: envir.Environment = new envir.Environment(context);
         var common: commons.Commons = new commons.Commons(en);
         var myGi: myGit.GithubService = null;
-
 
         async function Init() {
 
@@ -63,7 +60,6 @@ export function activate(context: vscode.ExtensionContext) {
             }
             else {
                 myGi = new myGit.GithubService(syncSetting.Token);
-
                 vscode.window.setStatusBarMessage("Uploading / Updating Your Settings In Github.", 3000);
                 await startGitProcess(syncSetting);
                 return;
@@ -74,18 +70,12 @@ export function activate(context: vscode.ExtensionContext) {
         async function startGitProcess(sett: Setting) {
 
             if (sett.Token != null) {
-                //var settingtext: string = "//setting";
-                //var launchtext: string = "//launch";
-                //var keybindingtext: string = "//keybinding";
-                //var extensiontext = "";
                 var allSettingFiles = new Array<File>();
-
                 vscode.window.setStatusBarMessage("Reading Settings and Extensions.", 1000);
                 await fileManager.FileManager.FileExists(en.FILE_SETTING).then(async function(fileExists: boolean) {
                     if (fileExists) {
                         await fileManager.FileManager.ReadFile(en.FILE_SETTING).then(function(settings: string) {
                             if (settings) {
-                                //settingtext = settings;
                                 var fileName = en.FILE_SETTING_NAME;
                                 var filePath = en.FILE_SETTING;
                                 var fileContent = settings;
@@ -94,13 +84,12 @@ export function activate(context: vscode.ExtensionContext) {
                             }
                         });
                     }
-                })
+                });
 
                 await fileManager.FileManager.FileExists(en.FILE_LAUNCH).then(async function(fileExists: boolean) {
                     if (fileExists) {
                         await fileManager.FileManager.ReadFile(en.FILE_LAUNCH).then(function(launch: string) {
                             if (launch) {
-                                //launchtext = launch;
                                 var fileName = en.FILE_LAUNCH_NAME;
                                 var filePath = en.FILE_LAUNCH;
                                 var fileContent = launch;
@@ -109,13 +98,12 @@ export function activate(context: vscode.ExtensionContext) {
                             }
                         });
                     }
-                })
+                });
 
                 await fileManager.FileManager.FileExists(en.FILE_KEYBINDING).then(async function(fileExists: boolean) {
                     if (fileExists) {
                         await fileManager.FileManager.ReadFile(en.FILE_KEYBINDING).then(function(keybinding: string) {
                             if (keybinding) {
-                                //keybindingtext = keybinding;
                                 var fileName = en.FILE_KEYBINDING_NAME;
                                 var filePath = en.FILE_KEYBINDING;
                                 var fileContent = keybinding;
@@ -124,8 +112,7 @@ export function activate(context: vscode.ExtensionContext) {
                             }
                         });
                     }
-                })
-
+                });
 
                 var extensionlist = pluginService.PluginService.CreateExtensionList();
                 extensionlist.sort(function(a, b) {
@@ -196,7 +183,7 @@ export function activate(context: vscode.ExtensionContext) {
 
             vscode.window.setStatusBarMessage("Checking for Github Token and GIST.", 2000);
             var syncSetting: Setting = await common.InitSettings();
-            if (syncSetting.Token == null) {
+            if (syncSetting.Token == null || syncSetting.Token == "") {
                 openurl("https://github.com/settings/tokens");
                 await common.GetTokenAndSave(syncSetting).then(function(saved: boolean) {
                     if (saved) {
@@ -214,7 +201,7 @@ export function activate(context: vscode.ExtensionContext) {
                 });
             }
             myGi = new myGit.GithubService(syncSetting.Token);
-            if (syncSetting.Gist == null) {
+            if (syncSetting.Gist == null || syncSetting.Gist == "") {
                 await common.GetGistAndSave(syncSetting).then(function(saved: boolean) {
                     if (saved) {
                         Init();
