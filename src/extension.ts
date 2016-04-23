@@ -132,11 +132,11 @@ export function activate(context: vscode.ExtensionContext) {
                 });
                 
 
-                if (sett.Gist == null || sett.Gist == "") {
+                if (sett.Gist == null || sett.Gist === "") {
                     await myGi.CreateNewGist(allSettingFiles).then(async function(gistID: string) {
-                        sett.Gist = gistID;
-
-                        await common.SaveSettings(sett).then(function(added: boolean) {
+                        if (gistID) {
+                            sett.Gist = gistID;
+                            await common.SaveSettings(sett).then(function(added: boolean) {
                             if (added) {
                                 vscode.window.showInformationMessage("Uploaded Successfully." + " GIST ID :  " + gistID + " . Please copy and use this ID in other machines to sync all settings.");
                                 vscode.window.setStatusBarMessage("Gist Saved.", 1000);
@@ -146,8 +146,11 @@ export function activate(context: vscode.ExtensionContext) {
                             vscode.window.showErrorMessage(common.ERROR_MESSAGE);
                             return;
                         });
-
-
+                        }
+                        else{
+                            vscode.window.showErrorMessage("GIST ID: undefined" + common.ERROR_MESSAGE);
+                            return;
+                        }
                     }, function(error: any) {
                         vscode.window.showErrorMessage(common.ERROR_MESSAGE);
                         return;
