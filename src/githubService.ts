@@ -28,8 +28,10 @@ export class GithubService {
             },
             "extensions.json": {
                 "content": "// Empty"
+            },
+            "locale.json": {
+                "content": "// Empty"
             }
-
         }
     };
     private GIST_JSON: any = null;

@@ -236,7 +236,7 @@ export function activate(context: vscode.ExtensionContext) {
                 for (var i: number = 0; i < keys.length; i++) {
                     switch (keys[i]) {
                         case "launch.json": {
-                            await fileManager.FileManager.WriteFile(en.FILE_LAUNCH, res.files["launch.json"].content).then(
+                            await fileManager.FileManager.WriteFile(en.FILE_LAUNCH, res.files[en.FILE_LAUNCH_NAME].content).then(
                                 function(added: boolean) {
                                     vscode.window.showInformationMessage("Launch Settings downloaded Successfully");
                                 }, function(error: any) {
@@ -247,7 +247,7 @@ export function activate(context: vscode.ExtensionContext) {
                             break;
                         }
                         case "settings.json": {
-                            await fileManager.FileManager.WriteFile(en.FILE_SETTING, res.files["settings.json"].content).then(
+                            await fileManager.FileManager.WriteFile(en.FILE_SETTING, res.files[en.FILE_SETTING_NAME].content).then(
                                 function(added: boolean) {
                                     vscode.window.showInformationMessage("Editor Settings downloaded Successfully");
                                 }, function(error: any) {
@@ -258,7 +258,7 @@ export function activate(context: vscode.ExtensionContext) {
                         }
                         case "keybindings.json": {
 
-                            await fileManager.FileManager.WriteFile(en.FILE_KEYBINDING, res.files["keybindings.json"].content).then(
+                            await fileManager.FileManager.WriteFile(en.FILE_KEYBINDING, res.files[en.FILE_KEYBINDING_NAME].content).then(
                                 function(added: boolean) {
                                     vscode.window.showInformationMessage("Keybinding Settings downloaded Successfully");
                                 }, function(error: any) {
@@ -267,8 +267,19 @@ export function activate(context: vscode.ExtensionContext) {
                                 });
                             break;
                         }
+                        case "keybindings.json": {
+
+                            await fileManager.FileManager.WriteFile(en.FILE_KEYBINDING, res.files[en.FILE_LOCALE_NAME].content).then(
+                                function(added: boolean) {
+                                    vscode.window.showInformationMessage("Locale Settings downloaded Successfully");
+                                }, function(error: any) {
+                                    vscode.window.showErrorMessage(common.ERROR_MESSAGE);
+                                    return;
+                                });
+                            break;
+                        }
                         case "extensions.json": {
-                            var remoteList = pluginService.ExtensionInformation.fromJSONList(res.files["extensions.json"].content);
+                            var remoteList = pluginService.ExtensionInformation.fromJSONList(res.files[en.FILE_EXTENSION_NAME].content);
                             var missingList = pluginService.PluginService.GetMissingExtensions(remoteList);
                             if (missingList.length == 0) {
                                 vscode.window.showInformationMessage("No extension need to be installed");

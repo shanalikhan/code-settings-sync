@@ -71,12 +71,10 @@ export class PluginService{
                         if(err){
                             reject(err);
                         }
-                        
                         resolve();
                     })
                 }); 
     }
-    
     private static WritePackageJson(dirName: string, packageJson: string){
         return new Promise(
                 function(resolve, reject){
@@ -88,7 +86,6 @@ export class PluginService{
                     });
                 });
     }
-    
     private static GetPackageJson(dirName: string, item: ExtensionInformation){
             return new Promise(
                 function(resolve, reject){
@@ -96,20 +93,16 @@ export class PluginService{
                         if(error){
                             reject(error);
                         }
-                        
-                        var config = JSON.parse(text);
+                        var config= JSON.parse(text);
                         if(config.name !== item.name){
                             reject("name not equal");
                         }
-                        
                         if(config.publisher !== item.publisher){
                             reject("publisher not equal");
                         }
-                        
                         if(config.version !== item.version){
                             reject("version not equal");
                         }
-                        
                         resolve(config);
                     });
                 });
