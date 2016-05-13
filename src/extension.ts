@@ -113,6 +113,22 @@ export function activate(context: vscode.ExtensionContext) {
                         });
                     }
                 });
+                
+                
+                 await fileManager.FileManager.FileExists(en.FILE_LOCALE).then(async function(fileExists: boolean) {
+                    if (fileExists) {
+                        await fileManager.FileManager.ReadFile(en.FILE_LOCALE).then(function(locale: string) {
+                            if (locale) {
+                                var fileName = en.FILE_LOCALE_NAME;
+                                var filePath = en.FILE_LOCALE;
+                                var fileContent = locale;
+                                var file: File = new File(fileName, fileContent, filePath);
+                                allSettingFiles.push(file);
+                            }
+                        });
+                    }
+                });
+                
 
                 var extensionlist = pluginService.PluginService.CreateExtensionList();
                 extensionlist.sort(function(a, b) {
