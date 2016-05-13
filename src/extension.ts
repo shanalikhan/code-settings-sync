@@ -283,9 +283,9 @@ export function activate(context: vscode.ExtensionContext) {
                                 });
                             break;
                         }
-                        case "keybindings.json": {
+                        case "locale.json": {
 
-                            await fileManager.FileManager.WriteFile(en.FILE_KEYBINDING, res.files[en.FILE_LOCALE_NAME].content).then(
+                            await fileManager.FileManager.WriteFile(en.FILE_LOCALE, res.files[en.FILE_LOCALE_NAME].content).then(
                                 function(added: boolean) {
                                     vscode.window.showInformationMessage("Locale Settings downloaded Successfully");
                                 }, function(error: any) {
