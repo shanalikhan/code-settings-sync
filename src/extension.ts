@@ -370,6 +370,9 @@ export function activate(context: vscode.ExtensionContext) {
             vscode.window.showErrorMessage("Unable to clear settings. Error Logged on console. Please open an issue.");
         }
     });
+    var disposable = vscode.commands.registerCommand('extension.releaseNotes', async () => {
+         openurl("http://shanalikhan.github.io/2016/05/14/Visual-studio-code-sync-settings-release-notes.html");
+    });
 
     context.subscriptions.push(disposable);
 }

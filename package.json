@@ -2,7 +2,7 @@
   "name": "code-settings-sync",
   "displayName": "Visual Studio Code Settings Sync",
   "description": "Synchronize Settings, Snippets, launch, keybindings files and extensions Across Multiple Machines using Github GIST.",
-  "version": "1.2.1",
+  "version": "1.2.2",
   "icon": "images/cloud.png",
   "publisher": "Shan",
   "author": {
@@ -30,7 +30,8 @@
   "activationEvents": [
     "onCommand:extension.updateSettings",
     "onCommand:extension.downloadSettings",
-    "onCommand:extension.resetSettings"
+    "onCommand:extension.resetSettings",
+    "onCommand:extension.releaseNotes"
   ],
   "main": "./out/src/extension",
   "contributes": {
@@ -47,6 +48,10 @@
       {
         "command": "extension.resetSettings",
         "title": "Sync : Reset Sync Settings"
+      },
+       {
+        "command": "extension.releaseNotes",
+        "title": "Sync : Release Notes"
       }
     ],
     "keybindings": [
