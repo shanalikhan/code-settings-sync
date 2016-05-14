@@ -244,11 +244,7 @@ export function activate(context: vscode.ExtensionContext) {
 
             myGi.DownloadGist(gist).then(async function(res: any) {
                 var keys = Object.keys(res.files);
-                if (keys[0].indexOf(".") < 0) {
-                    vscode.window.showErrorMessage("GIST Not Compatible With this version, Please Reset Settings. Important Release note has been opened in browser.");
-                    openurl("http://shanalikhan.github.io/2016/03/19/Visual-Studio-code-sync-setting-migration.html");
-                    return;
-                }
+                
                 for (var i: number = 0; i < keys.length; i++) {
                     switch (keys[i]) {
                         case "launch.json": {

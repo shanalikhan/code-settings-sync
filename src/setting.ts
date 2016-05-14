@@ -2,7 +2,8 @@
 export class Setting{
     public Token : string = null;
     public Gist : string = null;
-    public Migrated : boolean = false;
+    //public Migrated : boolean = false;
     public ProxyIP : string = null;
     public ProxyPort : string = null;
+    public Version : string = "1.2.1";
 }
