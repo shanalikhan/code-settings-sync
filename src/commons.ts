@@ -15,9 +15,7 @@ export class Commons {
 
         var me = this;
         var setting: Setting = new Setting();
-
-        var pjson = require('./package.json');
-        console.log(pjson.version);
+        
         return new Promise<Setting>(async (resolve, reject) => {
 
             await fManager.FileManager.FileExists(me.en.APP_SETTINGS).then(async function (fileExist: boolean) {
