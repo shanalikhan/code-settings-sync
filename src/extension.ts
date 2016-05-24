@@ -26,7 +26,7 @@ export function activate(context: vscode.ExtensionContext) {
 
     var openurl = require('open');
     var fs = require('fs');
-    var GitHubApi = require("github");
+    var GitHubApi = require("github4");
 
     var github = new GitHubApi({
         version: "3.0.0"
