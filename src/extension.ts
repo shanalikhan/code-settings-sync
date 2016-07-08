@@ -320,7 +320,7 @@ export function activate(context: vscode.ExtensionContext) {
                             }
                             else {
                                 var actionList = new Array<Promise<void>>();
-                                vscode.window.setStatusBarMessage("Installing Extensions in background.", 4000);
+                                vscode.window.setStatusBarMessage("Installing Extensions in background.");
                                 missingList.forEach(element => {
                                     actionList.push(pluginService.PluginService.InstallExtension(element, en.ExtensionFolder)
                                         .then(function () {
@@ -330,10 +330,12 @@ export function activate(context: vscode.ExtensionContext) {
                                 });
                                 Promise.all(actionList)
                                     .then(function () {
+                                        vscode.window.setStatusBarMessage("Restart Required to use installed extensions.");
                                         vscode.window.showInformationMessage("Extension installed Successfully, please restart");
                                     })
                                     .catch(function (e) {
                                         console.log(e);
+                                        vscode.window.setStatusBarMessage("");
                                         vscode.window.showErrorMessage("Extension download failed." + common.ERROR_MESSAGE)
                                     });
                             }
