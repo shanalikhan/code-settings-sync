@@ -3,20 +3,21 @@
 import * as vscode from 'vscode';
 import * as util from './util';
 import * as path from 'path';
-
+import {FileManager} from './fileManager';
 var fs = require('fs');
 var ncp = require('ncp').ncp;
 
 var apiPath = 'https://marketplace.visualstudio.com/_apis/public/gallery/extensionquery';
 
-    
-export class ExtensionInformation{
+var rmdir = require('rimraf');
+
+export class ExtensionInformation {
     metadata: ExtensionMetadata;
     name: string;
     version: string;
-    publisher: string;  
-    
-    public static fromJSON(text: string){
+    publisher: string;
+
+    public static fromJSON(text: string) {
         var obj = JSON.parse(text);
         var meta = new ExtensionMetadata(obj.meta.galleryApiUrl, obj.meta.id, obj.meta.downloadUrl, obj.meta.publisherId, obj.meta.publisherDisplayName, obj.meta.date);
         var item = new ExtensionInformation();
@@ -26,8 +27,8 @@ export class ExtensionInformation{
         item.version = obj.version;
         return item;
     }
-    
-    public static fromJSONList(text: string){
+
+    public static fromJSONList(text: string) {
         var extList = new Array<ExtensionInformation>();
         var list = JSON.parse(text);
         list.forEach(obj => {
@@ -39,20 +40,20 @@ export class ExtensionInformation{
             item.version = obj.version;
             extList.push(item);
         });
-        
+
         return extList;
-    }  
+    }
 }
 
-export class ExtensionMetadata{
+export class ExtensionMetadata {
     galleryApiUrl: string;
-    id : string;
+    id: string;
     downloadUrl: string;
     publisherId: string;
-    publisherDisplayName: string; 
+    publisherDisplayName: string;
     date: string;
-    
-    constructor(galleryApiUrl: string, id: string, downloadUrl: string, publisherId: string, publisherDisplayName: string, date: string){
+
+    constructor(galleryApiUrl: string, id: string, downloadUrl: string, publisherId: string, publisherDisplayName: string, date: string) {
         this.galleryApiUrl = galleryApiUrl;
         this.id = id;
         this.downloadUrl = downloadUrl;
@@ -62,85 +63,131 @@ export class ExtensionMetadata{
     }
 }
 
-export class PluginService{
+export class PluginService {
 
-    private static CopyExtension(destination: string, source: string){
-           return new Promise(
-                function(resolve, reject){
-                    ncp(source, destination, function(err){
-                        if(err){
-                            reject(err);
-                        }
-                        resolve();
-                    })
-                }); 
-    }
-    private static WritePackageJson(dirName: string, packageJson: string){
+    private static CopyExtension(destination: string, source: string) {
         return new Promise(
-                function(resolve, reject){
-                    fs.writeFile(dirName + "/extension/package.json", packageJson, "utf-8", function(error, text){
-                        if(error){
-                            reject(error);
-                        }
-                        resolve();
-                    });
-                });
+            function (resolve, reject) {
+                ncp(source, destination, function (err) {
+                    if (err) {
+                        reject(err);
+                    }
+                    resolve();
+                })
+            });
     }
-    private static GetPackageJson(dirName: string, item: ExtensionInformation){
-            return new Promise(
-                function(resolve, reject){
-                    fs.readFile(dirName + "/extension/package.json", "utf-8", function(error, text){
-                        if(error){
-                            reject(error);
-                        }
-                        var config= JSON.parse(text);
-                        if(config.name !== item.name){
-                            reject("name not equal");
-                        }
-                        if(config.publisher !== item.publisher){
-                            reject("publisher not equal");
-                        }
-                        if(config.version !== item.version){
-                            reject("version not equal");
-                        }
-                        resolve(config);
-                    });
+    private static WritePackageJson(dirName: string, packageJson: string) {
+        return new Promise(
+            function (resolve, reject) {
+                fs.writeFile(dirName + "/extension/package.json", packageJson, "utf-8", function (error, text) {
+                    if (error) {
+                        reject(error);
+                    }
+                    resolve();
                 });
+            });
     }
-    
-    public static GetMissingExtensions(remoteList: Array<ExtensionInformation>){
+    private static GetPackageJson(dirName: string, item: ExtensionInformation) {
+        return new Promise(
+            function (resolve, reject) {
+                fs.readFile(dirName + "/extension/package.json", "utf-8", function (error, text) {
+                    if (error) {
+                        reject(error);
+                    }
+                    var config = JSON.parse(text);
+                    if (config.name !== item.name) {
+                        reject("name not equal");
+                    }
+                    if (config.publisher !== item.publisher) {
+                        reject("publisher not equal");
+                    }
+                    if (config.version !== item.version) {
+                        reject("version not equal");
+                    }
+                    resolve(config);
+                });
+            });
+    }
+
+    public static GetMissingExtensions(remoteList: Array<ExtensionInformation>) {
         var hashset = {};
-        
+
         var localList = this.CreateExtensionList();
-        for(var i=0;i<localList.length;i++){
+        for (var i = 0; i < localList.length; i++) {
             var ext = localList[i];
-            if(hashset[ext.name] == null){
+            if (hashset[ext.name] == null) {
                 hashset[ext.name] = ext;
             }
         }
-        
+
         var missingList = new Array<ExtensionInformation>();
-        for(var i=0;i<remoteList.length;i++){
+        for (var i = 0; i < remoteList.length; i++) {
             var ext = remoteList[i];
-            if(hashset[ext.name] == null){
+            if (hashset[ext.name] == null) {
                 missingList.push(ext);
             }
         }
-        
+
         return missingList;
     }
-    
-    public static CreateExtensionList(){
+
+    public static GetDeletedExtensions(remoteList: Array<ExtensionInformation>) {
+
+        var localList = this.CreateExtensionList();
+        var deletedList = new Array<ExtensionInformation>();
+
+        for (var i = 0; i < remoteList.length; i++) {
+
+            var ext = remoteList[i];
+            var found: boolean = false;
+
+            for (var j = 0; j < localList.length; j++) {
+                var localExt = localList[j];
+                if (ext.name == localExt.name) {
+                    found = true;
+                    break;
+                }
+            }
+            if (!found) {
+                deletedList.push(localExt);
+            }
+
+        }
+
+
+        for (var i = 0; i < localList.length; i++) {
+
+            var ext = localList[i];
+            var found: boolean = false;
+
+            for (var j = 0; j < remoteList.length; j++) {
+                var localExt = remoteList[j];
+                if (ext.name == localExt.name) {
+                    found = true;
+                    break;
+                }
+            }
+            if (!found) {
+                deletedList.push(ext);
+            }
+
+        }
+
+
+        return deletedList;
+    }
+
+    public static CreateExtensionList() {
         var list = new Array<ExtensionInformation>();
-        
-        for(var i=0;i<vscode.extensions.all.length;i++){
+
+        for (var i = 0; i < vscode.extensions.all.length; i++) {
             var ext = vscode.extensions.all[i];
-            if(ext.packageJSON.isBuiltin == false){
-                if(ext.packageJSON.__metadata == null){
+            if (ext.packageJSON.isBuiltin == false) {
+                if (ext.packageJSON.__metadata == null) {
                     // Not install from gallery, just skip
                     continue;
                 }
-                
+
                 var meta = ext.packageJSON.__metadata;
                 var data = new ExtensionMetadata(meta.galleryApiUrl, meta.id, meta.downloadUrl, meta.publisherId, meta.publisherDisplayName, meta.date);
                 var info = new ExtensionInformation();
@@ -148,19 +195,36 @@ export class PluginService{
                 info.name = ext.packageJSON.name;
                 info.publisher = ext.packageJSON.publisher;
                 info.version = ext.packageJSON.version;
-                list.push(info);                
+                list.push(info);
             }
         }
-        
+
         return list;
     }
-    
-    public static InstallExtension(item: ExtensionInformation, ExtensionFolder: string){
+
+    public static async DeleteExtension(item: ExtensionInformation, ExtensionFolder: string) {
+        var destination = path.join(ExtensionFolder, item.publisher + '.' + item.name + '-' + item.version);
+        return new Promise((resolve, reject) => {
+            rmdir(destination, function (error) {
+                if (error) {
+                    console.log("Error in uninstalling Extension.");
+                    console.log(error);
+                    reject(false);
+                }
+                resolve(true);
+            });
+        });
+
+
+    }
+
+
+    public static InstallExtension(item: ExtensionInformation, ExtensionFolder: string) {
         var header = {
             'Accept': 'application/json;api-version=3.0-preview.1'
         };
         var extractPath = null;
-        
+
         var data = {
             'filters': [{
                 'criteria': [{
@@ -170,67 +234,67 @@ export class PluginService{
             }],
             flags: 133
         };
-        
+
         return util.Util.HttpPostJson(apiPath, data, header)
-        .then(function(res){
-            
-            var targetVersion = null;
-            var content = JSON.parse(res);
-            
-            // Find correct version
-            for(var i=0;i<content.results.length;i++){
-                var result = content.results[i];
-                for(var k=0;k<result.extensions.length;k++){
-                    var extension = result.extensions[k];
-                    for(var j=0;j<extension.versions.length;j++){
-                        var version = extension.versions[j];
-                        if(version.version === item.version){
-                            targetVersion = version;
+            .then(function (res) {
+
+                var targetVersion = null;
+                var content = JSON.parse(res);
+
+                // Find correct version
+                for (var i = 0; i < content.results.length; i++) {
+                    var result = content.results[i];
+                    for (var k = 0; k < result.extensions.length; k++) {
+                        var extension = result.extensions[k];
+                        for (var j = 0; j < extension.versions.length; j++) {
+                            var version = extension.versions[j];
+                            if (version.version === item.version) {
+                                targetVersion = version;
+                                break;
+                            }
+                        }
+                        if (targetVersion != null) {
                             break;
                         }
                     }
-                    if(targetVersion != null){
+                    if (targetVersion != null) {
                         break;
                     }
                 }
-                if(targetVersion != null){
-                    break;
+
+                if (targetVersion == null) {
+                    // unable to find one
+                    throw "unable to find corresponding version of extension from gallery";
                 }
-            }
-            
-            if(targetVersion == null){
-                // unable to find one
-                throw "unable to find corresponding version of extension from gallery";
-            }
-            
-            // Proceed to install
-            var downloadUrl = targetVersion.assetUri + '/Microsoft.VisualStudio.Services.VSIXPackage?install=true'
-            return downloadUrl;
-        })
-        .then(function(url){
-            return util.Util.HttpGetFile(url);
-        })
-        .then(function(filePath){
-            return util.Util.Extract(filePath);
-        })
-        .then(function(dir){
-            extractPath = dir;
-            return PluginService.GetPackageJson(dir, item);
-        })
-        .then(function(packageJson){
-            Object.assign(packageJson, {
-                __metadata: item.metadata
+
+                // Proceed to install
+                var downloadUrl = targetVersion.assetUri + '/Microsoft.VisualStudio.Services.VSIXPackage?install=true'
+                return downloadUrl;
+            })
+            .then(function (url) {
+                return util.Util.HttpGetFile(url);
+            })
+            .then(function (filePath) {
+                return util.Util.Extract(filePath);
+            })
+            .then(function (dir) {
+                extractPath = dir;
+                return PluginService.GetPackageJson(dir, item);
+            })
+            .then(function (packageJson) {
+                Object.assign(packageJson, {
+                    __metadata: item.metadata
+                });
+
+                var text = JSON.stringify(packageJson, null, ' ');
+                return PluginService.WritePackageJson(extractPath, text);
+            })
+            .then(function () {
+                // Move the folder to correct path
+                var destination = path.join(ExtensionFolder, item.publisher + '.' + item.name + '-' + item.version);
+                var source = path.join(extractPath, 'extension');
+                return PluginService.CopyExtension(destination, source);
             });
-            
-            var text = JSON.stringify(packageJson, null, ' ');
-            return PluginService.WritePackageJson(extractPath, text);
-        })
-        .then(function(){
-            // Move the folder to correct path
-            var destination = path.join(ExtensionFolder, item.publisher + '.' + item.name + '-' + item.version);
-            var source = path.join(extractPath, 'extension');
-            return PluginService.CopyExtension(destination, source);
-        });
     }
 }
 
