@@ -136,23 +136,23 @@ export class PluginService {
         var localList = this.CreateExtensionList();
         var deletedList = new Array<ExtensionInformation>();
 
-        for (var i = 0; i < remoteList.length; i++) {
+        // for (var i = 0; i < remoteList.length; i++) {
 
-            var ext = remoteList[i];
-            var found: boolean = false;
+        //     var ext = remoteList[i];
+        //     var found: boolean = false;
 
-            for (var j = 0; j < localList.length; j++) {
-                var localExt = localList[j];
-                if (ext.name == localExt.name) {
-                    found = true;
-                    break;
-                }
-            }
-            if (!found) {
-                deletedList.push(localExt);
-            }
+        //     for (var j = 0; j < localList.length; j++) {
+        //         var localExt = localList[j];
+        //         if (ext.name == localExt.name) {
+        //             found = true;
+        //             break;
+        //         }
+        //     }
+        //     if (!found) {
+        //         deletedList.push(localExt);
+        //     }
 
-        }
+        // }
 
 
         for (var i = 0; i < localList.length; i++) {
