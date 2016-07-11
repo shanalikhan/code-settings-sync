@@ -11,7 +11,7 @@
 5. Download Key : Shift + Alt + d
 6. Type Sync In Order to View all sync options
 ```      
-## It Sync
+## It Syncs
 ```
 1. Settings File
 2. Keybinding File
@@ -37,7 +37,7 @@ This extension required your GitHub Account Personal Access Token. You can creat
 ![Get Unique Key](http://shanalikhan.github.io/img/github3.PNG)
 
 
-> You need to save this key for this extension for future use, and dont share this key with anyone as it will get your data without needing to logg in.
+> You need to save this key for this extension for future use, and don't share this key with anyone as it will get your data without needing to log in.
 
 
 ## Upload Your Settings For the first time
@@ -73,7 +73,7 @@ you need to enter your Gist ID in order to get the all files
 ![Enter Your GIST ID](http://shanalikhan.github.io/img/download2.png)
 
 **Settings Downloaded.**
-You are Done ! All your files are downloaded
+You are Done! All your files are downloaded
 
 ![Enter Your GIST ID](http://shanalikhan.github.io/img/download3.png)
 
