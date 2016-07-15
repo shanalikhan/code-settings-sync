@@ -1,6 +1,7 @@
 "use strict";
 import * as vscode from 'vscode';
 import * as path from 'path';
+import {OsType} from './enums';
 
 export class Environment {
 
@@ -9,7 +10,7 @@ export class Environment {
     public homeDir = null;
     public ExtensionFolder: string = null;
     public PATH = null;
-
+    public OsType : OsType = null;
     public FILE_SETTING: string = null;
     public FILE_LAUNCH: string = null;
     public FILE_KEYBINDING: string = null;
@@ -17,6 +18,8 @@ export class Environment {
     public FILE_SETTING_NAME: string = "settings.json";
     public FILE_LAUNCH_NAME: string = "launch.json";
     public FILE_KEYBINDING_NAME: string = "keybindings.json";
+    public FILE_KEYBINDING_MAC: string = "keybindings_MAC.json";
+    public FILE_KEYBINDING_DEFAULT: string = "keybindings.json";
     public FILE_EXTENSION_NAME : string = "extensions.json";
     public FILE_LOCALE_NAME : string = "locale.json";
     public FILE_EXTENSION : string = null;
@@ -28,16 +31,25 @@ export class Environment {
         this.isInsiders = /insiders/.test(context.asAbsolutePath(""));
         this.homeDir = process.env[(process.platform == 'win32') ? 'USERPROFILE' : 'HOME'];
         this.ExtensionFolder = path.join(this.homeDir, this.isInsiders ? '.vscode-insiders' : '.vscode', 'extensions');
-
+        var os = require("os")
+        console.log(os.type());
+        
         this.PATH = process.env.APPDATA
+        this.OsType = OsType.Windows;
+
         if (!this.PATH) {
             if (process.platform == 'darwin')
-                this.PATH = process.env.HOME + '/Library/Application Support';
+                {
+                    this.PATH = process.env.HOME + '/Library/Application Support';
+                    this.OsType = OsType.Mac;
+                }
             else if (process.platform == 'linux') {
                 var os = require("os")
                 this.PATH = os.homedir() + '/.config';
+                this.OsType = OsType.Linux;
             } else
-                this.PATH = '/var/local'
+                this.PATH = '/var/local';
+                this.OsType = OsType.Linux;
         }
 
         var codePath = this.isInsiders ? '/Code - Insiders' : '/Code';

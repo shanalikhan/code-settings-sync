@@ -13,7 +13,7 @@ import {File} from './fileManager';
 import * as commons from './commons';
 import * as myGit from './githubService';
 import {Setting} from './setting';
-
+import {OsType,SettingType} from './enums';
 
 // this method is called when your extension is activated
 // your extension is activated the very first time the command is executed
@@ -103,11 +103,19 @@ export function activate(context: vscode.ExtensionContext) {
                     }
                 });
 
+                var destinationKeyBinding : string = "";
+                if (en.OsType == OsType.Mac) {
+                    destinationKeyBinding = en.FILE_KEYBINDING_MAC;
+                }
+                else{
+                    destinationKeyBinding = en.FILE_KEYBINDING_DEFAULT;
+                }
+
                 await fileManager.FileManager.FileExists(en.FILE_KEYBINDING).then(async function (fileExists: boolean) {
                     if (fileExists) {
                         await fileManager.FileManager.ReadFile(en.FILE_KEYBINDING).then(function (keybinding: string) {
                             if (keybinding) {
-                                var fileName = en.FILE_KEYBINDING_NAME;
+                                var fileName = destinationKeyBinding;
                                 var filePath = en.FILE_KEYBINDING;
                                 var fileContent = keybinding;
                                 var file: File = new File(fileName, fileContent, filePath);
@@ -271,10 +279,23 @@ export function activate(context: vscode.ExtensionContext) {
                                 });
                             break;
                         }
-                        case "keybindings.json": {
+                        case en.FILE_KEYBINDING_DEFAULT || en.FILE_KEYBINDING_MAC: {
+                            
+                            var sourceKeyBinding : string = "";
+                            var os : string = null;
+                            if (en.OsType == OsType.Mac) {
+                                sourceKeyBinding = en.FILE_KEYBINDING_MAC;
+                                os = "Mac";
+                            }
+                            else{
+                                sourceKeyBinding = en.FILE_KEYBINDING_DEFAULT;
+                            }
 
-                            await fileManager.FileManager.WriteFile(en.FILE_KEYBINDING, res.files[en.FILE_KEYBINDING_NAME].content).then(
+                            await fileManager.FileManager.WriteFile(en.FILE_KEYBINDING, res.files[sourceKeyBinding].content).then(
                                 function (added: boolean) {
+                                    if (os) {
+                                    vscode.window.showInformationMessage("Keybinding Settings for Mac downloaded Successfully");    
+                                    }
                                     vscode.window.showInformationMessage("Keybinding Settings downloaded Successfully");
                                 }, function (error: any) {
                                     vscode.window.showErrorMessage(common.ERROR_MESSAGE);

@@ -31,6 +31,12 @@ export class GithubService {
             },
             "locale.json": {
                 "content": "// Empty"
+            },
+            "keybindingMac.json":{
+                "content": "// Empty"
+            },
+            "keybindingDefault.json":{
+                "content": "// Empty"
             }
         }
     };
