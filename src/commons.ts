@@ -15,7 +15,7 @@ export class Commons {
 
         var me = this;
         var setting: Setting = new Setting();
-        
+
         return new Promise<Setting>(async (resolve, reject) => {
 
             await fManager.FileManager.FileExists(me.en.APP_SETTINGS).then(async function (fileExist: boolean) {
@@ -82,40 +82,49 @@ export class Commons {
         var me = this;
         var opt = Commons.GetInputBox(true);
         return new Promise<boolean>((resolve, reject) => {
-
-            vscode.window.showInputBox(opt).then(async (token) => {
-                token = token.trim();
-                if (token) {
-                    sett.Token = token;
-                    await me.SaveSettings(sett).then(function (saved: boolean) {
-                        if (saved) {
-                            vscode.window.setStatusBarMessage("Token Saved", 1000);
+            (function getToken() {
+                vscode.window.showInputBox(opt).then(async (token) => {
+                    if (token && token.trim()) {
+                        sett.Token = token.trim();
+                        await me.SaveSettings(sett).then(function (saved: boolean) {
+                            if (saved) {
+                                vscode.window.setStatusBarMessage("Token Saved", 1000);
+                            }
+                            resolve(saved);
+                        }, function (err: any) {
+                            reject(err);
+                        });
+                    } else {
+                        if (token !== 'esc') {
+                            getToken()
                         }
-                        resolve(saved);
-                    }, function (err: any) {
-                        reject(err);
-                    });
-                }
-            });
+                    }
+                });
+            } ());
         });
     }
     public async GetGistAndSave(sett: Setting): Promise<boolean> {
         var me = this;
         var opt = Commons.GetInputBox(false);
         return new Promise<boolean>((resolve, reject) => {
-            vscode.window.showInputBox(opt).then(async (gist) => {
-                gist = gist.trim();
-                if (gist) {
-                    sett.Gist = gist;
-                    await me.SaveSettings(sett).then(function (saved: boolean) {
-                        if (saved) {
-                            vscode.window.setStatusBarMessage("Gist Saved", 1000);
+            (function getGist() {
+                vscode.window.showInputBox(opt).then(async (gist) => {
+                    if (gist && gist.trim()) {
+                        sett.Gist = gist.trim();
+                        await me.SaveSettings(sett).then(function (saved: boolean) {
+                            if (saved) {
+                                vscode.window.setStatusBarMessage("Gist Saved", 1000);
+                            }
+                            resolve(saved);
+                        }, function (err: any) {
+                            reject(err);
+                        });
+                    } else {
+                        if (gist !== 'esc') {
+                            getGist()
                         }
-                        resolve(saved);
-                    }, function (err: any) {
-                        reject(err);
-                    });
-                }
+                    }
+                });
             });
 
         });
@@ -128,7 +137,7 @@ export class Commons {
             let options: vscode.InputBoxOptions = {
                 placeHolder: "Enter Github Personal Access Token",
                 password: false,
-                prompt: "Link is opened to get the github token."
+                prompt: "Link is opened to get the github token. Enter token and press [Enter] or type 'esc' to cancel......................................................."
             };
             return options;
         }
@@ -136,7 +145,7 @@ export class Commons {
             let options: vscode.InputBoxOptions = {
                 placeHolder: "Enter GIST ID",
                 password: false,
-                prompt: "If you never upload the files in any machine before then upload it before."
+                prompt: "Enter GIST ID from previously uploaded settings and press [Enter] or type 'esc' to cancel................................................................."
             };
             return options;
         }
