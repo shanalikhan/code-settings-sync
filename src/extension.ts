@@ -419,5 +419,32 @@ export function activate(context: vscode.ExtensionContext) {
         openurl("http://shanalikhan.github.io/2016/05/14/Visual-studio-code-sync-settings-release-notes.html");
     });
 
+    var disposable = vscode.commands.registerCommand('extension.openSettings', async () => {
+
+        openurl("http://shanalikhan.github.io/2016/07/31/Visual-Studio-code-sync-setting-edit-manually.html");
+        vscode.window.showInformationMessage("If the extension is not setup then use How To Configure command to setup this extension.");
+
+        vscode.window.showInformationMessage("Read link is opened if you need help in editing the JSON File manually.");
+
+        var en: envir.Environment = new envir.Environment(context);
+        var fManager: fileManager.FileManager;
+        var common: commons.Commons = new commons.Commons(en);
+        var syncSetting: Setting = await common.InitSettings();
+
+        
+        var setting : vscode.Uri  = vscode.Uri.file(en.APP_SETTINGS);
+        vscode.workspace.openTextDocument(setting).then((a: vscode.TextDocument) => {
+            vscode.window.showTextDocument(a,1,false);
+        });
+
+      
+    });
+
+        var disposable = vscode.commands.registerCommand('extension.HowSettings', async () => {
+            openurl("http://shanalikhan.github.io/2015/12/15/Visual-Studio-Code-Sync-Settings.html");
+        });
+
+
+
     context.subscriptions.push(disposable);
 }

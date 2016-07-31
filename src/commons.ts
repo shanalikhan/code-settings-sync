@@ -85,15 +85,19 @@ export class Commons {
             (function getToken() {
                 vscode.window.showInputBox(opt).then(async (token) => {
                     if (token && token.trim()) {
-                        sett.Token = token.trim();
-                        await me.SaveSettings(sett).then(function (saved: boolean) {
-                            if (saved) {
-                                vscode.window.setStatusBarMessage("Token Saved", 1000);
-                            }
-                            resolve(saved);
-                        }, function (err: any) {
-                            reject(err);
-                        });
+                        token = token.trim();
+
+                        if (token != 'esc') {
+                            sett.Token = token;
+                            await me.SaveSettings(sett).then(function (saved: boolean) {
+                                if (saved) {
+                                    vscode.window.setStatusBarMessage("Token Saved", 1000);
+                                }
+                                resolve(saved);
+                            }, function (err: any) {
+                                reject(err);
+                            });
+                        }
                     } else {
                         if (token !== 'esc') {
                             getToken()
@@ -110,22 +114,27 @@ export class Commons {
             (function getGist() {
                 vscode.window.showInputBox(opt).then(async (gist) => {
                     if (gist && gist.trim()) {
-                        sett.Gist = gist.trim();
-                        await me.SaveSettings(sett).then(function (saved: boolean) {
-                            if (saved) {
-                                vscode.window.setStatusBarMessage("Gist Saved", 1000);
-                            }
-                            resolve(saved);
-                        }, function (err: any) {
-                            reject(err);
-                        });
+                        gist = gist.trim();
+                        if (gist != 'esc') {
+                            sett.Gist = gist.trim();
+                            await me.SaveSettings(sett).then(function (saved: boolean) {
+                                if (saved) {
+                                    vscode.window.setStatusBarMessage("Gist Saved", 1000);
+                                }
+                                resolve(saved);
+                            }, function (err: any) {
+                                reject(err);
+                            });
+                        }
+
                     } else {
                         if (gist !== 'esc') {
-                            getGist()
+                            getGist();
                         }
                     }
+
                 });
-            });
+            })();
 
         });
     }
@@ -137,7 +146,7 @@ export class Commons {
             let options: vscode.InputBoxOptions = {
                 placeHolder: "Enter Github Personal Access Token",
                 password: false,
-                prompt: "Link is opened to get the github token. Enter token and press [Enter] or type 'esc' to cancel......................................................."
+                prompt: "Link is opened to get the github token. Enter token and press [Enter] or type 'esc' to cancel."
             };
             return options;
         }
@@ -145,7 +154,7 @@ export class Commons {
             let options: vscode.InputBoxOptions = {
                 placeHolder: "Enter GIST ID",
                 password: false,
-                prompt: "Enter GIST ID from previously uploaded settings and press [Enter] or type 'esc' to cancel................................................................."
+                prompt: "Enter GIST ID from previously uploaded settings and press [Enter] or type 'esc' to cancel."
             };
             return options;
         }
