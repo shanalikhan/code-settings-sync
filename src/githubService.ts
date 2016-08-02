@@ -32,10 +32,7 @@ export class GithubService {
             "locale.json": {
                 "content": "// Empty"
             },
-            "keybindingMac.json":{
-                "content": "// Empty"
-            },
-            "keybindingDefault.json":{
+            "keybindingsMac.json": {
                 "content": "// Empty"
             }
         }
@@ -99,8 +96,8 @@ export class GithubService {
                                 exists = true;
                             }
                         });
-                        
-                        if (!exists) {
+
+                        if (!exists && !filename.startsWith("keybindings") {
                              res.files[fileName]  = null;
                         }
                         
