@@ -81,9 +81,6 @@ You are Done! All your files are downloaded
 
 > Type ">Sync" In Command Palette and select Reset Token and GIST Settings
 
-# RoadMap
-1. Add Proxy Support 
-
 # How To Contribute
 Download source code and install dependencies
 
@@ -101,8 +98,7 @@ Submit a Pull Request.
    
 
     
-# Contributors
-[Shan Ali Khan](https://github.com/shanalikhan)
+# [Contributors](https://github.com/shanalikhan/code-settings-sync/graphs/contributors)
     
 # License
 MIT
