@@ -6,7 +6,7 @@ import {Setting} from './setting';
 
 export class Commons {
 
-    public ERROR_MESSAGE: string = "ERROR ! Logged In Console (Help menu > Toggle Developer Tools). Please open an issue in Github Repo.";
+    public ERROR_MESSAGE: string = "ERROR ! Logged In Console (Help menu > Toggle Developer Tools). Please open an issue in Github Repo using 'Sync : Open Issue' command.";
 
     constructor(private en: envi.Environment) {
 

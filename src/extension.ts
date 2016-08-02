@@ -445,6 +445,11 @@ export function activate(context: vscode.ExtensionContext) {
             openurl("http://shanalikhan.github.io/2015/12/15/Visual-Studio-Code-Sync-Settings.html");
         });
 
+    var disposable = vscode.commands.registerCommand('extension.OpenIssue', async () => {
+           openurl("https://github.com/shanalikhan/code-settings-sync/issues/new");
+
+    });
+
 
 
     context.subscriptions.push(disposable);
