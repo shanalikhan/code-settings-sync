@@ -42,7 +42,7 @@ export function activate(context: vscode.ExtensionContext) {
 
         async function Init() {
 
-            vscode.window.setStatusBarMessage("Checking for Github Token and GIST.", 2000);
+            vscode.window.setStatusBarMessage("Sync : Checking for Github Token and GIST.", 2000);
             var syncSetting: Setting = await common.InitSettings();
             if (syncSetting.Token == null || syncSetting.Token == "") {
                 openurl("https://github.com/settings/tokens");
@@ -63,7 +63,7 @@ export function activate(context: vscode.ExtensionContext) {
             }
             else {
                 myGi = new myGit.GithubService(syncSetting.Token);
-                vscode.window.setStatusBarMessage("Uploading / Updating Your Settings In Github.", 3000);
+                vscode.window.setStatusBarMessage("Sync : Uploading / Updating Your Settings In Github.", 3000);
                 await startGitProcess(syncSetting);
                 return;
             }
@@ -74,7 +74,7 @@ export function activate(context: vscode.ExtensionContext) {
 
             if (sett.Token != null) {
                 var allSettingFiles = new Array<File>();
-                vscode.window.setStatusBarMessage("Reading Settings and Extensions.", 1000);
+                vscode.window.setStatusBarMessage("Sync : Reading Settings and Extensions.", 1000);
                 await fileManager.FileManager.FileExists(en.FILE_SETTING).then(async function (fileExists: boolean) {
                     if (fileExists) {
                         await fileManager.FileManager.ReadFile(en.FILE_SETTING).then(function (settings: string) {
@@ -166,7 +166,7 @@ export function activate(context: vscode.ExtensionContext) {
                             await common.SaveSettings(sett).then(function (added: boolean) {
                                 if (added) {
                                     vscode.window.showInformationMessage("Uploaded Successfully." + " GIST ID :  " + gistID + " . Please copy and use this ID in other machines to sync all settings.");
-                                    vscode.window.setStatusBarMessage("Gist Saved.", 1000);
+                                    vscode.window.setStatusBarMessage("Sync : Gist Saved.", 1000);
                                 }
                             }, function (err: any) {
                                 console.error(err);
@@ -211,7 +211,7 @@ export function activate(context: vscode.ExtensionContext) {
 
         async function Init() {
 
-            vscode.window.setStatusBarMessage("Checking for Github Token and GIST.", 2000);
+            vscode.window.setStatusBarMessage("Sync : Checking for Github Token and GIST.", 2000);
             var syncSetting: Setting = await common.InitSettings();
             if (syncSetting.Token == null || syncSetting.Token == "") {
                 openurl("https://github.com/settings/tokens");
@@ -343,7 +343,7 @@ export function activate(context: vscode.ExtensionContext) {
                             }
                             else {
                                 var actionList = new Array<Promise<void>>();
-                                vscode.window.setStatusBarMessage("Installing Extensions in background.");
+                                vscode.window.setStatusBarMessage("Sync : Installing Extensions in background.");
                                 missingList.forEach(element => {
                                     actionList.push(pluginService.PluginService.InstallExtension(element, en.ExtensionFolder)
                                         .then(function () {
@@ -353,12 +353,12 @@ export function activate(context: vscode.ExtensionContext) {
                                 });
                                 Promise.all(actionList)
                                     .then(function () {
-                                        vscode.window.setStatusBarMessage("Restart Required to use installed extensions.");
+                                        vscode.window.setStatusBarMessage("Sync : Restart Required to use installed extensions.");
                                         vscode.window.showInformationMessage("Extension installed Successfully, please restart");
                                     })
                                     .catch(function (e) {
                                         console.log(e);
-                                        vscode.window.setStatusBarMessage("");
+                                        vscode.window.setStatusBarMessage("Sync : Extensions Download Failed.",3000);
                                         vscode.window.showErrorMessage("Extension download failed." + common.ERROR_MESSAGE)
                                     });
                             }
@@ -397,7 +397,7 @@ export function activate(context: vscode.ExtensionContext) {
         var common: commons.Commons = new commons.Commons(en);
         var syncSetting: Setting = await common.InitSettings();
 
-        vscode.window.setStatusBarMessage("Resetting Your Settings.", 2000);
+        vscode.window.setStatusBarMessage("Sync : Resetting Your Settings.", 2000);
         try {
             syncSetting.Token = null;
             syncSetting.Gist = null;
