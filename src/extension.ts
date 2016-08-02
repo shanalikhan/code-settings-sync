@@ -279,24 +279,26 @@ export function activate(context: vscode.ExtensionContext) {
                                 });
                             break;
                         }
-                        case en.FILE_KEYBINDING_DEFAULT || en.FILE_KEYBINDING_MAC: {
-                            
+                        case en.FILE_KEYBINDING_DEFAULT:
+                        case en.FILE_KEYBINDING_MAC: {
+
                             var sourceKeyBinding : string = "";
                             var os : string = null;
                             if (en.OsType == OsType.Mac) {
                                 sourceKeyBinding = en.FILE_KEYBINDING_MAC;
                                 os = "Mac";
                             }
-                            else{
+                            else {
                                 sourceKeyBinding = en.FILE_KEYBINDING_DEFAULT;
                             }
 
                             await fileManager.FileManager.WriteFile(en.FILE_KEYBINDING, res.files[sourceKeyBinding].content).then(
                                 function (added: boolean) {
                                     if (os) {
-                                    vscode.window.showInformationMessage("Keybinding Settings for Mac downloaded Successfully");    
+                                        vscode.window.showInformationMessage("Keybinding Settings for Mac downloaded Successfully");
+                                    } else {
+                                        vscode.window.showInformationMessage("Keybinding Settings downloaded Successfully");
                                     }
-                                    vscode.window.showInformationMessage("Keybinding Settings downloaded Successfully");
                                 }, function (error: any) {
                                     vscode.window.showErrorMessage(common.ERROR_MESSAGE);
                                     return;
