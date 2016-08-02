@@ -97,7 +97,7 @@ export class GithubService {
                             }
                         });
 
-                        if (!exists && !filename.startsWith("keybindings") {
+                        if (!exists && !fileName.startsWith("keybindings")) {
                              res.files[fileName]  = null;
                         }
                         

@@ -283,10 +283,9 @@ export function activate(context: vscode.ExtensionContext) {
                         case en.FILE_KEYBINDING_MAC: {
 
                             var sourceKeyBinding : string = "";
-                            var os : string = null;
+                            
                             if (en.OsType == OsType.Mac) {
                                 sourceKeyBinding = en.FILE_KEYBINDING_MAC;
-                                os = "Mac";
                             }
                             else {
                                 sourceKeyBinding = en.FILE_KEYBINDING_DEFAULT;
@@ -294,7 +293,7 @@ export function activate(context: vscode.ExtensionContext) {
 
                             await fileManager.FileManager.WriteFile(en.FILE_KEYBINDING, res.files[sourceKeyBinding].content).then(
                                 function (added: boolean) {
-                                    if (os) {
+                                    if (en.OsType == OsType.Mac) {
                                         vscode.window.showInformationMessage("Keybinding Settings for Mac downloaded Successfully");
                                     } else {
                                         vscode.window.showInformationMessage("Keybinding Settings downloaded Successfully");
