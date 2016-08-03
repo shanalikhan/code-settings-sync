@@ -11,6 +11,7 @@ export class Commons {
     constructor(private en: envi.Environment) {
 
     }
+
     public async InitSettings(): Promise<Setting> {
 
         var me = this;

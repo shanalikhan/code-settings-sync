@@ -14,6 +14,7 @@ import * as commons from './commons';
 import * as myGit from './githubService';
 import {Setting} from './setting';
 import {OsType,SettingType} from './enums';
+import {ExtensionProperties} from './extensionProperties';
 
 
 
@@ -157,6 +158,13 @@ export function activate(context: vscode.ExtensionContext) {
                     allSettingFiles.push(snippetFile);
                 });
 
+                var extProp : ExtensionProperties = null;
+                extProp.lastSync = new Date();
+
+                fileName = "ExtensionProperties";
+                fileContent =JSON.stringify(extProp); 
+                file = new File(fileName, fileContent, "");
+                allSettingFiles.push(file);
 
                 if (sett.Gist == null || sett.Gist === "") {
                     await myGi.CreateNewGist(allSettingFiles).then(async function (gistID: string) {

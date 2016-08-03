@@ -14,7 +14,7 @@ var github = new GitHubApi({
 export class GithubService {
 
     private GIST_JSON_EMPTY: any = {
-        "description": "Visual Studio code settings",
+        "description": "Visual Studio Code Sync Settings GIST",
         "public": false,
         "files": {
             "settings.json": {
@@ -35,7 +35,7 @@ export class GithubService {
             "keybindingsMac.json": {
                 "content": "// Empty"
             },
-            "properties":{
+            "ExtensionProperties":{
                 "content": "// Empty"
             }
         }
