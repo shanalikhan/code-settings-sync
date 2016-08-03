@@ -34,6 +34,9 @@ export class GithubService {
             },
             "keybindingsMac.json": {
                 "content": "// Empty"
+            },
+            "properties":{
+                "content": "// Empty"
             }
         }
     };

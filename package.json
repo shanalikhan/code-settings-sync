@@ -28,6 +28,7 @@
     "Other"
   ],
   "activationEvents": [
+    "*",
     "onCommand:extension.updateSettings",
     "onCommand:extension.downloadSettings",
     "onCommand:extension.resetSettings",
@@ -99,4 +100,5 @@
     "ncp": "^2.0.0",
     "rimraf": "^2.5.4"
   }
+  
 }

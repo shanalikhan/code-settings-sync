@@ -15,11 +15,13 @@ import * as myGit from './githubService';
 import {Setting} from './setting';
 import {OsType,SettingType} from './enums';
 
+
+
 // this method is called when your extension is activated
 // your extension is activated the very first time the command is executed
+
 export function activate(context: vscode.ExtensionContext) {
-
-
+    
     // Use the console to output diagnostic information (console.log) and errors (console.error)
     // This line of code will only be executed once when your extension is activated
 
@@ -32,10 +34,7 @@ export function activate(context: vscode.ExtensionContext) {
         version: "3.0.0"
     });
 
-
-
-
-    var disposable = vscode.commands.registerCommand('extension.updateSettings', async () => {
+    var updateSettings = vscode.commands.registerCommand('extension.updateSettings', async () => {
         var en: envir.Environment = new envir.Environment(context);
         var common: commons.Commons = new commons.Commons(en);
         var myGi: myGit.GithubService = null;
@@ -203,7 +202,7 @@ export function activate(context: vscode.ExtensionContext) {
     });
 
 
-    var disposable = vscode.commands.registerCommand('extension.downloadSettings', async () => {
+    var downloadSettings = vscode.commands.registerCommand('extension.downloadSettings', async () => {
 
         var en: envir.Environment = new envir.Environment(context);
         var common: commons.Commons = new commons.Commons(en);
@@ -390,7 +389,7 @@ export function activate(context: vscode.ExtensionContext) {
         await Init();
     });
 
-    var disposable = vscode.commands.registerCommand('extension.resetSettings', async () => {
+    var resetSettings = vscode.commands.registerCommand('extension.resetSettings', async () => {
         var en: envir.Environment = new envir.Environment(context);
         var fManager: fileManager.FileManager;
         var common: commons.Commons = new commons.Commons(en);
@@ -416,11 +415,11 @@ export function activate(context: vscode.ExtensionContext) {
             vscode.window.showErrorMessage("Unable to clear settings. Error Logged on console. Please open an issue.");
         }
     });
-    var disposable = vscode.commands.registerCommand('extension.releaseNotes', async () => {
+    var releaseNotes = vscode.commands.registerCommand('extension.releaseNotes', async () => {
         openurl("http://shanalikhan.github.io/2016/05/14/Visual-studio-code-sync-settings-release-notes.html");
     });
 
-    var disposable = vscode.commands.registerCommand('extension.openSettings', async () => {
+    var openSettings = vscode.commands.registerCommand('extension.openSettings', async () => {
 
         openurl("http://shanalikhan.github.io/2016/07/31/Visual-Studio-code-sync-setting-edit-manually.html");
         vscode.window.showInformationMessage("If the extension is not setup then use How To Configure command to setup this extension.");
@@ -441,16 +440,23 @@ export function activate(context: vscode.ExtensionContext) {
       
     });
 
-        var disposable = vscode.commands.registerCommand('extension.HowSettings', async () => {
+        var howSettings = vscode.commands.registerCommand('extension.HowSettings', async () => {
             openurl("http://shanalikhan.github.io/2015/12/15/Visual-Studio-Code-Sync-Settings.html");
         });
 
-    var disposable = vscode.commands.registerCommand('extension.OpenIssue', async () => {
+    var openIssue = vscode.commands.registerCommand('extension.OpenIssue', async () => {
            openurl("https://github.com/shanalikhan/code-settings-sync/issues/new");
 
     });
 
 
 
-    context.subscriptions.push(disposable);
+    context.subscriptions.push(updateSettings);
+    context.subscriptions.push(downloadSettings);
+    context.subscriptions.push(resetSettings);
+    context.subscriptions.push(releaseNotes);
+    context.subscriptions.push(openSettings);
+    context.subscriptions.push(howSettings);
+    context.subscriptions.push(openIssue);
+    
 }
