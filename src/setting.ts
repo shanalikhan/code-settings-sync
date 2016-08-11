@@ -1,8 +1,14 @@
 "use strict";
-export class Setting{
+export class LocalSetting{
     public Token : string = null;
     public Gist : string = null;
-    public LastSync : string = null;
-    public Tutorial : boolean = true;
-    public AutoSync : boolean = true;
+    public lastUpload : Date = null;       
+    public firstTime : boolean = true;  // to open the toturial first time when used any command.
+    public autoSync : boolean = true;
+    public lastDownload : Date = null;
+}
+
+export class CloudSetting
+{
+    public lastUpload : Date = null;
 }

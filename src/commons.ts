@@ -2,7 +2,7 @@
 import * as vscode from 'vscode';
 import * as envi from './environmentPath';
 import * as fManager from './fileManager';
-import {Setting} from './setting';
+import {LocalSetting} from './setting';
 
 export class Commons {
 
@@ -12,24 +12,24 @@ export class Commons {
 
     }
 
-    public async InitSettings(): Promise<Setting> {
+    public async InitSettings(): Promise<LocalSetting> {
 
         var me = this;
-        var setting: Setting = new Setting();
+        var localSetting: LocalSetting = new LocalSetting();
 
-        return new Promise<Setting>(async (resolve, reject) => {
+        return new Promise<LocalSetting>(async (resolve, reject) => {
 
             await fManager.FileManager.FileExists(me.en.APP_SETTINGS).then(async function (fileExist: boolean) {
                 if (fileExist) {
                     await fManager.FileManager.ReadFile(me.en.APP_SETTINGS).then(function (settin: string) {
-                        var set: Setting = JSON.parse(settin);
+                        var set: LocalSetting = JSON.parse(settin);
                         resolve(set);
                     }, function (settingError: any) {
                         reject(settingError);
                     });
                 }
                 else {
-                    var set: Setting = new Setting();
+                    var set: LocalSetting = new LocalSetting();
                     resolve(set);
                 }
             }, function (err: any) {
@@ -40,7 +40,7 @@ export class Commons {
         });
     }
 
-    public async SaveSettings(setting: Setting): Promise<boolean> {
+    public async SaveSettings(setting: LocalSetting): Promise<boolean> {
         var me = this;
         return new Promise<boolean>(async (resolve, reject) => {
             await fManager.FileManager.WriteFile(me.en.APP_SETTINGS, JSON.stringify(setting)).then(function (added: boolean) {
@@ -79,7 +79,7 @@ export class Commons {
         });
     }
 
-    public async GetTokenAndSave(sett: Setting): Promise<boolean> {
+    public async GetTokenAndSave(sett: LocalSetting): Promise<boolean> {
         var me = this;
         var opt = Commons.GetInputBox(true);
         return new Promise<boolean>((resolve, reject) => {
@@ -108,7 +108,7 @@ export class Commons {
             } ());
         });
     }
-    public async GetGistAndSave(sett: Setting): Promise<boolean> {
+    public async GetGistAndSave(sett: LocalSetting): Promise<boolean> {
         var me = this;
         var opt = Commons.GetInputBox(false);
         return new Promise<boolean>((resolve, reject) => {

@@ -12,9 +12,9 @@ import * as fileManager from './fileManager';
 import {File} from './fileManager';
 import * as commons from './commons';
 import * as myGit from './githubService';
-import {Setting} from './setting';
+import {LocalSetting,CloudSetting} from './setting';
 import {OsType,SettingType} from './enums';
-import {ExtensionProperties} from './extensionProperties';
+
 
 
 
@@ -39,11 +39,12 @@ export function activate(context: vscode.ExtensionContext) {
         var en: envir.Environment = new envir.Environment(context);
         var common: commons.Commons = new commons.Commons(en);
         var myGi: myGit.GithubService = null;
+        var dateNow : Date = new Date();
 
         async function Init() {
 
             vscode.window.setStatusBarMessage("Sync : Checking for Github Token and GIST.", 2000);
-            var syncSetting: Setting = await common.InitSettings();
+            var syncSetting: LocalSetting = await common.InitSettings();
             if (syncSetting.Token == null || syncSetting.Token == "") {
                 openurl("https://github.com/settings/tokens");
                 await common.GetTokenAndSave(syncSetting).then(function (saved: boolean) {
@@ -70,7 +71,7 @@ export function activate(context: vscode.ExtensionContext) {
         }
 
 
-        async function startGitProcess(sett: Setting) {
+        async function startGitProcess(sett: LocalSetting) {
 
             if (sett.Token != null) {
                 var allSettingFiles = new Array<File>();
@@ -158,8 +159,8 @@ export function activate(context: vscode.ExtensionContext) {
                     allSettingFiles.push(snippetFile);
                 });
 
-                var extProp : ExtensionProperties = null;
-                extProp.lastSync = new Date();
+                var extProp : CloudSetting = null;
+                extProp.lastUpload = dateNow;
 
                 fileName = "ExtensionProperties";
                 fileContent =JSON.stringify(extProp); 
@@ -219,7 +220,7 @@ export function activate(context: vscode.ExtensionContext) {
         async function Init() {
 
             vscode.window.setStatusBarMessage("Sync : Checking for Github Token and GIST.", 2000);
-            var syncSetting: Setting = await common.InitSettings();
+            var syncSetting: LocalSetting = await common.InitSettings();
             if (syncSetting.Token == null || syncSetting.Token == "") {
                 openurl("https://github.com/settings/tokens");
                 await common.GetTokenAndSave(syncSetting).then(function (saved: boolean) {
@@ -401,7 +402,7 @@ export function activate(context: vscode.ExtensionContext) {
         var en: envir.Environment = new envir.Environment(context);
         var fManager: fileManager.FileManager;
         var common: commons.Commons = new commons.Commons(en);
-        var syncSetting: Setting = await common.InitSettings();
+        var syncSetting: LocalSetting = await common.InitSettings();
 
         vscode.window.setStatusBarMessage("Sync : Resetting Your Settings.", 2000);
         try {
@@ -437,7 +438,7 @@ export function activate(context: vscode.ExtensionContext) {
         var en: envir.Environment = new envir.Environment(context);
         var fManager: fileManager.FileManager;
         var common: commons.Commons = new commons.Commons(en);
-        var syncSetting: Setting = await common.InitSettings();
+        var syncSetting: LocalSetting = await common.InitSettings();
 
         
         var setting : vscode.Uri  = vscode.Uri.file(en.APP_SETTINGS);
