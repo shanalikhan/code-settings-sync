@@ -36,7 +36,7 @@ export class GithubService {
             "keybindingsMac.json": {
                 "content": "// Empty"
             },
-            "ExtensionProperties": {
+            "cloudSettings": {
                 "content": "// Empty"
             }
         }
