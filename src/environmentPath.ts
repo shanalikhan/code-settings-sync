@@ -19,7 +19,8 @@ export class Environment {
     public FILE_LOCALE : string = null;
     public FILE_EXTENSION : string = null;
 
-    public FILE_EXTENSIONPROPERTIES : string  = null;
+    public FILE_CLOUDSETTINGS : string  = null;
+
     public FILE_SETTING_NAME: string = "settings.json";
     public FILE_LAUNCH_NAME: string = "launch.json";
     public FILE_KEYBINDING_NAME: string = "keybindings.json";
@@ -27,7 +28,9 @@ export class Environment {
     public FILE_KEYBINDING_DEFAULT: string = "keybindings.json";
     public FILE_EXTENSION_NAME : string = "extensions.json";
     public FILE_LOCALE_NAME : string = "locale.json";
-    public FILE_EXTENSIONPROPERTIES_NAME : string = "extensionProperties.json";
+
+    public FILE_CLOUDSETTINGS_NAME : string = "cloudSettings";
+    public FILE_LOCATIONSETTINGS_NAME : string = "syncSettings.json";
     
     
     public FOLDER_SNIPPETS: string = null;
@@ -69,8 +72,8 @@ export class Environment {
         this.FILE_KEYBINDING = this.PATH.concat("/User/",this.FILE_KEYBINDING_NAME);
         this.FILE_LOCALE = this.PATH.concat("/User/",this.FILE_LOCALE_NAME);
         this.FOLDER_SNIPPETS = this.PATH.concat("/User/snippets/");
-        this.APP_SETTINGS = this.PATH.concat("/User/syncSettings.json");
-        this.FILE_EXTENSIONPROPERTIES = this.PATH.concat("/User/",this.FILE_EXTENSIONPROPERTIES_NAME);
+        this.APP_SETTINGS = this.PATH.concat("/User/",this.FILE_LOCATIONSETTINGS_NAME);
+        this.FILE_CLOUDSETTINGS = this.PATH.concat("/User/",this.FILE_CLOUDSETTINGS_NAME);
     }
 
 

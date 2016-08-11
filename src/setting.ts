@@ -8,7 +8,6 @@ export class LocalSetting{
     public lastDownload : Date = null;
 }
 
-export class CloudSetting
-{
+export class CloudSetting{
     public lastUpload : Date = null;
 }

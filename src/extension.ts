@@ -183,7 +183,7 @@ export function activate(context: vscode.ExtensionContext) {
                             });
                         }
                         else {
-                            vscode.window.showErrorMessage("GIST ID: undefined" + common.ERROR_MESSAGE);
+                            vscode.window.showErrorMessage("GIST ID: undefined. " + common.ERROR_MESSAGE);
                             return;
                         }
                     }, function (error: any) {
