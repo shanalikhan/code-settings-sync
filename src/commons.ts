@@ -12,24 +12,28 @@ export class Commons {
 
     }
 
-    public async InitSettings(): Promise<LocalSetting> {
+    //TODO : change any to LocalSetting after max users migrate to new settings.
+    public async InitSettings(): Promise<any> {
 
         var me = this;
-        var localSetting: LocalSetting = new LocalSetting();
+        //var localSetting: LocalSetting = new LocalSetting();
+        var localSetting: any;
 
-        return new Promise<LocalSetting>(async (resolve, reject) => {
+        return new Promise<any>(async (resolve, reject) => {
 
             await fManager.FileManager.FileExists(me.en.APP_SETTINGS).then(async function (fileExist: boolean) {
                 if (fileExist) {
                     await fManager.FileManager.ReadFile(me.en.APP_SETTINGS).then(function (settin: string) {
-                        var set: LocalSetting = JSON.parse(settin);
+                        var set: any ;
+                        set= JSON.parse(settin);
                         resolve(set);
                     }, function (settingError: any) {
                         reject(settingError);
                     });
                 }
                 else {
-                    var set: LocalSetting = new LocalSetting();
+                    //var set: LocalSetting = new LocalSetting();
+                    var set: any = null;
                     resolve(set);
                 }
             }, function (err: any) {
@@ -40,7 +44,7 @@ export class Commons {
         });
     }
 
-    public async SaveSettings(setting: LocalSetting): Promise<boolean> {
+    public async SaveSettings(setting: any): Promise<boolean> {
         var me = this;
         return new Promise<boolean>(async (resolve, reject) => {
             await fManager.FileManager.WriteFile(me.en.APP_SETTINGS, JSON.stringify(setting)).then(function (added: boolean) {

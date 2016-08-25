@@ -77,6 +77,20 @@ export class GithubService {
         });
     }
 
+    public CreateEmptyGIST(): Promise<string>{
+        var me = this;
+        return new Promise<string>((resolve,reject)=>{
+             github.getGistsApi().create(me.GIST_JSON_EMPTY
+                , function (err, res) {
+                    if (err != null) {
+                        console.error(err);
+                        reject(false);
+                    }
+                    resolve(res.id);
+                });
+        });
+    }
+
     public async ReadGist(GIST: string): Promise<any> {
         var me = this;
         return new Promise<any>(async (resolve, reject) => {
@@ -174,18 +188,4 @@ export class GithubService {
             });
         });
     }
-
-    public async DownloadGist(gistID: string): Promise<any> {
-        return new Promise<any>(async (resolve, reject) => {
-            await github.getGistsApi().get({ id: gistID }, function (er, res) {
-
-                if (er) {
-                    console.log(er);
-                    reject(er);
-                }
-                resolve(res);
-            });
-        });
-    }
-
 }
