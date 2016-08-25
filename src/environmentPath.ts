@@ -36,7 +36,7 @@ export class Environment {
     public FOLDER_SNIPPETS: string = null;
     public APP_SETTINGS : string = null;
 
-    public static CURRENT_VERSION : number = 2.0;
+    public static CURRENT_VERSION : number = 201;
 
     constructor(context: vscode.ExtensionContext) {
         this.context = context;

@@ -2,7 +2,7 @@
   "name": "code-settings-sync",
   "displayName": "Visual Studio Code Settings Sync",
   "description": "Synchronize Settings, Snippets, launch, keybindings files and extensions Across Multiple Machines using Github GIST.",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "icon": "images/cloud.png",
   "publisher": "Shan",
   "author": {
@@ -72,7 +72,7 @@
       },
        {
         "command": "extension.autoSync",
-        "title": "Sync : Toogle Auto Download On Startup"
+        "title": "Sync : Toggle Auto Download On Startup"
       }
     ],
     "keybindings": [

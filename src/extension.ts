@@ -4,12 +4,10 @@
 
 
 import * as vscode from 'vscode';
-import * as pluginService from './pluginService';
-
+import {PluginService, ExtensionInformation} from './pluginService';
 import * as path from 'path';
 import {Environment} from './environmentPath';
-import * as fileManager from './fileManager';
-import {File} from './fileManager';
+import {File, FileManager} from './fileManager';
 import * as commons from './commons';
 import {GithubService} from './githubService';
 import {LocalSetting, CloudSetting, OldSetting} from './setting';
@@ -46,7 +44,7 @@ export async function activate(context: vscode.ExtensionContext) {
             }
             await common.SaveSettings(newSetting).then(async function (added: boolean) {
                 if (added) {
-                    vscode.window.showInformationMessage("Sync : New Version Migration Complete. For details, visit release notes.");
+                    vscode.window.showInformationMessage("Sync : Migration to new version complete. Read Release Notes for details.");
                 }
                 else {
                     vscode.window.showErrorMessage("GIST and Token couldn't be migrated to new version. You need to add them again.")
@@ -79,10 +77,11 @@ export async function activate(context: vscode.ExtensionContext) {
         var myGi: GithubService = null;
         var dateNow: Date = new Date();
 
+        vscode.window.setStatusBarMessage("Sync : Checking for Github Token and GIST.", 2000);
+        var syncSetting: any = await common.InitSettings();
+
         async function Init() {
 
-            vscode.window.setStatusBarMessage("Sync : Checking for Github Token and GIST.", 2000);
-            var syncSetting: any = await common.InitSettings();
             if (syncSetting.Token == null || syncSetting.Token == "") {
                 openurl("https://github.com/settings/tokens");
                 await common.GetTokenAndSave(syncSetting).then(function (saved: boolean) {
@@ -103,46 +102,29 @@ export async function activate(context: vscode.ExtensionContext) {
             else {
                 myGi = new GithubService(syncSetting.Token);
                 vscode.window.setStatusBarMessage("Sync : Uploading / Updating Your Settings In Github.", 3000);
-                await startGitProcess(syncSetting);
+                await startGitProcess();
                 return;
             }
         }
 
 
-        async function startGitProcess(sett: LocalSetting) {
+        async function startGitProcess() {
 
-            if (sett.Token != null) {
-                sett.lastUpload = dateNow;
+            if (syncSetting.Token != null) {
+                syncSetting.lastUpload = dateNow;
 
                 var allSettingFiles = new Array<File>();
                 vscode.window.setStatusBarMessage("Sync : Reading Settings and Extensions.", 1000);
-                await fileManager.FileManager.FileExists(en.FILE_SETTING).then(async function (fileExists: boolean) {
-                    if (fileExists) {
-                        await fileManager.FileManager.ReadFile(en.FILE_SETTING).then(function (settings: string) {
-                            if (settings) {
-                                var fileName = en.FILE_SETTING_NAME;
-                                var filePath = en.FILE_SETTING;
-                                var fileContent = settings;
-                                var file: File = new File(fileName, fileContent, filePath);
-                                allSettingFiles.push(file);
-                            }
-                        });
-                    }
-                });
 
-                await fileManager.FileManager.FileExists(en.FILE_LAUNCH).then(async function (fileExists: boolean) {
-                    if (fileExists) {
-                        await fileManager.FileManager.ReadFile(en.FILE_LAUNCH).then(function (launch: string) {
-                            if (launch) {
-                                var fileName = en.FILE_LAUNCH_NAME;
-                                var filePath = en.FILE_LAUNCH;
-                                var fileContent = launch;
-                                var file: File = new File(fileName, fileContent, filePath);
-                                allSettingFiles.push(file);
-                            }
-                        });
-                    }
-                });
+                var settingFile: File = await FileManager.GetFile(en.FILE_SETTING, en.FILE_SETTING_NAME);
+                var launchFile: File = await FileManager.GetFile(en.FILE_LAUNCH, en.FILE_SETTING_NAME);
+                var keybindingFile: File = await FileManager.GetFile(en.FILE_KEYBINDING, en.FILE_SETTING_NAME);
+                var localeFile: File = await FileManager.GetFile(en.FILE_LOCALE, en.FILE_SETTING_NAME);
+
+                allSettingFiles.push(settingFile);
+                allSettingFiles.push(launchFile);
+                allSettingFiles.push(keybindingFile);
+                allSettingFiles.push(localeFile);
 
                 var destinationKeyBinding: string = "";
                 if (en.OsType == OsType.Mac) {
@@ -152,37 +134,7 @@ export async function activate(context: vscode.ExtensionContext) {
                     destinationKeyBinding = en.FILE_KEYBINDING_DEFAULT;
                 }
 
-                await fileManager.FileManager.FileExists(en.FILE_KEYBINDING).then(async function (fileExists: boolean) {
-                    if (fileExists) {
-                        await fileManager.FileManager.ReadFile(en.FILE_KEYBINDING).then(function (keybinding: string) {
-                            if (keybinding) {
-                                var fileName = destinationKeyBinding;
-                                var filePath = en.FILE_KEYBINDING;
-                                var fileContent = keybinding;
-                                var file: File = new File(fileName, fileContent, filePath);
-                                allSettingFiles.push(file);
-                            }
-                        });
-                    }
-                });
-
-
-                await fileManager.FileManager.FileExists(en.FILE_LOCALE).then(async function (fileExists: boolean) {
-                    if (fileExists) {
-                        await fileManager.FileManager.ReadFile(en.FILE_LOCALE).then(function (locale: string) {
-                            if (locale) {
-                                var fileName = en.FILE_LOCALE_NAME;
-                                var filePath = en.FILE_LOCALE;
-                                var fileContent = locale;
-                                var file: File = new File(fileName, fileContent, filePath);
-                                allSettingFiles.push(file);
-                            }
-                        });
-                    }
-                });
-
-
-                var extensionlist = pluginService.PluginService.CreateExtensionList();
+                var extensionlist = PluginService.CreateExtensionList();
                 extensionlist.sort(function (a, b) {
                     return a.name.localeCompare(b.name);
                 });
@@ -194,7 +146,7 @@ export async function activate(context: vscode.ExtensionContext) {
                 allSettingFiles.push(file);
 
 
-                var snippetFiles = await fileManager.FileManager.ListFiles(en.FOLDER_SNIPPETS);
+                var snippetFiles = await FileManager.ListFiles(en.FOLDER_SNIPPETS);
                 snippetFiles.forEach(snippetFile => {
                     allSettingFiles.push(snippetFile);
                 });
@@ -208,30 +160,31 @@ export async function activate(context: vscode.ExtensionContext) {
                 allSettingFiles.push(file);
                 var newGIST = false;
 
-                if (sett.Gist == null || sett.Gist === "") {
+                if (syncSetting.Gist == null || syncSetting.Gist === "") {
 
                     newGIST = true;
                     await myGi.CreateEmptyGIST().then(async function (gistID: string) {
                         if (gistID) {
-                            sett.Gist = gistID;
+                            syncSetting.Gist = gistID;
                         }
                     }, function (error: any) {
+                        console.log(error);
                         vscode.window.showErrorMessage(common.ERROR_MESSAGE);
                         return;
                     });
                 }
 
-                await myGi.ReadGist(sett.Gist).then(async function (gistObj: any) {
+                await myGi.ReadGist(syncSetting.Gist).then(async function (gistObj: any) {
 
                     vscode.window.setStatusBarMessage("Sync : Inserting Files Data.");
                     gistObj = myGi.UpdateGIST(gistObj, allSettingFiles);
 
                     await myGi.SaveGIST(gistObj).then(async function (saved: boolean) {
                         if (saved) {
-                            await common.SaveSettings(sett).then(function (added: boolean) {
+                            await common.SaveSettings(syncSetting).then(function (added: boolean) {
                                 if (added) {
                                     if (newGIST) {
-                                        vscode.window.showInformationMessage("Uploaded Successfully." + " GIST ID :  " + sett.Gist + " . Please copy and use this ID in other machines to sync all settings.");
+                                        vscode.window.showInformationMessage("Uploaded Successfully." + " GIST ID :  " + syncSetting.Gist + " . Please copy and use this ID in other machines to sync all settings.");
                                     }
                                     vscode.window.setStatusBarMessage("Sync : Gist Saved.", 1000);
                                 }
@@ -246,11 +199,14 @@ export async function activate(context: vscode.ExtensionContext) {
 
                         }
                     }, function (error: any) {
-
+                        console.log(error);
+                        vscode.window.showErrorMessage(common.ERROR_MESSAGE);
+                        return;
                     });
-                }, function (gistObj: any) {
-                    //error in reading GIST to add files.
-                    //TODO : handle this.
+                }, function (gistReadError: any) {
+                    console.log(gistReadError);
+                    vscode.window.showErrorMessage(common.ERROR_MESSAGE);
+                    return;
                 });
             }
             else {
@@ -309,13 +265,13 @@ export async function activate(context: vscode.ExtensionContext) {
                     return;
                 });
             }
-            await StartDownload(syncSetting.Gist);
+            await StartDownload();
 
         }
 
-        async function StartDownload(gist: string) {
+        async function StartDownload() {
 
-            myGi.ReadGist(gist).then(async function (res: any) {
+            myGi.ReadGist(syncSetting.Gist).then(async function (res: any) {
                 var keys = Object.keys(res.files);
                 if (keys.indexOf(en.FILE_CLOUDSETTINGS_NAME) > -1) {
                     var cloudSett: CloudSetting = JSON.parse(res.files[en.FILE_CLOUDSETTINGS_NAME].content);
@@ -331,7 +287,7 @@ export async function activate(context: vscode.ExtensionContext) {
                 for (var i: number = 0; i < keys.length; i++) {
                     switch (keys[i]) {
                         case "launch.json": {
-                            await fileManager.FileManager.WriteFile(en.FILE_LAUNCH, res.files[en.FILE_LAUNCH_NAME].content).then(
+                            await FileManager.WriteFile(en.FILE_LAUNCH, res.files[en.FILE_LAUNCH_NAME].content).then(
                                 function (added: boolean) {
                                     vscode.window.showInformationMessage("Launch Settings downloaded Successfully");
                                 }, function (error: any) {
@@ -342,7 +298,7 @@ export async function activate(context: vscode.ExtensionContext) {
                             break;
                         }
                         case "settings.json": {
-                            await fileManager.FileManager.WriteFile(en.FILE_SETTING, res.files[en.FILE_SETTING_NAME].content).then(
+                            await FileManager.WriteFile(en.FILE_SETTING, res.files[en.FILE_SETTING_NAME].content).then(
                                 function (added: boolean) {
                                     vscode.window.showInformationMessage("Editor Settings downloaded Successfully");
                                 }, function (error: any) {
@@ -363,7 +319,7 @@ export async function activate(context: vscode.ExtensionContext) {
                                 sourceKeyBinding = en.FILE_KEYBINDING_DEFAULT;
                             }
 
-                            await fileManager.FileManager.WriteFile(en.FILE_KEYBINDING, res.files[sourceKeyBinding].content).then(
+                            await FileManager.WriteFile(en.FILE_KEYBINDING, res.files[sourceKeyBinding].content).then(
                                 function (added: boolean) {
                                     if (en.OsType == OsType.Mac) {
                                         vscode.window.showInformationMessage("Keybinding Settings for Mac downloaded Successfully");
@@ -378,7 +334,7 @@ export async function activate(context: vscode.ExtensionContext) {
                         }
                         case "locale.json": {
 
-                            await fileManager.FileManager.WriteFile(en.FILE_LOCALE, res.files[en.FILE_LOCALE_NAME].content).then(
+                            await FileManager.WriteFile(en.FILE_LOCALE, res.files[en.FILE_LOCALE_NAME].content).then(
                                 function (added: boolean) {
                                     vscode.window.showInformationMessage("Locale Settings downloaded Successfully");
                                 }, function (error: any) {
@@ -389,18 +345,18 @@ export async function activate(context: vscode.ExtensionContext) {
                         }
                         case "extensions.json": {
 
-                            var extensionlist = pluginService.PluginService.CreateExtensionList();
+                            var extensionlist = PluginService.CreateExtensionList();
                             extensionlist.sort(function (a, b) {
                                 return a.name.localeCompare(b.name);
                             });
 
 
-                            var remoteList = pluginService.ExtensionInformation.fromJSONList(res.files[en.FILE_EXTENSION_NAME].content);
-                            var deletedList = pluginService.PluginService.GetDeletedExtensions(remoteList);
+                            var remoteList = ExtensionInformation.fromJSONList(res.files[en.FILE_EXTENSION_NAME].content);
+                            var deletedList = PluginService.GetDeletedExtensions(remoteList);
 
                             for (var deletedItemIndex = 0; deletedItemIndex < deletedList.length; deletedItemIndex++) {
                                 var deletedExtension = deletedList[deletedItemIndex];
-                                await pluginService.PluginService.DeleteExtension(deletedExtension, en.ExtensionFolder)
+                                await PluginService.DeleteExtension(deletedExtension, en.ExtensionFolder)
                                     .then((res) => {
                                         vscode.window.showInformationMessage(deletedExtension.name + '-' + deletedExtension.version + " is removed.");
                                     }, (rej) => {
@@ -408,7 +364,7 @@ export async function activate(context: vscode.ExtensionContext) {
                                     });
                             }
 
-                            var missingList = pluginService.PluginService.GetMissingExtensions(remoteList);
+                            var missingList = PluginService.GetMissingExtensions(remoteList);
                             if (missingList.length == 0) {
                                 vscode.window.showInformationMessage("No extension need to be installed");
                             }
@@ -416,7 +372,7 @@ export async function activate(context: vscode.ExtensionContext) {
                                 var actionList = new Array<Promise<void>>();
                                 vscode.window.setStatusBarMessage("Sync : Installing Extensions in background.");
                                 missingList.forEach(element => {
-                                    actionList.push(pluginService.PluginService.InstallExtension(element, en.ExtensionFolder)
+                                    actionList.push(PluginService.InstallExtension(element, en.ExtensionFolder)
                                         .then(function () {
                                             var name = element.publisher + '.' + element.name + '-' + element.version;
                                             vscode.window.showInformationMessage("Extension " + name + " installed Successfully");
@@ -438,10 +394,10 @@ export async function activate(context: vscode.ExtensionContext) {
                         default: {
                             if (i < keys.length) {
                                 if (keys[i].indexOf(".") > -1) {
-                                    await fileManager.FileManager.CreateDirectory(en.FOLDER_SNIPPETS);
+                                    await FileManager.CreateDirectory(en.FOLDER_SNIPPETS);
                                     var file = en.FOLDER_SNIPPETS.concat(keys[i]);//.concat(".json");
                                     var fileName = keys[i]//.concat(".json");
-                                    await fileManager.FileManager.WriteFile(file, res.files[keys[i]].content).then(
+                                    await FileManager.WriteFile(file, res.files[keys[i]].content).then(
                                         function (added: boolean) {
                                             vscode.window.showInformationMessage(fileName + " snippet added successfully.");
                                         }, function (error: any) {
@@ -481,7 +437,7 @@ export async function activate(context: vscode.ExtensionContext) {
 
     var resetSettings = vscode.commands.registerCommand('extension.resetSettings', async () => {
         var en: Environment = new Environment(context);
-        var fManager: fileManager.FileManager;
+        var fManager: FileManager;
         var common: commons.Commons = new commons.Commons(en);
         var syncSetting: LocalSetting = await common.InitSettings();
 
@@ -515,12 +471,10 @@ export async function activate(context: vscode.ExtensionContext) {
     var openSettings = vscode.commands.registerCommand('extension.openSettings', async () => {
 
         openurl("http://shanalikhan.github.io/2016/07/31/Visual-Studio-code-sync-setting-edit-manually.html");
-        vscode.window.showInformationMessage("If the extension is not setup then use How To Configure command to setup this extension.");
-
-        vscode.window.showInformationMessage("Read link is opened if you need help in editing the JSON File manually.");
+        vscode.window.showInformationMessage("Use 'How To Configure' command to setup for first time. Link is opened in case you need help to edit JSON manually.");
 
         var en: Environment = new Environment(context);
-        var fManager: fileManager.FileManager;
+        var fManager: FileManager;
         var common: commons.Commons = new commons.Commons(en);
         var syncSetting: any = await common.InitSettings();
 
@@ -567,7 +521,7 @@ export async function activate(context: vscode.ExtensionContext) {
             }
         }, function (err: any) {
             console.log(err);
-            vscode.window.showErrorMessage("Unable to toogle auto sync. Please open an issue.");
+            vscode.window.showErrorMessage("Unable to toggle auto sync. Please open an issue.");
         });
 
     });
@@ -579,5 +533,6 @@ export async function activate(context: vscode.ExtensionContext) {
     context.subscriptions.push(openSettings);
     context.subscriptions.push(howSettings);
     context.subscriptions.push(openIssue);
+    context.subscriptions.push(autoSync);
 
 }

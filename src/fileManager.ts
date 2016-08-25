@@ -34,6 +34,22 @@ export class FileManager {
         });
     }
 
+    public static async GetFile(filePath : string , fileName : string) : Promise<File>{
+        var me : FileManager = this;
+        return new Promise<File>(async (resolve,reject)=>{
+              await FileManager.FileExists(filePath).then(async function (fileExists: boolean) {
+                    if (fileExists) {
+                        FileManager.ReadFile(filePath).then(function (content: string) {
+                            if (content) {
+                                var file: File = new File(fileName, content, filePath);
+                                resolve(file);
+                            }
+                        });
+                    }
+                });
+        });
+    }
+
     public static WriteFile(filePath: string, data: string): Promise<boolean> {
         return new Promise<boolean>((resolve, reject) => {
             if (data) {
@@ -65,10 +81,7 @@ export class FileManager {
 
                 var files = new Array<File>();
                 for (var i = 0; i < data.length; i++) {
-                    var fileName = data[i];
-                    var filePath = directory.concat(fileName);
-                    var fileContent = await me.ReadFile(filePath);
-                    var file: File = new File(fileName, fileContent, filePath);
+                    var file : File = await FileManager.GetFile(directory.concat(data[i]),data[i]);
                     files.push(file);
                 }
                 resolve(files);
