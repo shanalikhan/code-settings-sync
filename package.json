@@ -2,25 +2,25 @@
   "name": "code-settings-sync",
   "displayName": "Visual Studio Code Settings Sync",
   "description": "Synchronize Settings, Snippets, launch, keybindings files and extensions Across Multiple Machines using Github GIST.",
-  "version": "1.6.3",
+  "version": "2.0.0",
   "icon": "images/cloud.png",
   "publisher": "Shan",
   "author": {
-        "name": "Shan Khan",
-        "url": "http://shanalikhan.github.io"
-    },
+    "name": "Shan Khan",
+    "url": "http://shanalikhan.github.io"
+  },
   "galleryBanner": {
-        "color": "#3B4859",
-        "theme": "dark"
-    },
-    "repository": {
-        "type": "git",
-        "url": "https://github.com/shanalikhan/code-settings-sync.git"
-    },
-    "bugs": {
-        "url": "https://github.com/shanalikhan/code-settings-sync/issues",
+    "color": "#3B4859",
+    "theme": "dark"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/shanalikhan/code-settings-sync.git"
+  },
+  "bugs": {
+    "url": "https://github.com/shanalikhan/code-settings-sync/issues",
     "email": "shanalikhan@hotmail.com"
-    },
+  },
   "engines": {
     "vscode": "^1.2.0"
   },
@@ -35,7 +35,9 @@
     "onCommand:extension.releaseNotes",
     "onCommand:extension.openSettings",
     "onCommand:extension.HowSettings",
-    "onCommand:extension.OpenIssue"
+    "onCommand:extension.OpenIssue",
+    "onCommand:extension.autoSync"
+    
   ],
   "main": "./out/src/extension",
   "contributes": {
@@ -48,7 +50,7 @@
         "command": "extension.OpenIssue",
         "title": "Sync : Open Issue"
       },
-       {
+      {
         "command": "extension.HowSettings",
         "title": "Sync : How To Configure"
       },
@@ -64,9 +66,13 @@
         "command": "extension.resetSettings",
         "title": "Sync : Reset Sync Settings"
       },
-       {
+      {
         "command": "extension.releaseNotes",
         "title": "Sync : Release Notes"
+      },
+       {
+        "command": "extension.autoSync",
+        "title": "Sync : Toogle Auto Download On Startup"
       }
     ],
     "keybindings": [
@@ -100,5 +106,4 @@
     "ncp": "^2.0.0",
     "rimraf": "^2.5.4"
   }
-  
 }
