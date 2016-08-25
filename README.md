@@ -9,7 +9,8 @@
 3. Saves all settings and snippets files.
 4. Upload Key : Shift + Alt + u
 5. Download Key : Shift + Alt + d
-6. Type Sync In Order to View all sync options
+6. Download settings upon Visual Studio Code Startup.
+
 ```      
 ## It Syncs
 ```
@@ -81,6 +82,11 @@ You are Done! All your files are downloaded
 
 > Type ">Sync" In Command Palette and select Reset Token and GIST Settings
 
+## Enable Auto Download
+When token and GIST is filled up correctly, you can enable auto download the latest settings on the editor startup. This will save you to download all the settings from the cloud again and again in different systems. To enable :
+
+**Select Command "Toggle Auto Download" command to Turn ON / OFF the auto download.**
+
 # How To Contribute
 Download source code and install dependencies
 
@@ -99,6 +105,7 @@ Submit a Pull Request.
 
     
 # [Contributors](https://github.com/shanalikhan/code-settings-sync/graphs/contributors)
+# [Release Notes](http://shanalikhan.github.io/2016/05/14/Visual-studio-code-sync-settings-release-notes.html)
     
 # License
 MIT
