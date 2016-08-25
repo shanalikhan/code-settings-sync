@@ -501,6 +501,17 @@ export async function activate(context: vscode.ExtensionContext) {
         var common: commons.Commons = new commons.Commons(en);
         var setting: LocalSetting = await common.InitSettings();
 
+        if(!setting){
+            vscode.commands.executeCommand('extension.HowSettings');
+            return;
+        }
+        var tokenAvailable = newSetting.Token != null || newSetting.Token != "";
+        var gistAvailable = newSetting.Gist != null || newSetting.Gist != "";
+
+        if (!tokenAvailable || !gistAvailable) {
+            vscode.commands.executeCommand('extension.HowSettings');
+            return;
+        }
         if (setting.autoSync) {
             setting.autoSync = false;
         }
