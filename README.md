@@ -1,6 +1,6 @@
 # Visual Studio Code Settings Sync
 
-> Type ">Sync" In Command Palette in order to download / upload
+**Type Sync in command Palette in order to view all commands.**
 
 ## Key Features
 ```
