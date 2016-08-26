@@ -147,14 +147,7 @@ export async function activate(context: vscode.ExtensionContext) {
                 vscode.window.setStatusBarMessage("Sync : Reading Settings and Extensions.", 1000);
 
                 var settingFile: File = await FileManager.GetFile(en.FILE_SETTING, en.FILE_SETTING_NAME);
-                var launchFile: File = await FileManager.GetFile(en.FILE_LAUNCH, en.FILE_SETTING_NAME);
-                var keybindingFile: File = await FileManager.GetFile(en.FILE_KEYBINDING, en.FILE_SETTING_NAME);
-                var localeFile: File = await FileManager.GetFile(en.FILE_LOCALE, en.FILE_SETTING_NAME);
-
-                allSettingFiles.push(settingFile);
-                allSettingFiles.push(launchFile);
-                allSettingFiles.push(keybindingFile);
-                allSettingFiles.push(localeFile);
+                var launchFile: File = await FileManager.GetFile(en.FILE_LAUNCH, en.FILE_LAUNCH_NAME);
 
                 var destinationKeyBinding: string = "";
                 if (en.OsType == OsType.Mac) {
@@ -163,6 +156,16 @@ export async function activate(context: vscode.ExtensionContext) {
                 else {
                     destinationKeyBinding = en.FILE_KEYBINDING_DEFAULT;
                 }
+                
+                var keybindingFile: File = await FileManager.GetFile(en.FILE_KEYBINDING, destinationKeyBinding);
+                var localeFile: File = await FileManager.GetFile(en.FILE_LOCALE, en.FILE_LOCALE_NAME);
+
+                allSettingFiles.push(settingFile);
+                allSettingFiles.push(launchFile);
+                allSettingFiles.push(keybindingFile);
+                allSettingFiles.push(localeFile);
+
+
 
                 var extensionlist = PluginService.CreateExtensionList();
                 extensionlist.sort(function (a, b) {
@@ -440,7 +443,7 @@ export async function activate(context: vscode.ExtensionContext) {
                                 break;
                             }
                             default: {
-                                if (i < keys.length) {
+                                if (i < keys.length && keys[i].indexOf("keybinding")==-1) {
                                     if (keys[i].indexOf(".") > -1) {
                                         await FileManager.CreateDirectory(en.FOLDER_SNIPPETS);
                                         var file = en.FOLDER_SNIPPETS.concat(keys[i]);//.concat(".json");

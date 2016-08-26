@@ -2,10 +2,10 @@
 var fs = require('fs');
 
 export class File {
-    public fileName: string = null;
-    constructor(private file: string, public content: string, private filePath) {
+    
+    constructor(public fileName: string, public content: string, private filePath) {
         // this.fileName = file.split('.')[0];
-        this.fileName = file;
+        //this.fileName = file;
     }
 }
 export class FileManager {

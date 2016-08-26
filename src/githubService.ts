@@ -110,9 +110,9 @@ export class GithubService {
         var allFiles: string[] = Object.keys(gistObject.files);
         for (var fileIndex = 0; fileIndex < allFiles.length; fileIndex++) {
             var fileName = allFiles[fileIndex];
-            if (fileName.indexOf(".") < 0) {
-                gistObject.files[fileName] = null;
-            }
+            // if (fileName.indexOf(".") < 0) {
+            //     gistObject.files[fileName] = null;
+            // }
             var exists = false;
 
             files.forEach((settingFile) => {
