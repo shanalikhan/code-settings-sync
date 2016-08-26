@@ -133,7 +133,6 @@ export async function activate(context: vscode.ExtensionContext) {
                 myGi = new GithubService(syncSetting.Token);
                 vscode.window.setStatusBarMessage("Sync : Uploading / Updating Your Settings In Github.", 3000);
                 await startGitProcess();
-                return;
             }
         }
 
@@ -156,14 +155,22 @@ export async function activate(context: vscode.ExtensionContext) {
                 else {
                     destinationKeyBinding = en.FILE_KEYBINDING_DEFAULT;
                 }
-                
+
                 var keybindingFile: File = await FileManager.GetFile(en.FILE_KEYBINDING, destinationKeyBinding);
                 var localeFile: File = await FileManager.GetFile(en.FILE_LOCALE, en.FILE_LOCALE_NAME);
 
-                allSettingFiles.push(settingFile);
-                allSettingFiles.push(launchFile);
-                allSettingFiles.push(keybindingFile);
-                allSettingFiles.push(localeFile);
+                if (settingFile) {
+                    allSettingFiles.push(settingFile);
+                }
+                if (launchFile) {
+                    allSettingFiles.push(launchFile);
+                }
+                if (keybindingFile) {
+                    allSettingFiles.push(keybindingFile);
+                }
+                if (localeFile) {
+                    allSettingFiles.push(localeFile);
+                }
 
 
 
@@ -225,7 +232,10 @@ export async function activate(context: vscode.ExtensionContext) {
                                         if (newGIST) {
                                             vscode.window.showInformationMessage("Uploaded Successfully." + " GIST ID :  " + syncSetting.Gist + " . Please copy and use this ID in other machines to sync all settings.");
                                         }
-                                        vscode.window.setStatusBarMessage("Sync : Gist Saved.", 1000);
+                                        else{
+                                             vscode.window.showInformationMessage("Uploaded Successfully.");
+                                        }
+                                        vscode.window.setStatusBarMessage("");
                                     }
                                 }, function (err: any) {
                                     console.error(err);
@@ -443,7 +453,7 @@ export async function activate(context: vscode.ExtensionContext) {
                                 break;
                             }
                             default: {
-                                if (i < keys.length && keys[i].indexOf("keybinding")==-1) {
+                                if (i < keys.length && keys[i].indexOf("keybinding") == -1) {
                                     if (keys[i].indexOf(".") > -1) {
                                         await FileManager.CreateDirectory(en.FOLDER_SNIPPETS);
                                         var file = en.FOLDER_SNIPPETS.concat(keys[i]);//.concat(".json");

@@ -29,17 +29,21 @@ export class Commons {
                         set = JSON.parse(settin);
                         vscode.window.setStatusBarMessage("");
                         resolve(set);
+                         vscode.window.setStatusBarMessage("");
                     }, function (settingError: any) {
                         reject(settingError);
+                        vscode.window.setStatusBarMessage("");
                     });
                 }
                 else {
                     //var set: LocalSetting = new LocalSetting();
                     var set: any = null;
                     resolve(set);
+                    vscode.window.setStatusBarMessage("");
                 }
             }, function (err: any) {
                 reject(err);
+                vscode.window.setStatusBarMessage("");
             });
 
 

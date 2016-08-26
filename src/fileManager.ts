@@ -44,7 +44,11 @@ export class FileManager {
                                 var file: File = new File(fileName, content, filePath);
                                 resolve(file);
                             }
+                            resolve(null);
                         });
+                    }
+                    else{
+                        resolve(null);
                     }
                 });
         });
