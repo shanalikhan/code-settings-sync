@@ -77,12 +77,12 @@ export class GithubService {
         });
     }
 
-    public CreateEmptyGIST(): Promise<string>{
+    public CreateEmptyGIST(): Promise<string> {
         var me = this;
-        return new Promise<string>((resolve,reject)=>{
-             github.getGistsApi().create(me.GIST_JSON_EMPTY
+        return new Promise<string>((resolve, reject) => {
+            github.getGistsApi().create(me.GIST_JSON_EMPTY
                 , function (err, res) {
-                    if (err != null) {
+                    if (err) {
                         console.error(err);
                         reject(false);
                     }
@@ -95,18 +95,17 @@ export class GithubService {
         var me = this;
         return new Promise<any>(async (resolve, reject) => {
             await github.getGistsApi().get({ id: GIST }, async function (er, res) {
-
                 if (er) {
                     console.error(er);
                     reject(er);
                 }
-                else {
-                    resolve(res);
-                }
+                resolve(res);
             });
         });
     }
+
     public UpdateGIST(gistObject: any, files: Array<fileManager.File>): any {
+
         var me = this;
         var allFiles: string[] = Object.keys(gistObject.files);
         for (var fileIndex = 0; fileIndex < allFiles.length; fileIndex++) {
