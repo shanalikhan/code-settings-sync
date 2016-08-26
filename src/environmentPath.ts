@@ -5,6 +5,8 @@ import {OsType} from './enums';
 
 export class Environment {
 
+    public static CURRENT_VERSION : number = 204;
+
     private context: vscode.ExtensionContext;
     public isInsiders = null;
     public homeDir = null;
@@ -32,11 +34,8 @@ export class Environment {
     public FILE_CLOUDSETTINGS_NAME : string = "cloudSettings";
     public FILE_LOCATIONSETTINGS_NAME : string = "syncSettings.json";
     
-    
     public FOLDER_SNIPPETS: string = null;
     public APP_SETTINGS : string = null;
-
-    public static CURRENT_VERSION : number = 201;
 
     constructor(context: vscode.ExtensionContext) {
         this.context = context;
