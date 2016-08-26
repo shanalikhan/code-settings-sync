@@ -18,14 +18,16 @@ export class Commons {
         var me = this;
         //var localSetting: LocalSetting = new LocalSetting();
         var localSetting: any;
+        vscode.window.setStatusBarMessage("Sync : Checking for Github Token and GIST.");
 
         return new Promise<any>(async (resolve, reject) => {
 
             await fManager.FileManager.FileExists(me.en.APP_SETTINGS).then(async function (fileExist: boolean) {
                 if (fileExist) {
                     await fManager.FileManager.ReadFile(me.en.APP_SETTINGS).then(function (settin: string) {
-                        var set: any ;
-                        set= JSON.parse(settin);
+                        var set: any;
+                        set = JSON.parse(settin);
+                        vscode.window.setStatusBarMessage("");
                         resolve(set);
                     }, function (settingError: any) {
                         reject(settingError);

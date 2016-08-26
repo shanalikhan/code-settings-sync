@@ -28,40 +28,63 @@ export async function activate(context: vscode.ExtensionContext) {
 
     var en: Environment = new Environment(context);
     var common: commons.Commons = new commons.Commons(en);
-    var oldSyncSetting: any = await common.InitSettings();
-    var newSetting: LocalSetting;
-    newSetting = new LocalSetting();
+    var mainSyncSetting: any = null;
+    var newSetting: LocalSetting = new LocalSetting();
+    var settingChanged: boolean = false;
+    var emptySetting: boolean = false;
 
-    if (oldSyncSetting) {
-        if (!oldSyncSetting.Version || oldSyncSetting.Version < Environment.CURRENT_VERSION) {
-            newSetting.Version = Environment.CURRENT_VERSION;
 
-            if (oldSyncSetting.Token) {
-                newSetting.Token = oldSyncSetting.Token;
-                if (oldSyncSetting.Gist) {
-                    newSetting.Gist = oldSyncSetting.Gist;
+    await common.InitSettings().then(async (resolve) => {
+
+        if (resolve) {
+            mainSyncSetting = resolve;
+            if (!mainSyncSetting.Version || mainSyncSetting.Version < Environment.CURRENT_VERSION) {
+                settingChanged = true;
+                newSetting.Version = Environment.CURRENT_VERSION;
+
+                if (mainSyncSetting.Token) {
+                    newSetting.Token = mainSyncSetting.Token;
+                    if (mainSyncSetting.Gist) {
+                        newSetting.Gist = mainSyncSetting.Gist;
+                    }
                 }
             }
+            else {
+                newSetting = mainSyncSetting;
+                var tokenAvailable = newSetting.Token != null || newSetting.Token != "";
+                var gistAvailable = newSetting.Gist != null || newSetting.Gist != "";
+
+                if (tokenAvailable && gistAvailable && newSetting.autoSync) {
+                    vscode.commands.executeCommand('extension.downloadSettings');
+                }
+            }
+        }
+        else {
+            settingChanged = true;
+            emptySetting = true;
+        }
+
+        if (settingChanged) {
             await common.SaveSettings(newSetting).then(async function (added: boolean) {
                 if (added) {
-                    vscode.window.showInformationMessage("Sync : Migration to new version complete. Read Release Notes for details.");
+                    if (!emptySetting) {
+                        vscode.window.showInformationMessage("Sync : Migration to new version complete. Read Release Notes for details.");
+                    }
+                    else{
+                        vscode.window.showInformationMessage("Sync : Settings Created.");
+                    }
                 }
                 else {
                     vscode.window.showErrorMessage("GIST and Token couldn't be migrated to new version. You need to add them again.")
                 }
             });
         }
-        else {
 
-            newSetting = oldSyncSetting;
-            var tokenAvailable = newSetting.Token != null || newSetting.Token != "";
-            var gistAvailable = newSetting.Gist != null || newSetting.Gist != "";
+    }, (reject) => {
+        console.error(reject);
+        vscode.window.showErrorMessage(common.ERROR_MESSAGE);
+    });
 
-            if (tokenAvailable && gistAvailable && newSetting.autoSync) {
-                vscode.commands.executeCommand('extension.downloadSettings');
-            }
-        }
-    }
 
     var openurl = require('open');
     var fs = require('fs');
@@ -76,9 +99,15 @@ export async function activate(context: vscode.ExtensionContext) {
         var common: commons.Commons = new commons.Commons(en);
         var myGi: GithubService = null;
         var dateNow: Date = new Date();
+        var syncSetting: any = null;
+        await common.InitSettings().then(async (resolve) => {
+            syncSetting = resolve;
+            await Init();
+        }, (reject) => {
+            console.error(reject);
+            vscode.window.showErrorMessage(common.ERROR_MESSAGE);
 
-        vscode.window.setStatusBarMessage("Sync : Checking for Github Token and GIST.", 2000);
-        var syncSetting: any = await common.InitSettings();
+        });
 
         async function Init() {
 
@@ -214,8 +243,6 @@ export async function activate(context: vscode.ExtensionContext) {
             }
         }
 
-        await Init();
-
     });
 
 
@@ -224,10 +251,16 @@ export async function activate(context: vscode.ExtensionContext) {
         var en: Environment = new Environment(context);
         var common: commons.Commons = new commons.Commons(en);
         var myGi: GithubService = null;
+        var syncSetting: LocalSetting = new LocalSetting();
 
-        vscode.window.setStatusBarMessage("Sync : Checking for Github Token and GIST.", 2000);
-        var sett: any = await common.InitSettings();
-        var syncSetting: LocalSetting = sett;
+        await common.InitSettings().then(async (resolve) => {
+            syncSetting = resolve;
+            await Init();
+        }, (reject) => {
+            console.error(reject);
+            vscode.window.showErrorMessage(common.ERROR_MESSAGE);
+
+        });
 
         async function Init() {
 
@@ -432,37 +465,47 @@ export async function activate(context: vscode.ExtensionContext) {
                 return;
             });
         }
-        await Init();
     });
 
     var resetSettings = vscode.commands.registerCommand('extension.resetSettings', async () => {
         var en: Environment = new Environment(context);
         var fManager: FileManager;
         var common: commons.Commons = new commons.Commons(en);
-        var syncSetting: LocalSetting = await common.InitSettings();
+        var syncSetting: LocalSetting = new LocalSetting();
 
-        vscode.window.setStatusBarMessage("Sync : Resetting Your Settings.", 2000);
-        try {
-            syncSetting.Token = null;
-            syncSetting.Gist = null;
-            syncSetting.lastDownload = null;
-            syncSetting.lastUpload = null;
+        await common.InitSettings().then(async (resolve) => {
+            syncSetting = resolve;
+            await Init();
+        }, (reject) => {
+            console.error(reject);
+            vscode.window.showErrorMessage(common.ERROR_MESSAGE);
 
-            await common.SaveSettings(syncSetting).then(function (added: boolean) {
-                if (added) {
-                    vscode.window.showInformationMessage("GIST ID and Github Token Cleared.");
-                }
-            }, function (err: any) {
-                console.error(err);
-                vscode.window.showErrorMessage(common.ERROR_MESSAGE);
-                return;
-            });
+        });
+        async function Init() {
+            vscode.window.setStatusBarMessage("Sync : Resetting Your Settings.", 2000);
+            try {
+                syncSetting.Token = null;
+                syncSetting.Gist = null;
+                syncSetting.lastDownload = null;
+                syncSetting.lastUpload = null;
 
+                await common.SaveSettings(syncSetting).then(function (added: boolean) {
+                    if (added) {
+                        vscode.window.showInformationMessage("GIST ID and Github Token Cleared.");
+                    }
+                }, function (err: any) {
+                    console.error(err);
+                    vscode.window.showErrorMessage(common.ERROR_MESSAGE);
+                    return;
+                });
+
+            }
+            catch (err) {
+                console.log(err);
+                vscode.window.showErrorMessage("Unable to clear settings. Error Logged on console. Please open an issue.");
+            }
         }
-        catch (err) {
-            console.log(err);
-            vscode.window.showErrorMessage("Unable to clear settings. Error Logged on console. Please open an issue.");
-        }
+
     });
     var releaseNotes = vscode.commands.registerCommand('extension.releaseNotes', async () => {
         openurl("http://shanalikhan.github.io/2016/05/14/Visual-studio-code-sync-settings-release-notes.html");
@@ -499,41 +542,54 @@ export async function activate(context: vscode.ExtensionContext) {
     var autoSync = vscode.commands.registerCommand('extension.autoSync', async () => {
         var en: Environment = new Environment(context);
         var common: commons.Commons = new commons.Commons(en);
-        var setting: LocalSetting = await common.InitSettings();
+        var setting: LocalSetting = new LocalSetting();
 
-        if(!setting){
-            vscode.commands.executeCommand('extension.HowSettings');
-            return;
-        }
-        var tokenAvailable = newSetting.Token != null || newSetting.Token != "";
-        var gistAvailable = newSetting.Gist != null || newSetting.Gist != "";
+        await common.InitSettings().then(async (resolve) => {
 
-        if (!tokenAvailable || !gistAvailable) {
-            vscode.commands.executeCommand('extension.HowSettings');
-            return;
-        }
-        if (setting.autoSync) {
-            setting.autoSync = false;
-        }
-        else {
-            setting.autoSync = true;
-        }
-        await common.SaveSettings(setting).then(async function (added: boolean) {
-            if (added) {
-                if (setting.autoSync) {
-                    vscode.window.showInformationMessage("Sync : Auto Download turned ON upon VSCode Startup.");
-                }
-                else {
-                    vscode.window.showInformationMessage("Sync : Auto Download turned OFF upon VSCode Startup.");
-                }
+
+            if (!resolve) {
+                vscode.commands.executeCommand('extension.HowSettings');
+                return;
+            }
+            setting = resolve;
+
+            var tokenAvailable = setting.Token != null || setting.Token != "";
+            var gistAvailable = setting.Gist != null || setting.Gist != "";
+
+            if (!tokenAvailable || !gistAvailable) {
+                vscode.commands.executeCommand('extension.HowSettings');
+                return;
+            }
+            if (setting.autoSync) {
+                setting.autoSync = false;
             }
             else {
-                vscode.window.showErrorMessage("Unable to set the autosync.");
+                setting.autoSync = true;
             }
-        }, function (err: any) {
-            console.log(err);
-            vscode.window.showErrorMessage("Unable to toggle auto sync. Please open an issue.");
+            await common.SaveSettings(setting).then(async function (added: boolean) {
+                if (added) {
+                    if (setting.autoSync) {
+                        vscode.window.showInformationMessage("Sync : Auto Download turned ON upon VSCode Startup.");
+                    }
+                    else {
+                        vscode.window.showInformationMessage("Sync : Auto Download turned OFF upon VSCode Startup.");
+                    }
+                }
+                else {
+                    vscode.window.showErrorMessage("Unable to set the autosync.");
+                }
+            }, function (err: any) {
+                console.log(err);
+                vscode.window.showErrorMessage("Unable to toggle auto sync. Please open an issue.");
+            });
+
+        }, (reject) => {
+            console.error(reject);
+            vscode.window.showErrorMessage(common.ERROR_MESSAGE);
+
         });
+
+
 
     });
 
