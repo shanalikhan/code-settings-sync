@@ -1,14 +1,15 @@
 "use strict";
 import * as vscode from 'vscode';
-import * as envi from './environmentPath';
-import * as fManager from './fileManager';
+import {Environment} from './environmentPath';
+import {File, FileManager} from './fileManager';
 import {LocalSetting} from './setting';
+import {PluginService, ExtensionInformation} from './pluginService';
 
 export class Commons {
 
     public ERROR_MESSAGE: string = "ERROR ! Logged In Console (Help menu > Toggle Developer Tools). Please open an issue in Github Repo using 'Sync : Open Issue' command.";
 
-    constructor(private en: envi.Environment) {
+    constructor(private en: Environment) {
 
     }
 
@@ -22,14 +23,18 @@ export class Commons {
 
         return new Promise<any>(async (resolve, reject) => {
 
-            await fManager.FileManager.FileExists(me.en.APP_SETTINGS).then(async function (fileExist: boolean) {
+            await FileManager.FileExists(me.en.APP_SETTINGS).then(async function (fileExist: boolean) {
                 if (fileExist) {
-                    await fManager.FileManager.ReadFile(me.en.APP_SETTINGS).then(function (settin: string) {
-                        var set: any;
-                        set = JSON.parse(settin);
+                    await FileManager.ReadFile(me.en.APP_SETTINGS).then(function (settin: string) {
                         vscode.window.setStatusBarMessage("");
-                        resolve(set);
-                         vscode.window.setStatusBarMessage("");
+                        if (settin) {
+                            var set: any;
+                            set = JSON.parse(settin);
+                            vscode.window.setStatusBarMessage("");
+                            resolve(set);
+                        }
+                        resolve("");
+
                     }, function (settingError: any) {
                         reject(settingError);
                         vscode.window.setStatusBarMessage("");
@@ -53,7 +58,7 @@ export class Commons {
     public async SaveSettings(setting: any): Promise<boolean> {
         var me = this;
         return new Promise<boolean>(async (resolve, reject) => {
-            await fManager.FileManager.WriteFile(me.en.APP_SETTINGS, JSON.stringify(setting)).then(function (added: boolean) {
+            await FileManager.WriteFile(me.en.APP_SETTINGS, JSON.stringify(setting)).then(function (added: boolean) {
                 resolve(added);
             }, function (err: any) {
                 reject(err);
@@ -65,10 +70,10 @@ export class Commons {
     public async GetSettings(): Promise<Object> {
         var me = this;
         return new Promise<Object>(async (resolve, reject) => {
-            await fManager.FileManager.FileExists(me.en.APP_SETTINGS).then(async function (fileExist: boolean) {
+            await FileManager.FileExists(me.en.APP_SETTINGS).then(async function (fileExist: boolean) {
                 //resolve(fileExist);
                 if (fileExist) {
-                    await fManager.FileManager.ReadFile(me.en.APP_SETTINGS).then(function (settingsData: string) {
+                    await FileManager.ReadFile(me.en.APP_SETTINGS).then(function (settingsData: string) {
                         if (settingsData) {
                             resolve(JSON.parse(settingsData));
                         }
@@ -170,5 +175,79 @@ export class Commons {
             return options;
         }
     };
+
+    public GenerateSummmaryFile(upload: boolean, files: Array<File>, removedExtensions: Array<ExtensionInformation>, addedExtensions: Array<ExtensionInformation> , syncSettings : LocalSetting) {
+
+        var header: string = null;
+        var downloaded: string = "Downloaded";
+        var updated: string = "Uploaded";
+        var status: string = null;
+
+        if (upload) {
+            status = updated;
+        }
+        else {
+            status = downloaded;
+        }
+
+        header = "Following files are " + status + ". \r\n";
+
+        var deletedExtension: string = "\r\nFollowing extensions are " + status+". \r\n";
+        var addedExtension: string = "\r\nFollowing extensions are "+ status+". \r\n";
+        var tempURI : string  = this.en.APP_SUMMARY;
+        while(tempURI.indexOf("/")>-1){
+            tempURI = tempURI.replace("/","\\");
+        }
+        var setting: vscode.Uri = vscode.Uri.parse("untitled:" + tempURI);
+
+        vscode.workspace.openTextDocument(setting).then((a: vscode.TextDocument) => {
+
+            vscode.window.showTextDocument(a, 1, false).then(e => {
+                e.edit(edit => {
+                    edit.insert(new vscode.Position(0, 0), status + " SUMMARY \r\n");
+                    edit.insert(new vscode.Position(1, 0),"-------------------- \r\n  \r\n");
+                    
+                    edit.insert(new vscode.Position(3, 0), "GITHUB TOKEN: "+syncSettings.Token+ " \r\n");
+                    edit.insert(new vscode.Position(4, 0), "GITHUB GIST: "+syncSettings.Gist+ " \r\n");
+                    edit.insert(new vscode.Position(1, 0),"-------------------- \r\n  \r\n");
+
+                    edit.insert(new vscode.Position(2, 0), header+" \r\n");
+                    var row: number = 5;
+                    for (var i = 0; i < files.length; i++) {
+                        var element = files[i];
+                        edit.insert(new vscode.Position(row, 0), element.fileName + " \r\n");
+                        row += 1;
+                    }
+                    if (removedExtensions) {
+                        if (removedExtensions.length > 0) {
+                            edit.insert(new vscode.Position(row, 0), deletedExtension+" \r\n");
+                            row += 1;
+                            removedExtensions.forEach(ext => {
+                                edit.insert(new vscode.Position(row, 0), ext.name+" \r\n");
+                                row += 1;
+                            });
+                        }
+                    }
+
+                    if(addedExtensions){
+                        row+=1;
+                         if (addedExtensions.length > 0) {
+                            edit.insert(new vscode.Position(row, 0)," \r\n"+ addedExtension+" \r\n");
+                            row += 1;
+                            addedExtensions.forEach(ext => {
+                                edit.insert(new vscode.Position(row, 0), ext.name+" \r\n");
+                                row += 1;
+                            });
+                        }
+                    }
+                });
+            });
+        }, (error: any) => {
+            console.error(error);
+            return;
+        });
+
+    };
+
 
 }

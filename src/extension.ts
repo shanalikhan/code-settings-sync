@@ -100,6 +100,8 @@ export async function activate(context: vscode.ExtensionContext) {
         var myGi: GithubService = null;
         var dateNow: Date = new Date();
         var syncSetting: LocalSetting = new LocalSetting();
+        var allSettingFiles = new Array<File>();
+        var uploadedExtensions = new Array<ExtensionInformation>();
 
         await common.InitSettings().then(async (resolve) => {
             syncSetting = resolve;
@@ -142,7 +144,7 @@ export async function activate(context: vscode.ExtensionContext) {
             if (syncSetting.Token != null && syncSetting.Token != "") {
                 syncSetting.lastUpload = dateNow;
 
-                var allSettingFiles = new Array<File>();
+                
                 vscode.window.setStatusBarMessage("Sync : Reading Settings and Extensions.", 1000);
 
                 var settingFile: File = await FileManager.GetFile(en.FILE_SETTING, en.FILE_SETTING_NAME);
@@ -174,14 +176,15 @@ export async function activate(context: vscode.ExtensionContext) {
 
 
 
-                var extensionlist = PluginService.CreateExtensionList();
-                extensionlist.sort(function (a, b) {
+                uploadedExtensions = PluginService.CreateExtensionList();
+                
+                uploadedExtensions.sort(function (a, b) {
                     return a.name.localeCompare(b.name);
                 });
 
                 var fileName = en.FILE_EXTENSION_NAME;
                 var filePath = en.FILE_EXTENSION;
-                var fileContent = JSON.stringify(extensionlist, undefined, 2);;
+                var fileContent = JSON.stringify(uploadedExtensions, undefined, 2);;
                 var file: File = new File(fileName, fileContent, filePath);
                 allSettingFiles.push(file);
 
@@ -232,9 +235,11 @@ export async function activate(context: vscode.ExtensionContext) {
                                         if (newGIST) {
                                             vscode.window.showInformationMessage("Uploaded Successfully." + " GIST ID :  " + syncSetting.Gist + " . Please copy and use this ID in other machines to sync all settings.");
                                         }
-                                        else{
-                                             vscode.window.showInformationMessage("Uploaded Successfully.");
+                                        else {
+                                            vscode.window.showInformationMessage("Uploaded Successfully.");
                                         }
+                                        common.GenerateSummmaryFile(true,allSettingFiles,null,uploadedExtensions,syncSetting);
+
                                         vscode.window.setStatusBarMessage("");
                                     }
                                 }, function (err: any) {
@@ -332,6 +337,11 @@ export async function activate(context: vscode.ExtensionContext) {
         async function StartDownload() {
 
             myGi.ReadGist(syncSetting.Gist).then(async function (res: any) {
+                var addedExtensions : Array<ExtensionInformation>  = new Array<ExtensionInformation>();
+                var deletedExtensions : Array<ExtensionInformation>  = new Array<ExtensionInformation>();
+                var updatedFiles : Array<File> = new Array<File>();
+
+
                 if (res) {
                     var keys = Object.keys(res.files);
                     if (keys.indexOf(en.FILE_CLOUDSETTINGS_NAME) > -1) {
@@ -344,13 +354,19 @@ export async function activate(context: vscode.ExtensionContext) {
                         syncSetting.lastDownload = cloudSett.lastUpload;
                     }
 
+                    keys.forEach(fileName => {
+                        var f : File = new File(fileName, res.files[fileName].content,null);
+                        updatedFiles.push(f);
+                    });
+                    
 
+                    //TODO : remove this manual and integrate with files class
                     for (var i: number = 0; i < keys.length; i++) {
                         switch (keys[i]) {
                             case "launch.json": {
                                 await FileManager.WriteFile(en.FILE_LAUNCH, res.files[en.FILE_LAUNCH_NAME].content).then(
                                     function (added: boolean) {
-                                        vscode.window.showInformationMessage("Launch Settings downloaded Successfully");
+                                        //vscode.window.showInformationMessage("Launch Settings downloaded Successfully");
                                     }, function (error: any) {
                                         vscode.window.showErrorMessage(common.ERROR_MESSAGE);
                                         return;
@@ -361,7 +377,7 @@ export async function activate(context: vscode.ExtensionContext) {
                             case "settings.json": {
                                 await FileManager.WriteFile(en.FILE_SETTING, res.files[en.FILE_SETTING_NAME].content).then(
                                     function (added: boolean) {
-                                        vscode.window.showInformationMessage("Editor Settings downloaded Successfully");
+                                        //vscode.window.showInformationMessage("Editor Settings downloaded Successfully");
                                     }, function (error: any) {
                                         vscode.window.showErrorMessage(common.ERROR_MESSAGE);
                                         return;
@@ -383,9 +399,9 @@ export async function activate(context: vscode.ExtensionContext) {
                                 await FileManager.WriteFile(en.FILE_KEYBINDING, res.files[sourceKeyBinding].content).then(
                                     function (added: boolean) {
                                         if (en.OsType == OsType.Mac) {
-                                            vscode.window.showInformationMessage("Keybinding Settings for Mac downloaded Successfully");
+                                            //vscode.window.showInformationMessage("Keybinding Settings for Mac downloaded Successfully");
                                         } else {
-                                            vscode.window.showInformationMessage("Keybinding Settings downloaded Successfully");
+                                            //vscode.window.showInformationMessage("Keybinding Settings downloaded Successfully");
                                         }
                                     }, function (error: any) {
                                         vscode.window.showErrorMessage(common.ERROR_MESSAGE);
@@ -397,7 +413,7 @@ export async function activate(context: vscode.ExtensionContext) {
 
                                 await FileManager.WriteFile(en.FILE_LOCALE, res.files[en.FILE_LOCALE_NAME].content).then(
                                     function (added: boolean) {
-                                        vscode.window.showInformationMessage("Locale Settings downloaded Successfully");
+                                       // vscode.window.showInformationMessage("Locale Settings downloaded Successfully");
                                     }, function (error: any) {
                                         vscode.window.showErrorMessage(common.ERROR_MESSAGE);
                                         return;
@@ -420,6 +436,7 @@ export async function activate(context: vscode.ExtensionContext) {
                                     await PluginService.DeleteExtension(deletedExtension, en.ExtensionFolder)
                                         .then((res) => {
                                             vscode.window.showInformationMessage(deletedExtension.name + '-' + deletedExtension.version + " is removed.");
+                                            deletedExtensions.push(deletedExtension);
                                         }, (rej) => {
                                             vscode.window.showErrorMessage(common.ERROR_MESSAGE);
                                         });
@@ -435,8 +452,9 @@ export async function activate(context: vscode.ExtensionContext) {
                                     missingList.forEach(element => {
                                         actionList.push(PluginService.InstallExtension(element, en.ExtensionFolder)
                                             .then(function () {
+                                                addedExtensions.push(element);
                                                 var name = element.publisher + '.' + element.name + '-' + element.version;
-                                                vscode.window.showInformationMessage("Extension " + name + " installed Successfully");
+                                                //vscode.window.showInformationMessage("Extension " + name + " installed Successfully");
                                             }));
                                     });
                                     Promise.all(actionList)
@@ -460,7 +478,7 @@ export async function activate(context: vscode.ExtensionContext) {
                                         var fileName = keys[i]//.concat(".json");
                                         await FileManager.WriteFile(file, res.files[keys[i]].content).then(
                                             function (added: boolean) {
-                                                vscode.window.showInformationMessage(fileName + " snippet added successfully.");
+                                                //vscode.window.showInformationMessage(fileName + " snippet added successfully.");
                                             }, function (error: any) {
                                                 vscode.window.showErrorMessage(common.ERROR_MESSAGE);
                                                 return;
@@ -482,6 +500,7 @@ export async function activate(context: vscode.ExtensionContext) {
                 await common.SaveSettings(syncSetting).then(async function (added: boolean) {
                     if (added) {
                         vscode.window.showInformationMessage("Sync : Download Complete.");
+                        common.GenerateSummmaryFile(false,updatedFiles,deletedExtensions,addedExtensions,syncSetting);
                     }
                     else {
                         vscode.window.showErrorMessage("Sync : Unable to save extension setting file.")
@@ -570,7 +589,6 @@ export async function activate(context: vscode.ExtensionContext) {
 
     var openIssue = vscode.commands.registerCommand('extension.OpenIssue', async () => {
         openurl("https://github.com/shanalikhan/code-settings-sync/issues/new");
-
     });
 
     var autoSync = vscode.commands.registerCommand('extension.autoSync', async () => {

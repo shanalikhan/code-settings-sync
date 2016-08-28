@@ -5,7 +5,7 @@ import {OsType} from './enums';
 
 export class Environment {
 
-    public static CURRENT_VERSION : number = 206;
+    public static CURRENT_VERSION : number = 207;
 
     private context: vscode.ExtensionContext;
     public isInsiders = null;
@@ -36,6 +36,8 @@ export class Environment {
     
     public FOLDER_SNIPPETS: string = null;
     public APP_SETTINGS : string = null;
+    public APP_SUMMARY_NAME : string = "summary.txt";
+    public APP_SUMMARY : string = null;
 
     constructor(context: vscode.ExtensionContext) {
         this.context = context;
@@ -74,6 +76,7 @@ export class Environment {
         this.FILE_LOCALE = this.PATH.concat("/User/",this.FILE_LOCALE_NAME);
         this.FOLDER_SNIPPETS = this.PATH.concat("/User/snippets/");
         this.APP_SETTINGS = this.PATH.concat("/User/",this.FILE_LOCATIONSETTINGS_NAME);
+        this.APP_SUMMARY = this.PATH.concat("/User/",this.APP_SUMMARY_NAME);
         this.FILE_CLOUDSETTINGS = this.PATH.concat("/User/",this.FILE_CLOUDSETTINGS_NAME);
     }
 

@@ -11,6 +11,7 @@ export class LocalSetting{
     public ProxyIP :string = null;
     public ProxyPort:string = null;
     public Version : number = null;
+    public showSummary : boolean = true;
 }
 
 export class CloudSetting{
