@@ -219,7 +219,7 @@ export class PluginService {
     }
 
 
-    public static InstallExtension(item: ExtensionInformation, ExtensionFolder: string) {
+    public static async InstallExtension(item: ExtensionInformation, ExtensionFolder: string) {
         var header = {
             'Accept': 'application/json;api-version=3.0-preview.1'
         };
@@ -235,7 +235,7 @@ export class PluginService {
             flags: 133
         };
 
-        return util.Util.HttpPostJson(apiPath, data, header)
+        return await util.Util.HttpPostJson(apiPath, data, header)
             .then(function (res) {
 
                 var targetVersion = null;

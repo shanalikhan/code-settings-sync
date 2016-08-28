@@ -7,7 +7,7 @@ import {PluginService, ExtensionInformation} from './pluginService';
 
 export class Commons {
 
-    public ERROR_MESSAGE: string = "ERROR ! Logged In Console (Help menu > Toggle Developer Tools). Please open an issue in Github Repo using 'Sync : Open Issue' command.";
+    public ERROR_MESSAGE: string = "Error Logged In Console (Help menu > Toggle Developer Tools). You may open an issue using 'Sync : Open Issue' command.";
 
     constructor(private en: Environment) {
 
@@ -192,8 +192,8 @@ export class Commons {
 
         header = "Following files are " + status + ". \r\n";
 
-        var deletedExtension: string = "\r\nFollowing extensions are " + status+". \r\n";
-        var addedExtension: string = "\r\nFollowing extensions are "+ status+". \r\n";
+        var deletedExtension: string = "\r\nFollowing extensions are removed. \r\n";
+        var addedExtension: string = "\r\nFollowing extensions are added \r\n";
         var tempURI : string  = this.en.APP_SUMMARY;
         while(tempURI.indexOf("/")>-1){
             tempURI = tempURI.replace("/","\\");
