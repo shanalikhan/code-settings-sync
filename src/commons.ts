@@ -176,7 +176,7 @@ export class Commons {
         }
     };
 
-    public GenerateSummmaryFile(upload: boolean, files: Array<File>, removedExtensions: Array<ExtensionInformation>, addedExtensions: Array<ExtensionInformation> , syncSettings : LocalSetting) {
+    public GenerateSummmaryFile(upload: boolean, files: Array<File>, removedExtensions: Array<ExtensionInformation>, addedExtensions: Array<ExtensionInformation>, syncSettings: LocalSetting) {
 
         var header: string = null;
         var downloaded: string = "Downloaded";
@@ -194,9 +194,9 @@ export class Commons {
 
         var deletedExtension: string = "\r\nFollowing extensions are removed. \r\n";
         var addedExtension: string = "\r\nFollowing extensions are added \r\n";
-        var tempURI : string  = this.en.APP_SUMMARY;
-        while(tempURI.indexOf("/")>-1){
-            tempURI = tempURI.replace("/","\\");
+        var tempURI: string = this.en.APP_SUMMARY;
+        while (tempURI.indexOf("/") > -1) {
+            tempURI = tempURI.replace("/", "\\");
         }
         var setting: vscode.Uri = vscode.Uri.parse("untitled:" + tempURI);
 
@@ -205,37 +205,40 @@ export class Commons {
             vscode.window.showTextDocument(a, 1, false).then(e => {
                 e.edit(edit => {
                     edit.insert(new vscode.Position(0, 0), status + " SUMMARY \r\n");
-                    edit.insert(new vscode.Position(1, 0),"-------------------- \r\n  \r\n");
-                    
-                    edit.insert(new vscode.Position(3, 0), "GITHUB TOKEN: "+syncSettings.Token+ " \r\n");
-                    edit.insert(new vscode.Position(4, 0), "GITHUB GIST: "+syncSettings.Gist+ " \r\n");
-                    edit.insert(new vscode.Position(1, 0),"-------------------- \r\n  \r\n");
+                    edit.insert(new vscode.Position(1, 0), "-------------------- \r\n  \r\n");
 
-                    edit.insert(new vscode.Position(2, 0), header+" \r\n");
+                    edit.insert(new vscode.Position(3, 0), "GITHUB TOKEN: " + syncSettings.Token + " \r\n");
+                    edit.insert(new vscode.Position(4, 0), "GITHUB GIST: " + syncSettings.Gist + " \r\n");
+                    edit.insert(new vscode.Position(1, 0), "-------------------- \r\n  \r\n");
+
+                    edit.insert(new vscode.Position(2, 0), header + " \r\n");
                     var row: number = 5;
                     for (var i = 0; i < files.length; i++) {
                         var element = files[i];
-                        edit.insert(new vscode.Position(row, 0), element.fileName + " \r\n");
-                        row += 1;
+                        if (element.fileName.indexOf(".") > 0) {
+                            edit.insert(new vscode.Position(row, 0), element.fileName + " \r\n");
+                            row += 1;
+                        }
+
                     }
                     if (removedExtensions) {
                         if (removedExtensions.length > 0) {
-                            edit.insert(new vscode.Position(row, 0), deletedExtension+" \r\n");
+                            edit.insert(new vscode.Position(row, 0), deletedExtension + " \r\n");
                             row += 1;
                             removedExtensions.forEach(ext => {
-                                edit.insert(new vscode.Position(row, 0), ext.name+" \r\n");
+                                edit.insert(new vscode.Position(row, 0), ext.name + " \r\n");
                                 row += 1;
                             });
                         }
                     }
 
-                    if(addedExtensions){
-                        row+=1;
-                         if (addedExtensions.length > 0) {
-                            edit.insert(new vscode.Position(row, 0)," \r\n"+ addedExtension+" \r\n");
+                    if (addedExtensions) {
+                        row += 1;
+                        if (addedExtensions.length > 0) {
+                            edit.insert(new vscode.Position(row, 0), " \r\n" + addedExtension + " \r\n");
                             row += 1;
                             addedExtensions.forEach(ext => {
-                                edit.insert(new vscode.Position(row, 0), ext.name+" \r\n");
+                                edit.insert(new vscode.Position(row, 0), ext.name + " \r\n");
                                 row += 1;
                             });
                         }

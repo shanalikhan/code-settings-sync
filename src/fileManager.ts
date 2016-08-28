@@ -40,7 +40,7 @@ export class FileManager {
               await FileManager.FileExists(filePath).then(async function (fileExists: boolean) {
                     if (fileExists) {
                         FileManager.ReadFile(filePath).then(function (content: string) {
-                            if (content) {
+                            if (content!=null) {
                                 var file: File = new File(fileName, content, filePath);
                                 resolve(file);
                             }

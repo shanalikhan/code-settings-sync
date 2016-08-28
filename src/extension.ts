@@ -198,7 +198,7 @@ export async function activate(context: vscode.ExtensionContext) {
                     await myGi.CreateEmptyGIST().then(async function (gistID: string) {
                         if (gistID) {
                             syncSetting.Gist = gistID;
-                            vscode.window.setStatusBarMessage("Sync : Empty GIST ID: " + syncSetting.Gist + "Created To Insert Files, in Process...");
+                            vscode.window.setStatusBarMessage("Sync : Empty GIST ID: " + syncSetting.Gist + " Created To Insert Files, in Process...");
                         }
                         else {
                             vscode.window.showInformationMessage("GIST UNABLE TO CREATE");
