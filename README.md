@@ -87,6 +87,9 @@ When token and GIST is filled up correctly, you can enable auto download the lat
 
 **Select Command "Toggle Auto Download" command to Turn ON / OFF the auto download.**
 
+## Toggle Summary
+Now the details will be shown in the new text that which of the files are updated / downloaded alongwith affected extensions. You can turn it on /off.
+
 # How To Contribute
 Download source code and install dependencies
 
