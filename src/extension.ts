@@ -434,13 +434,16 @@ export async function activate(context: vscode.ExtensionContext) {
 
                                 for (var deletedItemIndex = 0; deletedItemIndex < deletedList.length; deletedItemIndex++) {
                                     var deletedExtension = deletedList[deletedItemIndex];
-                                    await actionList.push(PluginService.DeleteExtension(deletedExtension, en.ExtensionFolder)
-                                        .then((res) => {
-                                            vscode.window.showInformationMessage(deletedExtension.name + '-' + deletedExtension.version + " is removed.");
-                                            deletedExtensions.push(deletedExtension);
-                                        }, (rej) => {
-                                            vscode.window.showErrorMessage(common.ERROR_MESSAGE);
-                                        }));
+                                    (async function (deletedExtension: ExtensionInformation, ExtensionFolder: string) {
+                                        await actionList.push(PluginService.DeleteExtension(deletedExtension, en.ExtensionFolder)
+                                            .then((res) => {
+                                                vscode.window.showInformationMessage(deletedExtension.name + '-' + deletedExtension.version + " is removed.");
+                                                deletedExtensions.push(deletedExtension);
+                                            }, (rej) => {
+                                                vscode.window.showErrorMessage(common.ERROR_MESSAGE);
+                                            }));
+                                    } (deletedExtension, en.ExtensionFolder));
+
                                 }
 
                                 var missingList = PluginService.GetMissingExtensions(remoteList);

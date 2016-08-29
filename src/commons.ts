@@ -179,8 +179,8 @@ export class Commons {
     public GenerateSummmaryFile(upload: boolean, files: Array<File>, removedExtensions: Array<ExtensionInformation>, addedExtensions: Array<ExtensionInformation>, syncSettings: LocalSetting) {
 
         var header: string = null;
-        var downloaded: string = "Downloaded";
-        var updated: string = "Uploaded";
+        var downloaded: string = "Download";
+        var updated: string = "Upload";
         var status: string = null;
 
         if (upload) {
@@ -190,10 +190,10 @@ export class Commons {
             status = downloaded;
         }
 
-        header = "Following files are " + status + ". \r\n";
+        header = "\r\nFiles " + status + ". \r\n";
 
-        var deletedExtension: string = "\r\nFollowing extensions are removed. \r\n";
-        var addedExtension: string = "\r\nFollowing extensions are added \r\n";
+        var deletedExtension: string = "\r\nEXTENSIONS REMOVED \r\n";
+        var addedExtension: string = "\r\nEXTENSIONS ADDED \r\n";
         var tempURI: string = this.en.APP_SUMMARY;
         while (tempURI.indexOf("/") > -1) {
             tempURI = tempURI.replace("/", "\\");
@@ -204,8 +204,8 @@ export class Commons {
 
             vscode.window.showTextDocument(a, 1, false).then(e => {
                 e.edit(edit => {
-                    edit.insert(new vscode.Position(0, 0), status + " SUMMARY \r\n");
-                    edit.insert(new vscode.Position(1, 0), "-------------------- \r\n  \r\n");
+                    edit.insert(new vscode.Position(0, 0),"VISUAL STUDIO CODE SETTINGS SYNC \r\n\r\n"+ status + " SUMMARY \r\n\r\n");
+                    edit.insert(new vscode.Position(1, 0), "-------------------- \r\n");
 
                     edit.insert(new vscode.Position(3, 0), "GITHUB TOKEN: " + syncSettings.Token + " \r\n");
                     edit.insert(new vscode.Position(4, 0), "GITHUB GIST: " + syncSettings.Gist + " \r\n");
@@ -226,7 +226,7 @@ export class Commons {
                             edit.insert(new vscode.Position(row, 0), deletedExtension + " \r\n");
                             row += 1;
                             removedExtensions.forEach(ext => {
-                                edit.insert(new vscode.Position(row, 0), ext.name + " \r\n");
+                                edit.insert(new vscode.Position(row, 0), ext.name +" - Version :" + ext.version  + " \r\n");
                                 row += 1;
                             });
                         }
@@ -238,7 +238,7 @@ export class Commons {
                             edit.insert(new vscode.Position(row, 0), " \r\n" + addedExtension + " \r\n");
                             row += 1;
                             addedExtensions.forEach(ext => {
-                                edit.insert(new vscode.Position(row, 0), ext.name + " \r\n");
+                                edit.insert(new vscode.Position(row, 0), ext.name +" - Version :" + ext.version  + " \r\n");
                                 row += 1;
                             });
                         }

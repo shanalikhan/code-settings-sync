@@ -5,7 +5,7 @@ import {OsType} from './enums';
 
 export class Environment {
 
-    public static CURRENT_VERSION : number = 210;
+    public static CURRENT_VERSION : number = 211;
 
     private context: vscode.ExtensionContext;
     public isInsiders = null;
