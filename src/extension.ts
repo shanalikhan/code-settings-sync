@@ -75,8 +75,7 @@ export async function activate(context: vscode.ExtensionContext) {
         }
 
     }, (reject) => {
-        console.error(reject);
-        vscode.window.showErrorMessage(common.ERROR_MESSAGE);
+        common.LogException(reject, common.ERROR_MESSAGE);
     });
 
     //migration code ends
@@ -102,9 +101,8 @@ export async function activate(context: vscode.ExtensionContext) {
             syncSetting = resolve;
             await Init();
         }, (reject) => {
-            console.error(reject);
-            vscode.window.showErrorMessage(common.ERROR_MESSAGE);
-
+            common.LogException(reject, common.ERROR_MESSAGE);
+            return;
         });
 
         async function Init() {
@@ -121,8 +119,7 @@ export async function activate(context: vscode.ExtensionContext) {
                         return;
                     }
                 }, function (err: any) {
-                    console.error(err);
-                    vscode.window.showErrorMessage(common.ERROR_MESSAGE);
+                    common.LogException(err, common.ERROR_MESSAGE);
                     return;
                 });
             }
@@ -205,8 +202,7 @@ export async function activate(context: vscode.ExtensionContext) {
                             return;
                         }
                     }, function (error: any) {
-                        console.error(error);
-                        vscode.window.showErrorMessage(common.ERROR_MESSAGE);
+                        common.LogException(error, common.ERROR_MESSAGE);
                         return;
                     });
                 }
@@ -235,8 +231,7 @@ export async function activate(context: vscode.ExtensionContext) {
                                         vscode.window.setStatusBarMessage("");
                                     }
                                 }, function (err: any) {
-                                    console.error(err);
-                                    vscode.window.showErrorMessage(common.ERROR_MESSAGE);
+                                    common.LogException(err, common.ERROR_MESSAGE);
                                     return;
                                 });
 
@@ -246,8 +241,7 @@ export async function activate(context: vscode.ExtensionContext) {
                                 return;
                             }
                         }, function (error: any) {
-                            console.error(error);
-                            vscode.window.showErrorMessage(common.ERROR_MESSAGE);
+                            common.LogException(error, common.ERROR_MESSAGE);
                             return;
                         });
                     }
@@ -257,8 +251,7 @@ export async function activate(context: vscode.ExtensionContext) {
                     }
 
                 }, function (gistReadError: any) {
-                    console.error(gistReadError);
-                    vscode.window.showErrorMessage(common.ERROR_MESSAGE);
+                    common.LogException(gistReadError, common.ERROR_MESSAGE);
                     return;
                 });
             }
@@ -281,8 +274,7 @@ export async function activate(context: vscode.ExtensionContext) {
             syncSetting = resolve;
             await Init();
         }, (reject) => {
-            console.error(reject);
-            vscode.window.showErrorMessage(common.ERROR_MESSAGE);
+            common.LogException(reject, common.ERROR_MESSAGE);
 
         });
 
@@ -300,8 +292,7 @@ export async function activate(context: vscode.ExtensionContext) {
                         return;
                     }
                 }, function (err: any) {
-                    console.error(err);
-                    vscode.window.showErrorMessage(common.ERROR_MESSAGE);
+                    common.LogException(err, common.ERROR_MESSAGE);
                     return;
                 });
             }
@@ -317,8 +308,7 @@ export async function activate(context: vscode.ExtensionContext) {
                         return;
                     }
                 }, function (err: any) {
-                    console.error(err);
-                    vscode.window.showErrorMessage(common.ERROR_MESSAGE);
+                    common.LogException(err, common.ERROR_MESSAGE);
                     return;
                 });
             }
@@ -437,10 +427,10 @@ export async function activate(context: vscode.ExtensionContext) {
                                     (async function (deletedExtension: ExtensionInformation, ExtensionFolder: string) {
                                         await actionList.push(PluginService.DeleteExtension(deletedExtension, en.ExtensionFolder)
                                             .then((res) => {
-                                                vscode.window.showInformationMessage(deletedExtension.name + '-' + deletedExtension.version + " is removed.");
+                                                //vscode.window.showInformationMessage(deletedExtension.name + '-' + deletedExtension.version + " is removed.");
                                                 deletedExtensions.push(deletedExtension);
                                             }, (rej) => {
-                                                vscode.window.showErrorMessage(common.ERROR_MESSAGE);
+                                                common.LogException(rej, common.ERROR_MESSAGE);
                                             }));
                                     } (deletedExtension, en.ExtensionFolder));
 
@@ -458,7 +448,7 @@ export async function activate(context: vscode.ExtensionContext) {
                                         await actionList.push(PluginService.InstallExtension(element, en.ExtensionFolder)
                                             .then(function () {
                                                 addedExtensions.push(element);
-                                                var name = element.publisher + '.' + element.name + '-' + element.version;
+                                                //var name = element.publisher + '.' + element.name + '-' + element.version;
                                                 //vscode.window.showInformationMessage("Extension " + name + " installed Successfully");
                                             }));
                                     });
@@ -487,8 +477,7 @@ export async function activate(context: vscode.ExtensionContext) {
                                 function (added: boolean) {
                                     //TODO : add Name attribute in File and show information message here with name , when required.
                                 }, function (error: any) {
-                                    console.error(error);
-                                    vscode.window.showErrorMessage(common.ERROR_MESSAGE);
+                                    common.LogException(error, common.ERROR_MESSAGE);
                                     return;
                                 }
                             ));
@@ -502,8 +491,18 @@ export async function activate(context: vscode.ExtensionContext) {
 
                 Promise.all(actionList)
                     .then(async function () {
-                        vscode.window.setStatusBarMessage("Sync : Restart Required to use installed extensions.");
-                        vscode.window.showInformationMessage("Extension installed Successfully, please restart");
+
+                        if (!syncSetting.showSummary) {
+                            if (missingList.length == 0) {
+                                //vscode.window.showInformationMessage("No extension need to be installed");
+                            }
+                            else {
+                                vscode.window.showInformationMessage("Sync : " + missingList.length + " extensions installed Successfully, Restart Required.");
+                            }
+                            if (deletedExtensions.length > 0) {
+                                vscode.window.showInformationMessage("Sync : " + deletedExtensions.length + " extensions deleted Successfully, Restart Required.");
+                            }
+                        }
 
                         await common.SaveSettings(syncSetting).then(async function (added: boolean) {
                             if (added) {
@@ -514,22 +513,18 @@ export async function activate(context: vscode.ExtensionContext) {
                                 vscode.window.setStatusBarMessage("");
                             }
                             else {
-                                vscode.window.showErrorMessage("Sync : Unable to save extension setting file.")
+                                vscode.window.showErrorMessage("Sync : Unable to save extension settings file.")
                             }
                         }, function (errSave: any) {
-                            console.error(errSave);
-                            vscode.window.showErrorMessage(common.ERROR_MESSAGE);
+                            common.LogException(errSave, common.ERROR_MESSAGE);
                             return;
                         });
                     })
                     .catch(function (e) {
-                        console.error(e);
-                        vscode.window.setStatusBarMessage("Sync : Extensions Download Failed.", 3000);
-                        vscode.window.showErrorMessage("Extension download failed." + common.ERROR_MESSAGE)
+                        common.LogException(e, common.ERROR_MESSAGE);
                     });
             }, function (err: any) {
-                console.error(err);
-                vscode.window.showErrorMessage(common.ERROR_MESSAGE);
+                common.LogException(err, common.ERROR_MESSAGE);
                 return;
             });
         }
@@ -545,8 +540,7 @@ export async function activate(context: vscode.ExtensionContext) {
             syncSetting = resolve;
             await Init();
         }, (reject) => {
-            console.error(reject);
-            vscode.window.showErrorMessage(common.ERROR_MESSAGE);
+            common.LogException(reject, common.ERROR_MESSAGE);
 
         });
         async function Init() {
@@ -562,15 +556,13 @@ export async function activate(context: vscode.ExtensionContext) {
                         vscode.window.showInformationMessage("GIST ID and Github Token Cleared.");
                     }
                 }, function (err: any) {
-                    console.error(err);
-                    vscode.window.showErrorMessage(common.ERROR_MESSAGE);
+                    common.LogException(err, common.ERROR_MESSAGE);
                     return;
                 });
 
             }
             catch (err) {
-                console.error(err);
-                vscode.window.showErrorMessage("Unable to clear settings. Error Logged on console. Please open an issue.");
+                common.LogException(err, "Unable to clear settings. Error Logged on console. Please open an issue.");
             }
         }
 
@@ -642,14 +634,12 @@ export async function activate(context: vscode.ExtensionContext) {
                     vscode.window.showErrorMessage("Unable to set the autosync.");
                 }
             }, function (err: any) {
-                console.error(err);
-                vscode.window.showErrorMessage("Unable to toggle auto sync. Please open an issue.");
+                common.LogException(err, "Unable to toggle auto sync. Please open an issue.")
             });
 
         }, (reject) => {
-            console.error(reject);
-            vscode.window.showErrorMessage(common.ERROR_MESSAGE);
-
+            common.LogException(reject, common.ERROR_MESSAGE);
+            return;
         });
     });
 
@@ -693,13 +683,13 @@ export async function activate(context: vscode.ExtensionContext) {
                     vscode.window.showErrorMessage("Unable to set the summary.");
                 }
             }, function (err: any) {
-                console.error(err);
-                vscode.window.showErrorMessage("Unable to toggle summary. Please open an issue.");
+                common.LogException(err, "Unable to toggle summary. Please open an issue.");
+
             });
 
         }, (reject) => {
-            console.error(reject);
-            vscode.window.showErrorMessage(common.ERROR_MESSAGE);
+            common.LogException(reject, common.ERROR_MESSAGE);
+            return;
 
         });
     });

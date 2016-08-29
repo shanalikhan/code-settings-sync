@@ -12,6 +12,12 @@ export class Commons {
     constructor(private en: Environment) {
 
     }
+    public LogException(error: any, message : string) : void {
+
+        console.error(error);
+        vscode.window.showErrorMessage(message);
+        vscode.window.setStatusBarMessage("");
+    }
 
     //TODO : change any to LocalSetting after max users migrate to new settings.
     public async InitSettings(): Promise<any> {
@@ -204,7 +210,7 @@ export class Commons {
 
             vscode.window.showTextDocument(a, 1, false).then(e => {
                 e.edit(edit => {
-                    edit.insert(new vscode.Position(0, 0),"VISUAL STUDIO CODE SETTINGS SYNC \r\n\r\n"+ status + " SUMMARY \r\n\r\n");
+                    edit.insert(new vscode.Position(0, 0), "VISUAL STUDIO CODE SETTINGS SYNC \r\n\r\n" + status + " SUMMARY \r\n\r\n");
                     edit.insert(new vscode.Position(1, 0), "-------------------- \r\n");
 
                     edit.insert(new vscode.Position(3, 0), "GITHUB TOKEN: " + syncSettings.Token + " \r\n");
@@ -226,7 +232,7 @@ export class Commons {
                             edit.insert(new vscode.Position(row, 0), deletedExtension + " \r\n");
                             row += 1;
                             removedExtensions.forEach(ext => {
-                                edit.insert(new vscode.Position(row, 0), ext.name +" - Version :" + ext.version  + " \r\n");
+                                edit.insert(new vscode.Position(row, 0), ext.name + " - Version :" + ext.version + " \r\n");
                                 row += 1;
                             });
                         }
@@ -238,7 +244,7 @@ export class Commons {
                             edit.insert(new vscode.Position(row, 0), " \r\n" + addedExtension + " \r\n");
                             row += 1;
                             addedExtensions.forEach(ext => {
-                                edit.insert(new vscode.Position(row, 0), ext.name +" - Version :" + ext.version  + " \r\n");
+                                edit.insert(new vscode.Position(row, 0), ext.name + " - Version :" + ext.version + " \r\n");
                                 row += 1;
                             });
                         }
