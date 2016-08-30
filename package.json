@@ -34,7 +34,6 @@
     "onCommand:extension.resetSettings",
     "onCommand:extension.HowSettings",
     "onCommand:extension.otherOptions"
-    
   ],
   "main": "./out/src/extension",
   "contributes": {
@@ -51,7 +50,11 @@
         "command": "extension.updateSettings",
         "title": "Sync : Update / Upload Settings"
       },
-       {
+      {
+        "command": "extension.resetSettings",
+        "title": "Sync : Reset Extension Settings"
+      },
+      {
         "command": "extension.otherOptions",
         "title": "Sync : Advance Options"
       }
@@ -85,6 +88,6 @@
     "adm-zip": "^0.4.7",
     "ncp": "^2.0.0",
     "rimraf": "^2.5.4",
-    "github" : "^2.6.0"
+    "github": "^2.6.0"
   }
 }

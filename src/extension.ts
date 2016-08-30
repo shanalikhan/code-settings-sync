@@ -139,7 +139,7 @@ export async function activate(context: vscode.ExtensionContext) {
 
         async function startGitProcess() {
             if (!syncSetting.allowUpload) {
-                vscode.window.setStatusBarMessage("Sync : Upload to Other User GIST Not Allowed.");
+                vscode.window.setStatusBarMessage("Sync : Upload to Other User GIST Not Allowed. Reset Settings Required!");
                 return;
             }
 
@@ -558,10 +558,8 @@ export async function activate(context: vscode.ExtensionContext) {
         async function Init() {
             vscode.window.setStatusBarMessage("Sync : Resetting Your Settings.", 2000);
             try {
-                syncSetting.Token = null;
-                syncSetting.Gist = null;
-                syncSetting.lastDownload = null;
-                syncSetting.lastUpload = null;
+                syncSetting = new LocalSetting();
+                syncSetting.Version =  Environment.CURRENT_VERSION;
 
                 await common.SaveSettings(syncSetting).then(function (added: boolean) {
                     if (added) {
