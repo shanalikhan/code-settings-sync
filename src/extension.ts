@@ -495,17 +495,18 @@ export async function activate(context: vscode.ExtensionContext) {
                 Promise.all(actionList)
                     .then(async function () {
 
-                        if (!syncSetting.showSummary) {
-                            if (missingList.length == 0) {
-                                //vscode.window.showInformationMessage("No extension need to be installed");
-                            }
-                            else {
-                                vscode.window.showInformationMessage("Sync : " + missingList.length + " extensions installed Successfully, Restart Required.");
-                            }
-                            if (deletedExtensions.length > 0) {
-                                vscode.window.showInformationMessage("Sync : " + deletedExtensions.length + " extensions deleted Successfully, Restart Required.");
-                            }
-                        }
+                        // if (!syncSetting.showSummary) {
+                        //     if (missingList.length == 0) {
+                        //         //vscode.window.showInformationMessage("No extension need to be installed");
+                        //     }
+                        //     else {
+                        //         //extension message when summary is turned off
+                        //         vscode.window.showInformationMessage("Sync : " + missingList.length + " extensions installed Successfully, Restart Required.");
+                        //     }
+                        //     if (deletedExtensions.length > 0) {
+                        //         vscode.window.showInformationMessage("Sync : " + deletedExtensions.length + " extensions deleted Successfully, Restart Required.");
+                        //     }
+                        // }
 
                         await common.SaveSettings(syncSetting).then(async function (added: boolean) {
                             if (added) {
@@ -570,131 +571,131 @@ export async function activate(context: vscode.ExtensionContext) {
         }
 
     });
-    var releaseNotes = vscode.commands.registerCommand('extension.releaseNotes', async () => {
-        openurl("http://shanalikhan.github.io/2016/05/14/Visual-studio-code-sync-settings-release-notes.html");
-    });
+    // var releaseNotes = vscode.commands.registerCommand('extension.releaseNotes', async () => {
+    //     openurl("http://shanalikhan.github.io/2016/05/14/Visual-studio-code-sync-settings-release-notes.html");
+    // });
 
-    var openSettings = vscode.commands.registerCommand('extension.openSettings', async () => {
+    // var openSettings = vscode.commands.registerCommand('extension.openSettings', async () => {
 
-        openurl("http://shanalikhan.github.io/2016/07/31/Visual-Studio-code-sync-setting-edit-manually.html");
-        vscode.window.showInformationMessage("Use 'How To Configure' command to setup for first time. Link is opened in case you need help to edit JSON manually.");
+    //     openurl("http://shanalikhan.github.io/2016/07/31/Visual-Studio-code-sync-setting-edit-manually.html");
+    //     vscode.window.showInformationMessage("Use 'How To Configure' command to setup for first time. Link is opened in case you need help to edit JSON manually.");
 
-        var en: Environment = new Environment(context);
-        var fManager: FileManager;
-        var common: commons.Commons = new commons.Commons(en);
-        var syncSetting: any = await common.InitSettings();
+    //     var en: Environment = new Environment(context);
+    //     var fManager: FileManager;
+    //     var common: commons.Commons = new commons.Commons(en);
+    //     var syncSetting: any = await common.InitSettings();
 
-        var setting: vscode.Uri = vscode.Uri.file(en.APP_SETTINGS);
-        vscode.workspace.openTextDocument(setting).then((a: vscode.TextDocument) => {
-            vscode.window.showTextDocument(a, 1, false);
-        });
-    });
+    //     var setting: vscode.Uri = vscode.Uri.file(en.APP_SETTINGS);
+    //     vscode.workspace.openTextDocument(setting).then((a: vscode.TextDocument) => {
+    //         vscode.window.showTextDocument(a, 1, false);
+    //     });
+    // });
 
     var howSettings = vscode.commands.registerCommand('extension.HowSettings', async () => {
         openurl("http://shanalikhan.github.io/2015/12/15/Visual-Studio-Code-Sync-Settings.html");
     });
 
-    var openIssue = vscode.commands.registerCommand('extension.OpenIssue', async () => {
-        openurl("https://github.com/shanalikhan/code-settings-sync/issues/new");
-    });
+    // var openIssue = vscode.commands.registerCommand('extension.OpenIssue', async () => {
+    //     openurl("https://github.com/shanalikhan/code-settings-sync/issues/new");
+    // });
 
-    var autoSync = vscode.commands.registerCommand('extension.autoSync', async () => {
-        var en: Environment = new Environment(context);
-        var common: commons.Commons = new commons.Commons(en);
-        var setting: LocalSetting = new LocalSetting();
+    // var autoSync = vscode.commands.registerCommand('extension.autoSync', async () => {
+    //     var en: Environment = new Environment(context);
+    //     var common: commons.Commons = new commons.Commons(en);
+    //     var setting: LocalSetting = new LocalSetting();
 
-        await common.InitSettings().then(async (resolve) => {
+    //     await common.InitSettings().then(async (resolve) => {
 
-            if (!resolve) {
-                vscode.commands.executeCommand('extension.HowSettings');
-                return;
-            }
-            setting = resolve;
+    //         if (!resolve) {
+    //             vscode.commands.executeCommand('extension.HowSettings');
+    //             return;
+    //         }
+    //         setting = resolve;
 
-            var tokenAvailable = setting.Token != null || setting.Token != "";
-            var gistAvailable = setting.Gist != null || setting.Gist != "";
+    //         var tokenAvailable = setting.Token != null || setting.Token != "";
+    //         var gistAvailable = setting.Gist != null || setting.Gist != "";
 
-            if (!tokenAvailable || !gistAvailable) {
-                vscode.commands.executeCommand('extension.HowSettings');
-                return;
-            }
-            if (setting.autoSync) {
-                setting.autoSync = false;
-            }
-            else {
-                setting.autoSync = true;
-            }
-            await common.SaveSettings(setting).then(async function (added: boolean) {
-                if (added) {
-                    if (setting.autoSync) {
-                        vscode.window.showInformationMessage("Sync : Auto Download turned ON upon VSCode Startup.");
-                    }
-                    else {
-                        vscode.window.showInformationMessage("Sync : Auto Download turned OFF upon VSCode Startup.");
-                    }
-                }
-                else {
-                    vscode.window.showErrorMessage("Unable to set the autosync.");
-                }
-            }, function (err: any) {
-                common.LogException(err, "Unable to toggle auto sync. Please open an issue.")
-            });
+    //         if (!tokenAvailable || !gistAvailable) {
+    //             vscode.commands.executeCommand('extension.HowSettings');
+    //             return;
+    //         }
+    //         if (setting.autoSync) {
+    //             setting.autoSync = false;
+    //         }
+    //         else {
+    //             setting.autoSync = true;
+    //         }
+    //         await common.SaveSettings(setting).then(async function (added: boolean) {
+    //             if (added) {
+    //                 if (setting.autoSync) {
+    //                     vscode.window.showInformationMessage("Sync : Auto Download turned ON upon VSCode Startup.");
+    //                 }
+    //                 else {
+    //                     vscode.window.showInformationMessage("Sync : Auto Download turned OFF upon VSCode Startup.");
+    //                 }
+    //             }
+    //             else {
+    //                 vscode.window.showErrorMessage("Unable to set the autosync.");
+    //             }
+    //         }, function (err: any) {
+    //             common.LogException(err, "Unable to toggle auto sync. Please open an issue.")
+    //         });
 
-        }, (reject) => {
-            common.LogException(reject, common.ERROR_MESSAGE);
-            return;
-        });
-    });
+    //     }, (reject) => {
+    //         common.LogException(reject, common.ERROR_MESSAGE);
+    //         return;
+    //     });
+    // });
 
 
-    var summary = vscode.commands.registerCommand('extension.summary', async () => {
-        var en: Environment = new Environment(context);
-        var common: commons.Commons = new commons.Commons(en);
-        var setting: LocalSetting = new LocalSetting();
+    // var summary = vscode.commands.registerCommand('extension.summary', async () => {
+    //     var en: Environment = new Environment(context);
+    //     var common: commons.Commons = new commons.Commons(en);
+    //     var setting: LocalSetting = new LocalSetting();
 
-        await common.InitSettings().then(async (resolve) => {
+    //     await common.InitSettings().then(async (resolve) => {
 
-            if (!resolve) {
-                vscode.commands.executeCommand('extension.HowSettings');
-                return;
-            }
-            setting = resolve;
+    //         if (!resolve) {
+    //             vscode.commands.executeCommand('extension.HowSettings');
+    //             return;
+    //         }
+    //         setting = resolve;
 
-            var tokenAvailable = setting.Token != null || setting.Token != "";
-            var gistAvailable = setting.Gist != null || setting.Gist != "";
+    //         var tokenAvailable = setting.Token != null || setting.Token != "";
+    //         var gistAvailable = setting.Gist != null || setting.Gist != "";
 
-            if (!tokenAvailable || !gistAvailable) {
-                vscode.commands.executeCommand('extension.HowSettings');
-                return;
-            }
-            if (setting.showSummary) {
-                setting.showSummary = false;
-            }
-            else {
-                setting.showSummary = true;
-            }
-            await common.SaveSettings(setting).then(async function (added: boolean) {
-                if (added) {
-                    if (setting.showSummary) {
-                        vscode.window.showInformationMessage("Sync : Summary Will be shown upon download / upload.");
-                    }
-                    else {
-                        vscode.window.showInformationMessage("Sync : Summary Will be hidden upon download / upload.");
-                    }
-                }
-                else {
-                    vscode.window.showErrorMessage("Unable to set the summary.");
-                }
-            }, function (err: any) {
-                common.LogException(err, "Unable to toggle summary. Please open an issue.");
+    //         if (!tokenAvailable || !gistAvailable) {
+    //             vscode.commands.executeCommand('extension.HowSettings');
+    //             return;
+    //         }
+    //         if (setting.showSummary) {
+    //             setting.showSummary = false;
+    //         }
+    //         else {
+    //             setting.showSummary = true;
+    //         }
+    //         await common.SaveSettings(setting).then(async function (added: boolean) {
+    //             if (added) {
+    //                 if (setting.showSummary) {
+    //                     vscode.window.showInformationMessage("Sync : Summary Will be shown upon download / upload.");
+    //                 }
+    //                 else {
+    //                     vscode.window.showInformationMessage("Sync : Summary Will be hidden upon download / upload.");
+    //                 }
+    //             }
+    //             else {
+    //                 vscode.window.showErrorMessage("Unable to set the summary.");
+    //             }
+    //         }, function (err: any) {
+    //             common.LogException(err, "Unable to toggle summary. Please open an issue.");
 
-            });
-        }, (reject) => {
-            common.LogException(reject, common.ERROR_MESSAGE);
-            return;
+    //         });
+    //     }, (reject) => {
+    //         common.LogException(reject, common.ERROR_MESSAGE);
+    //         return;
 
-        });
-    });
+    //     });
+    // });
 
 
     var otherOptions = vscode.commands.registerCommand('extension.otherOptions', async () => {
@@ -719,6 +720,11 @@ export async function activate(context: vscode.ExtensionContext) {
         items.push("Sync : Release Notes");
         items.push("Sync : Toggle Auto-Download On Startup");
         items.push("Sync : Toggle Show Summary Page On Upload / Downloaded");
+        var selectedItem: Number = 0;
+        var settingChanged: boolean = false;
+
+        var tokenAvailable = setting.Token != null || setting.Token != "";
+        var gistAvailable = setting.Gist != null || setting.Gist != "";
 
         var teims = vscode.window.showQuickPick(items).then((resolve: string) => {
 
@@ -728,7 +734,6 @@ export async function activate(context: vscode.ExtensionContext) {
                     vscode.workspace.openTextDocument(fsetting).then((a: vscode.TextDocument) => {
                         vscode.window.showTextDocument(a, 1, false);
                     });
-
                     break;
                 }
                 case (resolve == items[1]): {
@@ -747,25 +752,93 @@ export async function activate(context: vscode.ExtensionContext) {
                     break;
                 }
                 case (resolve == items[5]): {
+                    //auto downlaod on startup
+                    selectedItem = 6;
+                    settingChanged = true;
 
+                    if (!setting) {
+                        vscode.commands.executeCommand('extension.HowSettings');
+                        return;
+                    }
+
+                    if (!tokenAvailable || !gistAvailable) {
+                        vscode.commands.executeCommand('extension.HowSettings');
+                        return;
+                    }
+                    if (setting.autoSync) {
+                        setting.autoSync = false;
+                    }
+                    else {
+                        setting.autoSync = true;
+                    }
                     break;
+                }
+                case (resolve == items[6]): {
+                    //page summary toggle
+                    selectedItem = 7;
+                    settingChanged = true;
 
+                    if (!tokenAvailable || !gistAvailable) {
+                        vscode.commands.executeCommand('extension.HowSettings');
+                        return;
+                    }
+                    if (setting.showSummary) {
+                        setting.showSummary = false;
+                    }
+                    else {
+                        setting.showSummary = true;
+                    }
+                    break;
                 }
             }
         }, (reject) => {
 
+        }).then(async (resolve: any) => {
+            if (settingChanged) {
+                await common.SaveSettings(setting).then(async function (added: boolean) {
+                    if (added) {
+                        if (selectedItem == 6) {
+                            if (setting.autoSync) {
+                                vscode.window.showInformationMessage("Sync : Auto Download turned ON upon VSCode Startup.");
+                            }
+                            else {
+                                vscode.window.showInformationMessage("Sync : Auto Download turned OFF upon VSCode Startup.");
+                            }
+                        }
+                        if (selectedItem == 7) {
+                            if (setting.showSummary) {
+                                vscode.window.showInformationMessage("Sync : Summary Will be shown upon download / upload.");
+                            }
+                            else {
+                                vscode.window.showInformationMessage("Sync : Summary Will be hidden upon download / upload.");
+                            }
+                        }
+                    }
+                    else {
+                        vscode.window.showErrorMessage("Unable to Toggle.");
+                    }
+                }, function (err: any) {
+                    common.LogException(err, "Unable to toggle. Please open an issue.");
+
+                });
+            }
+
+        }, (reject: any) => {
+            common.LogException(reject,"Error");
         });
     });
 
     context.subscriptions.push(updateSettings);
     context.subscriptions.push(downloadSettings);
     context.subscriptions.push(resetSettings);
-    context.subscriptions.push(releaseNotes);
-    context.subscriptions.push(openSettings);
     context.subscriptions.push(howSettings);
-    context.subscriptions.push(openIssue);
-    context.subscriptions.push(autoSync);
-    context.subscriptions.push(summary);
+    context.subscriptions.push(otherOptions);
+    // context.subscriptions.push(releaseNotes);
+    // context.subscriptions.push(openSettings);
+
+    // context.subscriptions.push(openIssue);
+    // context.subscriptions.push(autoSync);
+    // context.subscriptions.push(summary);
 
 
 }
