@@ -7,7 +7,7 @@ import {PluginService, ExtensionInformation} from './pluginService';
 
 export class Commons {
 
-    public ERROR_MESSAGE: string = "Error Logged In Console (Help menu > Toggle Developer Tools). You may open an issue using 'Sync : Open Issue' command.";
+    public ERROR_MESSAGE: string = "Error Logged In Console (Help menu > Toggle Developer Tools). You may open an issue using 'Sync : Open Issue' from advance setting command.";
 
     constructor(private en: Environment) {
 

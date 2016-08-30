@@ -725,7 +725,7 @@ export async function activate(context: vscode.ExtensionContext) {
         let items: Array<string> = new Array<string>();
         items.push("Sync : Open Extension Settings");
         items.push("Sync : Toggle Public / Private GIST Mode & Reset GIST");
-        items.push("Sync : Setup to Fetch Other User's Settings");
+        items.push("Sync : Fetch Other User's Settings");
         items.push("Sync : Open Issue");
         items.push("Sync : Release Notes");
         items.push("Sync : Toggle Auto-Download On Startup");
@@ -739,15 +739,15 @@ export async function activate(context: vscode.ExtensionContext) {
 
         var teims = vscode.window.showQuickPick(items).then(async (resolve: string) => {
 
-            switch (true) {
-                case (resolve == items[0]): {
+            switch (resolve) {
+                case items[0]: {
                     var fsetting: vscode.Uri = vscode.Uri.file(en.APP_SETTINGS);
                     vscode.workspace.openTextDocument(fsetting).then((a: vscode.TextDocument) => {
                         vscode.window.showTextDocument(a, 1, false);
                     });
                     break;
                 }
-                case (resolve == items[1]): {
+                case items[1]: {
                     // set gist public
                     settingChanged = true;
                     selectedItem = 2;
@@ -765,14 +765,16 @@ export async function activate(context: vscode.ExtensionContext) {
                     break;
 
                 }
-                case (resolve == items[2]): {
-                    settingChanged = true;
+                case items[2]: {
+
                     selectedItem = 3;
+                    
                     if (tokenAvailable) {
-                        await common.GetGistAndSave(setting).then(function (saved: boolean) {
+                       await common.GetGistAndSave(setting).then(function (saved: boolean) {
                             if (saved) {
+                                settingChanged = true;
                                 setting.allowUpload = false;
-                                vscode.commands.executeCommand('extension.downloadSettings');
+                                
                             }
                             else {
                                 vscode.window.showErrorMessage("GIST NOT SAVED");
@@ -788,16 +790,17 @@ export async function activate(context: vscode.ExtensionContext) {
                         vscode.window.showErrorMessage("Token Not Set.");
                         return;
                     }
+                    break;
                 }
-                case (resolve == items[3]): {
+                case items[3]: {
                     openurl("https://github.com/shanalikhan/code-settings-sync/issues/new");
                     break;
                 }
-                case (resolve == items[4]): {
+                case items[4]: {
                     openurl("http://shanalikhan.github.io/2016/05/14/Visual-studio-code-sync-settings-release-notes.html");
                     break;
                 }
-                case (resolve == items[5]): {
+                case items[5]: {
                     //auto downlaod on startup
                     selectedItem = 6;
                     settingChanged = true;
@@ -819,7 +822,7 @@ export async function activate(context: vscode.ExtensionContext) {
                     }
                     break;
                 }
-                case (resolve == items[6]): {
+                case items[6]: {
                     //page summary toggle
                     selectedItem = 7;
                     settingChanged = true;
@@ -836,14 +839,18 @@ export async function activate(context: vscode.ExtensionContext) {
                     }
                     break;
                 }
+                default: {
+                    break;
+                }
             }
         }, (reject) => {
+            common.LogException(reject, "Error");
 
+            return;
         }).then(async (resolve: any) => {
             if (settingChanged) {
                 await common.SaveSettings(setting).then(async function (added: boolean) {
                     if (added) {
-
                         if (selectedItem == 2) {
                             if (setting.publicGist) {
                                 vscode.window.showInformationMessage("Sync : GIST Reset! Public GIST Enabled. Upload Now to get new GIST ID.");
@@ -854,6 +861,7 @@ export async function activate(context: vscode.ExtensionContext) {
                         }
                         if (selectedItem == 3) {
                             vscode.window.showInformationMessage("Sync : Configured! Now you can download the settings when the GIST Changes.");
+                            vscode.commands.executeCommand('extension.downloadSettings');
                         }
                         if (selectedItem == 6) {
                             if (setting.autoSync) {
@@ -877,12 +885,14 @@ export async function activate(context: vscode.ExtensionContext) {
                     }
                 }, function (err: any) {
                     common.LogException(err, "Unable to toggle. Please open an issue.");
+                    return;
 
                 });
             }
 
         }, (reject: any) => {
             common.LogException(reject, "Error");
+            return;
         });
     });
 
