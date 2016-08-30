@@ -215,6 +215,7 @@ export class Commons {
 
                     edit.insert(new vscode.Position(3, 0), "GITHUB TOKEN: " + syncSettings.Token + " \r\n");
                     edit.insert(new vscode.Position(4, 0), "GITHUB GIST: " + syncSettings.Gist + " \r\n");
+                    edit.insert(new vscode.Position(4, 0), "GITHUB GIST TYPE: " + syncSettings.publicGist ? "Public" : "Secret"  + " \r\n");
                     edit.insert(new vscode.Position(1, 0), "-------------------- \r\n  \r\n");
 
                     edit.insert(new vscode.Position(2, 0), header + " \r\n");

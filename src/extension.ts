@@ -138,6 +138,10 @@ export async function activate(context: vscode.ExtensionContext) {
 
 
         async function startGitProcess() {
+            if (!syncSetting.allowUpload) {
+                vscode.window.setStatusBarMessage("Sync : Upload to Other User GIST Not Allowed.");
+                return;
+            }
 
             if (syncSetting.Token != null && syncSetting.Token != "") {
                 syncSetting.lastUpload = dateNow;
@@ -323,6 +327,7 @@ export async function activate(context: vscode.ExtensionContext) {
         }
 
         async function StartDownload() {
+
 
             vscode.window.setStatusBarMessage("Sync : Reading Settings Online.");
 
@@ -711,7 +716,6 @@ export async function activate(context: vscode.ExtensionContext) {
             if (set) {
                 setting = set;
                 myGi = new GithubService(setting.Token);
-
             }
 
         }, function (err: any) {
@@ -749,9 +753,11 @@ export async function activate(context: vscode.ExtensionContext) {
                     selectedItem = 2;
                     if (setting.publicGist) {
                         setting.publicGist = false;
+                        setting.allowUpload = true;
                     }
                     else {
                         setting.publicGist = true;
+                        setting.allowUpload = false;
                     }
                     setting.Gist = null;
                     setting.lastDownload = null;
@@ -760,7 +766,28 @@ export async function activate(context: vscode.ExtensionContext) {
 
                 }
                 case (resolve == items[2]): {
-                    //Fetch Other's User Settings
+                    settingChanged = true;
+                    selectedItem = 3;
+                    if (tokenAvailable) {
+                        await common.GetGistAndSave(setting).then(function (saved: boolean) {
+                            if (saved) {
+                                setting.allowUpload = false;
+                                vscode.commands.executeCommand('extension.downloadSettings');
+                            }
+                            else {
+                                vscode.window.showErrorMessage("GIST NOT SAVED");
+                                return;
+                            }
+                        }, function (err: any) {
+                            common.LogException(err, common.ERROR_MESSAGE);
+                            selectedItem = 0;
+                            return;
+                        });
+                    }
+                    else {
+                        vscode.window.showErrorMessage("Token Not Set.");
+                        return;
+                    }
                 }
                 case (resolve == items[3]): {
                     openurl("https://github.com/shanalikhan/code-settings-sync/issues/new");
@@ -816,6 +843,7 @@ export async function activate(context: vscode.ExtensionContext) {
             if (settingChanged) {
                 await common.SaveSettings(setting).then(async function (added: boolean) {
                     if (added) {
+
                         if (selectedItem == 2) {
                             if (setting.publicGist) {
                                 vscode.window.showInformationMessage("Sync : GIST Reset! Public GIST Enabled. Upload Now to get new GIST ID.");
@@ -823,6 +851,9 @@ export async function activate(context: vscode.ExtensionContext) {
                             else {
                                 vscode.window.showInformationMessage("Sync : GIST Reset! Private GIST Enabled. Upload Now to get new GIST ID.");
                             }
+                        }
+                        if (selectedItem == 3) {
+                            vscode.window.showInformationMessage("Sync : Configured! Now you can download the settings when the GIST Changes.");
                         }
                         if (selectedItem == 6) {
                             if (setting.autoSync) {
