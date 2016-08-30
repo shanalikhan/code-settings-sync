@@ -13,6 +13,7 @@ export class LocalSetting{
     public Version : number = null;
     public showSummary : boolean = true;
     public allowUpload : boolean = true;
+    public publicGist = false;
 }
 
 export class CloudSetting{

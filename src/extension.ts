@@ -44,6 +44,9 @@ export async function activate(context: vscode.ExtensionContext) {
                     if (mainSyncSetting.allowUpload) {
                         newSetting.allowUpload = mainSyncSetting.allowUpload;
                     }
+                    if (mainSyncSetting.publicGist) {
+                        newSetting.publicGist = mainSyncSetting.publicGist;
+                    }
                 }
             }
             else {
@@ -195,7 +198,7 @@ export async function activate(context: vscode.ExtensionContext) {
                 var newGIST = false;
                 if (syncSetting.Gist == null || syncSetting.Gist === "") {
                     newGIST = true;
-                    await myGi.CreateEmptyGIST().then(async function (gistID: string) {
+                    await myGi.CreateEmptyGIST(syncSetting.publicGist).then(async function (gistID: string) {
                         if (gistID) {
                             syncSetting.Gist = gistID;
                             vscode.window.setStatusBarMessage("Sync : Empty GIST ID: " + syncSetting.Gist + " Created To Insert Files, in Process...");
@@ -702,10 +705,13 @@ export async function activate(context: vscode.ExtensionContext) {
         var en: Environment = new Environment(context);
         var common: commons.Commons = new commons.Commons(en);
         var setting: LocalSetting = null;
+        var myGi: GithubService = null;
 
         await common.InitSettings().then(async function (set: any) {
             if (set) {
                 setting = set;
+                myGi = new GithubService(setting.Token);
+
             }
 
         }, function (err: any) {
@@ -713,20 +719,21 @@ export async function activate(context: vscode.ExtensionContext) {
         });
 
         let items: Array<string> = new Array<string>();
-        items.push("Sync : Open Settings");
-        items.push("Sync : Make GIST Public");
+        items.push("Sync : Open Extension Settings");
+        items.push("Sync : Toggle Public / Private GIST Mode & Reset GIST");
         items.push("Sync : Fetch Other's User Settings");
         items.push("Sync : Open Issue");
         items.push("Sync : Release Notes");
         items.push("Sync : Toggle Auto-Download On Startup");
         items.push("Sync : Toggle Show Summary Page On Upload / Downloaded");
+
         var selectedItem: Number = 0;
         var settingChanged: boolean = false;
 
         var tokenAvailable = setting.Token != null || setting.Token != "";
         var gistAvailable = setting.Gist != null || setting.Gist != "";
 
-        var teims = vscode.window.showQuickPick(items).then((resolve: string) => {
+        var teims = vscode.window.showQuickPick(items).then(async (resolve: string) => {
 
             switch (true) {
                 case (resolve == items[0]): {
@@ -738,7 +745,19 @@ export async function activate(context: vscode.ExtensionContext) {
                 }
                 case (resolve == items[1]): {
                     // set gist public
+                    settingChanged = true;
+                    selectedItem = 2;
+                    if (setting.publicGist) {
+                        setting.publicGist = false;
+                    }
+                    else {
+                        setting.publicGist = true;
+                    }
+                    setting.Gist = null;
+                    setting.lastDownload = null;
+                    setting.lastUpload = null;
                     break;
+
                 }
                 case (resolve == items[2]): {
                     //Fetch Other's User Settings
@@ -797,6 +816,14 @@ export async function activate(context: vscode.ExtensionContext) {
             if (settingChanged) {
                 await common.SaveSettings(setting).then(async function (added: boolean) {
                     if (added) {
+                        if (selectedItem == 2) {
+                            if (setting.publicGist) {
+                                vscode.window.showInformationMessage("Sync : GIST Reset! Public GIST Enabled. Upload Now to get new GIST ID.");
+                            }
+                            else {
+                                vscode.window.showInformationMessage("Sync : GIST Reset! Private GIST Enabled. Upload Now to get new GIST ID.");
+                            }
+                        }
                         if (selectedItem == 6) {
                             if (setting.autoSync) {
                                 vscode.window.showInformationMessage("Sync : Auto Download turned ON upon VSCode Startup.");
@@ -824,7 +851,7 @@ export async function activate(context: vscode.ExtensionContext) {
             }
 
         }, (reject: any) => {
-            common.LogException(reject,"Error");
+            common.LogException(reject, "Error");
         });
     });
 

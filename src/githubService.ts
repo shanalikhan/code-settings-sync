@@ -77,8 +77,15 @@ export class GithubService {
         });
     }
 
-    public CreateEmptyGIST(): Promise<string> {
+    public CreateEmptyGIST(publicGist: boolean): Promise<string> {
         var me = this;
+        if (publicGist) {
+            me.GIST_JSON_EMPTY.public = true;
+        }
+        else {
+            me.GIST_JSON_EMPTY.public = false;
+        }
+        
         return new Promise<string>((resolve, reject) => {
             github.getGistsApi().create(me.GIST_JSON_EMPTY
                 , function (err, res) {
