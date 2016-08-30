@@ -721,7 +721,7 @@ export async function activate(context: vscode.ExtensionContext) {
         let items: Array<string> = new Array<string>();
         items.push("Sync : Open Extension Settings");
         items.push("Sync : Toggle Public / Private GIST Mode & Reset GIST");
-        items.push("Sync : Fetch Other's User Settings");
+        items.push("Sync : Setup to Fetch Other User's Settings");
         items.push("Sync : Open Issue");
         items.push("Sync : Release Notes");
         items.push("Sync : Toggle Auto-Download On Startup");
