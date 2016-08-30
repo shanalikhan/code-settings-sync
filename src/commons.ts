@@ -12,7 +12,7 @@ export class Commons {
     constructor(private en: Environment) {
 
     }
-    public LogException(error: any, message : string) : void {
+    public LogException(error: any, message: string): void {
 
         console.error(error);
         vscode.window.showErrorMessage(message);
@@ -213,13 +213,14 @@ export class Commons {
                     edit.insert(new vscode.Position(0, 0), "VISUAL STUDIO CODE SETTINGS SYNC \r\n\r\n" + status + " SUMMARY \r\n\r\n");
                     edit.insert(new vscode.Position(1, 0), "-------------------- \r\n");
 
-                    edit.insert(new vscode.Position(3, 0), "GITHUB TOKEN: " + syncSettings.Token + " \r\n");
-                    edit.insert(new vscode.Position(4, 0), "GITHUB GIST: " + syncSettings.Gist + " \r\n");
-                    edit.insert(new vscode.Position(4, 0), "GITHUB GIST TYPE: " + syncSettings.publicGist ? "Public" : "Secret"  + " \r\n");
-                    edit.insert(new vscode.Position(1, 0), "-------------------- \r\n  \r\n");
+                    edit.insert(new vscode.Position(2, 0), "GITHUB TOKEN: " + syncSettings.Token + " \r\n");
+                    edit.insert(new vscode.Position(3, 0), "GITHUB GIST: " + syncSettings.Gist + " \r\n");
+                    var type: string = (syncSettings.publicGist == true) ? "Public" : "Secret"
+                    edit.insert(new vscode.Position(4, 0), "GITHUB GIST TYPE: " +type + " \r\n \r\n");
+                    edit.insert(new vscode.Position(5, 0), "-------------------- \r\n  \r\n");
 
-                    edit.insert(new vscode.Position(2, 0), header + " \r\n");
-                    var row: number = 5;
+                    edit.insert(new vscode.Position(6, 0), header + " \r\n");
+                    var row: number = 6;
                     for (var i = 0; i < files.length; i++) {
                         var element = files[i];
                         if (element.fileName.indexOf(".") > 0) {

@@ -231,7 +231,8 @@ export async function activate(context: vscode.ExtensionContext) {
                                             vscode.window.showInformationMessage("Uploaded Successfully." + " GIST ID :  " + syncSetting.Gist + " . Please copy and use this ID in other machines to sync all settings.");
                                         }
                                         else {
-                                            vscode.window.showInformationMessage("Uploaded Successfully.");
+                                            vscode.window.setStatusBarMessage("");
+                                            vscode.window.setStatusBarMessage("Uploaded Successfully.",5000);
                                         }
                                         if (syncSetting.showSummary) {
                                             common.GenerateSummmaryFile(true, allSettingFiles, null, uploadedExtensions, syncSetting);
@@ -343,8 +344,9 @@ export async function activate(context: vscode.ExtensionContext) {
                         var cloudSett: CloudSetting = JSON.parse(res.files[en.FILE_CLOUDSETTINGS_NAME].content);
                         var stat: boolean = (syncSetting.lastUpload == cloudSett.lastUpload) || (syncSetting.lastDownload == cloudSett.lastUpload);
                         if (stat) {
-                            vscode.window.showInformationMessage("Sync : You already have latest version of saved settings.");
                             vscode.window.setStatusBarMessage("");
+                            vscode.window.setStatusBarMessage("Sync : You already have latest version of saved settings.",5000);
+                            
                             return;
                         }
                         syncSetting.lastDownload = cloudSett.lastUpload;
