@@ -41,6 +41,9 @@ export async function activate(context: vscode.ExtensionContext) {
                     if (mainSyncSetting.lastUpload) {
                         newSetting.lastUpload = mainSyncSetting.lastUpload;
                     }
+                    if (mainSyncSetting.allowUpload) {
+                        newSetting.allowUpload = mainSyncSetting.allowUpload;
+                    }
                 }
             }
             else {
@@ -686,10 +689,70 @@ export async function activate(context: vscode.ExtensionContext) {
                 common.LogException(err, "Unable to toggle summary. Please open an issue.");
 
             });
-
         }, (reject) => {
             common.LogException(reject, common.ERROR_MESSAGE);
             return;
+
+        });
+    });
+
+
+    var otherOptions = vscode.commands.registerCommand('extension.otherOptions', async () => {
+        var en: Environment = new Environment(context);
+        var common: commons.Commons = new commons.Commons(en);
+        var setting: LocalSetting = null;
+
+        await common.InitSettings().then(async function (set: any) {
+            if (set) {
+                setting = set;
+            }
+
+        }, function (err: any) {
+            common.LogException(err, "Unable to toggle summary. Please open an issue.");
+        });
+
+        let items: Array<string> = new Array<string>();
+        items.push("Sync : Open Settings");
+        items.push("Sync : Make GIST Public");
+        items.push("Sync : Fetch Other's User Settings");
+        items.push("Sync : Open Issue");
+        items.push("Sync : Release Notes");
+        items.push("Sync : Toggle Auto-Download On Startup");
+        items.push("Sync : Toggle Show Summary Page On Upload / Downloaded");
+
+        var teims = vscode.window.showQuickPick(items).then((resolve: string) => {
+
+            switch (true) {
+                case (resolve == items[0]): {
+                    var fsetting: vscode.Uri = vscode.Uri.file(en.APP_SETTINGS);
+                    vscode.workspace.openTextDocument(fsetting).then((a: vscode.TextDocument) => {
+                        vscode.window.showTextDocument(a, 1, false);
+                    });
+
+                    break;
+                }
+                case (resolve == items[1]): {
+                    // set gist public
+                    break;
+                }
+                case (resolve == items[2]): {
+                    //Fetch Other's User Settings
+                }
+                case (resolve == items[3]): {
+                    openurl("https://github.com/shanalikhan/code-settings-sync/issues/new");
+                    break;
+                }
+                case (resolve == items[4]): {
+                    openurl("http://shanalikhan.github.io/2016/05/14/Visual-studio-code-sync-settings-release-notes.html");
+                    break;
+                }
+                case (resolve == items[5]): {
+
+                    break;
+
+                }
+            }
+        }, (reject) => {
 
         });
     });

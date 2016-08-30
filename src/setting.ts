@@ -12,6 +12,7 @@ export class LocalSetting{
     public ProxyPort:string = null;
     public Version : number = null;
     public showSummary : boolean = true;
+    public allowUpload : boolean = true;
 }
 
 export class CloudSetting{
