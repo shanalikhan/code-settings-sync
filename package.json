@@ -56,7 +56,7 @@
       },
       {
         "command": "extension.otherOptions",
-        "title": "Sync : Advance Options"
+        "title": "Sync : Advanced Options"
       }
     ],
     "keybindings": [
