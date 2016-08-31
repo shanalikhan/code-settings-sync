@@ -100,10 +100,10 @@ export class Commons {
         });
     }
 
-    public async GetTokenAndSave(sett: LocalSetting): Promise<boolean> {
+    public async GetTokenAndSave(sett: LocalSetting): Promise<string> {
         var me = this;
         var opt = Commons.GetInputBox(true);
-        return new Promise<boolean>((resolve, reject) => {
+        return new Promise<string>((resolve, reject) => {
             (function getToken() {
                 vscode.window.showInputBox(opt).then(async (token) => {
                     if (token && token.trim()) {
@@ -115,7 +115,7 @@ export class Commons {
                                 if (saved) {
                                     vscode.window.setStatusBarMessage("Sync : Token Saved", 1000);
                                 }
-                                resolve(saved);
+                                resolve(token);
                             }, function (err: any) {
                                 reject(err);
                             });
@@ -129,10 +129,10 @@ export class Commons {
             } ());
         });
     }
-    public async GetGistAndSave(sett: LocalSetting): Promise<boolean> {
+    public async GetGistAndSave(sett: LocalSetting): Promise<string> {
         var me = this;
         var opt = Commons.GetInputBox(false);
-        return new Promise<boolean>((resolve, reject) => {
+        return new Promise<string>((resolve, reject) => {
             (function getGist() {
                 vscode.window.showInputBox(opt).then(async (gist) => {
                     if (gist && gist.trim()) {
@@ -143,7 +143,7 @@ export class Commons {
                                 if (saved) {
                                     vscode.window.setStatusBarMessage("Sync : Gist Saved", 1000);
                                 }
-                                resolve(saved);
+                                resolve(gist);
                             }, function (err: any) {
                                 reject(err);
                             });

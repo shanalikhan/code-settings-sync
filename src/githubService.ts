@@ -4,7 +4,7 @@ import * as envir from './environmentPath';
 import * as fileManager from './fileManager';
 
 
-var GitHubApi = require("github4");
+var GitHubApi = require("github");
 
 var github = new GitHubApi({
     version: "3.0.0"
