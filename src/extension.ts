@@ -638,11 +638,9 @@ export async function activate(context: vscode.ExtensionContext) {
                     selectedItem = 2;
                     if (setting.publicGist) {
                         setting.publicGist = false;
-                        setting.allowUpload = true;
                     }
                     else {
                         setting.publicGist = true;
-                        setting.allowUpload = false;
                     }
                     setting.Gist = null;
                     setting.lastDownload = null;
