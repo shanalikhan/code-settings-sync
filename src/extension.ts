@@ -451,10 +451,7 @@ export async function activate(context: vscode.ExtensionContext) {
                                 }
 
                                 var missingList = PluginService.GetMissingExtensions(remoteList);
-                                if (missingList.length == 0) {
-                                    vscode.window.showInformationMessage("No extension need to be installed");
-                                }
-                                else {
+                                if (missingList.length > 0) {
 
                                     vscode.window.setStatusBarMessage("Sync : Installing Extensions in background.");
                                     missingList.forEach(async (element) => {
