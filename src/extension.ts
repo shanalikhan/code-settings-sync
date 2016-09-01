@@ -616,7 +616,7 @@ export async function activate(context: vscode.ExtensionContext) {
         items.push("Sync : Open Issue");
         items.push("Sync : Release Notes");
         items.push("Sync : Toggle Auto-Download On Startup");
-        items.push("Sync : Toggle Show Summary Page On Upload / Downloaded");
+        items.push("Sync : Toggle Show Summary Page On Upload / Download");
 
         var selectedItem: Number = 0;
         var settingChanged: boolean = false;

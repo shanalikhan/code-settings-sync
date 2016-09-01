@@ -4,14 +4,14 @@
 
 ## Key Features
 ```
-1. Use your github account token.
+1. Use your github account token and GIST.
 2. Easy to Upload and Download on one click.
-3. Saves all settings and snippets files.
-4. Upload Key : Shift + Alt + u
-5. Download Key : Shift + Alt + d
-6. Download settings upon Visual Studio Code Startup.
-
+3. Upload Key : Shift + Alt + U
+4. Download Key : Shift + Alt + D
+5. Use Other User's Public GIST to completely sync your settings with them.
+6. Show a summary page at the end with details 
 ```      
+
 ## It Syncs
 ```
 1. Settings File
@@ -38,13 +38,13 @@ This extension required your GitHub Account Personal Access Token. You can creat
 ![Get Unique Key](http://shanalikhan.github.io/img/github3.PNG)
 
 
-> You need to save this key for this extension for future use, and don't share this key with anyone as it will get your data without needing to log in.
+> Save the Key somewhere for future use.
 
 
 ## Upload Your Settings For the first time
 
 
-**Press Shift + Alt + u it will ask your github account access token.**
+**Press Shift + Alt + U it will ask your github account access token.**
 
 > Type ">Sync" In Command Palette into order download / upload
 
@@ -60,7 +60,7 @@ Copy this Gist ID in order to download the settings in other machines.
 
 ## Download your Settings
 
-**Press Shift + Alt + d it will ask your github account access token.**
+**Press Shift + Alt + D it will ask your github account access token.**
 
 > Type ">Sync" In Command Palette into order download / upload
 
@@ -83,12 +83,32 @@ You are Done! All your files are downloaded
 > Type ">Sync" In Command Palette and select Reset Token and GIST Settings
 
 ## Enable Auto Download
-When token and GIST is filled up correctly, you can enable auto download the latest settings on the editor startup. This will save you to download all the settings from the cloud again and again in different systems. To enable :
 
-**Select Command "Toggle Auto Download" command to Turn ON / OFF the auto download.**
+Auto Download is **enabled by default**. It will sync all the setting by default when the editor starts.
+Please make sure you have valid github Token and GIST available to make it work properly.
+
+Select Command **"Sync : Advance Options > Toggle Auto-Download On Startup"** command to Turn ON / OFF the auto download.
 
 ## Toggle Summary
-Now the details will be shown in the new text that which of the files are updated / downloaded alongwith affected extensions. You can turn it on /off.
+
+Summary is **enabled by default** which shows all the files and extensions that are added or deleted in a single page.
+You may turn it off in order to make a upload and download process clean and quiet.  
+
+Select Command **"Sync : Advance Options > Toggle Summary Page On Upload / Download"** command to Turn ON / OFF the auto download.
+
+## Create Public GIST To Share
+
+By default, it creates secret GIST so only you can see it but if you want to share your GIST with other users, you can set it to public.
+You can't change the exiting GIST type from secret to public so it will reset the GIST ID so you can create new GIST with all the existing editor settings.
+
+Select Command **"Sync : Advance Options > Public / Private GIST Mode & Reset GIST"**
+
+## Fetch Other User's Settings
+
+You may give the GIST ID to other users , your friends or employees so they download each of the extensions or settings you upload but they cant edit your GIST or upload anything on your GIST.
+
+Select Command **"Sync : Advance Options > Fetch Other User's Settings"**
+
 
 # How To Contribute
 Download source code and install dependencies
