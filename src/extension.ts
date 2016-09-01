@@ -429,6 +429,7 @@ export async function activate(context: vscode.ExtensionContext) {
                                 writeFile = false;
 
                                 var extensionlist = PluginService.CreateExtensionList();
+                                
                                 extensionlist.sort(function (a, b) {
                                     return a.name.localeCompare(b.name);
                                 });
@@ -627,6 +628,8 @@ export async function activate(context: vscode.ExtensionContext) {
 
             switch (resolve) {
                 case items[0]: {
+                    openurl("http://shanalikhan.github.io/2016/07/31/Visual-Studio-code-sync-setting-edit-manually.html");
+                    vscode.window.showInformationMessage("Sync : URL Opened displaying about the settings options in details.");
                     var fsetting: vscode.Uri = vscode.Uri.file(en.APP_SETTINGS);
                     vscode.workspace.openTextDocument(fsetting).then((a: vscode.TextDocument) => {
                         vscode.window.showTextDocument(a, 1, false);
