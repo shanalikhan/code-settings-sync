@@ -82,7 +82,7 @@ You are Done! All your files are downloaded
 
 > Type ">Sync" In Command Palette and select Reset Token and GIST Settings
 
-## Enable Auto Download
+## Toggle Auto Download
 
 Auto Download is **enabled by default**. It will sync all the setting by default when the editor starts.
 Please make sure you have valid github Token and GIST available to make it work properly.
