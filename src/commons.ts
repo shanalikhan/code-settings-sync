@@ -216,7 +216,7 @@ export class Commons {
                     edit.insert(new vscode.Position(2, 0), "GITHUB TOKEN: " + syncSettings.Token + " \r\n");
                     edit.insert(new vscode.Position(3, 0), "GITHUB GIST: " + syncSettings.Gist + " \r\n");
                     var type: string = (syncSettings.publicGist == true) ? "Public" : "Secret"
-                    edit.insert(new vscode.Position(4, 0), "GITHUB GIST TYPE: " +type + " \r\n \r\n");
+                    edit.insert(new vscode.Position(4, 0), "GITHUB GIST TYPE: " + type + " \r\n \r\n");
                     edit.insert(new vscode.Position(5, 0), "-------------------- \r\n  \r\n");
 
                     edit.insert(new vscode.Position(6, 0), header + " \r\n");
@@ -250,6 +250,10 @@ export class Commons {
                                 row += 1;
                             });
                         }
+                    }
+                    if (removedExtensions.length==0 && addedExtensions.length==0) {
+                        edit.insert(new vscode.Position(row, 0),"\r\n \r\nYou already have all extensions."+ " \r\n");
+
                     }
                 });
             });
