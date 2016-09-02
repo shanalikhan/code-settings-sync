@@ -110,6 +110,11 @@ You may give the GIST ID to other users , your friends or employees so they down
 Select Command **"Sync : Advance Options > Fetch Other User's Settings"**
 
 
+# Step By Step Tutorial For 
+
+[How to share your visual studio code settings](http://shanalikhan.github.io/2016/09/02/how-to-Share-visual-studio-code-settings.html)
+
+
 # How To Contribute
 Download source code and install dependencies
 
