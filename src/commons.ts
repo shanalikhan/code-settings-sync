@@ -84,12 +84,13 @@ export class Commons {
                             resolve(JSON.parse(settingsData));
                         }
                         else {
-                            console.error(me.en.APP_SETTINGS + " not Found.");
+                            console.log(me.en.APP_SETTINGS + " not Found.");
                             resolve(null);
                         }
                     });
                 }
                 else {
+                    console.log(me.en.APP_SETTINGS + " not Found.");
                     resolve(null);
                 }
 
@@ -251,8 +252,8 @@ export class Commons {
                             });
                         }
                     }
-                    if (removedExtensions.length==0 && addedExtensions.length==0) {
-                        edit.insert(new vscode.Position(row, 0),"\r\n \r\nYou already have all extensions."+ " \r\n");
+                    if (removedExtensions.length == 0 && addedExtensions.length == 0) {
+                        edit.insert(new vscode.Position(row, 0), "\r\n \r\nYou already have all extensions." + " \r\n");
 
                     }
                 });
