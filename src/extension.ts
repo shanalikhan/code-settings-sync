@@ -527,6 +527,7 @@ export async function activate(context: vscode.ExtensionContext) {
                                 if (syncSetting.showSummary) {
                                     common.GenerateSummmaryFile(false, updatedFiles, deletedExtensions, addedExtensions, syncSetting);
                                 }
+                                vscode.window.setStatusBarMessage("");
                                 vscode.window.setStatusBarMessage("Sync : Download Complete.", 5000);
                             }
                             else {
