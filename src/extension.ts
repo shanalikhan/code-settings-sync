@@ -19,7 +19,7 @@ export async function activate(context: vscode.ExtensionContext) {
     var settingChanged: boolean = false;
     var emptySetting: boolean = false;
 
-    await common.InitSettings().then(async (resolve:any) => {
+    await common.InitSettings().then(async (resolve: any) => {
 
         if (resolve) {
             mainSyncSetting = resolve;
@@ -345,10 +345,13 @@ export async function activate(context: vscode.ExtensionContext) {
                     if (keys.indexOf(en.FILE_CLOUDSETTINGS_NAME) > -1) {
                         var cloudSett: CloudSetting = JSON.parse(res.files[en.FILE_CLOUDSETTINGS_NAME].content);
                         var stat: boolean = (syncSetting.lastUpload == cloudSett.lastUpload) || (syncSetting.lastDownload == cloudSett.lastUpload);
-                        if (stat) {
-                            vscode.window.setStatusBarMessage("");
-                            vscode.window.setStatusBarMessage("Sync : You already have latest version of saved settings.", 5000);
-                            return;
+                        
+                        if (!syncSetting.forceDownload) {
+                            if (stat) {
+                                vscode.window.setStatusBarMessage("");
+                                vscode.window.setStatusBarMessage("Sync : You already have latest version of saved settings.", 5000);
+                                return;
+                            }
                         }
                         syncSetting.lastDownload = cloudSett.lastUpload;
                     }
@@ -429,7 +432,7 @@ export async function activate(context: vscode.ExtensionContext) {
                                 writeFile = false;
 
                                 var extensionlist = PluginService.CreateExtensionList();
-                                
+
                                 extensionlist.sort(function (a, b) {
                                     return a.name.localeCompare(b.name);
                                 });
@@ -452,11 +455,11 @@ export async function activate(context: vscode.ExtensionContext) {
                                 }
 
                                 var missingList = PluginService.GetMissingExtensions(remoteList);
-                                if (missingList.length == 0){
+                                if (missingList.length == 0) {
                                     vscode.window.setStatusBarMessage("");
-                                    vscode.window.setStatusBarMessage("Sync : No Extension needs to be installed.",2000);
+                                    vscode.window.setStatusBarMessage("Sync : No Extension needs to be installed.", 2000);
                                 }
-                                else{
+                                else {
 
                                     vscode.window.setStatusBarMessage("Sync : Installing Extensions in background.");
                                     missingList.forEach(async (element) => {
@@ -619,6 +622,7 @@ export async function activate(context: vscode.ExtensionContext) {
         items.push("Sync : Release Notes");
         items.push("Sync : Toggle Auto-Download On Startup");
         items.push("Sync : Toggle Show Summary Page On Upload / Download");
+        items.push("Sync : Toggle Force Download");
 
         var selectedItem: Number = 0;
         var settingChanged: boolean = false;
@@ -728,6 +732,18 @@ export async function activate(context: vscode.ExtensionContext) {
                     }
                     break;
                 }
+                case items[7]: {
+                    //toggle force download
+                    selectedItem = 8;
+                    settingChanged = true;
+                    if (setting.forceDownload) {
+                        setting.forceDownload = false;
+                    }
+                    else {
+                        setting.forceDownload = true;
+                    }
+                    break;
+                }
                 default: {
                     break;
                 }
@@ -740,32 +756,47 @@ export async function activate(context: vscode.ExtensionContext) {
             if (settingChanged) {
                 await common.SaveSettings(setting).then(async function (added: boolean) {
                     if (added) {
-                        if (selectedItem == 2) {
-                            if (setting.publicGist) {
-                                vscode.window.showInformationMessage("Sync : GIST Reset! Public GIST Enabled. Upload Now to get new GIST ID.");
+                        switch (selectedItem) {
+                            case 2: {
+                                if (setting.publicGist) {
+                                    vscode.window.showInformationMessage("Sync : GIST Reset! Public GIST Enabled. Upload Now to get new GIST ID.");
+                                }
+                                else {
+                                    vscode.window.showInformationMessage("Sync : GIST Reset! Private GIST Enabled. Upload Now to get new GIST ID.");
+                                }
+                                break;
                             }
-                            else {
-                                vscode.window.showInformationMessage("Sync : GIST Reset! Private GIST Enabled. Upload Now to get new GIST ID.");
+                            case 3: {
+                                vscode.window.showInformationMessage("Sync : Configured! Now you can download the settings when the GIST Changes.");
+                                vscode.commands.executeCommand('extension.downloadSettings');
+                                break;
                             }
-                        }
-                        if (selectedItem == 3) {
-                            vscode.window.showInformationMessage("Sync : Configured! Now you can download the settings when the GIST Changes.");
-                            vscode.commands.executeCommand('extension.downloadSettings');
-                        }
-                        if (selectedItem == 6) {
-                            if (setting.autoSync) {
-                                vscode.window.showInformationMessage("Sync : Auto Download turned ON upon VSCode Startup.");
+                            case 6: {
+                                if (setting.autoSync) {
+                                    vscode.window.showInformationMessage("Sync : Auto Download turned ON upon VSCode Startup.");
+                                }
+                                else {
+                                    vscode.window.showInformationMessage("Sync : Auto Download turned OFF upon VSCode Startup.");
+                                }
+                                break;
                             }
-                            else {
-                                vscode.window.showInformationMessage("Sync : Auto Download turned OFF upon VSCode Startup.");
+                            case 7: {
+                                if (setting.showSummary) {
+                                    vscode.window.showInformationMessage("Sync : Summary Will be shown upon download / upload.");
+                                }
+                                else {
+                                    vscode.window.showInformationMessage("Sync : Summary Will be hidden upon download / upload.");
+                                }
+                                break;
                             }
-                        }
-                        if (selectedItem == 7) {
-                            if (setting.showSummary) {
-                                vscode.window.showInformationMessage("Sync : Summary Will be shown upon download / upload.");
-                            }
-                            else {
-                                vscode.window.showInformationMessage("Sync : Summary Will be hidden upon download / upload.");
+                            case 8: {
+                                if (setting.forceDownload) {
+                                    vscode.window.showInformationMessage("Sync : Force Download Turned On.");
+                                }
+                                else {
+                                    vscode.window.showInformationMessage("Sync : Force Download Turned Off.");
+                                }
+                                break;
                             }
                         }
                     }

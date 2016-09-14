@@ -14,6 +14,7 @@ export class LocalSetting{
     public showSummary : boolean = true;
     public allowUpload : boolean = true;
     public publicGist = false;
+    public forceDownload = false;
 }
 
 export class CloudSetting{
