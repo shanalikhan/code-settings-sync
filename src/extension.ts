@@ -342,16 +342,6 @@ export async function activate(context: vscode.ExtensionContext) {
 
                 if (res) {
                     var keys = Object.keys(res.files);
-                    if (keys.indexOf(en.FILE_CLOUDSETTINGS_NAME) > -1) {
-                        var cloudSett: CloudSetting = JSON.parse(res.files[en.FILE_CLOUDSETTINGS_NAME].content);
-                        var stat: boolean = (syncSetting.lastUpload == cloudSett.lastUpload) || (syncSetting.lastDownload == cloudSett.lastUpload);
-                        if (stat) {
-                            vscode.window.setStatusBarMessage("");
-                            vscode.window.setStatusBarMessage("Sync : You already have latest version of saved settings.", 5000);
-                            return;
-                        }
-                        syncSetting.lastDownload = cloudSett.lastUpload;
-                    }
 
                     keys.forEach(fileName => {
                         if (fileName.indexOf(".") > -1) {
@@ -429,7 +419,7 @@ export async function activate(context: vscode.ExtensionContext) {
                                 writeFile = false;
 
                                 var extensionlist = PluginService.CreateExtensionList();
-                                
+
                                 extensionlist.sort(function (a, b) {
                                     return a.name.localeCompare(b.name);
                                 });
