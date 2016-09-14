@@ -252,9 +252,10 @@ export class Commons {
                             });
                         }
                     }
-                    if (removedExtensions.length == 0 && addedExtensions.length == 0) {
-                        edit.insert(new vscode.Position(row, 0), "\r\n \r\nYou already have all extensions." + " \r\n");
-
+                    if (removedExtensions && addedExtensions) {
+                        if (removedExtensions.length == 0 && addedExtensions.length == 0) {
+                            edit.insert(new vscode.Position(row, 0), "\r\n \r\nYou already have all extensions." + " \r\n");
+                        }
                     }
                 });
             });
