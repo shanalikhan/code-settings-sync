@@ -345,7 +345,7 @@ export async function activate(context: vscode.ExtensionContext) {
                     if (keys.indexOf(en.FILE_CLOUDSETTINGS_NAME) > -1) {
                         var cloudSett: CloudSetting = JSON.parse(res.files[en.FILE_CLOUDSETTINGS_NAME].content);
                         var stat: boolean = (syncSetting.lastUpload == cloudSett.lastUpload) || (syncSetting.lastDownload == cloudSett.lastUpload);
-                        
+
                         if (!syncSetting.forceDownload) {
                             if (stat) {
                                 vscode.window.setStatusBarMessage("");
@@ -357,11 +357,12 @@ export async function activate(context: vscode.ExtensionContext) {
                     }
 
                     keys.forEach(fileName => {
-                        if (fileName.indexOf(".") > -1) {
-                            var f: File = new File(fileName, res.files[fileName].content, null);
-                            updatedFiles.push(f);
+                        if (res.files[fileName].content) {
+                            if (fileName.indexOf(".") > -1) {
+                                var f: File = new File(fileName, res.files[fileName].content, null);
+                                updatedFiles.push(f);
+                            }
                         }
-
                     });
 
                     for (var index = 0; index < updatedFiles.length; index++) {
