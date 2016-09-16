@@ -199,12 +199,16 @@ export class Commons {
 
         header = "\r\nFiles " + status + ". \r\n";
 
-        var deletedExtension: string = "\r\nEXTENSIONS REMOVED \r\n";
-        var addedExtension: string = "\r\nEXTENSIONS ADDED \r\n";
+        var deletedExtension: string = "\r\nEXTENSIONS REMOVED : \r\n";
+        var addedExtension: string = "\r\nEXTENSIONS ADDED : \r\n";
         var tempURI: string = this.en.APP_SUMMARY;
+
         while (tempURI.indexOf("/") > -1) {
             tempURI = tempURI.replace("/", "\\");
         }
+
+        //console.log("FILE URI :" +tempURI);
+
         var setting: vscode.Uri = vscode.Uri.parse("untitled:" + tempURI);
 
         vscode.workspace.openTextDocument(setting).then((a: vscode.TextDocument) => {
@@ -231,27 +235,35 @@ export class Commons {
 
                     }
                     if (removedExtensions) {
+                        edit.insert(new vscode.Position(row, 0), deletedExtension + " \r\n");
+                        row += 1;
+
                         if (removedExtensions.length > 0) {
-                            edit.insert(new vscode.Position(row, 0), deletedExtension + " \r\n");
-                            row += 1;
                             removedExtensions.forEach(ext => {
                                 edit.insert(new vscode.Position(row, 0), ext.name + " - Version :" + ext.version + " \r\n");
                                 row += 1;
                             });
                         }
+                        else {
+                            edit.insert(new vscode.Position(row, 0), "\r\n \r\nNo Extensions need to removed. \r\n");
+                        }
                     }
 
                     if (addedExtensions) {
                         row += 1;
+                        edit.insert(new vscode.Position(row, 0), " \r\n" + addedExtension + " \r\n");
+                        row += 1;
                         if (addedExtensions.length > 0) {
-                            edit.insert(new vscode.Position(row, 0), " \r\n" + addedExtension + " \r\n");
-                            row += 1;
                             addedExtensions.forEach(ext => {
                                 edit.insert(new vscode.Position(row, 0), ext.name + " - Version :" + ext.version + " \r\n");
                                 row += 1;
                             });
                         }
+                        else {
+                            edit.insert(new vscode.Position(row, 0), "\r\n \r\nNo Extensions need to Install. \r\n");
+                        }
                     }
+                    
                     if (removedExtensions && addedExtensions) {
                         if (removedExtensions.length == 0 && addedExtensions.length == 0) {
                             edit.insert(new vscode.Position(row, 0), "\r\n \r\nYou already have all extensions." + " \r\n");
