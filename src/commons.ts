@@ -245,7 +245,7 @@ export class Commons {
                             });
                         }
                         else {
-                            edit.insert(new vscode.Position(row, 0), "\r\nNo Extension needs to be removed. \r\n");
+                            edit.insert(new vscode.Position(row, 0), "No Extension needs to be removed. \r\n");
                         }
                     }
 
@@ -260,13 +260,7 @@ export class Commons {
                             });
                         }
                         else {
-                            edit.insert(new vscode.Position(row, 0), "\r\nNo Extension needs to install. \r\n");
-                        }
-                    }
-
-                    if (removedExtensions && addedExtensions) {
-                        if (removedExtensions.length == 0 && addedExtensions.length == 0) {
-                            edit.insert(new vscode.Position(row, 0), "\r\n \r\nYou already have all extensions." + " \r\n");
+                            edit.insert(new vscode.Position(row, 0), "No Extension needs to install. \r\n");
                         }
                     }
                 });
