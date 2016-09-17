@@ -133,11 +133,12 @@ export class Commons {
                                 reject(err);
                             });
                         }
-                    } else {
-                        if (token !== 'esc') {
-                            getToken()
-                        }
                     }
+                    //  else {
+                    //     if (token !== 'esc') {
+                    //         getToken()
+                    //     }
+                    // }
                 });
             } ());
         });
@@ -161,12 +162,12 @@ export class Commons {
                                 reject(err);
                             });
                         }
-
-                    } else {
-                        if (gist !== 'esc') {
-                            getGist();
-                        }
-                    }
+                    } 
+                    // else {
+                    //     if (gist !== 'esc') {
+                    //         getGist();
+                    //     }
+                    // }
 
                 });
             })();
@@ -181,7 +182,8 @@ export class Commons {
             let options: vscode.InputBoxOptions = {
                 placeHolder: "Enter Github Personal Access Token",
                 password: false,
-                prompt: "Link is opened to get the github token. Enter token and press [Enter] or type 'esc' to cancel."
+                prompt: "Link opened to get the GitHub token. Enter token and press [Enter] or press / type 'esc' to cancel.",
+                ignoreFocusOut : true
             };
             return options;
         }
@@ -189,7 +191,8 @@ export class Commons {
             let options: vscode.InputBoxOptions = {
                 placeHolder: "Enter GIST ID",
                 password: false,
-                prompt: "Enter GIST ID from previously uploaded settings and press [Enter] or type 'esc' to cancel."
+                prompt: "Enter GIST ID from previously uploaded settings and press [Enter] or press / type 'esc' to cancel.",
+                ignoreFocusOut : true
             };
             return options;
         }
@@ -220,12 +223,12 @@ export class Commons {
         }
 
         console.log("FILE URI For Summary Page : " + tempURI);
-
+        
         var setting: vscode.Uri = vscode.Uri.parse("untitled:" + tempURI);
 
         vscode.workspace.openTextDocument(setting).then((a: vscode.TextDocument) => {
 
-            vscode.window.showTextDocument(a, 1, false).then(e => {
+            vscode.window.showTextDocument(a, 1, false).then((e : vscode.TextEditor) => {
                 e.edit(edit => {
                     edit.insert(new vscode.Position(0, 0), "VISUAL STUDIO CODE SETTINGS SYNC \r\n\r\n" + status + " SUMMARY \r\n\r\n");
                     edit.insert(new vscode.Position(1, 0), "-------------------- \r\n");
