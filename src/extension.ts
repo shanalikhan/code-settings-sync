@@ -10,10 +10,30 @@ import {OsType, SettingType} from './enums';
 
 export async function activate(context: vscode.ExtensionContext) {
 
+
+    var openurl = require('open');
+    var fs = require('fs');
+    var GitHubApi = null;
+
+    var github = null;
+
     //migration code starts
 
     var en: Environment = new Environment(context);
     var common: commons.Commons = new commons.Commons(en);
+
+    var status = await common.InternetConnected();
+    if (status) {
+        GitHubApi = require("github");
+        github = new GitHubApi({
+            version: "3.0.0"
+        });
+    } else {
+        vscode.window.setStatusBarMessage("Sync : Internet Not Connected.", 3000);
+    }
+
+
+
     var mainSyncSetting: any = null;
     var newSetting: LocalSetting = new LocalSetting();
     var settingChanged: boolean = false;
@@ -55,7 +75,9 @@ export async function activate(context: vscode.ExtensionContext) {
                 var gistAvailable = newSetting.Gist != null && newSetting.Gist != "";
 
                 if (tokenAvailable && gistAvailable && newSetting.autoSync) {
-                    vscode.commands.executeCommand('extension.downloadSettings');
+                    if (status) {
+                        vscode.commands.executeCommand('extension.downloadSettings');
+                    }
                 }
             }
         }
@@ -86,17 +108,23 @@ export async function activate(context: vscode.ExtensionContext) {
 
     //migration code ends
 
-    var openurl = require('open');
-    var fs = require('fs');
-    var GitHubApi = require("github");
-
-    var github = new GitHubApi({
-        version: "3.0.0"
-    });
-
     var updateSettings = vscode.commands.registerCommand('extension.updateSettings', async () => {
         var en: Environment = new Environment(context);
         var common: commons.Commons = new commons.Commons(en);
+
+        var status = await common.InternetConnected();
+
+        if (status) {
+            GitHubApi = require("github");
+            github = new GitHubApi({
+                version: "3.0.0"
+            });
+        }
+        else {
+            vscode.window.showInformationMessage("Sync :Internet Not Connected.");
+            return;
+        }
+
         var myGi: GithubService = null;
         var dateNow: Date = new Date();
         var syncSetting: LocalSetting = new LocalSetting();
@@ -275,6 +303,21 @@ export async function activate(context: vscode.ExtensionContext) {
 
         var en: Environment = new Environment(context);
         var common: commons.Commons = new commons.Commons(en);
+
+        var status = await common.InternetConnected();
+
+        if (status) {
+            GitHubApi = require("github");
+            github = new GitHubApi({
+                version: "3.0.0"
+            });
+        }
+        else {
+            vscode.window.showInformationMessage("Sync : Internet Not Connected.");
+            return;
+        }
+
+
         var myGi: GithubService = null;
         var syncSetting: LocalSetting = new LocalSetting();
 

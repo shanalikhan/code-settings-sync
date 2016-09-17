@@ -5,6 +5,8 @@ import {File, FileManager} from './fileManager';
 import {LocalSetting} from './setting';
 import {PluginService, ExtensionInformation} from './pluginService';
 
+var isOnline = require('is-online');
+
 export class Commons {
 
     public ERROR_MESSAGE: string = "Error Logged In Console (Help menu > Toggle Developer Tools). You may open an issue using 'Sync : Open Issue' from advance setting command.";
@@ -18,6 +20,16 @@ export class Commons {
         vscode.window.showErrorMessage(message);
         vscode.window.setStatusBarMessage("");
     }
+
+    public async InternetConnected(): Promise<boolean> {
+        return new Promise<boolean>(async (resolve, reject) => {
+            isOnline(function (err, online) {
+                resolve(online);
+            });
+        });
+    }
+
+
 
     //TODO : change any to LocalSetting after max users migrate to new settings.
     public async InitSettings(): Promise<any> {
@@ -207,7 +219,7 @@ export class Commons {
             tempURI = tempURI.replace("/", "\\");
         }
 
-        //console.log("FILE URI :" +tempURI);
+        console.log("FILE URI For Summary Page : " + tempURI);
 
         var setting: vscode.Uri = vscode.Uri.parse("untitled:" + tempURI);
 

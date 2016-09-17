@@ -3,16 +3,13 @@
 import * as envir from './environmentPath';
 import * as fileManager from './fileManager';
 
-
 var GitHubApi = require("github");
 
 var github = new GitHubApi({
     version: "3.0.0"
 });
 
-
 export class GithubService {
-
 
     private GIST_JSON_EMPTY: any = {
         "description": "Visual Studio Code Sync Settings GIST",
@@ -68,7 +65,7 @@ export class GithubService {
         else {
             me.GIST_JSON_EMPTY.public = false;
         }
-        
+
         return new Promise<string>((resolve, reject) => {
             github.getGistsApi().create(me.GIST_JSON_EMPTY
                 , function (err, res) {
@@ -76,7 +73,14 @@ export class GithubService {
                         console.error(err);
                         reject(false);
                     }
-                    resolve(res.id);
+                    if (res.id) {
+                        resolve(res.id);
+                    } else {
+                        console.error("ID is null");
+                        console.log("Response from GITHUB is: ");
+                        console.log(res);
+                    }
+
                 });
         });
     }
@@ -100,9 +104,7 @@ export class GithubService {
         var allFiles: string[] = Object.keys(gistObject.files);
         for (var fileIndex = 0; fileIndex < allFiles.length; fileIndex++) {
             var fileName = allFiles[fileIndex];
-            // if (fileName.indexOf(".") < 0) {
-            //     gistObject.files[fileName] = null;
-            // }
+
             var exists = false;
 
             files.forEach((settingFile) => {
