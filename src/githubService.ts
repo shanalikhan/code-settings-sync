@@ -60,23 +60,6 @@ export class GithubService {
         return GIST_JSON_b;
     }
 
-    public CreateNewGist(files: Array<fileManager.File>): Promise<string> {
-
-        var me = this;
-        return new Promise<string>((resolve, reject) => {
-
-            me.GIST_JSON_EMPTY = me.AddFile(files, me.GIST_JSON_EMPTY);
-            github.getGistsApi().create(me.GIST_JSON_EMPTY
-                , function (err, res) {
-                    if (err != null) {
-                        console.error(err);
-                        reject(false);
-                    }
-                    resolve(res.id);
-                });
-        });
-    }
-
     public CreateEmptyGIST(publicGist: boolean): Promise<string> {
         var me = this;
         if (publicGist) {
@@ -147,50 +130,6 @@ export class GithubService {
                     reject(false);
                 }
                 resolve(true);
-            });
-        });
-    }
-
-    public async ExistingGist(GIST: string, files: Array<fileManager.File>): Promise<boolean> {
-        var me = this;
-        return new Promise<boolean>(async (resolve, reject) => {
-            await github.getGistsApi().get({ id: GIST }, async function (er, res) {
-
-                if (er) {
-                    console.error(er);
-                    reject(false);
-                }
-                else {
-
-                    var allFiles: string[] = Object.keys(res.files);
-                    for (var fileIndex = 0; fileIndex < allFiles.length; fileIndex++) {
-                        var fileName = allFiles[fileIndex];
-                        if (fileName.indexOf(".") < 0) {
-                            res.files[fileName] = null;
-                        }
-                        var exists = false;
-
-                        files.forEach((settingFile) => {
-                            if (settingFile.fileName == fileName) {
-                                exists = true;
-                            }
-                        });
-
-                        if (!exists && !fileName.startsWith("keybindings")) {
-                            res.files[fileName] = null;
-                        }
-
-                    }
-
-                    res = me.AddFile(files, res);
-                    await github.getGistsApi().edit(res, function (ere, ress) {
-                        if (ere) {
-                            console.error(er);
-                            reject(false);
-                        }
-                        resolve(true);
-                    });
-                }
             });
         });
     }
