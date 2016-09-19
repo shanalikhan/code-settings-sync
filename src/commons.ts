@@ -215,10 +215,6 @@ export class Commons {
         var addedExtension: string = "\r\nEXTENSIONS ADDED : \r\n";
         var tempURI: string = this.en.APP_SUMMARY;
 
-        while (tempURI.indexOf("/") > -1) {
-            tempURI = tempURI.replace("/", "\\");
-        }
-
         console.log("FILE URI For Summary Page : " + tempURI);
 
         var setting: vscode.Uri = vscode.Uri.parse("untitled:" + tempURI);
