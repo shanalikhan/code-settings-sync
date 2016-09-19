@@ -5,7 +5,7 @@ import {OsType} from './enums';
 
 export class Environment {
 
-    public static CURRENT_VERSION : number = 226;
+    public static CURRENT_VERSION : number = 227;
 
     private context: vscode.ExtensionContext;
     public isInsiders = null;
@@ -20,7 +20,6 @@ export class Environment {
     public FILE_KEYBINDING: string = null;
     public FILE_LOCALE : string = null;
     public FILE_EXTENSION : string = null;
-
     public FILE_CLOUDSETTINGS : string  = null;
 
     public FILE_SETTING_NAME: string = "settings.json";
@@ -78,6 +77,7 @@ export class Environment {
         this.APP_SETTINGS = this.PATH.concat("/User/",this.FILE_LOCATIONSETTINGS_NAME);
         this.APP_SUMMARY = this.PATH.concat("/User/",this.APP_SUMMARY_NAME);
         this.FILE_CLOUDSETTINGS = this.PATH.concat("/User/",this.FILE_CLOUDSETTINGS_NAME);
+        
     }
 
 

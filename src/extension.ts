@@ -13,14 +13,18 @@ export async function activate(context: vscode.ExtensionContext) {
 
     var openurl = require('open');
     var fs = require('fs');
+    var watch = require('node-watch');
     var GitHubApi = null;
-
     var github = null;
 
-    //migration code starts
-
+    var mainSyncSetting: any = null;
+    var newSetting: LocalSetting = new LocalSetting();
+    var settingChanged: boolean = false;
+    var emptySetting: boolean = false;
     var en: Environment = new Environment(context);
     var common: commons.Commons = new commons.Commons(en);
+
+    // check InternetConnected
 
     var status = await common.InternetConnected();
     if (status) {
@@ -32,12 +36,7 @@ export async function activate(context: vscode.ExtensionContext) {
         vscode.window.setStatusBarMessage("Sync : Internet Not Connected.", 3000);
     }
 
-
-
-    var mainSyncSetting: any = null;
-    var newSetting: LocalSetting = new LocalSetting();
-    var settingChanged: boolean = false;
-    var emptySetting: boolean = false;
+    //migration code starts
 
     await common.InitSettings().then(async (resolve: any) => {
 
@@ -74,7 +73,7 @@ export async function activate(context: vscode.ExtensionContext) {
                 var tokenAvailable = newSetting.Token != null && newSetting.Token != "";
                 var gistAvailable = newSetting.Gist != null && newSetting.Gist != "";
 
-                if (tokenAvailable && gistAvailable && newSetting.autoSync) {
+                if (tokenAvailable && gistAvailable && newSetting.autoDownload) {
                     if (status) {
                         vscode.commands.executeCommand('extension.downloadSettings');
                     }
@@ -107,6 +106,37 @@ export async function activate(context: vscode.ExtensionContext) {
     });
 
     //migration code ends
+    var tokenAvailable = newSetting.Token != null && newSetting.Token != "";
+    var gistAvailable = newSetting.Gist != null && newSetting.Gist != "";
+
+    var appSetting = en.APP_SETTINGS;
+    var appSummary = en.APP_SUMMARY;
+    while (appSetting.indexOf("/") > -1) {
+        appSetting = appSetting.replace("/", "\\");
+    }
+
+    while (appSummary.indexOf("/") > -1) {
+        appSummary = appSummary.replace("/", "\\");
+    }
+
+
+    if (newSetting.uploadOnChange && tokenAvailable && gistAvailable) {
+        var watcher = watch(en.PATH + "/User/");
+        watcher.on('change',(path) => {
+            var initiatingUpload = false;
+            if ((path != appSetting) && (path != appSummary)) {
+                if (status && !initiatingUpload) {
+
+                    vscode.window.setStatusBarMessage("Updating Process Started On File Change.");
+                    vscode.commands.executeCommand('extension.updateSettings');
+                    initiatingUpload = true;
+                    return;
+                }
+
+            }
+            //console.log(event, path);
+        });
+    }
 
     var updateSettings = vscode.commands.registerCommand('extension.updateSettings', async () => {
         var en: Environment = new Environment(context);
@@ -751,11 +781,11 @@ export async function activate(context: vscode.ExtensionContext) {
                         vscode.commands.executeCommand('extension.HowSettings');
                         return;
                     }
-                    if (setting.autoSync) {
-                        setting.autoSync = false;
+                    if (setting.autoDownload) {
+                        setting.autoDownload = false;
                     }
                     else {
-                        setting.autoSync = true;
+                        setting.autoDownload = true;
                     }
                     break;
                 }
@@ -816,7 +846,7 @@ export async function activate(context: vscode.ExtensionContext) {
                                 break;
                             }
                             case 6: {
-                                if (setting.autoSync) {
+                                if (setting.autoDownload) {
                                     vscode.window.showInformationMessage("Sync : Auto Download turned ON upon VSCode Startup.");
                                 }
                                 else {
