@@ -4,6 +4,7 @@ import {Environment} from './environmentPath';
 import {File, FileManager} from './fileManager';
 import {LocalSetting} from './setting';
 import {PluginService, ExtensionInformation} from './pluginService';
+import * as fs from 'fs';
 
 var isOnline = require('is-online');
 
@@ -217,7 +218,8 @@ export class Commons {
 
         console.log("FILE URI For Summary Page : " + tempURI);
 
-        var setting: vscode.Uri = vscode.Uri.parse("untitled:" + tempURI);
+        var setting: vscode.Uri = vscode.Uri.file(tempURI);
+        fs.openSync(setting.fsPath, 'w');
 
         vscode.workspace.openTextDocument(setting).then((a: vscode.TextDocument) => {
 
@@ -272,7 +274,8 @@ export class Commons {
                         }
                     }
                 });
-            });
+                e.document.save();
+            });            
         }, (error: any) => {
             console.error(error);
             return;
