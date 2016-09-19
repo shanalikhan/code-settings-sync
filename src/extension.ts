@@ -120,23 +120,23 @@ export async function activate(context: vscode.ExtensionContext) {
     }
 
 
-    if (newSetting.uploadOnChange && tokenAvailable && gistAvailable) {
-        var watcher = watch(en.PATH + "/User/");
-        watcher.on('change',(path) => {
-            var initiatingUpload = false;
-            if ((path != appSetting) && (path != appSummary)) {
-                if (status && !initiatingUpload) {
+    // if (newSetting.uploadOnChange && tokenAvailable && gistAvailable) {
+    //     var watcher = watch(en.PATH + "/User/");
+    //     watcher.on('change',(path) => {
+    //         var initiatingUpload = false;
+    //         if ((path != appSetting) && (path != appSummary)) {
+    //             if (status && !initiatingUpload) {
 
-                    vscode.window.setStatusBarMessage("Updating Process Started On File Change.");
-                    vscode.commands.executeCommand('extension.updateSettings');
-                    initiatingUpload = true;
-                    return;
-                }
+    //                 vscode.window.setStatusBarMessage("Updating Process Started On File Change.");
+    //                 vscode.commands.executeCommand('extension.updateSettings');
+    //                 initiatingUpload = true;
+    //                 return;
+    //             }
 
-            }
-            //console.log(event, path);
-        });
-    }
+    //         }
+    //         //console.log(event, path);
+    //     });
+    // }
 
     var updateSettings = vscode.commands.registerCommand('extension.updateSettings', async () => {
         var en: Environment = new Environment(context);
