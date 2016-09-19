@@ -220,14 +220,11 @@ export class Commons {
         var tempURI: string = this.en.APP_SUMMARY;
 
         console.log("FILE URI For Summary Page : " + tempURI);
-<<<<<<< HEAD
         
         var setting: vscode.Uri = vscode.Uri.parse("untitled:" + tempURI);
-=======
 
         var setting: vscode.Uri = vscode.Uri.file(tempURI);
         fs.openSync(setting.fsPath, 'w');
->>>>>>> f55e607c3ddf5b77e5d4ce7d7e8de77650d7d261
 
         vscode.workspace.openTextDocument(setting).then((a: vscode.TextDocument) => {
 
