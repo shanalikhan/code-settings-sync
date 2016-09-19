@@ -35,7 +35,7 @@ export class Environment {
     
     public FOLDER_SNIPPETS: string = null;
     public APP_SETTINGS : string = null;
-    public APP_SUMMARY_NAME : string = "summary.txt";
+    public APP_SUMMARY_NAME : string = "syncSummary.txt";
     public APP_SUMMARY : string = null;
 
     constructor(context: vscode.ExtensionContext) {
