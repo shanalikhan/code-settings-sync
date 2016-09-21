@@ -139,9 +139,10 @@ export async function activate(context: vscode.ExtensionContext) {
         });
     }
 
-    var updateSettings = vscode.commands.registerCommand('extension.updateSettings', async (a : string) => {
+    var updateSettings = vscode.commands.registerCommand('extension.updateSettings', async () => {
 
-
+        let args = arguments;
+        
         debugger;
         var en: Environment = new Environment(context);
         var common: commons.Commons = new commons.Commons(en);
