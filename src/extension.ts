@@ -130,7 +130,7 @@ export async function activate(context: vscode.ExtensionContext) {
                 if (status && !watcherThroughUpdate) {
                     
                     vscode.window.setStatusBarMessage("Updating Process Started On File Change.");
-                    vscode.commands.executeCommand('extension.updateSettings',"start");
+                    vscode.commands.executeCommand('extension.updateSettings', "start");    
                     //return;
                 }
 
@@ -139,10 +139,10 @@ export async function activate(context: vscode.ExtensionContext) {
         });
     }
 
-    var updateSettings = vscode.commands.registerCommand('extension.updateSettings', async () => {
+    var updateSettings = vscode.commands.registerCommand('extension.updateSettings',    async () => {
 
-        let args = arguments;
-        
+        let args =  arguments;   
+ 
         debugger;
         var en: Environment = new Environment(context);
         var common: commons.Commons = new commons.Commons(en);
