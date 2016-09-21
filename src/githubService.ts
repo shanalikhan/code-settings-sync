@@ -125,6 +125,10 @@ export class GithubService {
 
     public async SaveGIST(gistObject: any): Promise<boolean> {
         var me = this;
+
+        //TODO : turn diagnostic mode on for console.
+        console.log("GIST Object - " + gistObject );
+        
         return new Promise<boolean>(async (resolve, reject) => {
             await github.getGistsApi().edit(gistObject, function (ere, ress) {
                 if (ere) {

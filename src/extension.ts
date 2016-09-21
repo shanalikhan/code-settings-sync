@@ -23,6 +23,7 @@ export async function activate(context: vscode.ExtensionContext) {
     var emptySetting: boolean = false;
     var en: Environment = new Environment(context);
     var common: commons.Commons = new commons.Commons(en);
+    var watcherThroughUpdate= false;
 
     // check InternetConnected
 
@@ -120,25 +121,28 @@ export async function activate(context: vscode.ExtensionContext) {
     }
 
 
-    // if (newSetting.uploadOnChange && tokenAvailable && gistAvailable) {
-    //     var watcher = watch(en.PATH + "/User/");
-    //     watcher.on('change',(path) => {
-    //         var initiatingUpload = false;
-    //         if ((path != appSetting) && (path != appSummary)) {
-    //             if (status && !initiatingUpload) {
+    if (newSetting.uploadOnChange && tokenAvailable && gistAvailable) {
+        var watcher = watch(en.PATH + "/User/");
 
-    //                 vscode.window.setStatusBarMessage("Updating Process Started On File Change.");
-    //                 vscode.commands.executeCommand('extension.updateSettings');
-    //                 initiatingUpload = true;
-    //                 return;
-    //             }
+        watcher.on('change',(path) => {
+            
+            if ((path != appSetting) && (path != appSummary)) {
+                if (status && !watcherThroughUpdate) {
+                    
+                    vscode.window.setStatusBarMessage("Updating Process Started On File Change.");
+                    vscode.commands.executeCommand('extension.updateSettings',"start");
+                    //return;
+                }
 
-    //         }
-    //         //console.log(event, path);
-    //     });
-    // }
+            }
+            //console.log(event, path);
+        });
+    }
 
-    var updateSettings = vscode.commands.registerCommand('extension.updateSettings', async () => {
+    var updateSettings = vscode.commands.registerCommand('extension.updateSettings', async (a : string) => {
+
+
+        debugger;
         var en: Environment = new Environment(context);
         var common: commons.Commons = new commons.Commons(en);
 
@@ -330,6 +334,8 @@ export async function activate(context: vscode.ExtensionContext) {
 
 
     var downloadSettings = vscode.commands.registerCommand('extension.downloadSettings', async () => {
+
+        watcherThroughUpdate = true;
 
         var en: Environment = new Environment(context);
         var common: commons.Commons = new commons.Commons(en);
@@ -606,6 +612,7 @@ export async function activate(context: vscode.ExtensionContext) {
                                 }
                                 vscode.window.setStatusBarMessage("");
                                 vscode.window.setStatusBarMessage("Sync : Download Complete.", 5000);
+                                watcherThroughUpdate = false;
                             }
                             else {
                                 vscode.window.showErrorMessage("Sync : Unable to save extension settings file.")
