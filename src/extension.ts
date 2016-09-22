@@ -23,7 +23,7 @@ export async function activate(context: vscode.ExtensionContext) {
     var emptySetting: boolean = false;
     var en: Environment = new Environment(context);
     var common: commons.Commons = new commons.Commons(en);
-    var watcherThroughUpdate= false;
+    var watcherThroughUpdate = false;
 
     // check InternetConnected
 
@@ -109,7 +109,7 @@ export async function activate(context: vscode.ExtensionContext) {
     //migration code ends
 
 
-    
+
     var tokenAvailable = newSetting.Token != null && newSetting.Token != "";
     var gistAvailable = newSetting.Gist != null && newSetting.Gist != "";
 
@@ -124,16 +124,20 @@ export async function activate(context: vscode.ExtensionContext) {
     }
 
 
-    if (newSetting.uploadOnChange && tokenAvailable && gistAvailable) {
+    if (newSetting.autoUpload && tokenAvailable && gistAvailable) {
         var watcher = watch(en.PATH + "/User/");
 
-        watcher.on('change',(path) => {
-            
+        watcher.on('change', (path) => {
+
             if ((path != appSetting) && (path != appSummary)) {
                 if (status && !watcherThroughUpdate) {
-                    
-                    vscode.window.setStatusBarMessage("Updating Process Started On File Change.");
-                    vscode.commands.executeCommand('extension.updateSettings', "forceUpdate");    
+                    (function () {
+                        setTimeout(function () {
+                            vscode.window.setStatusBarMessage("Updating Process Starting On File Change.");
+                            vscode.commands.executeCommand('extension.updateSettings', "forceUpdate");
+                        }, 5000);
+                    })();
+
                     //return;
                 }
 
@@ -142,11 +146,11 @@ export async function activate(context: vscode.ExtensionContext) {
         });
     }
 
-    var updateSettings = vscode.commands.registerCommand('extension.updateSettings', async function(){
+    var updateSettings = vscode.commands.registerCommand('extension.updateSettings', async function () {
 
-        let args =  arguments;   
- 
-        debugger;
+        let args = arguments;
+
+
         var en: Environment = new Environment(context);
         var common: commons.Commons = new commons.Commons(en);
 
@@ -708,6 +712,7 @@ export async function activate(context: vscode.ExtensionContext) {
         items.push("Sync : Toggle Auto-Download On Startup");
         items.push("Sync : Toggle Show Summary Page On Upload / Download");
         items.push("Sync : Toggle Force Download");
+        items.push("Sync : Toggle Auto-Upload On Settings Change");
 
         var selectedItem: Number = 0;
         var settingChanged: boolean = false;
@@ -829,6 +834,18 @@ export async function activate(context: vscode.ExtensionContext) {
                     }
                     break;
                 }
+                case items[8]: {
+                    //toggle auto upload
+                    selectedItem = 9;
+                    settingChanged = true;
+                    if (setting.autoUpload) {
+                        setting.autoUpload = false;
+                    }
+                    else {
+                        setting.autoUpload = true;
+                    }
+                    break;
+                }
                 default: {
                     break;
                 }
@@ -880,6 +897,15 @@ export async function activate(context: vscode.ExtensionContext) {
                                 }
                                 else {
                                     vscode.window.showInformationMessage("Sync : Force Download Turned Off.");
+                                }
+                                break;
+                            }
+                            case 9: {
+                                if (setting.autoUpload) {
+                                    vscode.window.showInformationMessage("Sync : Auto upload on Setting Change Turned On. Will be affected after restart.");
+                                }
+                                else {
+                                    vscode.window.showInformationMessage("Sync : Auto upload on Setting Change Turned Off.");
                                 }
                                 break;
                             }

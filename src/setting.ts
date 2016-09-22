@@ -14,7 +14,7 @@ export class LocalSetting{
     public publicGist = false;
     public forceDownload = false;
     public showLog = false;
-    public uploadOnChange = true;
+    public autoUpload = true;
 }
 
 export class CloudSetting{
