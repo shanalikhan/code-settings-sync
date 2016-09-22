@@ -8,8 +8,6 @@ export class LocalSetting{
     public firstTime : boolean = true;  // to open the toturial first time when used any command.
     public autoDownload : boolean = false;
     public lastDownload : Date = null;
-    public ProxyIP :string = null;
-    public ProxyPort:string = null;
     public Version : number = null;
     public showSummary : boolean = true;
     public allowUpload : boolean = true;

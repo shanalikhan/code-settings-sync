@@ -107,6 +107,9 @@ export async function activate(context: vscode.ExtensionContext) {
     });
 
     //migration code ends
+
+
+    
     var tokenAvailable = newSetting.Token != null && newSetting.Token != "";
     var gistAvailable = newSetting.Gist != null && newSetting.Gist != "";
 
@@ -130,7 +133,7 @@ export async function activate(context: vscode.ExtensionContext) {
                 if (status && !watcherThroughUpdate) {
                     
                     vscode.window.setStatusBarMessage("Updating Process Started On File Change.");
-                    vscode.commands.executeCommand('extension.updateSettings', "start");    
+                    vscode.commands.executeCommand('extension.updateSettings', "forceUpdate");    
                     //return;
                 }
 
@@ -139,7 +142,7 @@ export async function activate(context: vscode.ExtensionContext) {
         });
     }
 
-    var updateSettings = vscode.commands.registerCommand('extension.updateSettings',    async () => {
+    var updateSettings = vscode.commands.registerCommand('extension.updateSettings', async function(){
 
         let args =  arguments;   
  
