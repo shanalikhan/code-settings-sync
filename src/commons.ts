@@ -6,11 +6,14 @@ import {LocalSetting} from './setting';
 import {PluginService, ExtensionInformation} from './pluginService';
 import * as fs from 'fs';
 
-var isOnline = require('is-online');
+var watch = require('node-watch');
+
 
 export class Commons {
 
     public ERROR_MESSAGE: string = "Error Logged In Console (Help menu > Toggle Developer Tools). You may open an issue using 'Sync : Open Issue' from advance setting command.";
+
+    private static watcher = null;
 
     constructor(private en: Environment) {
 
@@ -24,12 +27,44 @@ export class Commons {
 
     public async InternetConnected(): Promise<boolean> {
         return new Promise<boolean>(async (resolve, reject) => {
-            isOnline(function (err, online) {
-                resolve(online);
-            });
+            resolve(true);
         });
     }
 
+    public StartWatch(): void {
+        var appSetting = this.en.APP_SETTINGS;
+        var appSummary = this.en.APP_SUMMARY;
+        while (appSetting.indexOf("/") > -1) {
+            appSetting = appSetting.replace("/", "\\");
+        }
+
+        while (appSummary.indexOf("/") > -1) {
+            appSummary = appSummary.replace("/", "\\");
+        }
+
+        Commons.watcher = watch(this.en.PATH + "/User/");
+
+        Commons.watcher.on('change', (path) => {
+
+            if ((path != appSetting) && (path != appSummary)) {
+                if (true) {
+                    (function () {
+                        setTimeout(function () {
+                            vscode.window.setStatusBarMessage("Updating Process Starting On File Change.");
+                            vscode.commands.executeCommand('extension.updateSettings', "forceUpdate");
+                        }, 5000);
+                    })();
+
+                    //return;
+                }
+
+            }
+
+        });
+    }
+    public CloseWatch(): void {
+        Commons.watcher.close();
+    }
 
 
     //TODO : change any to LocalSetting after max users migrate to new settings.
@@ -163,7 +198,7 @@ export class Commons {
                                 reject(err);
                             });
                         }
-                    } 
+                    }
                     // else {
                     //     if (gist !== 'esc') {
                     //         getGist();
@@ -184,7 +219,7 @@ export class Commons {
                 placeHolder: "Enter Github Personal Access Token",
                 password: false,
                 prompt: "Link opened to get the GitHub token. Enter token and press [Enter] or press / type 'esc' to cancel.",
-                ignoreFocusOut : true
+                ignoreFocusOut: true
             };
             return options;
         }
@@ -193,7 +228,7 @@ export class Commons {
                 placeHolder: "Enter GIST ID",
                 password: false,
                 prompt: "Enter GIST ID from previously uploaded settings and press [Enter] or press / type 'esc' to cancel.",
-                ignoreFocusOut : true
+                ignoreFocusOut: true
             };
             return options;
         }
@@ -220,15 +255,15 @@ export class Commons {
         var tempURI: string = this.en.APP_SUMMARY;
 
         console.log("FILE URI For Summary Page : " + tempURI);
-        
-//        var setting: vscode.Uri = vscode.Uri.parse("untitled:" + tempURI);
+
+        //        var setting: vscode.Uri = vscode.Uri.parse("untitled:" + tempURI);
 
         var setting: vscode.Uri = vscode.Uri.file(tempURI);
         fs.openSync(setting.fsPath, 'w');
 
         vscode.workspace.openTextDocument(setting).then((a: vscode.TextDocument) => {
 
-            vscode.window.showTextDocument(a, 1, false).then((e : vscode.TextEditor) => {
+            vscode.window.showTextDocument(a, 1, false).then((e: vscode.TextEditor) => {
                 e.edit(edit => {
                     edit.insert(new vscode.Position(0, 0), "VISUAL STUDIO CODE SETTINGS SYNC \r\n\r\n" + status + " SUMMARY \r\n\r\n");
                     edit.insert(new vscode.Position(1, 0), "-------------------- \r\n");
@@ -280,7 +315,7 @@ export class Commons {
                     }
                 });
                 e.document.save();
-            });            
+            });
         }, (error: any) => {
             console.error(error);
             return;

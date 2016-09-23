@@ -23,11 +23,10 @@ export async function activate(context: vscode.ExtensionContext) {
     var emptySetting: boolean = false;
     var en: Environment = new Environment(context);
     var common: commons.Commons = new commons.Commons(en);
-    var watcherThroughUpdate = false;
 
     // check InternetConnected
 
-    var status = await common.InternetConnected();
+    var status = true;// await common.InternetConnected();
     if (status) {
         GitHubApi = require("github");
         github = new GitHubApi({
@@ -125,25 +124,7 @@ export async function activate(context: vscode.ExtensionContext) {
 
 
     if (newSetting.autoUpload && tokenAvailable && gistAvailable) {
-        var watcher = watch(en.PATH + "/User/");
-
-        watcher.on('change', (path) => {
-
-            if ((path != appSetting) && (path != appSummary)) {
-                if (status && !watcherThroughUpdate) {
-                    (function () {
-                        setTimeout(function () {
-                            vscode.window.setStatusBarMessage("Updating Process Starting On File Change.");
-                            vscode.commands.executeCommand('extension.updateSettings', "forceUpdate");
-                        }, 5000);
-                    })();
-
-                    //return;
-                }
-
-            }
-            //console.log(event, path);
-        });
+        common.StartWatch();
     }
 
     var updateSettings = vscode.commands.registerCommand('extension.updateSettings', async function () {
@@ -154,7 +135,7 @@ export async function activate(context: vscode.ExtensionContext) {
         var en: Environment = new Environment(context);
         var common: commons.Commons = new commons.Commons(en);
 
-        var status = await common.InternetConnected();
+        var status = true ; // await common.InternetConnected();
 
         if (status) {
             GitHubApi = require("github");
@@ -343,10 +324,9 @@ export async function activate(context: vscode.ExtensionContext) {
 
     var downloadSettings = vscode.commands.registerCommand('extension.downloadSettings', async () => {
 
-        watcherThroughUpdate = true;
-
         var en: Environment = new Environment(context);
         var common: commons.Commons = new commons.Commons(en);
+        common.CloseWatch();
 
         var status = await common.InternetConnected();
 
@@ -620,7 +600,10 @@ export async function activate(context: vscode.ExtensionContext) {
                                 }
                                 vscode.window.setStatusBarMessage("");
                                 vscode.window.setStatusBarMessage("Sync : Download Complete.", 5000);
-                                watcherThroughUpdate = false;
+
+                                if (newSetting.autoUpload) {
+                                    common.StartWatch();
+                                }
                             }
                             else {
                                 vscode.window.showErrorMessage("Sync : Unable to save extension settings file.")
