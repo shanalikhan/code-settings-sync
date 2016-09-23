@@ -432,6 +432,10 @@ export async function activate(context: vscode.ExtensionContext) {
                                 }
                             }
                         }
+                        else{
+                            console.log(fileName +" key in response is empty.");
+                            
+                        }
 
                     });
 
