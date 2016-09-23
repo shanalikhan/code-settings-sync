@@ -63,7 +63,10 @@ export class Commons {
         });
     }
     public CloseWatch(): void {
-        Commons.watcher.close();
+        if (Commons.watcher != null) {
+            Commons.watcher.close();
+        }
+
     }
 
 
