@@ -328,7 +328,7 @@ export async function activate(context: vscode.ExtensionContext) {
         var common: commons.Commons = new commons.Commons(en);
         common.CloseWatch();
 
-        var status = await common.InternetConnected();
+        var status = true;// await common.InternetConnected();
 
         if (status) {
             GitHubApi = require("github");
