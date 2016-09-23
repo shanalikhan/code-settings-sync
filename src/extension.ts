@@ -135,7 +135,7 @@ export async function activate(context: vscode.ExtensionContext) {
         var en: Environment = new Environment(context);
         var common: commons.Commons = new commons.Commons(en);
 
-        var status = true ; // await common.InternetConnected();
+        var status = true; // await common.InternetConnected();
 
         if (status) {
             GitHubApi = require("github");
@@ -424,12 +424,15 @@ export async function activate(context: vscode.ExtensionContext) {
                     }
 
                     keys.forEach(fileName => {
-                        if (res.files[fileName].content) {
-                            if (fileName.indexOf(".") > -1) {
-                                var f: File = new File(fileName, res.files[fileName].content, null);
-                                updatedFiles.push(f);
+                        if (res.files[fileName]) {
+                            if (res.files[fileName].content) {
+                                if (fileName.indexOf(".") > -1) {
+                                    var f: File = new File(fileName, res.files[fileName].content, null);
+                                    updatedFiles.push(f);
+                                }
                             }
                         }
+
                     });
 
                     for (var index = 0; index < updatedFiles.length; index++) {
