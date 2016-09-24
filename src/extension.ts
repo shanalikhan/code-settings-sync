@@ -3,9 +3,9 @@ import {PluginService, ExtensionInformation} from './pluginService';
 import * as path from 'path';
 import {Environment} from './environmentPath';
 import {File, FileManager} from './fileManager';
-import * as commons from './commons';
+import {Commons} from './commons';
 import {GithubService} from './githubService';
-import {LocalSetting, CloudSetting, OldSetting} from './setting';
+import {LocalSetting, CloudSetting} from './setting';
 import {OsType, SettingType} from './enums';
 
 export async function activate(context: vscode.ExtensionContext) {
@@ -22,7 +22,7 @@ export async function activate(context: vscode.ExtensionContext) {
     var settingChanged: boolean = false;
     var emptySetting: boolean = false;
     var en: Environment = new Environment(context);
-    var common: commons.Commons = new commons.Commons(en);
+    var common: Commons = new Commons(en);
 
     // check InternetConnected
 
@@ -133,7 +133,7 @@ export async function activate(context: vscode.ExtensionContext) {
 
 
         var en: Environment = new Environment(context);
-        var common: commons.Commons = new commons.Commons(en);
+        var common: Commons = new Commons(en);
 
         var status = true; // await common.InternetConnected();
 
@@ -325,7 +325,7 @@ export async function activate(context: vscode.ExtensionContext) {
     var downloadSettings = vscode.commands.registerCommand('extension.downloadSettings', async () => {
 
         var en: Environment = new Environment(context);
-        var common: commons.Commons = new commons.Commons(en);
+        var common: Commons = new Commons(en);
         common.CloseWatch();
 
         var status = true;// await common.InternetConnected();
@@ -633,7 +633,7 @@ export async function activate(context: vscode.ExtensionContext) {
     var resetSettings = vscode.commands.registerCommand('extension.resetSettings', async () => {
         var en: Environment = new Environment(context);
         var fManager: FileManager;
-        var common: commons.Commons = new commons.Commons(en);
+        var common: Commons = new Commons(en);
         var syncSetting: LocalSetting = new LocalSetting();
 
         await common.InitSettings().then(async (resolve) => {
@@ -672,7 +672,7 @@ export async function activate(context: vscode.ExtensionContext) {
 
     var otherOptions = vscode.commands.registerCommand('extension.otherOptions', async () => {
         var en: Environment = new Environment(context);
-        var common: commons.Commons = new commons.Commons(en);
+        var common: Commons = new Commons(en);
         var setting: LocalSetting = null;
         //var myGi: GithubService = null;
         var tokenAvailable: boolean = false;

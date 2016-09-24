@@ -115,11 +115,18 @@ export class Commons {
     public async SaveSettings(setting: any): Promise<boolean> {
         var me = this;
         return new Promise<boolean>(async (resolve, reject) => {
-            await FileManager.WriteFile(me.en.APP_SETTINGS, JSON.stringify(setting)).then(function (added: boolean) {
-                resolve(added);
-            }, function (err: any) {
-                reject(err);
-            });
+            if (setting) {
+                await FileManager.WriteFile(me.en.APP_SETTINGS, JSON.stringify(setting)).then(function (added: boolean) {
+                    resolve(added);
+                }, function (err: any) {
+                    reject(err);
+                });
+            }
+            else {
+                console.error("SaveSettings: Setting is :" + setting);
+                reject(false);
+            }
+
         });
 
     }

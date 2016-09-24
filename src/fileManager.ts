@@ -68,7 +68,7 @@ export class FileManager {
                 });
             }
             else {
-                console.error("DATA is EMPTY for " + filePath);
+                console.error("Unable to write file. FilePath :" + filePath+" Data :"+ data);
                 reject(false);
             }
         });
@@ -105,7 +105,7 @@ export class FileManager {
                 });
             }
             else {
-                console.error("DATA is EMPTY for " + filePath);
+                console.error("Unable to delete file. File Path is :" + filePath);
                 reject(false);
             }
         });
@@ -123,7 +123,7 @@ export class FileManager {
                 });
             }
             else {
-                console.error("DATA is EMPTY for " + name);
+                console.error("Unable to Create Directory. Dir Name is :" + name);
                 reject(false);
             }
         });

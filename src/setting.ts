@@ -1,7 +1,7 @@
-import {Environment} from './environmentPath';
-
 "use strict";
+
 export class LocalSetting {
+
     public Token: string = null;
     public Gist: string = null;
     public lastUpload: Date = null;
@@ -20,12 +20,4 @@ export class LocalSetting {
 
 export class CloudSetting {
     public lastUpload: Date = null;
-}
-
-export class OldSetting {
-    public Token: string = null;
-    public Gist: string = null;
-    public Migrated: boolean = true;
-    public ProxyIP: string = null;
-    public ProxyPort: string = null;
 }
