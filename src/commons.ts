@@ -44,20 +44,28 @@ export class Commons {
 
         Commons.watcher = watch(this.en.PATH + "/User/");
 
+        let updateCompleted: boolean = true;
+
         Commons.watcher.on('change', (path) => {
 
             if ((path != appSetting) && (path != appSummary)) {
-                if (true) {
-                    (function () {
-                        setTimeout(function () {
-                            vscode.window.setStatusBarMessage("Updating Process Starting On File Change.");
-                            vscode.commands.executeCommand('extension.updateSettings', "forceUpdate");
-                        }, 5000);
-                    })();
 
-                    //return;
+                if (updateCompleted) {
+
+                    updateCompleted = false;
+                    vscode.window.setStatusBarMessage("Updating Process Starting On File Change.");
+                    
+                    setTimeout(function () {
+
+                        vscode.commands.executeCommand('extension.updateSettings', "forceUpdate").then((res) => {
+                            updateCompleted = true;
+                        });
+                    }, 3000);
                 }
-
+                else {
+                    vscode.window.setStatusBarMessage("Upload already in process. Please wait...", 3000);
+                }
+                //return;
             }
 
         });
