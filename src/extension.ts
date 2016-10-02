@@ -27,22 +27,26 @@ export async function activate(context: vscode.ExtensionContext) {
     // check InternetConnected
 
     var status = true;// await common.InternetConnected();
+
     if (status) {
         GitHubApi = require("github");
         github = new GitHubApi({
             version: "3.0.0"
         });
-    } else {
+    }
+
+    if (github == null) {
         vscode.window.setStatusBarMessage("Sync : Internet Not Connected.", 3000);
     }
 
     //migration code starts
 
-    await common.InitSettings().then(async (resolve: any) => {
+    await common.InitializeSettings(false, false).then(async (resolve: any) => {
 
         if (resolve) {
             mainSyncSetting = resolve;
             if (!mainSyncSetting.Version || mainSyncSetting.Version < Environment.CURRENT_VERSION) {
+
                 settingChanged = true;
                 newSetting.Version = Environment.CURRENT_VERSION;
 
@@ -74,7 +78,7 @@ export async function activate(context: vscode.ExtensionContext) {
                 var gistAvailable = newSetting.Gist != null && newSetting.Gist != "";
 
                 if (tokenAvailable && gistAvailable && newSetting.autoDownload) {
-                    if (status) {
+                    if (status && github != null) {
                         vscode.commands.executeCommand('extension.downloadSettings');
                     }
                 }
@@ -107,13 +111,12 @@ export async function activate(context: vscode.ExtensionContext) {
 
     //migration code ends
 
-
-
     var tokenAvailable = newSetting.Token != null && newSetting.Token != "";
     var gistAvailable = newSetting.Gist != null && newSetting.Gist != "";
 
     var appSetting = en.APP_SETTINGS;
     var appSummary = en.APP_SUMMARY;
+    
     while (appSetting.indexOf("/") > -1) {
         appSetting = appSetting.replace("/", "\\");
     }
@@ -122,7 +125,6 @@ export async function activate(context: vscode.ExtensionContext) {
         appSummary = appSummary.replace("/", "\\");
     }
 
-
     if (newSetting.autoUpload && tokenAvailable && gistAvailable) {
         common.StartWatch();
     }
@@ -130,8 +132,6 @@ export async function activate(context: vscode.ExtensionContext) {
     var updateSettings = vscode.commands.registerCommand('extension.updateSettings', async function () {
 
         let args = arguments;
-
-
         var en: Environment = new Environment(context);
         var common: Commons = new Commons(en);
 
@@ -143,7 +143,8 @@ export async function activate(context: vscode.ExtensionContext) {
                 version: "3.0.0"
             });
         }
-        else {
+
+        if (github == null) {
             vscode.window.showInformationMessage("Sync :Internet Not Connected.");
             return;
         }
@@ -154,46 +155,28 @@ export async function activate(context: vscode.ExtensionContext) {
         var allSettingFiles = new Array<File>();
         var uploadedExtensions = new Array<ExtensionInformation>();
 
-        await common.InitSettings().then(async (resolve) => {
+        await common.InitializeSettings(true, false).then(async (resolve) => {
+
             syncSetting = resolve;
-            await Init();
+            myGi = new GithubService(syncSetting.Token);
+            await startGitProcess();
+            
         }, (reject) => {
             common.LogException(reject, common.ERROR_MESSAGE);
             return;
         });
 
-        async function Init() {
-
-            if (syncSetting.Token == null || syncSetting.Token == "") {
-                openurl("https://github.com/settings/tokens");
-                await common.GetTokenAndSave(syncSetting).then(function (token: string) {
-                    if (token) {
-                        syncSetting.Token = token;
-                    }
-                    else {
-                        vscode.window.showErrorMessage("TOKEN NOT SAVED");
-                        return;
-                    }
-                }, function (err: any) {
-                    common.LogException(err, common.ERROR_MESSAGE);
-                    return;
-                });
-            }
-            myGi = new GithubService(syncSetting.Token);
-            vscode.window.setStatusBarMessage("Sync : Uploading / Updating Your Settings In Github.");
-            await startGitProcess();
-        }
-
-
         async function startGitProcess() {
+
+            vscode.window.setStatusBarMessage("Sync : Uploading / Updating Your Settings In Github.");
             if (!syncSetting.allowUpload) {
                 vscode.window.setStatusBarMessage("Sync : Upload to Other User GIST Not Allowed. Reset Settings Required!");
                 return;
             }
 
             if (syncSetting.Token != null && syncSetting.Token != "") {
-                syncSetting.lastUpload = dateNow;
 
+                syncSetting.lastUpload = dateNow;
                 vscode.window.setStatusBarMessage("Sync : Reading Settings and Extensions.");
 
                 var settingFile: File = await FileManager.GetFile(en.FILE_SETTING, en.FILE_SETTING_NAME);
@@ -286,7 +269,6 @@ export async function activate(context: vscode.ExtensionContext) {
                                             common.GenerateSummmaryFile(true, allSettingFiles, null, uploadedExtensions, syncSetting);
                                         }
 
-
                                         vscode.window.setStatusBarMessage("");
                                     }
                                 }, function (err: any) {
@@ -318,7 +300,6 @@ export async function activate(context: vscode.ExtensionContext) {
                 vscode.window.showErrorMessage("ERROR ! Github Account Token Not Set");
             }
         }
-
     });
 
 
@@ -327,7 +308,6 @@ export async function activate(context: vscode.ExtensionContext) {
         var en: Environment = new Environment(context);
         var common: Commons = new Commons(en);
         common.CloseWatch();
-
         var status = true;// await common.InternetConnected();
 
         if (status) {
@@ -336,64 +316,24 @@ export async function activate(context: vscode.ExtensionContext) {
                 version: "3.0.0"
             });
         }
-        else {
+
+        if (github == null) {
             vscode.window.showInformationMessage("Sync : Internet Not Connected.");
             return;
         }
 
-
         var myGi: GithubService = null;
         var syncSetting: LocalSetting = new LocalSetting();
 
-        await common.InitSettings().then(async (resolve) => {
+        await common.InitializeSettings(true, true).then(async (resolve) => {
+
             syncSetting = resolve;
-            await Init();
+            var actionPromises: Array<Promise<void>> = new Array<Promise<void>>();
+            await StartDownload();
+
         }, (reject) => {
             common.LogException(reject, common.ERROR_MESSAGE);
-
         });
-
-        async function Init() {
-            var actionPromises: Array<Promise<void>> = new Array<Promise<void>>();
-
-            if (syncSetting.Token == null || syncSetting.Token == "") {
-                openurl("https://github.com/settings/tokens");
-                await common.GetTokenAndSave(syncSetting).then(function (token: string) {
-                    if (!token) {
-                        vscode.window.showErrorMessage("TOKEN NOT SAVED");
-                        return;
-                    }
-                    else {
-                        syncSetting.Token = token;
-                    }
-                }, function (err: any) {
-                    common.LogException(err, common.ERROR_MESSAGE);
-                    return;
-                });
-            }
-
-            if (syncSetting.Gist == null || syncSetting.Gist === "") {
-                await common.GetGistAndSave(syncSetting).then(function (Gist: string) {
-                    if (Gist) {
-                        syncSetting.Gist = Gist;
-                    }
-                    else {
-                        vscode.window.showErrorMessage("GIST NOT SAVED");
-                        return;
-                    }
-                }, function (err: any) {
-                    common.LogException(err, common.ERROR_MESSAGE);
-                    return;
-                });
-            }
-            // Promise.all(actionPromises).then(async (resol) => {
-            await StartDownload();
-            // }, (reject) => {
-            //     common.LogException(reject, common.ERROR_MESSAGE);
-            //     return;
-            // });
-
-        }
 
         async function StartDownload() {
 
@@ -402,6 +342,7 @@ export async function activate(context: vscode.ExtensionContext) {
             vscode.window.setStatusBarMessage("Sync : Reading Settings Online.", 2000);
 
             myGi.ReadGist(syncSetting.Gist).then(async function (res: any) {
+
                 var addedExtensions: Array<ExtensionInformation> = new Array<ExtensionInformation>();
                 var deletedExtensions: Array<ExtensionInformation> = new Array<ExtensionInformation>();
                 var updatedFiles: Array<File> = new Array<File>();
@@ -432,9 +373,9 @@ export async function activate(context: vscode.ExtensionContext) {
                                 }
                             }
                         }
-                        else{
-                            console.log(fileName +" key in response is empty.");
-                            
+                        else {
+                            console.log(fileName + " key in response is empty.");
+
                         }
 
                     });
@@ -636,7 +577,7 @@ export async function activate(context: vscode.ExtensionContext) {
         var common: Commons = new Commons(en);
         var syncSetting: LocalSetting = new LocalSetting();
 
-        await common.InitSettings().then(async (resolve) => {
+        await common.InitializeSettings(false, false).then(async (resolve) => {
             syncSetting = resolve;
             await Init();
         }, (reject) => {
@@ -647,7 +588,6 @@ export async function activate(context: vscode.ExtensionContext) {
             vscode.window.setStatusBarMessage("Sync : Resetting Your Settings.", 2000);
             try {
                 syncSetting = new LocalSetting();
-                syncSetting.Version = Environment.CURRENT_VERSION;
 
                 await common.SaveSettings(syncSetting).then(function (added: boolean) {
                     if (added) {
@@ -678,7 +618,7 @@ export async function activate(context: vscode.ExtensionContext) {
         var tokenAvailable: boolean = false;
         var gistAvailable: boolean = false;
 
-        await common.InitSettings().then(async function (set: any) {
+        await common.InitializeSettings(false, false).then(async function (set: any) {
             if (set) {
                 setting = set;
                 tokenAvailable = setting.Token != null && setting.Token != "";
@@ -706,8 +646,6 @@ export async function activate(context: vscode.ExtensionContext) {
 
         var selectedItem: Number = 0;
         var settingChanged: boolean = false;
-
-
 
         var teims = vscode.window.showQuickPick(items).then(async (resolve: string) => {
 
@@ -842,7 +780,6 @@ export async function activate(context: vscode.ExtensionContext) {
             }
         }, (reject) => {
             common.LogException(reject, "Error");
-
             return;
         }).then(async (resolve: any) => {
             if (settingChanged) {
@@ -907,7 +844,6 @@ export async function activate(context: vscode.ExtensionContext) {
                 }, function (err: any) {
                     common.LogException(err, "Unable to toggle. Please open an issue.");
                     return;
-
                 });
             }
 

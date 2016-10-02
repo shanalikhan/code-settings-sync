@@ -1,4 +1,6 @@
 "use strict";
+import {Environment} from './environmentPath';
+
 
 export class LocalSetting {
 
@@ -15,6 +17,11 @@ export class LocalSetting {
     public publicGist = false;
     public forceDownload = false;
     public showLog = false;
+
+    constructor(){
+        this.Version = Environment.CURRENT_VERSION;
+
+    }
 
 }
 

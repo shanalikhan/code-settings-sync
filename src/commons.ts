@@ -7,6 +7,7 @@ import {PluginService, ExtensionInformation} from './pluginService';
 import * as fs from 'fs';
 
 var watch = require('node-watch');
+var openurl = require('open');
 
 
 export class Commons {
@@ -18,11 +19,15 @@ export class Commons {
     constructor(private en: Environment) {
 
     }
+
     public LogException(error: any, message: string): void {
 
         console.error(error);
         vscode.window.showErrorMessage(message);
         vscode.window.setStatusBarMessage("");
+        // vscode.window.setStatusBarMessage("");
+        // vscode.window.setStatusBarMessage(message, 5000);
+
     }
 
     public async InternetConnected(): Promise<boolean> {
@@ -54,7 +59,7 @@ export class Commons {
 
                     updateCompleted = false;
                     vscode.window.setStatusBarMessage("Updating Process Starting On File Change.");
-                    
+
                     setTimeout(function () {
 
                         vscode.commands.executeCommand('extension.updateSettings', "forceUpdate").then((res) => {
@@ -77,46 +82,73 @@ export class Commons {
 
     }
 
-
-    //TODO : change any to LocalSetting after max users migrate to new settings.
-    public async InitSettings(): Promise<any> {
-
-        var me = this;
-        //var localSetting: LocalSetting = new LocalSetting();
-        var localSetting: any;
-        vscode.window.setStatusBarMessage("Sync : Checking for Github Token and GIST.");
+    public InitializeSettings(askInformation: boolean, askGIST: boolean): Promise<any> {
+        var self = this;
+        var localSettings: any;
+        vscode.window.setStatusBarMessage("Sync : Checking for Github Token and GIST.",2000);
 
         return new Promise<any>(async (resolve, reject) => {
-
-            await FileManager.FileExists(me.en.APP_SETTINGS).then(async function (fileExist: boolean) {
+            await FileManager.FileExists(self.en.APP_SETTINGS).then(async function (fileExist: boolean) {
                 if (fileExist) {
-                    await FileManager.ReadFile(me.en.APP_SETTINGS).then(function (settin: string) {
+                    await FileManager.ReadFile(self.en.APP_SETTINGS).then(async function (settin: string) {
+
                         vscode.window.setStatusBarMessage("");
                         if (settin) {
                             var set: any;
                             set = JSON.parse(settin);
                             vscode.window.setStatusBarMessage("");
-                            resolve(set);
-                        }
-                        resolve("");
 
-                    }, function (settingError: any) {
-                        reject(settingError);
-                        vscode.window.setStatusBarMessage("");
+                            if (!askInformation) {
+                                resolve(set);
+                            }
+                            else {
+                                if (set.Token == null || set.Token == "") {
+                                    openurl("https://github.com/settings/tokens");
+
+                                    await self.GetTokenAndSave(set).then(function (token: string) {
+                                        if (!token) {
+                                            vscode.window.showErrorMessage("TOKEN NOT SAVED");
+                                            reject(false);
+                                        }
+                                        else {
+                                            set.Token = token;
+                                        }
+                                    }, function (err: any) {
+                                        self.LogException(err, self.ERROR_MESSAGE);
+                                        reject(err);
+                                    });
+                                }
+
+                                if (askGIST) {
+
+                                    if (set.Gist == null || set.Gist === "") {
+                                        await self.GetGistAndSave(set).then(function (Gist: string) {
+                                            if (Gist) {
+                                                set.Gist = Gist;
+                                            }
+                                            else {
+                                                vscode.window.showErrorMessage("GIST NOT SAVED");
+                                                reject(false);
+                                            }
+                                        }, function (err: any) {
+                                            self.LogException(err, self.ERROR_MESSAGE);
+                                            reject(err);
+                                        });
+                                    }
+                                }
+                            }
+                        }
+                        else {
+                            self.LogException(null, "Sync : Empty Settings Found");
+                            reject(false);
+                        }
                     });
                 }
                 else {
-                    //var set: LocalSetting = new LocalSetting();
-                    var set: any = null;
-                    resolve(set);
-                    vscode.window.setStatusBarMessage("");
+                    //self.LogException(null, "Sync : Settings File Not Found");
+                    resolve(localSettings);
                 }
-            }, function (err: any) {
-                reject(err);
-                vscode.window.setStatusBarMessage("");
             });
-
-
         });
     }
 
