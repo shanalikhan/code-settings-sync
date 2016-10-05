@@ -116,7 +116,7 @@ export async function activate(context: vscode.ExtensionContext) {
 
     var appSetting = en.APP_SETTINGS;
     var appSummary = en.APP_SUMMARY;
-    
+
     while (appSetting.indexOf("/") > -1) {
         appSetting = appSetting.replace("/", "\\");
     }
@@ -275,7 +275,6 @@ export async function activate(context: vscode.ExtensionContext) {
                                     common.LogException(err, common.ERROR_MESSAGE);
                                     return;
                                 });
-
                             }
                             else {
                                 vscode.window.showErrorMessage("GIST NOT SAVED");
@@ -290,7 +289,6 @@ export async function activate(context: vscode.ExtensionContext) {
                         vscode.window.showErrorMessage("GIST ID: " + syncSetting.Gist + " UNABLE TO READ.");
                         return;
                     }
-
                 }, function (gistReadError: any) {
                     common.LogException(gistReadError, common.ERROR_MESSAGE);
                     return;

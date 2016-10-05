@@ -22,7 +22,10 @@ export class Commons {
 
     public LogException(error: any, message: string): void {
 
-        console.error(error);
+        if (error) {
+            console.error(error);
+        }
+
         vscode.window.showErrorMessage(message);
         vscode.window.setStatusBarMessage("");
         // vscode.window.setStatusBarMessage("");
@@ -85,7 +88,7 @@ export class Commons {
     public InitializeSettings(askInformation: boolean, askGIST: boolean): Promise<any> {
         var self = this;
         var localSettings: any;
-        vscode.window.setStatusBarMessage("Sync : Checking for Github Token and GIST.",2000);
+        vscode.window.setStatusBarMessage("Sync : Checking for Github Token and GIST.", 2000);
 
         return new Promise<any>(async (resolve, reject) => {
             await FileManager.FileExists(self.en.APP_SETTINGS).then(async function (fileExist: boolean) {
