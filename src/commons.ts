@@ -20,17 +20,18 @@ export class Commons {
 
     }
 
-    public LogException(error: any, message: string): void {
+    public LogException(error: any, message: string, msgBox: boolean): void {
 
         if (error) {
             console.error(error);
         }
-
-        vscode.window.showErrorMessage(message);
-        vscode.window.setStatusBarMessage("");
-        // vscode.window.setStatusBarMessage("");
-        // vscode.window.setStatusBarMessage(message, 5000);
-
+        if (msgBox == true) {
+            vscode.window.showErrorMessage(message);
+        }
+        else {
+            vscode.window.setStatusBarMessage("");
+            vscode.window.setStatusBarMessage(message,5000);
+        }
     }
 
     public async InternetConnected(): Promise<boolean> {
@@ -117,7 +118,7 @@ export class Commons {
                                             set.Token = token;
                                         }
                                     }, function (err: any) {
-                                        self.LogException(err, self.ERROR_MESSAGE);
+                                        self.LogException(err, self.ERROR_MESSAGE, true);
                                         reject(err);
                                     });
                                 }
@@ -134,7 +135,7 @@ export class Commons {
                                                 reject(false);
                                             }
                                         }, function (err: any) {
-                                            self.LogException(err, self.ERROR_MESSAGE);
+                                            self.LogException(err, self.ERROR_MESSAGE, true);
                                             reject(err);
                                         });
                                     }
@@ -142,7 +143,7 @@ export class Commons {
                             }
                         }
                         else {
-                            self.LogException(null, "Sync : Empty Settings Found");
+                            self.LogException(null, "Sync : Empty Settings Found", true);
                             reject(false);
                         }
                     });

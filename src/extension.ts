@@ -27,7 +27,6 @@ export async function activate(context: vscode.ExtensionContext) {
     // check InternetConnected
 
     var status = true;// await common.InternetConnected();
-
     if (status) {
         GitHubApi = require("github");
         github = new GitHubApi({
@@ -38,6 +37,7 @@ export async function activate(context: vscode.ExtensionContext) {
     if (github == null) {
         vscode.window.setStatusBarMessage("Sync : Internet Not Connected.", 3000);
     }
+
 
     //migration code starts
 
@@ -106,7 +106,7 @@ export async function activate(context: vscode.ExtensionContext) {
         }
 
     }, (reject) => {
-        common.LogException(reject, common.ERROR_MESSAGE);
+        common.LogException(reject, common.ERROR_MESSAGE, false);
     });
 
     //migration code ends
@@ -160,9 +160,9 @@ export async function activate(context: vscode.ExtensionContext) {
             syncSetting = resolve;
             myGi = new GithubService(syncSetting.Token);
             await startGitProcess();
-            
+
         }, (reject) => {
-            common.LogException(reject, common.ERROR_MESSAGE);
+            common.LogException(reject, common.ERROR_MESSAGE, true);
             return;
         });
 
@@ -243,7 +243,7 @@ export async function activate(context: vscode.ExtensionContext) {
                             return;
                         }
                     }, function (error: any) {
-                        common.LogException(error, common.ERROR_MESSAGE);
+                        common.LogException(error, common.ERROR_MESSAGE, true);
                         return;
                     });
                 }
@@ -272,7 +272,7 @@ export async function activate(context: vscode.ExtensionContext) {
                                         vscode.window.setStatusBarMessage("");
                                     }
                                 }, function (err: any) {
-                                    common.LogException(err, common.ERROR_MESSAGE);
+                                    common.LogException(err, common.ERROR_MESSAGE, true);
                                     return;
                                 });
                             }
@@ -281,7 +281,7 @@ export async function activate(context: vscode.ExtensionContext) {
                                 return;
                             }
                         }, function (error: any) {
-                            common.LogException(error, common.ERROR_MESSAGE);
+                            common.LogException(error, common.ERROR_MESSAGE, true);
                             return;
                         });
                     }
@@ -290,7 +290,7 @@ export async function activate(context: vscode.ExtensionContext) {
                         return;
                     }
                 }, function (gistReadError: any) {
-                    common.LogException(gistReadError, common.ERROR_MESSAGE);
+                    common.LogException(gistReadError, common.ERROR_MESSAGE, true);
                     return;
                 });
             }
@@ -330,7 +330,7 @@ export async function activate(context: vscode.ExtensionContext) {
             await StartDownload();
 
         }, (reject) => {
-            common.LogException(reject, common.ERROR_MESSAGE);
+            common.LogException(reject, common.ERROR_MESSAGE, true);
         });
 
         async function StartDownload() {
@@ -462,7 +462,7 @@ export async function activate(context: vscode.ExtensionContext) {
                                                 //vscode.window.showInformationMessage(deletedExtension.name + '-' + deletedExtension.version + " is removed.");
                                                 deletedExtensions.push(deletedExtension);
                                             }, (rej) => {
-                                                common.LogException(rej, common.ERROR_MESSAGE);
+                                                common.LogException(rej, common.ERROR_MESSAGE, true);
                                             }));
                                     } (deletedExtension, en.ExtensionFolder));
 
@@ -510,7 +510,7 @@ export async function activate(context: vscode.ExtensionContext) {
                                 function (added: boolean) {
                                     //TODO : add Name attribute in File and show information message here with name , when required.
                                 }, function (error: any) {
-                                    common.LogException(error, common.ERROR_MESSAGE);
+                                    common.LogException(error, common.ERROR_MESSAGE, true);
                                     return;
                                 }
                             ));
@@ -555,15 +555,15 @@ export async function activate(context: vscode.ExtensionContext) {
                                 vscode.window.showErrorMessage("Sync : Unable to save extension settings file.")
                             }
                         }, function (errSave: any) {
-                            common.LogException(errSave, common.ERROR_MESSAGE);
+                            common.LogException(errSave, common.ERROR_MESSAGE, true);
                             return;
                         });
                     })
                     .catch(function (e) {
-                        common.LogException(e, common.ERROR_MESSAGE);
+                        common.LogException(e, common.ERROR_MESSAGE, true);
                     });
             }, function (err: any) {
-                common.LogException(err, common.ERROR_MESSAGE);
+                common.LogException(err, common.ERROR_MESSAGE, true);
                 return;
             });
         }
@@ -579,7 +579,7 @@ export async function activate(context: vscode.ExtensionContext) {
             syncSetting = resolve;
             await Init();
         }, (reject) => {
-            common.LogException(reject, common.ERROR_MESSAGE);
+            common.LogException(reject, common.ERROR_MESSAGE, true);
 
         });
         async function Init() {
@@ -592,13 +592,13 @@ export async function activate(context: vscode.ExtensionContext) {
                         vscode.window.showInformationMessage("GIST ID and Github Token Cleared.");
                     }
                 }, function (err: any) {
-                    common.LogException(err, common.ERROR_MESSAGE);
+                    common.LogException(err, common.ERROR_MESSAGE, true);
                     return;
                 });
 
             }
             catch (err) {
-                common.LogException(err, "Unable to clear settings. Error Logged on console. Please open an issue.");
+                common.LogException(err, "Unable to clear settings. Error Logged on console. Please open an issue.", true);
             }
         }
 
@@ -628,7 +628,7 @@ export async function activate(context: vscode.ExtensionContext) {
             }
 
         }, function (err: any) {
-            common.LogException(err, "Unable to toggle summary. Please open an issue.");
+            common.LogException(err, "Unable to toggle summary. Please open an issue.", true);
         });
 
         let items: Array<string> = new Array<string>();
@@ -690,7 +690,7 @@ export async function activate(context: vscode.ExtensionContext) {
                                 return;
                             }
                         }, function (err: any) {
-                            common.LogException(err, common.ERROR_MESSAGE);
+                            common.LogException(err, common.ERROR_MESSAGE, true);
                             selectedItem = 0;
                             return;
                         });
@@ -777,7 +777,7 @@ export async function activate(context: vscode.ExtensionContext) {
                 }
             }
         }, (reject) => {
-            common.LogException(reject, "Error");
+            common.LogException(reject, "Error", true);
             return;
         }).then(async (resolve: any) => {
             if (settingChanged) {
@@ -840,13 +840,13 @@ export async function activate(context: vscode.ExtensionContext) {
                         vscode.window.showErrorMessage("Unable to Toggle.");
                     }
                 }, function (err: any) {
-                    common.LogException(err, "Unable to toggle. Please open an issue.");
+                    common.LogException(err, "Unable to toggle. Please open an issue.", true);
                     return;
                 });
             }
 
         }, (reject: any) => {
-            common.LogException(reject, "Error");
+            common.LogException(reject, "Error", true);
             return;
         });
     });
