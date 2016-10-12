@@ -43,36 +43,23 @@ export async function activate(context: vscode.ExtensionContext) {
                 newSetting.Version = Environment.CURRENT_VERSION;
 
                 if (mainSyncSetting.Token) {
-                    newSetting.Token = mainSyncSetting.Token;
-                    if (mainSyncSetting.Gist) {
-                        newSetting.Gist = mainSyncSetting.Gist;
-                    }
-                    if (mainSyncSetting.showSummary) {
-                        newSetting.showSummary = mainSyncSetting.showSummary;
-                    }
-                    if (mainSyncSetting.lastDownload) {
-                        newSetting.lastDownload = mainSyncSetting.lastDownload;
-                    }
-                    if (mainSyncSetting.lastUpload) {
-                        newSetting.lastUpload = mainSyncSetting.lastUpload;
-                    }
-                    if (mainSyncSetting.allowUpload) {
-                        newSetting.allowUpload = mainSyncSetting.allowUpload;
-                    }
-                    if (mainSyncSetting.publicGist) {
-                        newSetting.publicGist = mainSyncSetting.publicGist;
-                    }
-                    if (mainSyncSetting.openLinks) {
-                        newSetting.openLinks = mainSyncSetting.openLinks;
-                    }
+
+                    let keys = Object.keys(mainSyncSetting);
+                    keys.forEach(keyName => {
+                        if (keyName != "Version") {
+                            if (mainSyncSetting[keyName]) {
+                                newSetting[keyName] = mainSyncSetting[keyName];
+                            }
+                        }
+                    });
                 }
             }
             else {
                 newSetting = mainSyncSetting;
-                let tokenAvailable : boolean =  (newSetting.Token != null) && (newSetting.Token != "");
-                let gistAvailable : boolean = (newSetting.Gist != null) && (newSetting.Gist != "");
+                let tokenAvailable: boolean = (newSetting.Token != null) && (newSetting.Token != "");
+                let gistAvailable: boolean = (newSetting.Gist != null) && (newSetting.Gist != "");
 
-                if (tokenAvailable==true && gistAvailable==true && newSetting.autoDownload==true) {
+                if (tokenAvailable == true && gistAvailable == true && newSetting.autoDownload == true) {
                     vscode.commands.executeCommand('extension.downloadSettings');
                 }
             }
