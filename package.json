@@ -78,17 +78,19 @@
     "postinstall": "node ./node_modules/vscode/bin/install"
   },
   "devDependencies": {
-    "typescript": "^1.6.2",
-    "vscode": "^0.11.x"
+    "@types/es6-shim": "^0.31.32",
+    "typescript": "^2.0.3",
+    "vscode": "^1.0.0"
   },
   "dependencies": {
-    "fs": "^0.0.2",
-    "open": "^0.0.5",
-    "temp": "^0.8.3",
+    "@types/node": "^6.0.45",
     "adm-zip": "^0.4.7",
-    "ncp": "^2.0.0",
-    "rimraf": "^2.5.4",
+    "fs": "^0.0.2",
     "github": "^2.6.0",
-    "node-watch": "0.4.0"
+    "ncp": "^2.0.0",
+    "node-watch": "0.4.0",
+    "open": "^0.0.5",
+    "rimraf": "^2.5.4",
+    "temp": "^0.8.3"
   }
 }

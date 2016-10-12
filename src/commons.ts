@@ -41,8 +41,8 @@ export class Commons {
     }
 
     public StartWatch(): void {
-        var appSetting = this.en.APP_SETTINGS;
-        var appSummary = this.en.APP_SUMMARY;
+        var appSetting : string = this.en.APP_SETTINGS;
+        var appSummary : string = this.en.APP_SUMMARY;
         while (appSetting.indexOf("/") > -1) {
             appSetting = appSetting.replace("/", "\\");
         }
@@ -141,6 +141,7 @@ export class Commons {
                                     }
                                 }
                             }
+                            resolve(set);
                         }
                         else {
                             self.LogException(null, "Sync : Empty Settings Found", true);

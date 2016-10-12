@@ -1,12 +1,14 @@
+'use strict';
+
 import * as vscode from 'vscode';
-import {PluginService, ExtensionInformation} from './pluginService';
+import { PluginService, ExtensionInformation } from './pluginService';
 import * as path from 'path';
-import {Environment} from './environmentPath';
-import {File, FileManager} from './fileManager';
-import {Commons} from './commons';
-import {GithubService} from './githubService';
-import {LocalSetting, CloudSetting} from './setting';
-import {OsType, SettingType} from './enums';
+import { Environment } from './environmentPath';
+import { File, FileManager } from './fileManager';
+import { Commons } from './commons';
+import { GithubService } from './githubService';
+import { LocalSetting, CloudSetting } from './setting';
+import { OsType, SettingType } from './enums';
 
 export async function activate(context: vscode.ExtensionContext) {
 
@@ -24,20 +26,10 @@ export async function activate(context: vscode.ExtensionContext) {
     var en: Environment = new Environment(context);
     var common: Commons = new Commons(en);
 
-    // check InternetConnected
-
-    var status = true;// await common.InternetConnected();
-    if (status) {
-        GitHubApi = require("github");
-        github = new GitHubApi({
-            version: "3.0.0"
-        });
-    }
-
-    if (github == null) {
-        vscode.window.setStatusBarMessage("Sync : Internet Not Connected.", 3000);
-    }
-
+    GitHubApi = require("github");
+    github = new GitHubApi({
+        version: "3.0.0"
+    });
 
     //migration code starts
 
@@ -70,17 +62,18 @@ export async function activate(context: vscode.ExtensionContext) {
                     if (mainSyncSetting.publicGist) {
                         newSetting.publicGist = mainSyncSetting.publicGist;
                     }
+                    if (mainSyncSetting.openLinks) {
+                        newSetting.openLinks = mainSyncSetting.openLinks;
+                    }
                 }
             }
             else {
                 newSetting = mainSyncSetting;
-                var tokenAvailable = newSetting.Token != null && newSetting.Token != "";
-                var gistAvailable = newSetting.Gist != null && newSetting.Gist != "";
+                let tokenAvailable : boolean =  (newSetting.Token != null) && (newSetting.Token != "");
+                let gistAvailable : boolean = (newSetting.Gist != null) && (newSetting.Gist != "");
 
-                if (tokenAvailable && gistAvailable && newSetting.autoDownload) {
-                    if (status && github != null) {
-                        vscode.commands.executeCommand('extension.downloadSettings');
-                    }
+                if (tokenAvailable==true && gistAvailable==true && newSetting.autoDownload==true) {
+                    vscode.commands.executeCommand('extension.downloadSettings');
                 }
             }
         }
@@ -111,11 +104,11 @@ export async function activate(context: vscode.ExtensionContext) {
 
     //migration code ends
 
-    var tokenAvailable = newSetting.Token != null && newSetting.Token != "";
-    var gistAvailable = newSetting.Gist != null && newSetting.Gist != "";
+    var tokenAvailable: boolean = newSetting.Token != null && newSetting.Token != "";
+    var gistAvailable: boolean = newSetting.Gist != null && newSetting.Gist != "";
 
-    var appSetting = en.APP_SETTINGS;
-    var appSummary = en.APP_SUMMARY;
+    let appSetting: string = en.APP_SETTINGS;
+    let appSummary: string = en.APP_SUMMARY;
 
     while (appSetting.indexOf("/") > -1) {
         appSetting = appSetting.replace("/", "\\");
@@ -135,19 +128,10 @@ export async function activate(context: vscode.ExtensionContext) {
         var en: Environment = new Environment(context);
         var common: Commons = new Commons(en);
 
-        var status = true; // await common.InternetConnected();
-
-        if (status) {
-            GitHubApi = require("github");
-            github = new GitHubApi({
-                version: "3.0.0"
-            });
-        }
-
-        if (github == null) {
-            vscode.window.showInformationMessage("Sync :Internet Not Connected.");
-            return;
-        }
+        GitHubApi = require("github");
+        github = new GitHubApi({
+            version: "3.0.0"
+        });
 
         var myGi: GithubService = null;
         var dateNow: Date = new Date();
@@ -306,19 +290,11 @@ export async function activate(context: vscode.ExtensionContext) {
         var en: Environment = new Environment(context);
         var common: Commons = new Commons(en);
         common.CloseWatch();
-        var status = true;// await common.InternetConnected();
 
-        if (status) {
-            GitHubApi = require("github");
-            github = new GitHubApi({
-                version: "3.0.0"
-            });
-        }
-
-        if (github == null) {
-            vscode.window.showInformationMessage("Sync : Internet Not Connected.");
-            return;
-        }
+        GitHubApi = require("github");
+        github = new GitHubApi({
+            version: "3.0.0"
+        });
 
         var myGi: GithubService = null;
         var syncSetting: LocalSetting = new LocalSetting();
@@ -649,8 +625,12 @@ export async function activate(context: vscode.ExtensionContext) {
 
             switch (resolve) {
                 case items[0]: {
-                    openurl("http://shanalikhan.github.io/2016/07/31/Visual-Studio-code-sync-setting-edit-manually.html");
-                    vscode.window.showInformationMessage("Sync : URL Opened displaying about the settings options in details.");
+                    if (setting.openLinks) {
+                        openurl("http://shanalikhan.github.io/2016/07/31/Visual-Studio-code-sync-setting-edit-manually.html");
+                        vscode.window.showInformationMessage("Sync : URL Opened displaying about the settings options in details.");
+                    }
+
+
                     var fsetting: vscode.Uri = vscode.Uri.file(en.APP_SETTINGS);
                     vscode.workspace.openTextDocument(fsetting).then((a: vscode.TextDocument) => {
                         vscode.window.showTextDocument(a, 1, false);
@@ -856,12 +836,5 @@ export async function activate(context: vscode.ExtensionContext) {
     context.subscriptions.push(resetSettings);
     context.subscriptions.push(howSettings);
     context.subscriptions.push(otherOptions);
-    // context.subscriptions.push(releaseNotes);
-    // context.subscriptions.push(openSettings);
-
-    // context.subscriptions.push(openIssue);
-    // context.subscriptions.push(autoSync);
-    // context.subscriptions.push(summary);
-
 
 }
