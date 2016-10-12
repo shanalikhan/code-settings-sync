@@ -37,44 +37,35 @@
   ],
   "main": "./out/src/extension",
   "contributes": {
-    "commands": [
-      {
-        "command": "extension.HowSettings",
-        "title": "Sync : How To Configure"
-      },
-      {
-        "command": "extension.downloadSettings",
-        "title": "Sync : Download Settings"
-      },
-      {
-        "command": "extension.updateSettings",
-        "title": "Sync : Update / Upload Settings"
-      },
-      {
-        "command": "extension.resetSettings",
-        "title": "Sync : Reset Extension Settings"
-      },
-      {
-        "command": "extension.otherOptions",
-        "title": "Sync : Advanced Options"
-      }
-    ],
-    "keybindings": [
-      {
-        "key": "alt+shift+u",
-        "command": "extension.updateSettings",
-        "when": "editorTextFocus"
-      },
-      {
-        "key": "alt+shift+d",
-        "command": "extension.downloadSettings",
-        "when": "editorTextFocus"
-      }
-    ]
+    "commands": [{
+      "command": "extension.HowSettings",
+      "title": "Sync : How To Configure"
+    }, {
+      "command": "extension.downloadSettings",
+      "title": "Sync : Download Settings"
+    }, {
+      "command": "extension.updateSettings",
+      "title": "Sync : Update / Upload Settings"
+    }, {
+      "command": "extension.resetSettings",
+      "title": "Sync : Reset Extension Settings"
+    }, {
+      "command": "extension.otherOptions",
+      "title": "Sync : Advanced Options"
+    }],
+    "keybindings": [{
+      "key": "alt+shift+u",
+      "command": "extension.updateSettings",
+      "when": "editorTextFocus"
+    }, {
+      "key": "alt+shift+d",
+      "command": "extension.downloadSettings",
+      "when": "editorTextFocus"
+    }]
   },
   "scripts": {
-    "vscode:prepublish": "node ./node_modules/vscode/bin/compile",
-    "compile": "node ./node_modules/vscode/bin/compile -watch -p ./",
+    "vscode:prepublish": "tsc -p ./",
+    "compile": "tsc -watch -p ./",
     "postinstall": "node ./node_modules/vscode/bin/install"
   },
   "devDependencies": {
