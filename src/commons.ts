@@ -24,7 +24,12 @@ export class Commons {
 
         if (error) {
             console.error(error);
+            if(error.code== 500){
+                 message = "Sync : Internet Not Connected or Unable to Connect to Github. Exception Logged in Console";
+                 msgBox = false;
+            }
         }
+        
         if (msgBox == true) {
             vscode.window.showErrorMessage(message);
         }
@@ -89,14 +94,16 @@ export class Commons {
     public InitializeSettings(askInformation: boolean, askGIST: boolean): Promise<any> {
         var self = this;
         var localSettings: any;
-        vscode.window.setStatusBarMessage("Sync : Checking for Github Token and GIST.", 2000);
+        
 
         return new Promise<any>(async (resolve, reject) => {
             await FileManager.FileExists(self.en.APP_SETTINGS).then(async function (fileExist: boolean) {
                 if (fileExist) {
                     await FileManager.ReadFile(self.en.APP_SETTINGS).then(async function (settin: string) {
-
+                        
                         vscode.window.setStatusBarMessage("");
+                        vscode.window.setStatusBarMessage("Sync : Checking for Github Token and GIST.", 2000);
+                        
                         if (settin) {
                             var set: any;
                             set = JSON.parse(settin);
