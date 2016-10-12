@@ -3,7 +3,7 @@
 import * as vscode from 'vscode';
 import * as util from './util';
 import * as path from 'path';
-import {FileManager} from './fileManager';
+import { FileManager } from './fileManager';
 var fs = require('fs');
 var ncp = require('ncp').ncp;
 
@@ -38,7 +38,12 @@ export class ExtensionInformation {
             item.name = obj.name;
             item.publisher = obj.publisher;
             item.version = obj.version;
-            extList.push(item);
+            
+            //Not to download this extension again and again.
+            if (item.name != "code-settings-sync") {
+                extList.push(item);
+            }
+
         });
 
         return extList;
