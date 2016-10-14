@@ -2,7 +2,7 @@
   "name": "code-settings-sync",
   "displayName": "Visual Studio Code Settings Sync",
   "description": "Synchronize Settings, Snippets, launch, keybindings files and extensions Across Multiple Machines using Github GIST.",
-  "version": "2.3.1",
+  "version": "2.3.2",
   "icon": "images/cloud.png",
   "publisher": "Shan",
   "author": {
@@ -22,7 +22,7 @@
     "email": "shanalikhan@hotmail.com"
   },
   "engines": {
-    "vscode": "^1.5.0"
+    "vscode": "^1.6.0"
   },
   "categories": [
     "Other"
@@ -69,11 +69,11 @@
     "postinstall": "node ./node_modules/vscode/bin/install"
   },
   "devDependencies": {
-    "@types/es6-shim": "^0.31.32",
     "typescript": "^2.0.3",
     "vscode": "^1.0.0"
   },
   "dependencies": {
+    "@types/es6-shim": "^0.31.32",
     "@types/node": "^6.0.45",
     "adm-zip": "^0.4.7",
     "fs": "^0.0.2",
