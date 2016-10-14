@@ -346,8 +346,6 @@ export async function activate(context: vscode.ExtensionContext) {
                         var file: File = updatedFiles[index];
                         var path: string = null;
                         var writeFile: boolean = false;
-                        var sourceKeyBinding: boolean = false;
-                        var keyBindingWritten: boolean = false;
                         var content: string = null;
 
                         switch (file.fileName) {
@@ -365,37 +363,12 @@ export async function activate(context: vscode.ExtensionContext) {
 
                                 break;
                             }
-                            case en.FILE_KEYBINDING_DEFAULT: {
-                                writeFile = true;
+                            case en.FILE_KEYBINDING_DEFAULT:
+                            case en.FILE_KEYBINDING_MAC: {                                
+                                writeFile = en.OsType == OsType.Mac ? file.fileName == en.FILE_KEYBINDING_MAC : file.fileName == en.FILE_KEYBINDING_DEFAULT; 
                                 path = en.FILE_KEYBINDING;
-
-                                if (!keyBindingWritten) {
-                                    if (en.OsType == OsType.Mac) {
-                                        var specifiedKeybindingIndex: number = updatedFiles.findIndex(a => a.fileName == en.FILE_KEYBINDING_MAC)
-                                        content = updatedFiles[specifiedKeybindingIndex].content;
-                                    }
-                                    else {
-                                        var specifiedKeybindingIndex: number = updatedFiles.findIndex(a => a.fileName == en.FILE_KEYBINDING_DEFAULT)
-                                        content = updatedFiles[specifiedKeybindingIndex].content;
-                                    }
-                                    sourceKeyBinding = true;
-                                }
-                                break;
-                            }
-                            case en.FILE_KEYBINDING_MAC: {
-                                writeFile = true;
-                                path = en.FILE_KEYBINDING;
-
-                                if (!keyBindingWritten) {
-                                    if (en.OsType == OsType.Mac) {
-                                        var specifiedKeybindingIndex: number = updatedFiles.findIndex(a => a.fileName == en.FILE_KEYBINDING_MAC)
-                                        content = updatedFiles[specifiedKeybindingIndex].content;
-                                    }
-                                    else {
-                                        var specifiedKeybindingIndex: number = updatedFiles.findIndex(a => a.fileName == en.FILE_KEYBINDING_DEFAULT)
-                                        content = updatedFiles[specifiedKeybindingIndex].content;
-                                    }
-                                    sourceKeyBinding = true;
+                                if (writeFile) {
+                                    content = file.content;
                                 }
                                 break;
                             }
@@ -452,9 +425,9 @@ export async function activate(context: vscode.ExtensionContext) {
                                 break;
                             }
                             default: {
-                                writeFile = true;
                                 if (file.fileName.indexOf("keybinding") == -1) {
                                     if (file.fileName.indexOf(".") > -1) {
+                                        writeFile = true;
                                         await FileManager.CreateDirectory(en.FOLDER_SNIPPETS);
                                         var snippetFile = en.FOLDER_SNIPPETS.concat(file.fileName);//.concat(".json");
                                         path = snippetFile;
@@ -465,10 +438,6 @@ export async function activate(context: vscode.ExtensionContext) {
                             }
                         }
                         if (writeFile) {
-                            if (sourceKeyBinding) {
-                                keyBindingWritten = true;
-                            }
-                            writeFile = false;
                             await actionList.push(FileManager.WriteFile(path, content).then(
                                 function (added: boolean) {
                                     //TODO : add Name attribute in File and show information message here with name , when required.
