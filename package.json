@@ -73,7 +73,6 @@
     "vscode": "^1.0.0"
   },
   "dependencies": {
-    "@types/es6-shim": "^0.31.32",
     "@types/node": "^6.0.45",
     "adm-zip": "^0.4.7",
     "fs": "^0.0.2",
