@@ -173,10 +173,7 @@ export class PluginService {
                 }
             }
             if (!found) {
-                if (ext.name != "code-settings-sync") {
-                    deletedList.push(ext);
-                }
-                
+                deletedList.push(ext);
             }
 
         }

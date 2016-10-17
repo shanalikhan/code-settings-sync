@@ -67,7 +67,8 @@ export class Commons {
                 if (updateCompleted) {
 
                     updateCompleted = false;
-                    vscode.window.setStatusBarMessage("Updating Process Starting On File Change.");
+                    vscode.window.setStatusBarMessage("");
+                    vscode.window.setStatusBarMessage("Updating Process Starting On File Change..",2000);
 
                     setTimeout(function () {
 
