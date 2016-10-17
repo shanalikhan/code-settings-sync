@@ -164,17 +164,21 @@ export class PluginService {
 
             var ext = localList[i];
             var found: boolean = false;
+            if (ext.name != "code-settings-sync") {
+                for (var j = 0; j < remoteList.length; j++) {
+                    var localExt = remoteList[j];
 
-            for (var j = 0; j < remoteList.length; j++) {
-                var localExt = remoteList[j];
-                if (ext.name == localExt.name) {
-                    found = true;
-                    break;
+                    if (ext.name == localExt.name) {
+                        found = true;
+                        break;
+                    }
+                }
+                if (!found) {
+                    deletedList.push(ext);
                 }
             }
-            if (!found) {
-                deletedList.push(ext);
-            }
+
+
 
         }
 
