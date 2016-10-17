@@ -38,7 +38,7 @@ export class ExtensionInformation {
             item.name = obj.name;
             item.publisher = obj.publisher;
             item.version = obj.version;
-            
+
             //Not to download this extension again and again.
             if (item.name != "code-settings-sync") {
                 extList.push(item);
@@ -173,7 +173,10 @@ export class PluginService {
                 }
             }
             if (!found) {
-                deletedList.push(ext);
+                if (ext.name != "code-settings-sync") {
+                    deletedList.push(ext);
+                }
+                
             }
 
         }
