@@ -7,8 +7,10 @@
   "publisher": "Shan",
   "author": {
     "name": "Shan Khan",
-    "url": "http://shanalikhan.github.io"
+    "url": "http://shanalikhan.github.io", 
+    "email": "shanalikhan@hotmail.com"
   },
+  "homepage": "https://github.com/shanalikhan/code-settings-sync",
   "galleryBanner": {
     "color": "#3B4859",
     "theme": "dark"
@@ -26,6 +28,11 @@
   },
   "categories": [
     "Other"
+  ],
+  "keywords": [
+    "vscode-sync",
+    "sync",
+    "vscode-settings-sync"
   ],
   "activationEvents": [
     "*",
