@@ -1,5 +1,12 @@
 # Visual Studio Code Settings Sync
 
+[![Version](https://vsmarketplacebadge.apphb.com/version/Shan.code-settings-sync.svg)](https://vsmarketplacebadge.apphb.com/version/Shan.code-settings-sync.svg)
+
+[![Installs](https://vsmarketplacebadge.apphb.com/installs/Shan.code-settings-sync.svg)](https://vsmarketplacebadge.apphb.com/installs/Shan.code-settings-sync.svg)
+
+[![Ratings](https://vsmarketplacebadge.apphb.com/rating/Shan.code-settings-sync.svg)](https://vsmarketplacebadge.apphb.com/rating/Shan.code-settings-sync.svg)
+
+
 **Type Sync in command Palette in order to view all commands.**
 
 ## Key Features
@@ -156,3 +163,9 @@ Submit a Pull Request.
     
 # License
 MIT
+
+[![Version](https://vsmarketplacebadge.apphb.com/version/Shan.code-settings-sync.svg)](https://vsmarketplacebadge.apphb.com/version/Shan.code-settings-sync.svg)
+
+[![Installs](https://vsmarketplacebadge.apphb.com/installs/Shan.code-settings-sync.svg)](https://vsmarketplacebadge.apphb.com/installs/Shan.code-settings-sync.svg)
+
+[![Ratings](https://vsmarketplacebadge.apphb.com/rating/Shan.code-settings-sync.svg)](https://vsmarketplacebadge.apphb.com/rating/Shan.code-settings-sync.svg)
