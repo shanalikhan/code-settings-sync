@@ -1,10 +1,10 @@
 # Visual Studio Code Settings Sync
 
-[![Version](https://vsmarketplacebadge.apphb.com/version/Shan.code-settings-sync.svg)](https://vsmarketplacebadge.apphb.com/version/Shan.code-settings-sync.svg)
+[![Version](https://vsmarketplacebadge.apphb.com/version/Shan.code-settings-sync.svg)](https://marketplace.visualstudio.com/items?itemName=Shan.code-settings-sync)
 
-[![Installs](https://vsmarketplacebadge.apphb.com/installs/Shan.code-settings-sync.svg)](https://vsmarketplacebadge.apphb.com/installs/Shan.code-settings-sync.svg)
+[![Installs](https://vsmarketplacebadge.apphb.com/installs/Shan.code-settings-sync.svg)](https://marketplace.visualstudio.com/items?itemName=Shan.code-settings-sync)
 
-[![Ratings](https://vsmarketplacebadge.apphb.com/rating/Shan.code-settings-sync.svg)](https://vsmarketplacebadge.apphb.com/rating/Shan.code-settings-sync.svg)
+[![Ratings](https://vsmarketplacebadge.apphb.com/rating/Shan.code-settings-sync.svg)](https://marketplace.visualstudio.com/items?itemName=Shan.code-settings-sync)
 
 
 **Type Sync in command Palette in order to view all commands.**
@@ -164,8 +164,8 @@ Submit a Pull Request.
 # License
 MIT
 
-[![Version](https://vsmarketplacebadge.apphb.com/version/Shan.code-settings-sync.svg)](https://vsmarketplacebadge.apphb.com/version/Shan.code-settings-sync.svg)
+[![Version](https://vsmarketplacebadge.apphb.com/version/Shan.code-settings-sync.svg)](https://marketplace.visualstudio.com/items?itemName=Shan.code-settings-sync)
 
-[![Installs](https://vsmarketplacebadge.apphb.com/installs/Shan.code-settings-sync.svg)](https://vsmarketplacebadge.apphb.com/installs/Shan.code-settings-sync.svg)
+[![Installs](https://vsmarketplacebadge.apphb.com/installs/Shan.code-settings-sync.svg)](https://marketplace.visualstudio.com/items?itemName=Shan.code-settings-sync)
 
-[![Ratings](https://vsmarketplacebadge.apphb.com/rating/Shan.code-settings-sync.svg)](https://vsmarketplacebadge.apphb.com/rating/Shan.code-settings-sync.svg)
+[![Ratings](https://vsmarketplacebadge.apphb.com/rating/Shan.code-settings-sync.svg)](https://marketplace.visualstudio.com/items?itemName=Shan.code-settings-sync)
