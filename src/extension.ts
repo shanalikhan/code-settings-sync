@@ -16,8 +16,6 @@ export async function activate(context: vscode.ExtensionContext) {
     var openurl = require('open');
     var fs = require('fs');
     var watch = require('node-watch');
-    var GitHubApi = null;
-    var github = null;
 
     var mainSyncSetting: any = null;
     var newSetting: LocalSetting = new LocalSetting();
@@ -25,11 +23,6 @@ export async function activate(context: vscode.ExtensionContext) {
     var emptySetting: boolean = false;
     var en: Environment = new Environment(context);
     var common: Commons = new Commons(en);
-
-    GitHubApi = require("github");
-    github = new GitHubApi({
-        version: "3.0.0"
-    });
 
     //migration code starts
 
@@ -114,11 +107,6 @@ export async function activate(context: vscode.ExtensionContext) {
         let args = arguments;
         var en: Environment = new Environment(context);
         var common: Commons = new Commons(en);
-
-        GitHubApi = require("github");
-        github = new GitHubApi({
-            version: "3.0.0"
-        });
 
         var myGi: GithubService = null;
         var dateNow: Date = new Date();
@@ -277,11 +265,6 @@ export async function activate(context: vscode.ExtensionContext) {
         var en: Environment = new Environment(context);
         var common: Commons = new Commons(en);
         common.CloseWatch();
-
-        GitHubApi = require("github");
-        github = new GitHubApi({
-            version: "3.0.0"
-        });
 
         var myGi: GithubService = null;
         var syncSetting: LocalSetting = new LocalSetting();

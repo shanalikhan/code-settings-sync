@@ -7,6 +7,13 @@ import * as fs from 'fs';
 
 var adm_zip = require('adm-zip');
 var temp = require('temp').track();
+var HttpsProxyAgent = require("https-proxy-agent");
+var proxy = vscode.workspace.getConfiguration("http")["proxy"];
+var agent = null;
+if(proxy!=""){
+    agent = new HttpsProxyAgent(proxy);
+}
+
 
 export class Util{
     
@@ -26,8 +33,13 @@ export class Util{
                         port: +item.port,
                         path: item.path,
                         method: 'POST',
-                        headers: newHeader
+                        headers: newHeader,
+                        
                     }
+                    if(agent!=null){
+                        options.agent = agent;
+                    }
+                    
                 
                 if(item.protocol.startsWith('https:')){
                     
