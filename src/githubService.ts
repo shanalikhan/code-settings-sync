@@ -2,11 +2,13 @@
 
 import * as envir from './environmentPath';
 import * as fileManager from './fileManager';
+import * as vscode from 'vscode';
 
 var GitHubApi = require("github");
 
 var github = new GitHubApi({
-    version: "3.0.0"
+    proxy: vscode.workspace.getConfiguration("http")["proxy"],
+    version: "3.0.0",
 });
 
 export class GithubService {
