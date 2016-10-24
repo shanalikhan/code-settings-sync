@@ -1,9 +1,9 @@
 "use strict";
 import * as vscode from 'vscode';
-import {Environment} from './environmentPath';
-import {File, FileManager} from './fileManager';
-import {LocalSetting} from './setting';
-import {PluginService, ExtensionInformation} from './pluginService';
+import { Environment } from './environmentPath';
+import { File, FileManager } from './fileManager';
+import { LocalSetting } from './setting';
+import { PluginService, ExtensionInformation } from './pluginService';
 import * as fs from 'fs';
 
 var watch = require('node-watch');
@@ -14,7 +14,8 @@ export class Commons {
 
     public ERROR_MESSAGE: string = "Error Logged In Console (Help menu > Toggle Developer Tools). You may open an issue using 'Sync : Open Issue' from advance setting command.";
 
-    private static watcher = null;
+    private static configWatcher = null;
+    private static extensionWatcher = null;
 
     constructor(private en: Environment) {
 
@@ -24,18 +25,18 @@ export class Commons {
 
         if (error) {
             console.error(error);
-            if(error.code== 500){
-                 message = "Sync : Internet Not Connected or Unable to Connect to Github. Exception Logged in Console";
-                 msgBox = false;
+            if (error.code == 500) {
+                message = "Sync : Internet Not Connected or Unable to Connect to Github. Exception Logged in Console";
+                msgBox = false;
             }
         }
-        
+
         if (msgBox == true) {
             vscode.window.showErrorMessage(message);
         }
         else {
             vscode.window.setStatusBarMessage("");
-            vscode.window.setStatusBarMessage(message,5000);
+            vscode.window.setStatusBarMessage(message, 5000);
         }
     }
 
@@ -46,8 +47,8 @@ export class Commons {
     }
 
     public StartWatch(): void {
-        var appSetting : string = this.en.APP_SETTINGS;
-        var appSummary : string = this.en.APP_SUMMARY;
+        var appSetting: string = this.en.APP_SETTINGS;
+        var appSummary: string = this.en.APP_SUMMARY;
         while (appSetting.indexOf("/") > -1) {
             appSetting = appSetting.replace("/", "\\");
         }
@@ -56,38 +57,47 @@ export class Commons {
             appSummary = appSummary.replace("/", "\\");
         }
 
-        Commons.watcher = watch(this.en.PATH + "/User/");
-
         let updateCompleted: boolean = true;
 
-        Commons.watcher.on('change', (path) => {
+        // Commons.extensionWatcher = watch(this.en.ExtensionFolder, { recursive: false });
+        // Commons.extensionWatcher.on('change', (path) => {
+        //     debugger;
+        // });
 
-            if ((path != appSetting) && (path != appSummary)) {
 
-                if (updateCompleted) {
+        Commons.configWatcher = watch(this.en.PATH + "/User/");
+        Commons.configWatcher.on('change', (path) => {
 
-                    updateCompleted = false;
-                    vscode.window.setStatusBarMessage("");
-                    vscode.window.setStatusBarMessage("Updating Process Starting On File Change..",2000);
+            if (path.indexOf("workspaceStorage") == -1) {
+                if ((path != appSetting) && (path != appSummary)) {
 
-                    setTimeout(function () {
+                    if (updateCompleted) {
 
-                        vscode.commands.executeCommand('extension.updateSettings', "forceUpdate").then((res) => {
-                            updateCompleted = true;
-                        });
-                    }, 3000);
+                        updateCompleted = false;
+                        vscode.window.setStatusBarMessage("");
+                        vscode.window.setStatusBarMessage("Updating Process Starting On File Change..", 2000);
+
+                        setTimeout(function () {
+
+                            vscode.commands.executeCommand('extension.updateSettings', "forceUpdate").then((res) => {
+                                updateCompleted = true;
+                            });
+                        }, 3000);
+                    }
+                    else {
+                        vscode.window.setStatusBarMessage("Upload already in process. Please wait...", 3000);
+                    }
+                    //return;
                 }
-                else {
-                    vscode.window.setStatusBarMessage("Upload already in process. Please wait...", 3000);
-                }
-                //return;
             }
-
         });
     }
     public CloseWatch(): void {
-        if (Commons.watcher != null) {
-            Commons.watcher.close();
+        if (Commons.configWatcher != null) {
+            Commons.configWatcher.close();
+        }
+        if (Commons.extensionWatcher != null) {
+            Commons.extensionWatcher.close();
         }
 
     }
@@ -95,16 +105,16 @@ export class Commons {
     public InitializeSettings(askInformation: boolean, askGIST: boolean): Promise<any> {
         var self = this;
         var localSettings: any;
-        
+
 
         return new Promise<any>(async (resolve, reject) => {
             await FileManager.FileExists(self.en.APP_SETTINGS).then(async function (fileExist: boolean) {
                 if (fileExist) {
                     await FileManager.ReadFile(self.en.APP_SETTINGS).then(async function (settin: string) {
-                        
+
                         vscode.window.setStatusBarMessage("");
                         vscode.window.setStatusBarMessage("Sync : Checking for Github Token and GIST.", 2000);
-                        
+
                         if (settin) {
                             var set: any;
                             set = JSON.parse(settin);
