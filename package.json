@@ -85,10 +85,10 @@
     "fs": "^0.0.2",
     "github": "^2.6.0",
     "ncp": "^2.0.0",
-    "node-watch": "0.4.0",
     "open": "^0.0.5",
     "rimraf": "^2.5.4",
     "temp": "^0.8.3",
-    "https-proxy-agent" : "^1.0.0"
+    "https-proxy-agent" : "^1.0.0",
+    "chokidar": "^1.6.1"
   }
 }

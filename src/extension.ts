@@ -107,6 +107,7 @@ export async function activate(context: vscode.ExtensionContext) {
         let args = arguments;
         var en: Environment = new Environment(context);
         var common: Commons = new Commons(en);
+        common.CloseWatch();
 
         var myGi: GithubService = null;
         var dateNow: Date = new Date();
@@ -171,6 +172,12 @@ export async function activate(context: vscode.ExtensionContext) {
                     return a.name.localeCompare(b.name);
                 });
 
+
+                // var remoteList = ExtensionInformation.fromJSONList(file.content);
+                // var deletedList = PluginService.GetDeletedExtensions(uploadedExtensions);
+
+
+
                 var fileName = en.FILE_EXTENSION_NAME;
                 var filePath = en.FILE_EXTENSION;
                 var fileContent = JSON.stringify(uploadedExtensions, undefined, 2);;
@@ -226,8 +233,11 @@ export async function activate(context: vscode.ExtensionContext) {
                                         }
                                         if (syncSetting.showSummary) {
                                             common.GenerateSummmaryFile(true, allSettingFiles, null, uploadedExtensions, syncSetting);
-                                        }
 
+                                        }
+                                        if (syncSetting.autoUpload) {
+                                            common.StartWatch();
+                                        }
                                         vscode.window.setStatusBarMessage("");
                                     }
                                 }, function (err: any) {
@@ -347,8 +357,8 @@ export async function activate(context: vscode.ExtensionContext) {
                                 break;
                             }
                             case en.FILE_KEYBINDING_DEFAULT:
-                            case en.FILE_KEYBINDING_MAC: {                                
-                                writeFile = en.OsType == OsType.Mac ? file.fileName == en.FILE_KEYBINDING_MAC : file.fileName == en.FILE_KEYBINDING_DEFAULT; 
+                            case en.FILE_KEYBINDING_MAC: {
+                                writeFile = en.OsType == OsType.Mac ? file.fileName == en.FILE_KEYBINDING_MAC : file.fileName == en.FILE_KEYBINDING_DEFAULT;
                                 path = en.FILE_KEYBINDING;
                                 if (writeFile) {
                                     content = file.content;

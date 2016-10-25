@@ -6,9 +6,8 @@ import { LocalSetting } from './setting';
 import { PluginService, ExtensionInformation } from './pluginService';
 import * as fs from 'fs';
 
-var watch = require('node-watch');
 var openurl = require('open');
-
+var chokidar = require('chokidar');
 
 export class Commons {
 
@@ -47,50 +46,97 @@ export class Commons {
     }
 
     public StartWatch(): void {
-        var appSetting: string = this.en.APP_SETTINGS;
-        var appSummary: string = this.en.APP_SUMMARY;
-        while (appSetting.indexOf("/") > -1) {
-            appSetting = appSetting.replace("/", "\\");
-        }
 
-        while (appSummary.indexOf("/") > -1) {
-            appSummary = appSummary.replace("/", "\\");
-        }
+        let uploadStopped: boolean = true;
 
-        let updateCompleted: boolean = true;
+        Commons.extensionWatcher = chokidar.watch(this.en.ExtensionFolder, { depth: 0, ignoreInitial: true });
+        Commons.configWatcher = chokidar.watch(this.en.PATH + "/User/", { ignoreInitial: true });
 
-        // Commons.extensionWatcher = watch(this.en.ExtensionFolder, { recursive: false });
-        // Commons.extensionWatcher.on('change', (path) => {
-        //     debugger;
+        //TODO : Uncomment the following lines when code allows feature to update Issue in github code repo - #14444
+
+        // Commons.extensionWatcher.on('addDir', (path, stat)=> {
+        //     if (uploadStopped) {
+        //         uploadStopped = false;
+        //         this.InitiateAutoUpload().then((resolve) => {
+        //             uploadStopped = resolve;
+        //         }, (reject) => {
+        //             uploadStopped = reject;
+        //         });
+        //     }
+        //     else {
+        //         vscode.window.setStatusBarMessage("");
+        //         vscode.window.setStatusBarMessage("Sync : Updating In Progres... Please Wait.", 3000);
+        //     }
+        // });
+        // Commons.extensionWatcher.on('unlinkDir', (path)=> {
+        //     if (uploadStopped) {
+        //         uploadStopped = false;
+        //         this.InitiateAutoUpload().then((resolve) => {
+        //             uploadStopped = resolve;
+        //         }, (reject) => {
+        //             uploadStopped = reject;
+        //         });
+        //     }
+        //     else {
+        //         vscode.window.setStatusBarMessage("");
+        //         vscode.window.setStatusBarMessage("Sync : Updating In Progres... Please Wait.", 3000);
+        //     }
         // });
 
-
-        Commons.configWatcher = watch(this.en.PATH + "/User/");
         Commons.configWatcher.on('change', (path) => {
+            if (uploadStopped) {
 
-            if (path.indexOf("workspaceStorage") == -1) {
-                if ((path != appSetting) && (path != appSummary)) {
+                uploadStopped = false;
 
-                    if (updateCompleted) {
+                var appSetting: string = this.en.APP_SETTINGS;
+                var appSummary: string = this.en.APP_SUMMARY;
 
-                        updateCompleted = false;
-                        vscode.window.setStatusBarMessage("");
-                        vscode.window.setStatusBarMessage("Updating Process Starting On File Change..", 2000);
+                while (appSetting.indexOf("/") > -1) {
+                    appSetting = appSetting.replace("/", "\\");
+                }
 
-                        setTimeout(function () {
+                while (appSummary.indexOf("/") > -1) {
+                    appSummary = appSummary.replace("/", "\\");
+                }
 
-                            vscode.commands.executeCommand('extension.updateSettings', "forceUpdate").then((res) => {
-                                updateCompleted = true;
-                            });
-                        }, 3000);
+                if (path.indexOf("workspaceStorage") == -1) {
+                    if ((path != appSetting) && (path != appSummary)) {
+                        this.InitiateAutoUpload().then((resolve) => {
+                            uploadStopped = resolve;
+                        }, (reject) => {
+                            uploadStopped = reject;
+                        });
                     }
-                    else {
-                        vscode.window.setStatusBarMessage("Upload already in process. Please wait...", 3000);
+                    else{
+                        uploadStopped = true;
                     }
-                    //return;
+                }
+                else{
+                    uploadStopped = true;
                 }
             }
+            else {
+                vscode.window.setStatusBarMessage("");
+                vscode.window.setStatusBarMessage("Sync : Updating In Progres... Please Wait.", 3000);
+            }
         });
+    }
+
+    public async InitiateAutoUpload(): Promise<boolean> {
+
+        return new Promise<boolean>(async (resolve, reject) => {
+            vscode.window.setStatusBarMessage("");
+            vscode.window.setStatusBarMessage("Sync : Updating Process Starting On File Change..", 3000);
+
+            setTimeout(function () {
+
+                vscode.commands.executeCommand('extension.updateSettings', "forceUpdate").then((res) => {
+                    resolve(true);
+                });
+            }, 3000);
+        });
+
+
     }
     public CloseWatch(): void {
         if (Commons.configWatcher != null) {
