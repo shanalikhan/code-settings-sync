@@ -126,7 +126,7 @@ export class Commons {
 
         return new Promise<boolean>(async (resolve, reject) => {
             vscode.window.setStatusBarMessage("");
-            vscode.window.setStatusBarMessage("Sync : Updating Process Starting On File Change..", 3000);
+            vscode.window.setStatusBarMessage("Sync : Auto Upload Initiating.", 3000);
 
             setTimeout(function () {
 
