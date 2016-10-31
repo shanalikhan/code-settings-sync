@@ -15,7 +15,6 @@ export async function activate(context: vscode.ExtensionContext) {
 
     var openurl = require('open');
     var fs = require('fs');
-    var watch = require('node-watch');
 
     var mainSyncSetting: any = null;
     var newSetting: LocalSetting = new LocalSetting();
