@@ -10,72 +10,74 @@ var temp = require('temp').track();
 var HttpsProxyAgent = require("https-proxy-agent");
 var proxy = vscode.workspace.getConfiguration("http")["proxy"] || process.env["http_proxy"];
 var agent = null;
-if(proxy!=""){
-    agent = new HttpsProxyAgent(proxy);
+if (proxy) {
+    if (proxy != '') {
+        agent = new HttpsProxyAgent(proxy);
+    }
 }
 
 
-export class Util{
-    
-    public static HttpPostJson(path: string, obj: Object, headers: Object){
+export class Util {
+
+    public static HttpPostJson(path: string, obj: Object, headers: Object) {
         return new Promise<string>(
-            function(resolve, reject){
+            function (resolve, reject) {
                 var item = url.parse(path);
-                
+
                 var postData = JSON.stringify(obj);
                 var newHeader = {
-                   'Content-Type': 'application/json',
-                   'Content-Length': Buffer.byteLength(postData)
+                    'Content-Type': 'application/json',
+                    'Content-Length': Buffer.byteLength(postData)
                 }
                 Object.assign(newHeader, headers);
                 var options: https.RequestOptions = {
-                        host: item.hostname,
-                        port: +item.port,
-                        path: item.path,
-                        method: 'POST',
-                        headers: newHeader,
-                        
-                    }
-                    if(agent!=null){
-                        options.agent = agent;
-                    }
-                    
-                
-                if(item.protocol.startsWith('https:')){
-                    
-                    var req = https.request(options, function(res){
-                        if(res.statusCode !== 200){
+                    host: item.hostname,
+                    port: +item.port,
+                    path: item.path,
+                    method: 'POST',
+                    headers: newHeader,
+
+                }
+                if (agent != null) {
+                    options.agent = agent;
+                }
+
+
+                if (item.protocol.startsWith('https:')) {
+
+                    var req = https.request(options, function (res) {
+                        if (res.statusCode !== 200) {
                             //reject();
                             //return;
                         }
-                        
+
                         var result = '';
                         res.setEncoding('utf8');
-                        res.on('data', function(chunk){
+                        res.on('data', function (chunk) {
                             result += chunk;
                         });
-                        res.on('end', function(){
+                        res.on('end', function () {
                             resolve(result);
                         });
-                        
-                        res.on('error', function(e){
+
+                        res.on('error', function (e) {
                             reject(e);
                         });
                     });
-                    
+
                     req.write(postData);
-                }else{
-                    var req = http.request(options, function(res){
+                } else {
+                    var req = http.request(options, function (res) {
                         var result = '';
                         res.setEncoding('utf8');
-                        res.on('data', function(chunk){
+                        res.on('data', function (chunk) {
                             result += chunk;
                         });
-                        res.on('end', function(){
+                        res.on('end', function () {
                             resolve(result);
                         });
-                        
-                        res.on('error', function(e){
+
+                        res.on('error', function (e) {
                             reject(e);
                         });
                     });
@@ -84,13 +86,13 @@ export class Util{
             }
         )
     }
-    public static HttpGetFile(path:string) : Promise<string>{
+    public static HttpGetFile(path: string): Promise<string> {
         var tempFile = temp.path();
         var file = fs.createWriteStream(tempFile);
-        
+
         return new Promise<string>(
-            function(resolve, reject){
-                if(path.startsWith('https:')){
+            function (resolve, reject) {
+                if (path.startsWith('https:')) {
                     https.get(path, (res) => {
                         // return value
                         res.pipe(file);
@@ -101,7 +103,7 @@ export class Util{
                     }).on('error', (e) => {
                         reject(e);
                     })
-                }else{
+                } else {
                     http.get(path, (res) => {
                         // return value
                         res.pipe(file);
@@ -116,13 +118,13 @@ export class Util{
             }
         );
     }
-    
-    public static WriteToFile(content:Buffer) : Promise<string>{
+
+    public static WriteToFile(content: Buffer): Promise<string> {
         var tempFile = temp.path();
         return new Promise<string>(
-            function(resolve, reject){
-                fs.writeFile(tempFile, content, function(err){
-                    if(err){
+            function (resolve, reject) {
+                fs.writeFile(tempFile, content, function (err) {
+                    if (err) {
                         reject(err);
                     }
                     resolve(tempFile);
@@ -130,18 +132,18 @@ export class Util{
             }
         );
     }
-    
-    public static Extract(filePath:string){
+
+    public static Extract(filePath: string) {
         var dirName = temp.path();
         var zip = new adm_zip(filePath);
-        
+
         return new Promise<string>(
-            function(resolve, reject){
-                temp.mkdir(dirName, function(err, dirPath){
-                    try{
+            function (resolve, reject) {
+                temp.mkdir(dirName, function (err, dirPath) {
+                    try {
                         zip.extractAllTo(dirName, /*overwrite*/true);
                         resolve(dirName);
-                    }catch(e){
+                    } catch (e) {
                         reject(e);
                     }
                 });
