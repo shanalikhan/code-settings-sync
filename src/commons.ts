@@ -83,7 +83,7 @@ export class Commons {
         //     }
         // });
 
-        Commons.configWatcher.on('change', (path) => {
+        Commons.configWatcher.on('change', (path: string) => {
             if (uploadStopped) {
 
                 uploadStopped = false;
@@ -99,19 +99,20 @@ export class Commons {
                     appSummary = appSummary.replace("/", "\\");
                 }
 
-                if (path.indexOf("workspaceStorage") == -1) {
+                if ((path.indexOf("workspaceStorage") == -1) && (path.indexOf(".DS_Store") == -1)) {
                     if ((path != appSetting) && (path != appSummary)) {
+                        console.log("Auto-upload initiated on File: " + path);
                         this.InitiateAutoUpload().then((resolve) => {
                             uploadStopped = resolve;
                         }, (reject) => {
                             uploadStopped = reject;
                         });
                     }
-                    else{
+                    else {
                         uploadStopped = true;
                     }
                 }
-                else{
+                else {
                     uploadStopped = true;
                 }
             }
