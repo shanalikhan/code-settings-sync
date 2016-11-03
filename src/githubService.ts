@@ -4,10 +4,10 @@ import * as envir from './environmentPath';
 import * as fileManager from './fileManager';
 import * as vscode from 'vscode';
 
+var proxyURL: string = vscode.workspace.getConfiguration("http")["proxy"] || process.env["http_proxy"];
 var GitHubApi = require("github");
-
 var github = new GitHubApi({
-    proxy: vscode.workspace.getConfiguration("http")["proxy"],
+    proxy: proxyURL,
     version: "3.0.0",
 });
 
