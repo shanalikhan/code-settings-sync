@@ -32,7 +32,8 @@
   "keywords": [
     "vscode-sync",
     "sync",
-    "vscode-settings-sync"
+    "vscode-settings-sync",
+    "code-settings-sync"
   ],
   "activationEvents": [
     "*",
@@ -77,7 +78,7 @@
   },
   "devDependencies": {
     "typescript": "^2.0.3",
-    "vscode": "^1.0.0"
+    "vscode": "^1.0.3"
   },
   "dependencies": {
     "@types/node": "^6.0.45",
