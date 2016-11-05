@@ -16,7 +16,6 @@ export class LocalSetting {
     public showSummary: boolean = true;
     public publicGist = false;
     public forceDownload = false;
-    public showLog = false;
     public openLinks = true;
 
     constructor(){

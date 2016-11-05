@@ -79,7 +79,7 @@ export class GithubService {
                         resolve(res.id);
                     } else {
                         console.error("ID is null");
-                        console.log("Response from GITHUB is: ");
+                        console.log("Sync : "+"Response from GitHub is: ");
                         console.log(res);
                     }
 
@@ -129,8 +129,6 @@ export class GithubService {
         var me = this;
 
         //TODO : turn diagnostic mode on for console.
-        console.log("GIST Object - " + gistObject );
-        
         return new Promise<boolean>(async (resolve, reject) => {
             await github.getGistsApi().edit(gistObject, function (ere, ress) {
                 if (ere) {

@@ -197,7 +197,7 @@ export class Commons {
                                                 set.Gist = Gist;
                                             }
                                             else {
-                                                vscode.window.showErrorMessage("GIST NOT SAVED");
+                                                vscode.window.showErrorMessage("Sync : Gist Not Saved.");
                                                 reject(false);
                                             }
                                         }, function (err: any) {
@@ -253,13 +253,13 @@ export class Commons {
                             resolve(JSON.parse(settingsData));
                         }
                         else {
-                            console.log(me.en.APP_SETTINGS + " not Found.");
+                            console.log("Sync : "+ me.en.APP_SETTINGS + " not Found.");
                             resolve(null);
                         }
                     });
                 }
                 else {
-                    console.log(me.en.APP_SETTINGS + " not Found.");
+                    console.log("Sync : "+me.en.APP_SETTINGS + " not Found.");
                     resolve(null);
                 }
 
@@ -375,7 +375,7 @@ export class Commons {
         var addedExtension: string = "\r\nEXTENSIONS ADDED : \r\n";
         var tempURI: string = this.en.APP_SUMMARY;
 
-        console.log("FILE URI For Summary Page : " + tempURI);
+        console.log("Sync : "+ "File Path For Summary Page : " + tempURI);
 
         //        var setting: vscode.Uri = vscode.Uri.parse("untitled:" + tempURI);
 

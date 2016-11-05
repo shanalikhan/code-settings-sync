@@ -216,7 +216,7 @@ export class PluginService {
         return new Promise((resolve, reject) => {
             rmdir(destination, function (error) {
                 if (error) {
-                    console.log("Error in uninstalling Extension.");
+                    console.log("Sync : "+"Error in uninstalling Extension.");
                     console.log(error);
                     reject(false);
                 }

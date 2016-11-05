@@ -328,7 +328,6 @@ export async function activate(context: vscode.ExtensionContext) {
                         }
                         else {
                             console.log(fileName + " key in response is empty.");
-
                         }
 
                     });
@@ -443,7 +442,7 @@ export async function activate(context: vscode.ExtensionContext) {
                 }
                 else {
                     console.log(res);
-                    vscode.window.showErrorMessage("GIST UNABLE TO READ");
+                    vscode.window.showErrorMessage("Sync : Unable To Read Gist");
                 }
 
                 Promise.all(actionList)
