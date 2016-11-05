@@ -99,20 +99,21 @@ export class Commons {
                     appSummary = appSummary.replace("/", "\\");
                 }
 
-                if ((path.indexOf("workspaceStorage") == -1) && (path.indexOf(".DS_Store") == -1)) {
-                    if ((path != appSetting) && (path != appSummary)) {
-                        console.log("Auto-upload initiated on File: " + path);
-                        this.InitiateAutoUpload().then((resolve) => {
-                            uploadStopped = resolve;
-                        }, (reject) => {
-                            uploadStopped = reject;
-                        });
-                    }
-                    else {
-                        uploadStopped = true;
-                    }
-                }
-                else {
+                let requiredFileChanged: boolean = false;
+                
+                requiredFileChanged = (path.indexOf("workspaceStorage") == -1) && (path.indexOf(".DS_Store") == -1) && (path.indexOf(this.en.FILE_LOCATIONSETTINGS_NAME) == -1) && (path.indexOf(this.en.APP_SUMMARY_NAME) == -1);
+
+                console.log("Sync : File Change Detected On : " + path);
+
+                if (requiredFileChanged) {
+                    console.log("Sync : Initiating Auto-upload For File : " + path);
+                    this.InitiateAutoUpload().then((resolve) => {
+                        uploadStopped = resolve;
+                    }, (reject) => {
+                        uploadStopped = reject;
+                    });
+
+                } else {
                     uploadStopped = true;
                 }
             }
