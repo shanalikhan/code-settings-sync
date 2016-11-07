@@ -4,4 +4,5 @@
 **Occurs On:** [Upload / Download]
 **Proxy Enabled:** [ Yes / No ]
 
-Please make sure to write the versions and console logged error picture or copied text.
+_I have posted frequently asked questions [here](http://shanalikhan.github.io/2016/11/07/visual-studio-code-frequently-asked-questions.html) so you may able to resolve the error quickly. Please make sure to write the versions and console logged error picture or copied text_
+
