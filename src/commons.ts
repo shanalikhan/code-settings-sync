@@ -87,18 +87,6 @@ export class Commons {
             if (uploadStopped) {
 
                 uploadStopped = false;
-
-                var appSetting: string = this.en.APP_SETTINGS;
-                var appSummary: string = this.en.APP_SUMMARY;
-
-                while (appSetting.indexOf("/") > -1) {
-                    appSetting = appSetting.replace("/", "\\");
-                }
-
-                while (appSummary.indexOf("/") > -1) {
-                    appSummary = appSummary.replace("/", "\\");
-                }
-
                 let requiredFileChanged: boolean = false;
                 
                 requiredFileChanged = (path.indexOf("workspaceStorage") == -1) && (path.indexOf(".DS_Store") == -1) && (path.indexOf(this.en.FILE_LOCATIONSETTINGS_NAME) == -1) && (path.indexOf(this.en.APP_SUMMARY_NAME) == -1);
