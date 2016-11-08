@@ -32,13 +32,14 @@
    
 ## Steps To Get the Github Key.
 
-This extension required your GitHub Account Personal Access Token. You can create one simple by looking into the following pictures.
+This extension required your GitHub Account Personal Access Token. You can create one simple by looking into the following pictures. Make sure you add **GIST** in scope.
+
 **Goto Settings / Personal Access Tokens / Generate New Token**
 
 
 ![Goto Settings / Personal Access Tokens](http://shanalikhan.github.io/img/github1.PNG)
 
-**Select Scopes**
+**Select GIST From Scopes**
 
 ![Select Scopes](http://shanalikhan.github.io/img/github2.PNG)
 
