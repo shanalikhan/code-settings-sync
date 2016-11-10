@@ -371,8 +371,7 @@ export class Commons {
         fs.openSync(setting.fsPath, 'w');
 
         vscode.workspace.openTextDocument(setting).then((a: vscode.TextDocument) => {
-
-            vscode.window.showTextDocument(a, 1, false).then((e: vscode.TextEditor) => {
+            vscode.window.showTextDocument(a, 1, true).then((e: vscode.TextEditor) => {
                 e.edit(edit => {
                     edit.insert(new vscode.Position(0, 0), "VISUAL STUDIO CODE SETTINGS SYNC \r\n\r\n" + status + " SUMMARY \r\n\r\n");
                     edit.insert(new vscode.Position(1, 0), "-------------------- \r\n");
