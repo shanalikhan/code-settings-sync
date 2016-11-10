@@ -66,6 +66,7 @@ export class Util {
                     });
 
                     req.write(postData);
+                    req.end();
                 } else {
                     var req = http.request(options, function (res) {
                         var result = '';
@@ -82,6 +83,7 @@ export class Util {
                         });
                     });
                     req.write(postData);
+                    req.end();
                 }
             }
         )
@@ -89,12 +91,22 @@ export class Util {
     public static HttpGetFile(path: string): Promise<string> {
         var tempFile = temp.path();
         var file = fs.createWriteStream(tempFile);
-
+        var item = url.parse(path);
+        var options: https.RequestOptions = {
+            host: item.hostname,
+            path: item.path
+        }
+        if(item.port){
+            options.port = +item.port;
+        }
+        if (agent != null) {
+            options.agent = agent;
+        }
         return new Promise<string>(
             function (resolve, reject) {
                 if (path.startsWith('https:')) {
-                    https.get(path, (res) => {
-                        // return value
+                    https.get(options, function(res) {
+                        
                         res.pipe(file);
                         file.on('finish', () => {
                             file.close();
@@ -104,7 +116,7 @@ export class Util {
                         reject(e);
                     })
                 } else {
-                    http.get(path, (res) => {
+                    http.get(options, (res) => {
                         // return value
                         res.pipe(file);
                         file.on('finish', () => {
