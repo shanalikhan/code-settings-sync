@@ -88,7 +88,7 @@ export class Commons {
 
                 uploadStopped = false;
                 let requiredFileChanged: boolean = false;
-                
+
                 requiredFileChanged = (path.indexOf("workspaceStorage") == -1) && (path.indexOf(".DS_Store") == -1) && (path.indexOf(this.en.FILE_LOCATIONSETTINGS_NAME) == -1) && (path.indexOf(this.en.APP_SUMMARY_NAME) == -1);
 
                 console.log("Sync : File Change Detected On : " + path);
@@ -241,13 +241,13 @@ export class Commons {
                             resolve(JSON.parse(settingsData));
                         }
                         else {
-                            console.log("Sync : "+ me.en.APP_SETTINGS + " not Found.");
+                            console.log("Sync : " + me.en.APP_SETTINGS + " not Found.");
                             resolve(null);
                         }
                     });
                 }
                 else {
-                    console.log("Sync : "+me.en.APP_SETTINGS + " not Found.");
+                    console.log("Sync : " + me.en.APP_SETTINGS + " not Found.");
                     resolve(null);
                 }
 
@@ -363,15 +363,18 @@ export class Commons {
         var addedExtension: string = "\r\nEXTENSIONS ADDED : \r\n";
         var tempURI: string = this.en.APP_SUMMARY;
 
-        console.log("Sync : "+ "File Path For Summary Page : " + tempURI);
+        console.log("Sync : " + "File Path For Summary Page : " + tempURI);
 
         //        var setting: vscode.Uri = vscode.Uri.parse("untitled:" + tempURI);
 
         var setting: vscode.Uri = vscode.Uri.file(tempURI);
         fs.openSync(setting.fsPath, 'w');
+        
+        //let a = vscode.window.activeTextEditor;
 
         vscode.workspace.openTextDocument(setting).then((a: vscode.TextDocument) => {
-            vscode.window.showTextDocument(a, 1, true).then((e: vscode.TextEditor) => {
+            vscode.window.showTextDocument(a, vscode.ViewColumn.One, true).then((e: vscode.TextEditor) => {
+                
                 e.edit(edit => {
                     edit.insert(new vscode.Position(0, 0), "VISUAL STUDIO CODE SETTINGS SYNC \r\n\r\n" + status + " SUMMARY \r\n\r\n");
                     edit.insert(new vscode.Position(1, 0), "-------------------- \r\n");
@@ -423,6 +426,7 @@ export class Commons {
                     }
                 });
                 e.document.save();
+                //vscode.commands.executeCommand("workbench.action.openPreviousRecentlyUsedEditorInGroup");
             });
         }, (error: any) => {
             console.error(error);
