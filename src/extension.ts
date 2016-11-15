@@ -21,8 +21,9 @@ export async function activate(context: vscode.ExtensionContext) {
     var settingChanged: boolean = false;
     var emptySetting: boolean = false;
     var en: Environment = new Environment(context);
-    var common: Commons = new Commons(en);
+    var common: Commons = new Commons(en,context);
 
+    
     //migration code starts
 
     await common.InitializeSettings(false, false).then(async (resolve: any) => {
@@ -105,7 +106,7 @@ export async function activate(context: vscode.ExtensionContext) {
 
         let args = arguments;
         var en: Environment = new Environment(context);
-        var common: Commons = new Commons(en);
+        var common: Commons = new Commons(en,context);
         common.CloseWatch();
 
         var myGi: GithubService = null;
@@ -271,8 +272,16 @@ export async function activate(context: vscode.ExtensionContext) {
 
     var downloadSettings = vscode.commands.registerCommand('extension.downloadSettings', async () => {
 
+
+        const config = vscode.workspace.getConfiguration('sync');
+        config.update('token', 'value', true).then(function(a){
+            debugger;
+        },function (b) {
+            debugger;
+        });
+
         var en: Environment = new Environment(context);
-        var common: Commons = new Commons(en);
+        var common: Commons = new Commons(en,context);
         common.CloseWatch();
 
         var myGi: GithubService = null;
@@ -495,7 +504,7 @@ export async function activate(context: vscode.ExtensionContext) {
     var resetSettings = vscode.commands.registerCommand('extension.resetSettings', async () => {
         var en: Environment = new Environment(context);
         var fManager: FileManager;
-        var common: Commons = new Commons(en);
+        var common: Commons = new Commons(en,context);
         var syncSetting: LocalSetting = new LocalSetting();
 
         await common.InitializeSettings(false, false).then(async (resolve) => {
@@ -533,7 +542,7 @@ export async function activate(context: vscode.ExtensionContext) {
 
     var otherOptions = vscode.commands.registerCommand('extension.otherOptions', async () => {
         var en: Environment = new Environment(context);
-        var common: Commons = new Commons(en);
+        var common: Commons = new Commons(en,context);
         var setting: LocalSetting = null;
         //var myGi: GithubService = null;
         var tokenAvailable: boolean = false;

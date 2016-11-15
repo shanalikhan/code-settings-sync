@@ -16,7 +16,7 @@ export class Commons {
     private static configWatcher = null;
     private static extensionWatcher = null;
 
-    constructor(private en: Environment) {
+    constructor(private en: Environment, private context: vscode.ExtensionContext) {
 
     }
 
@@ -213,6 +213,30 @@ export class Commons {
 
     public async SaveSettings(setting: any): Promise<boolean> {
         var me = this;
+
+         let a = vscode.workspace.getConfiguration("sync");
+        a.update("sync.token","testing",true).then(a=>{
+            debugger;
+        },b=>{
+            debugger;
+        });
+
+        // settings.Gist = vscode.workspace.("sync")["gist"];
+        // settings.lastUpload = vscode.workspace.getConfiguration("sync")["lastupload"];
+        // settings.firstTime = vscode.workspace.getConfiguration("sync")["firsttime"];
+        // settings.autoDownload = vscode.workspace.getConfiguration("sync")["autodownload"];
+        // settings.autoUpload = vscode.workspace.getConfiguration("sync")["autoupload"];
+        // settings.allowUpload = vscode.workspace.getConfiguration("sync")["allowupload"];
+        // settings.lastDownload = vscode.workspace.getConfiguration("sync")["lastdownload"];
+        // settings.Version = vscode.workspace.getConfiguration("sync")["version"];
+        // settings.showSummary = vscode.workspace.getConfiguration("sync")["showsummary"];
+        // settings.publicGist = vscode.workspace.getConfiguration("sync")["publicgist"];
+        // settings.forceDownload = vscode.workspace.getConfiguration("sync")["forcedownload"];
+        // settings.openLinks = vscode.workspace.getConfiguration("sync")["openlinks"];
+
+        // settings.Token = this.context.globalState.get<string>("synctoken");
+
+
         return new Promise<boolean>(async (resolve, reject) => {
             if (setting) {
                 await FileManager.WriteFile(me.en.APP_SETTINGS, JSON.stringify(setting)).then(function (added: boolean) {
@@ -230,32 +254,26 @@ export class Commons {
 
     }
 
-    public async GetSettings(): Promise<Object> {
+    public GetSettings(): LocalSetting {
         var me = this;
-        return new Promise<Object>(async (resolve, reject) => {
-            await FileManager.FileExists(me.en.APP_SETTINGS).then(async function (fileExist: boolean) {
-                //resolve(fileExist);
-                if (fileExist) {
-                    await FileManager.ReadFile(me.en.APP_SETTINGS).then(function (settingsData: string) {
-                        if (settingsData) {
-                            resolve(JSON.parse(settingsData));
-                        }
-                        else {
-                            console.log("Sync : " + me.en.APP_SETTINGS + " not Found.");
-                            resolve(null);
-                        }
-                    });
-                }
-                else {
-                    console.log("Sync : " + me.en.APP_SETTINGS + " not Found.");
-                    resolve(null);
-                }
+        
+        let settings = new LocalSetting();
+        settings.Gist = vscode.workspace.getConfiguration("sync")["gist"];
+        settings.lastUpload = vscode.workspace.getConfiguration("sync")["lastupload"];
+        settings.firstTime = vscode.workspace.getConfiguration("sync")["firsttime"];
+        settings.autoDownload = vscode.workspace.getConfiguration("sync")["autodownload"];
+        settings.autoUpload = vscode.workspace.getConfiguration("sync")["autoupload"];
+        settings.allowUpload = vscode.workspace.getConfiguration("sync")["allowupload"];
+        settings.lastDownload = vscode.workspace.getConfiguration("sync")["lastdownload"];
+        settings.Version = vscode.workspace.getConfiguration("sync")["version"];
+        settings.showSummary = vscode.workspace.getConfiguration("sync")["showsummary"];
+        settings.publicGist = vscode.workspace.getConfiguration("sync")["publicgist"];
+        settings.forceDownload = vscode.workspace.getConfiguration("sync")["forcedownload"];
+        settings.openLinks = vscode.workspace.getConfiguration("sync")["openlinks"];
 
-
-            }, function (err: any) {
-                reject(err);
-            });
-        });
+        settings.Token = this.context.globalState.get<string>("synctoken");
+        
+         return settings;
     }
 
     public async GetTokenAndSave(sett: LocalSetting): Promise<string> {
