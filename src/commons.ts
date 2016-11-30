@@ -214,12 +214,7 @@ export class Commons {
     public async SaveSettings(setting: any): Promise<boolean> {
         var me = this;
 
-         let a = vscode.workspace.getConfiguration("sync");
-        a.update("sync.token","testing",true).then(a=>{
-            debugger;
-        },b=>{
-            debugger;
-        });
+        
 
         // settings.Gist = vscode.workspace.("sync")["gist"];
         // settings.lastUpload = vscode.workspace.getConfiguration("sync")["lastupload"];

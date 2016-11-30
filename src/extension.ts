@@ -21,9 +21,9 @@ export async function activate(context: vscode.ExtensionContext) {
     var settingChanged: boolean = false;
     var emptySetting: boolean = false;
     var en: Environment = new Environment(context);
-    var common: Commons = new Commons(en,context);
+    var common: Commons = new Commons(en, context);
 
-    
+
     //migration code starts
 
     await common.InitializeSettings(false, false).then(async (resolve: any) => {
@@ -37,13 +37,17 @@ export async function activate(context: vscode.ExtensionContext) {
 
                 if (mainSyncSetting.Token) {
 
+                    const config = vscode.workspace.getConfiguration('sync');
+
                     let keys = Object.keys(mainSyncSetting);
                     keys.forEach(keyName => {
-                        if (keyName != "Version") {
-                            if (mainSyncSetting[keyName]) {
-                                newSetting[keyName] = mainSyncSetting[keyName];
-                            }
-                        }
+                        config.update(keyName, mainSyncSetting[keyName], true);
+
+                        // if (keyName != "Version") {
+                        //     if (mainSyncSetting[keyName]) {
+                        //         newSetting[keyName] = mainSyncSetting[keyName];
+                        //     }
+                        // }
                     });
                 }
             }
@@ -106,7 +110,7 @@ export async function activate(context: vscode.ExtensionContext) {
 
         let args = arguments;
         var en: Environment = new Environment(context);
-        var common: Commons = new Commons(en,context);
+        var common: Commons = new Commons(en, context);
         common.CloseWatch();
 
         var myGi: GithubService = null;
@@ -271,27 +275,54 @@ export async function activate(context: vscode.ExtensionContext) {
 
 
     var downloadSettings = vscode.commands.registerCommand('extension.downloadSettings', async () => {
-
-
         const config = vscode.workspace.getConfiguration('sync');
-        config.update('token', 'value', true).then(function(a){
-            debugger;
-        },function (b) {
-            debugger;
-        });
+
+
+
+
 
         var en: Environment = new Environment(context);
-        var common: Commons = new Commons(en,context);
+        var common: Commons = new Commons(en, context);
         common.CloseWatch();
 
         var myGi: GithubService = null;
         var syncSetting: LocalSetting = new LocalSetting();
+        let allKeysUpdated = new Array<Thenable<void>>();
+
 
         await common.InitializeSettings(true, true).then(async (resolve) => {
 
             syncSetting = resolve;
+
+
+
+
+            let keys = Object.keys(syncSetting);
+            keys.forEach(async keyName => {
+
+                if (syncSetting[keyName] != null) {
+                    console.log(keyName.toLowerCase() + ":" + syncSetting[keyName]);
+                    allKeysUpdated.push(config.update(keyName.toLowerCase(),JSON.stringify(syncSetting[keyName]), true));
+                    
+                }
+
+
+                // if (keyName != "Version") {
+                //     if (mainSyncSetting[keyName]) {
+                //         newSetting[keyName] = mainSyncSetting[keyName];
+                //     }
+                // }
+            });
+
+
             var actionPromises: Array<Promise<void>> = new Array<Promise<void>>();
-            await StartDownload();
+            Promise.all(allKeysUpdated).then(async function (a) {
+                await StartDownload();
+            }, async function (b: any) {
+                console.log(b);
+                await StartDownload();
+            })
+
 
         }, (reject) => {
             common.LogException(reject, common.ERROR_MESSAGE, true);
@@ -504,7 +535,7 @@ export async function activate(context: vscode.ExtensionContext) {
     var resetSettings = vscode.commands.registerCommand('extension.resetSettings', async () => {
         var en: Environment = new Environment(context);
         var fManager: FileManager;
-        var common: Commons = new Commons(en,context);
+        var common: Commons = new Commons(en, context);
         var syncSetting: LocalSetting = new LocalSetting();
 
         await common.InitializeSettings(false, false).then(async (resolve) => {
@@ -542,7 +573,7 @@ export async function activate(context: vscode.ExtensionContext) {
 
     var otherOptions = vscode.commands.registerCommand('extension.otherOptions', async () => {
         var en: Environment = new Environment(context);
-        var common: Commons = new Commons(en,context);
+        var common: Commons = new Commons(en, context);
         var setting: LocalSetting = null;
         //var myGi: GithubService = null;
         var tokenAvailable: boolean = false;
