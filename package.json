@@ -105,7 +105,7 @@
                 "sync.version": {
                     "type": "number",
                     "default": 0,
-                    "description": "Set it true to Auto Upload on the settings change."
+                    "description": "Save the Code Settings Sync Version for migration code. Please dont remove this."
                 },
                 "sync.showsummary": {
                     "type": "boolean",

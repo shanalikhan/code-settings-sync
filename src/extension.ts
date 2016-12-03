@@ -231,7 +231,6 @@ export async function activate(context: vscode.ExtensionContext) {
 
 
     var downloadSettings = vscode.commands.registerCommand('extension.downloadSettings', async () => {
-        const config = vscode.workspace.getConfiguration('sync');
 
         var en: Environment = new Environment(context);
         var common: Commons = new Commons(en, context);
@@ -239,35 +238,11 @@ export async function activate(context: vscode.ExtensionContext) {
 
         var myGi: GithubService = null;
         var syncSetting: LocalSetting = new LocalSetting();
-        let allKeysUpdated = new Array<Thenable<void>>();
 
         await common.InitializeSettings(true, true).then(async (resolve) => {
 
             syncSetting = resolve;
-
-            let keys = Object.keys(syncSetting);
-            keys.forEach(async keyName => {
-
-                if (syncSetting[keyName] != null) {
-                    console.log(keyName.toLowerCase() + ":" + syncSetting[keyName]);
-                    allKeysUpdated.push(config.update(keyName.toLowerCase(), JSON.stringify(syncSetting[keyName]), true));
-
-                }
-
-            });
-
-
-            var actionPromises: Array<Promise<void>> = new Array<Promise<void>>();
-            Promise.all(allKeysUpdated).then(async function (a) {
-                await StartDownload();
-            }, async function (b: any) {
-                console.log(b);
-                await StartDownload();
-            })
-
-
-        }, (reject) => {
-            common.LogException(reject, common.ERROR_MESSAGE, true);
+            await StartDownload();
         });
 
         async function StartDownload() {
