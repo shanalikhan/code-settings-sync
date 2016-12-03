@@ -138,112 +138,125 @@ export class Commons {
 
     }
 
-    public InitializeSettings(askInformation: boolean, askGIST: boolean): Promise<any> {
-        var self = this;
-        var localSettings: any;
+    public async InitializeSettings(askInformation: boolean, askGIST: boolean): Promise<LocalSetting> {
+        let config = vscode.workspace.getConfiguration('sync');
+        let me: Commons = this;
 
+        return new Promise<LocalSetting>(async (resolve, reject) => {
 
-        return new Promise<any>(async (resolve, reject) => {
-            await FileManager.FileExists(self.en.APP_SETTINGS).then(async function (fileExist: boolean) {
-                if (fileExist) {
-                    await FileManager.ReadFile(self.en.APP_SETTINGS).then(async function (settin: string) {
+            let settings: LocalSetting = await me.GetSettings();
 
-                        vscode.window.setStatusBarMessage("");
-                        vscode.window.setStatusBarMessage("Sync : Checking for Github Token and GIST.", 2000);
+            if (askInformation) {
+                if (settings.Token == null || settings.Token == "") {
+                    openurl("https://github.com/settings/tokens");
 
-                        if (settin) {
-                            var set: any;
-                            set = JSON.parse(settin);
-                            vscode.window.setStatusBarMessage("");
-
-                            if (!askInformation) {
-                                resolve(set);
-                            }
-                            else {
-                                if (set.Token == null || set.Token == "") {
-                                    openurl("https://github.com/settings/tokens");
-
-                                    await self.GetTokenAndSave(set).then(function (token: string) {
-                                        if (!token) {
-                                            vscode.window.showErrorMessage("TOKEN NOT SAVED");
-                                            reject(false);
-                                        }
-                                        else {
-                                            set.Token = token;
-                                        }
-                                    }, function (err: any) {
-                                        self.LogException(err, self.ERROR_MESSAGE, true);
-                                        reject(err);
-                                    });
-                                }
-
-                                if (askGIST) {
-
-                                    if (set.Gist == null || set.Gist === "") {
-                                        await self.GetGistAndSave(set).then(function (Gist: string) {
-                                            if (Gist) {
-                                                set.Gist = Gist;
-                                            }
-                                            else {
-                                                vscode.window.showErrorMessage("Sync : Gist Not Saved.");
-                                                reject(false);
-                                            }
-                                        }, function (err: any) {
-                                            self.LogException(err, self.ERROR_MESSAGE, true);
-                                            reject(err);
-                                        });
-                                    }
-                                }
-                            }
-                            resolve(set);
+                    await me.GetTokenAndSave(settings).then(function (token: string) {
+                        if (!token) {
+                            vscode.window.showErrorMessage("TOKEN NOT SAVED");
+                            reject(false);
                         }
                         else {
-                            self.LogException(null, "Sync : Empty Settings Found", true);
-                            reject(false);
+                            settings.Token = token;
+                        }
+                    }, function (err: any) {
+                        me.LogException(err, me.ERROR_MESSAGE, true);
+                        reject(err);
+                    });
+                }
+
+                if (askGIST) {
+                    if (settings.Gist == null || settings.Gist === "") {
+                        await me.GetGistAndSave(settings).then(function (Gist: string) {
+                            if (Gist) {
+                                settings.Gist = Gist;
+                            }
+                            else {
+                                vscode.window.showErrorMessage("Sync : Gist Not Saved.");
+                                reject(false);
+                            }
+                        }, function (err: any) {
+                            me.LogException(err, me.ERROR_MESSAGE, true);
+                            reject(err);
+                        });
+                    }
+                }
+            }
+            resolve(settings);
+        });
+    }
+
+
+    public StartMigrationProcess(): Promise<boolean> {
+        let me: Commons = this;
+        let settingKeys = Object.keys(new LocalSetting());
+        return new Promise<boolean>(async (resolve, reject) => {
+            await FileManager.FileExists(me.en.APP_SETTINGS).then(async function (fileExist: boolean) {
+
+                if (fileExist) {
+                    await FileManager.ReadFile(me.en.APP_SETTINGS).then(async function (settin: string) {
+
+                        vscode.window.setStatusBarMessage("");
+                        vscode.window.setStatusBarMessage("Sync : Migrating from Old Settings to Standard Settings File.", 2000);
+
+                        if (settin) {
+                            let oldsetting = JSON.parse(settin);
+                            let oldkeys = Object.keys(oldsetting);
+                            oldkeys.forEach(oldKey => {
+                                if(settingKeys.indexOf(oldKey)==-1){
+                                    delete oldsetting[oldKey];
+                                }
+                            });
+
+                            await me.SaveSettings(oldsetting).then(async function(done){
+                                await FileManager.DeleteFile(me.en.APP_SETTINGS);
+                                vscode.window.showInformationMessage("Sync : Settings File Location Changed, Please read the release notes.");
+
+                            });
                         }
                     });
                 }
                 else {
-                    //self.LogException(null, "Sync : Settings File Not Found");
-                    resolve(localSettings);
+                    let settings: LocalSetting = await me.GetSettings();
+                     if (settings.Version==0 || settings.Version < Environment.CURRENT_VERSION){
+                         settings.Version = Environment.CURRENT_VERSION;
+                         await me.SaveSettings(settings);
+                     }
+
                 }
             });
         });
     }
 
+
     public async SaveSettings(setting: any): Promise<boolean> {
-        var me = this;
+        let me: Commons = this;
+        let config = vscode.workspace.getConfiguration('sync');
+        let allKeysUpdated = new Array<Thenable<void>>();
 
-        
+        return new Promise<any>((resolve, reject) => {
 
-        // settings.Gist = vscode.workspace.("sync")["gist"];
-        // settings.lastUpload = vscode.workspace.getConfiguration("sync")["lastupload"];
-        // settings.firstTime = vscode.workspace.getConfiguration("sync")["firsttime"];
-        // settings.autoDownload = vscode.workspace.getConfiguration("sync")["autodownload"];
-        // settings.autoUpload = vscode.workspace.getConfiguration("sync")["autoupload"];
-        // settings.allowUpload = vscode.workspace.getConfiguration("sync")["allowupload"];
-        // settings.lastDownload = vscode.workspace.getConfiguration("sync")["lastdownload"];
-        // settings.Version = vscode.workspace.getConfiguration("sync")["version"];
-        // settings.showSummary = vscode.workspace.getConfiguration("sync")["showsummary"];
-        // settings.publicGist = vscode.workspace.getConfiguration("sync")["publicgist"];
-        // settings.forceDownload = vscode.workspace.getConfiguration("sync")["forcedownload"];
-        // settings.openLinks = vscode.workspace.getConfiguration("sync")["openlinks"];
+            let keys = Object.keys(setting);
+            keys.forEach(async keyName => {
 
-        // settings.Token = this.context.globalState.get<string>("synctoken");
+                if (setting[keyName] != null) {
+                    console.log(keyName + ":"+ typeof (setting[keyName]));
+                    switch (typeof(setting[keyName])) {
+                        case "Date":
+                            allKeysUpdated.push(config.update(keyName.toLowerCase(), setting[keyName].toString(), true));
+                            break;
+                        default:
+                            allKeysUpdated.push(config.update(keyName.toLowerCase(), setting[keyName], true));
+                            break;
+                    }
+                }
+            });
 
-
-        return new Promise<boolean>(async (resolve, reject) => {
-            if (setting) {
-                await FileManager.WriteFile(me.en.APP_SETTINGS, JSON.stringify(setting)).then(function (added: boolean) {
-                    resolve(added);
-                }, function (err: any) {
-                    reject(err);
-                });
-            }
-            else {
-                console.error("SaveSettings: Setting is :" + setting);
-                reject(false);
-            }
+            Promise.all(allKeysUpdated).then(function (a) {
+                resolve(true);
+            }, function (b: any) {
+                me.LogException(b, me.ERROR_MESSAGE, true);
+                reject(b);
+            });
 
         });
 
@@ -251,24 +264,21 @@ export class Commons {
 
     public GetSettings(): LocalSetting {
         var me = this;
-        
+
         let settings = new LocalSetting();
         settings.Gist = vscode.workspace.getConfiguration("sync")["gist"];
-        settings.lastUpload = vscode.workspace.getConfiguration("sync")["lastupload"];
+        settings.lastUpload = new Date(vscode.workspace.getConfiguration("sync")["lastupload"]);
         settings.firstTime = vscode.workspace.getConfiguration("sync")["firsttime"];
         settings.autoDownload = vscode.workspace.getConfiguration("sync")["autodownload"];
         settings.autoUpload = vscode.workspace.getConfiguration("sync")["autoupload"];
         settings.allowUpload = vscode.workspace.getConfiguration("sync")["allowupload"];
-        settings.lastDownload = vscode.workspace.getConfiguration("sync")["lastdownload"];
+        settings.lastDownload = new Date(vscode.workspace.getConfiguration("sync")["lastdownload"]);
         settings.Version = vscode.workspace.getConfiguration("sync")["version"];
         settings.showSummary = vscode.workspace.getConfiguration("sync")["showsummary"];
         settings.publicGist = vscode.workspace.getConfiguration("sync")["publicgist"];
         settings.forceDownload = vscode.workspace.getConfiguration("sync")["forcedownload"];
-        settings.openLinks = vscode.workspace.getConfiguration("sync")["openlinks"];
-
-        settings.Token = this.context.globalState.get<string>("synctoken");
-        
-         return settings;
+        settings.Token = vscode.workspace.getConfiguration("sync")["token"];
+        return settings;
     }
 
     public async GetTokenAndSave(sett: LocalSetting): Promise<string> {
@@ -382,12 +392,12 @@ export class Commons {
 
         var setting: vscode.Uri = vscode.Uri.file(tempURI);
         fs.openSync(setting.fsPath, 'w');
-        
+
         //let a = vscode.window.activeTextEditor;
 
         vscode.workspace.openTextDocument(setting).then((a: vscode.TextDocument) => {
             vscode.window.showTextDocument(a, vscode.ViewColumn.One, true).then((e: vscode.TextEditor) => {
-                
+
                 e.edit(edit => {
                     edit.insert(new vscode.Position(0, 0), "VISUAL STUDIO CODE SETTINGS SYNC \r\n\r\n" + status + " SUMMARY \r\n\r\n");
                     edit.insert(new vscode.Position(1, 0), "-------------------- \r\n");

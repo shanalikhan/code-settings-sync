@@ -18,68 +18,24 @@ export async function activate(context: vscode.ExtensionContext) {
 
     var mainSyncSetting: any = null;
     var newSetting: LocalSetting = new LocalSetting();
-    var settingChanged: boolean = false;
-    var emptySetting: boolean = false;
     var en: Environment = new Environment(context);
     var common: Commons = new Commons(en, context);
 
 
     //migration code starts
 
+    await common.StartMigrationProcess();
+
     await common.InitializeSettings(false, false).then(async (resolve: any) => {
 
         if (resolve) {
-            mainSyncSetting = resolve;
-            if (!mainSyncSetting.Version || mainSyncSetting.Version < Environment.CURRENT_VERSION) {
+            newSetting = mainSyncSetting;
+            let tokenAvailable: boolean = (newSetting.Token != null) && (newSetting.Token != "");
+            let gistAvailable: boolean = (newSetting.Gist != null) && (newSetting.Gist != "");
 
-                settingChanged = true;
-                newSetting.Version = Environment.CURRENT_VERSION;
-
-                if (mainSyncSetting.Token) {
-
-                    const config = vscode.workspace.getConfiguration('sync');
-
-                    let keys = Object.keys(mainSyncSetting);
-                    keys.forEach(keyName => {
-                        config.update(keyName, mainSyncSetting[keyName], true);
-
-                        // if (keyName != "Version") {
-                        //     if (mainSyncSetting[keyName]) {
-                        //         newSetting[keyName] = mainSyncSetting[keyName];
-                        //     }
-                        // }
-                    });
-                }
+            if (tokenAvailable == true && gistAvailable == true && newSetting.autoDownload == true) {
+                vscode.commands.executeCommand('extension.downloadSettings');
             }
-            else {
-                newSetting = mainSyncSetting;
-                let tokenAvailable: boolean = (newSetting.Token != null) && (newSetting.Token != "");
-                let gistAvailable: boolean = (newSetting.Gist != null) && (newSetting.Gist != "");
-
-                if (tokenAvailable == true && gistAvailable == true && newSetting.autoDownload == true) {
-                    vscode.commands.executeCommand('extension.downloadSettings');
-                }
-            }
-        }
-        else {
-            settingChanged = true;
-            emptySetting = true;
-        }
-
-        if (settingChanged) {
-            await common.SaveSettings(newSetting).then(async function (added: boolean) {
-                if (added) {
-                    if (!emptySetting) {
-                        vscode.window.showInformationMessage("Sync : Migration to new version complete. Read Release Notes for details.");
-                    }
-                    else {
-                        vscode.window.showInformationMessage("Sync : Settings Created.");
-                    }
-                }
-                else {
-                    vscode.window.showErrorMessage("GIST and Token couldn't be migrated to new version. You need to add them again.")
-                }
-            });
         }
 
     }, (reject) => {
@@ -277,10 +233,6 @@ export async function activate(context: vscode.ExtensionContext) {
     var downloadSettings = vscode.commands.registerCommand('extension.downloadSettings', async () => {
         const config = vscode.workspace.getConfiguration('sync');
 
-
-
-
-
         var en: Environment = new Environment(context);
         var common: Commons = new Commons(en, context);
         common.CloseWatch();
@@ -289,29 +241,19 @@ export async function activate(context: vscode.ExtensionContext) {
         var syncSetting: LocalSetting = new LocalSetting();
         let allKeysUpdated = new Array<Thenable<void>>();
 
-
         await common.InitializeSettings(true, true).then(async (resolve) => {
 
             syncSetting = resolve;
-
-
-
 
             let keys = Object.keys(syncSetting);
             keys.forEach(async keyName => {
 
                 if (syncSetting[keyName] != null) {
                     console.log(keyName.toLowerCase() + ":" + syncSetting[keyName]);
-                    allKeysUpdated.push(config.update(keyName.toLowerCase(),JSON.stringify(syncSetting[keyName]), true));
-                    
+                    allKeysUpdated.push(config.update(keyName.toLowerCase(), JSON.stringify(syncSetting[keyName]), true));
+
                 }
 
-
-                // if (keyName != "Version") {
-                //     if (mainSyncSetting[keyName]) {
-                //         newSetting[keyName] = mainSyncSetting[keyName];
-                //     }
-                // }
             });
 
 
@@ -612,7 +554,7 @@ export async function activate(context: vscode.ExtensionContext) {
 
             switch (resolve) {
                 case items[0]: {
-                    if (setting.openLinks) {
+                    if (setting.firstTime) {
                         openurl("http://shanalikhan.github.io/2016/07/31/Visual-Studio-code-sync-setting-edit-manually.html");
                         vscode.window.showInformationMessage("Sync : URL Opened displaying about the settings options in details.");
                     }

@@ -16,7 +16,6 @@ export class LocalSetting {
     public showSummary: boolean = true;
     public publicGist = false;
     public forceDownload = false;
-    public openLinks = true;
 
     constructor(){
         this.Version = Environment.CURRENT_VERSION;
