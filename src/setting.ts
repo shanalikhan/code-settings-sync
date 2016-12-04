@@ -2,7 +2,7 @@
 import {Environment} from './environmentPath';
 
 
-export class LocalSetting {
+export class ExtensionConfig {
 
     public Token: string = null;
     public Gist: string = null;
@@ -10,19 +10,24 @@ export class LocalSetting {
     public firstTime: boolean = true;  // to open the toturial first time when used any command.
     public autoDownload: boolean = false;
     public autoUpload = false;
-    public allowUpload: boolean = true;
     public lastDownload: Date = null;
     public Version: number = null;
     public showSummary: boolean = true;
-    public publicGist = false;
     public forceDownload = false;
-    public openLinks = true;
-
     constructor(){
         this.Version = Environment.CURRENT_VERSION;
 
     }
+}
 
+export class LocalConfig{
+    public publicGist: boolean = false;
+    public userName : string= null;
+    public name : string = null;
+    public config: ExtensionConfig = null;
+    constructor(){
+        this.config = new ExtensionConfig();
+    }
 }
 
 export class CloudSetting {

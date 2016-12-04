@@ -1,95 +1,159 @@
 {
-  "name": "code-settings-sync",
-  "displayName": "Visual Studio Code Settings Sync",
-  "description": "Synchronize Settings, Snippets, launch, keybindings files and extensions Across Multiple Machines using Github GIST.",
-  "version": "2.3.8",
-  "icon": "images/cloud.png",
-  "publisher": "Shan",
-  "author": {
-    "name": "Shan Khan",
-    "url": "http://shanalikhan.github.io", 
-    "email": "shanalikhan@hotmail.com"
-  },
-  "homepage": "https://github.com/shanalikhan/code-settings-sync",
-  "galleryBanner": {
-    "color": "#3B4859",
-    "theme": "dark"
-  },
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/shanalikhan/code-settings-sync.git"
-  },
-  "bugs": {
-    "url": "https://github.com/shanalikhan/code-settings-sync/issues",
-    "email": "shanalikhan@hotmail.com"
-  },
-  "engines": {
-    "vscode": "^1.6.0"
-  },
-  "categories": [
-    "Other"
-  ],
-  "keywords": [
-    "vscode-sync",
-    "sync",
-    "vscode-settings-sync",
-    "code-settings-sync"
-  ],
-  "activationEvents": [
-    "*",
-    "onCommand:extension.updateSettings",
-    "onCommand:extension.downloadSettings",
-    "onCommand:extension.resetSettings",
-    "onCommand:extension.HowSettings",
-    "onCommand:extension.otherOptions"
-  ],
-  "main": "./out/src/extension",
-  "contributes": {
-    "commands": [{
-      "command": "extension.HowSettings",
-      "title": "Sync : How To Configure"
-    }, {
-      "command": "extension.downloadSettings",
-      "title": "Sync : Download Settings"
-    }, {
-      "command": "extension.updateSettings",
-      "title": "Sync : Update / Upload Settings"
-    }, {
-      "command": "extension.resetSettings",
-      "title": "Sync : Reset Extension Settings"
-    }, {
-      "command": "extension.otherOptions",
-      "title": "Sync : Advanced Options"
-    }],
-    "keybindings": [{
-      "key": "alt+shift+u",
-      "command": "extension.updateSettings",
-      "when": "editorTextFocus"
-    }, {
-      "key": "alt+shift+d",
-      "command": "extension.downloadSettings",
-      "when": "editorTextFocus"
-    }]
-  },
-  "scripts": {
-    "vscode:prepublish": "tsc -p ./",
-    "compile": "tsc -watch -p ./",
-    "postinstall": "node ./node_modules/vscode/bin/install"
-  },
-  "devDependencies": {
-    "typescript": "^2.0.3",
-    "vscode": "^1.0.3"
-  },
-  "dependencies": {
-    "@types/node": "^6.0.45",
-    "adm-zip": "^0.4.7",
-    "fs": "^0.0.2",
-    "github": "^6.0.1",
-    "ncp": "^2.0.0",
-    "open": "^0.0.5",
-    "rimraf": "^2.5.4",
-    "temp": "^0.8.3",
-    "https-proxy-agent" : "^1.0.0",
-    "chokidar": "^1.6.1"
-  }
+    "name": "code-settings-sync",
+    "displayName": "Visual Studio Code Settings Sync",
+    "description": "Synchronize Settings, Snippets, launch, keybindings files and extensions Across Multiple Machines using Github GIST.",
+    "version": "2.4.0",
+    "icon": "images/cloud.png",
+    "publisher": "Shan",
+    "author": {
+        "name": "Shan Khan",
+        "url": "http://shanalikhan.github.io",
+        "email": "shanalikhan@hotmail.com"
+    },
+    "homepage": "https://github.com/shanalikhan/code-settings-sync",
+    "galleryBanner": {
+        "color": "#3B4859",
+        "theme": "dark"
+    },
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/shanalikhan/code-settings-sync.git"
+    },
+    "bugs": {
+        "url": "https://github.com/shanalikhan/code-settings-sync/issues",
+        "email": "shanalikhan@hotmail.com"
+    },
+    "engines": {
+        "vscode": "^1.6.0"
+    },
+    "categories": [
+        "Other"
+    ],
+    "keywords": [
+        "vscode-sync",
+        "sync",
+        "vscode-settings-sync",
+        "code-settings-sync"
+    ],
+    "activationEvents": [
+        "*",
+        "onCommand:extension.updateSettings",
+        "onCommand:extension.downloadSettings",
+        "onCommand:extension.resetSettings",
+        "onCommand:extension.HowSettings",
+        "onCommand:extension.otherOptions"
+    ],
+    "main": "./out/src/extension",
+    "contributes": {
+        "commands": [
+            {
+                "command": "extension.HowSettings",
+                "title": "Sync : How To Configure"
+            },
+            {
+                "command": "extension.downloadSettings",
+                "title": "Sync : Download Settings"
+            },
+            {
+                "command": "extension.updateSettings",
+                "title": "Sync : Update / Upload Settings"
+            },
+            {
+                "command": "extension.resetSettings",
+                "title": "Sync : Reset Extension Settings"
+            },
+            {
+                "command": "extension.otherOptions",
+                "title": "Sync : Advanced Options"
+            }
+        ],
+        "keybindings": [
+            {
+                "key": "alt+shift+u",
+                "command": "extension.updateSettings",
+                "when": "editorTextFocus"
+            },
+            {
+                "key": "alt+shift+d",
+                "command": "extension.downloadSettings",
+                "when": "editorTextFocus"
+            }
+        ],
+        "configuration": {
+            "properties": {
+                "sync.token": {
+                    "type": "string",
+                    "default": "",
+                    "description": "Github Token for Code Settings Sync."
+                },
+                "sync.gist": {
+                    "type": "string",
+                    "default": "",
+                    "description": "Github GIST ID for Code Settings Sync."
+                },
+                "sync.lastupload": {
+                    "type": "string",
+                    "default": "",
+                    "description": "Code Settings Sync last upload date. Set it as empty if you want to manully hit download."
+                },
+                "sync.lastdownload": {
+                    "type": "string",
+                    "default": "",
+                    "description": "Code Settings Sync last download date. Set it as empty if you want to manully hit download."
+                },
+                "sync.autodownload": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "Set it true to Auto Download the settings on code start."
+                },
+                "sync.autoupload": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "Set it true to Auto Upload on the settings change."
+                },
+                "sync.version": {
+                    "type": "number",
+                    "default": 0,
+                    "description": "Save the Code Settings Sync Version for migration code. Please dont remove this."
+                },
+                "sync.showsummary": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Shows the summary page after download and upload."
+                },
+                "sync.forcedownload": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "Set it to true if you want to download the settings everytime code starts."
+                },
+                "sync.firsttime": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Set it to false when you understand all the process and dont want to open links for references."
+                }
+            },
+            "title": "Code Settings Sync Configuration Settings"
+        }
+    },
+    "scripts": {
+        "vscode:prepublish": "tsc -p ./",
+        "compile": "tsc -watch -p ./",
+        "postinstall": "node ./node_modules/vscode/bin/install"
+    },
+    "devDependencies": {
+        "typescript": "^2.0.3",
+        "vscode": "^1.0.3"
+    },
+    "dependencies": {
+        "@types/node": "^6.0.45",
+        "adm-zip": "^0.4.7",
+        "fs": "^0.0.2",
+        "github": "^7.0.0",
+        "ncp": "^2.0.0",
+        "open": "^0.0.5",
+        "rimraf": "^2.5.4",
+        "temp": "^0.8.3",
+        "https-proxy-agent": "^1.0.0",
+        "chokidar": "^1.6.1"
+    }
 }
