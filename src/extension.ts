@@ -7,7 +7,7 @@ import { Environment } from './environmentPath';
 import { File, FileManager } from './fileManager';
 import { Commons } from './commons';
 import { GithubService } from './githubService';
-import { LocalSetting, CloudSetting } from './setting';
+import { ExtensionConfig, LocalConfig, CloudSetting } from './setting';
 import { OsType, SettingType } from './enums';
 
 export async function activate(context: vscode.ExtensionContext) {
@@ -21,14 +21,14 @@ export async function activate(context: vscode.ExtensionContext) {
 
     await common.StartMigrationProcess();
 
-    await common.InitializeSettings(false, false).then(async (resolve: LocalSetting) => {
+    await common.InitializeSettings(false, false).then(async (resolve: LocalConfig) => {
 
         if (resolve) {
             let tokenAvailable: boolean = (resolve.Token != null) && (resolve.Token != "");
             let gistAvailable: boolean = (resolve.Gist != null) && (resolve.Gist != "");
 
             if (tokenAvailable == true && gistAvailable == true && resolve.autoDownload == true) {
-               await vscode.commands.executeCommand('extension.downloadSettings');
+                await vscode.commands.executeCommand('extension.downloadSettings');
             }
 
             if (resolve.autoUpload && tokenAvailable && gistAvailable) {
@@ -59,19 +59,28 @@ export async function activate(context: vscode.ExtensionContext) {
     var updateSettings = vscode.commands.registerCommand('extension.updateSettings', async function () {
 
         let args = arguments;
+
         var en: Environment = new Environment(context);
         var common: Commons = new Commons(en, context);
         common.CloseWatch();
 
         var myGi: GithubService = null;
         var dateNow: Date = new Date();
-        var syncSetting: LocalSetting = new LocalSetting();
+        var syncSetting: LocalConfig = new LocalConfig();
         var allSettingFiles = new Array<File>();
         var uploadedExtensions = new Array<ExtensionInformation>();
 
         await common.InitializeSettings(true, false).then(async (resolve) => {
 
             syncSetting = resolve;
+            if (args.length > 0) {
+                if (args[0] == "publicGIST") {
+                    syncSetting.publicGist = true;
+                }
+                else {
+                    syncSetting.publicGist = false;
+                }
+            }
             myGi = new GithubService(syncSetting.Token);
             await startGitProcess();
 
@@ -185,6 +194,11 @@ export async function activate(context: vscode.ExtensionContext) {
                                             vscode.window.setStatusBarMessage("");
                                             vscode.window.setStatusBarMessage("Uploaded Successfully.", 5000);
                                         }
+
+                                        if(syncSetting.publicGist){
+                                            vscode.window.showInformationMessage("Sync : You can share the GIST ID to other users to download your settings.");
+                                        }
+
                                         if (syncSetting.showSummary) {
                                             common.GenerateSummmaryFile(true, allSettingFiles, null, uploadedExtensions, syncSetting);
 
@@ -231,7 +245,7 @@ export async function activate(context: vscode.ExtensionContext) {
         common.CloseWatch();
 
         var myGi: GithubService = null;
-        var syncSetting: LocalSetting = new LocalSetting();
+        var syncSetting: LocalConfig = new LocalConfig();
 
         await common.InitializeSettings(true, true).then(async (resolve) => {
 
@@ -447,7 +461,7 @@ export async function activate(context: vscode.ExtensionContext) {
         var en: Environment = new Environment(context);
         var fManager: FileManager;
         var common: Commons = new Commons(en, context);
-        var syncSetting: LocalSetting = new LocalSetting();
+        var syncSetting: LocalConfig = new LocalConfig();
 
         await common.InitializeSettings(false, false).then(async (resolve) => {
             syncSetting = resolve;
@@ -459,7 +473,7 @@ export async function activate(context: vscode.ExtensionContext) {
         async function Init() {
             vscode.window.setStatusBarMessage("Sync : Resetting Your Settings.", 2000);
             try {
-                syncSetting = new LocalSetting();
+                syncSetting = new LocalConfig();
 
                 await common.SaveSettings(syncSetting).then(function (added: boolean) {
                     if (added) {
@@ -485,7 +499,7 @@ export async function activate(context: vscode.ExtensionContext) {
     var otherOptions = vscode.commands.registerCommand('extension.otherOptions', async () => {
         var en: Environment = new Environment(context);
         var common: Commons = new Commons(en, context);
-        var setting: LocalSetting = null;
+        var setting: LocalConfig = null;
         //var myGi: GithubService = null;
         var tokenAvailable: boolean = false;
         var gistAvailable: boolean = false;
@@ -515,6 +529,7 @@ export async function activate(context: vscode.ExtensionContext) {
         items.push("Sync : Toggle Show Summary Page On Upload / Download");
         items.push("Sync : Toggle Force Download");
         items.push("Sync : Toggle Auto-Upload On Settings Change");
+        items.push("Sync : Share Settings");
 
         var selectedItem: Number = 0;
         var settingChanged: boolean = false;
@@ -650,6 +665,19 @@ export async function activate(context: vscode.ExtensionContext) {
                     }
                     break;
                 }
+                case items[9]: {
+                    await vscode.window.showInformationMessage("Sync : This will remove current GIST and upload settings on new public GIST. Do you want to continue ?", "Yes").then((resolve) => {
+                        if (resolve == "Yes") {
+                            setting.publicGist = true;
+                            settingChanged = true;
+                            setting.Gist = "";
+                            selectedItem = 10;
+                        }
+                    }, (reject) => {
+                        reject;
+                    });
+                    break;
+                }
                 default: {
                     break;
                 }
@@ -710,6 +738,11 @@ export async function activate(context: vscode.ExtensionContext) {
                                 else {
                                     vscode.window.showInformationMessage("Sync : Auto upload on Setting Change Turned Off.");
                                 }
+                                break;
+                            }
+                            case 10: {
+                                await vscode.commands.executeCommand('extension.updateSettings', "publicGIST");
+
                                 break;
                             }
                         }

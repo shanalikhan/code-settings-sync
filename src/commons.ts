@@ -2,7 +2,7 @@
 import * as vscode from 'vscode';
 import { Environment } from './environmentPath';
 import { File, FileManager } from './fileManager';
-import { LocalSetting } from './setting';
+import { ExtensionConfig, LocalConfig } from './setting';
 import { PluginService, ExtensionInformation } from './pluginService';
 import * as fs from 'fs';
 
@@ -30,7 +30,7 @@ export class Commons {
             }
         }
         vscode.window.setStatusBarMessage("");
-        
+
         if (msgBox == true) {
             vscode.window.showErrorMessage(message);
         }
@@ -139,13 +139,13 @@ export class Commons {
 
     }
 
-    public async InitializeSettings(askInformation: boolean, askGIST: boolean): Promise<LocalSetting> {
+    public async InitializeSettings(askInformation: boolean, askGIST: boolean): Promise<LocalConfig> {
         let config = vscode.workspace.getConfiguration('sync');
         let me: Commons = this;
 
-        return new Promise<LocalSetting>(async (resolve, reject) => {
+        return new Promise<LocalConfig>(async (resolve, reject) => {
 
-            let settings: LocalSetting = await me.GetSettings();
+            let settings: LocalConfig = await me.GetSettings();
 
             if (askInformation) {
                 if (settings.Token == null || settings.Token == "") {
@@ -189,7 +189,7 @@ export class Commons {
 
     public StartMigrationProcess(): Promise<boolean> {
         let me: Commons = this;
-        let settingKeys = Object.keys(new LocalSetting());
+        let settingKeys = Object.keys(new LocalConfig());
         return new Promise<boolean>(async (resolve, reject) => {
             await FileManager.FileExists(me.en.APP_SETTINGS).then(async function (fileExist: boolean) {
 
@@ -218,8 +218,12 @@ export class Commons {
                     });
                 }
                 else {
-                    let settings: LocalSetting = await me.GetSettings();
+                    let settings: LocalConfig = await me.GetSettings();
                     if (settings.Version == 0 || settings.Version < Environment.CURRENT_VERSION) {
+                         if(settings.Version==0){
+                            vscode.window.showInformationMessage("Sync : Settings Created");
+                        }
+
                         settings.Version = Environment.CURRENT_VERSION;
                         await me.SaveSettings(settings);
                     }
@@ -231,33 +235,27 @@ export class Commons {
     }
 
 
-    public async SaveSettings(setting: any): Promise<boolean> {
+    public async SaveSettings(lsetting: LocalConfig): Promise<boolean> {
         let me: Commons = this;
         let config = vscode.workspace.getConfiguration('sync');
         let allKeysUpdated = new Array<Thenable<void>>();
 
-        return new Promise<any>((resolve, reject) => {
+        let setting: ExtensionConfig = lsetting;
+
+        return new Promise<boolean>((resolve, reject) => {
 
             let keys = Object.keys(setting);
             keys.forEach(async keyName => {
 
-                if (setting[keyName] != null) {
-                    console.log(keyName + ":" + typeof (setting[keyName]));
-                    if (keyName.toLowerCase() == "token") {
-                        allKeysUpdated.push(me.context.globalState.update("token", setting[keyName]));
-                    }
-                    else {
+                if (setting[keyName] == null || isNaN(setting[keyName])) {
+                    setting[keyName] = "";
+                }
 
-
-                    switch (typeof (setting[keyName])) {
-                        case "Date":
-                            allKeysUpdated.push(config.update(keyName.toLowerCase(), setting[keyName].toString(), true));
-                            break;
-                        default:
-                            allKeysUpdated.push(config.update(keyName.toLowerCase(), setting[keyName], true));
-                            break;
-                    }
-                    }
+                if (keyName.toLowerCase() == "token") {
+                    allKeysUpdated.push(me.context.globalState.update("token", setting[keyName]));
+                }
+                else {
+                    allKeysUpdated.push(config.update(keyName.toLowerCase(), setting[keyName], true));
                 }
             });
 
@@ -265,17 +263,17 @@ export class Commons {
                 resolve(true);
             }, function (b: any) {
                 me.LogException(b, me.ERROR_MESSAGE, true);
-                reject(b);
+                reject(false);
             });
 
         });
 
     }
 
-    public GetSettings(): LocalSetting {
+    public GetSettings(): LocalConfig {
         var me = this;
 
-        let settings = new LocalSetting();
+        let settings = new LocalConfig();
         settings.Gist = vscode.workspace.getConfiguration("sync")["gist"];
         settings.lastUpload = new Date(vscode.workspace.getConfiguration("sync")["lastupload"]);
         settings.firstTime = vscode.workspace.getConfiguration("sync")["firsttime"];
@@ -289,13 +287,14 @@ export class Commons {
         settings.forceDownload = vscode.workspace.getConfiguration("sync")["forcedownload"];
         //settings.Token = vscode.workspace.getConfiguration("sync")["token"];
         if (this.context.globalState.get('token')) {
-            settings.Token = JSON.stringify(this.context.globalState.get('token'));
+            let token = this.context.globalState.get('token');
+            settings.Token = String(token);
         }
 
         return settings;
     }
 
-    public async GetTokenAndSave(sett: LocalSetting): Promise<string> {
+    public async GetTokenAndSave(sett: LocalConfig): Promise<string> {
         var me = this;
         var opt = Commons.GetInputBox(true);
         return new Promise<string>((resolve, reject) => {
@@ -325,7 +324,7 @@ export class Commons {
             } ());
         });
     }
-    public async GetGistAndSave(sett: LocalSetting): Promise<string> {
+    public async GetGistAndSave(sett: LocalConfig): Promise<string> {
         var me = this;
         var opt = Commons.GetInputBox(false);
         return new Promise<string>((resolve, reject) => {
@@ -380,7 +379,7 @@ export class Commons {
         }
     };
 
-    public GenerateSummmaryFile(upload: boolean, files: Array<File>, removedExtensions: Array<ExtensionInformation>, addedExtensions: Array<ExtensionInformation>, syncSettings: LocalSetting) {
+    public GenerateSummmaryFile(upload: boolean, files: Array<File>, removedExtensions: Array<ExtensionInformation>, addedExtensions: Array<ExtensionInformation>, syncSettings: LocalConfig) {
 
         var header: string = null;
         var downloaded: string = "Download";

@@ -2,7 +2,7 @@
 import {Environment} from './environmentPath';
 
 
-export class LocalSetting {
+export class ExtensionConfig {
 
     public Token: string = null;
     public Gist: string = null;
@@ -14,14 +14,18 @@ export class LocalSetting {
     public lastDownload: Date = null;
     public Version: number = null;
     public showSummary: boolean = true;
-    public publicGist = false;
     public forceDownload = false;
-
     constructor(){
         this.Version = Environment.CURRENT_VERSION;
 
     }
+}
 
+export class LocalConfig extends ExtensionConfig{
+    public publicGist = false;
+    constructor(){
+        super();
+    }
 }
 
 export class CloudSetting {
