@@ -29,12 +29,13 @@ export class Commons {
                 msgBox = false;
             }
         }
-
+        vscode.window.setStatusBarMessage("");
+        
         if (msgBox == true) {
             vscode.window.showErrorMessage(message);
         }
         else {
-            vscode.window.setStatusBarMessage("");
+
             vscode.window.setStatusBarMessage(message, 5000);
         }
     }
@@ -224,6 +225,7 @@ export class Commons {
                     }
 
                 }
+                resolve(true);
             });
         });
     }
@@ -241,21 +243,21 @@ export class Commons {
 
                 if (setting[keyName] != null) {
                     console.log(keyName + ":" + typeof (setting[keyName]));
-                    if (keyName.toLowerCase() == "token") {
-                        allKeysUpdated.push(me.context.globalState.update("token", setting[keyName]));
-                    }
-                    else {
+                    // if (keyName.toLowerCase() == "token") {
+                    //     allKeysUpdated.push(me.context.globalState.update("token", setting[keyName]));
+                    // }
+                    // else {
 
 
-                        switch (typeof (setting[keyName])) {
-                            case "Date":
-                                allKeysUpdated.push(config.update(keyName.toLowerCase(), setting[keyName].toString(), true));
-                                break;
-                            default:
-                                allKeysUpdated.push(config.update(keyName.toLowerCase(), setting[keyName], true));
-                                break;
-                        }
+                    switch (typeof (setting[keyName])) {
+                        case "Date":
+                            allKeysUpdated.push(config.update(keyName.toLowerCase(), setting[keyName].toString(), true));
+                            break;
+                        default:
+                            allKeysUpdated.push(config.update(keyName.toLowerCase(), setting[keyName], true));
+                            break;
                     }
+                    //}
                 }
             });
 
@@ -285,10 +287,10 @@ export class Commons {
         settings.showSummary = vscode.workspace.getConfiguration("sync")["showsummary"];
         settings.publicGist = vscode.workspace.getConfiguration("sync")["publicgist"];
         settings.forceDownload = vscode.workspace.getConfiguration("sync")["forcedownload"];
-        //settings.Token = vscode.workspace.getConfiguration("sync")["token"];
-        if (this.context.globalState.get('token')) {
-            settings.Token = JSON.stringify(this.context.globalState.get('token'));
-        }
+        settings.Token = vscode.workspace.getConfiguration("sync")["token"];
+        // if (this.context.globalState.get('token')) {
+        //     settings.Token = JSON.stringify(this.context.globalState.get('token'));
+        // }
 
         return settings;
     }

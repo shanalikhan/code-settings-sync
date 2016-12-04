@@ -16,25 +16,23 @@ export async function activate(context: vscode.ExtensionContext) {
     var openurl = require('open');
     var fs = require('fs');
 
-    var mainSyncSetting: any = null;
-    var newSetting: LocalSetting = new LocalSetting();
     var en: Environment = new Environment(context);
     var common: Commons = new Commons(en, context);
 
-
-    //migration code starts
-
     await common.StartMigrationProcess();
 
-    await common.InitializeSettings(false, false).then(async (resolve: any) => {
+    await common.InitializeSettings(false, false).then(async (resolve: LocalSetting) => {
 
         if (resolve) {
-            newSetting = mainSyncSetting;
-            let tokenAvailable: boolean = (newSetting.Token != null) && (newSetting.Token != "");
-            let gistAvailable: boolean = (newSetting.Gist != null) && (newSetting.Gist != "");
+            let tokenAvailable: boolean = (resolve.Token != null) && (resolve.Token != "");
+            let gistAvailable: boolean = (resolve.Gist != null) && (resolve.Gist != "");
 
-            if (tokenAvailable == true && gistAvailable == true && newSetting.autoDownload == true) {
-                vscode.commands.executeCommand('extension.downloadSettings');
+            if (tokenAvailable == true && gistAvailable == true && resolve.autoDownload == true) {
+               await vscode.commands.executeCommand('extension.downloadSettings');
+            }
+
+            if (resolve.autoUpload && tokenAvailable && gistAvailable) {
+                common.StartWatch();
             }
         }
 
@@ -42,25 +40,21 @@ export async function activate(context: vscode.ExtensionContext) {
         common.LogException(reject, common.ERROR_MESSAGE, false);
     });
 
-    //migration code ends
+    // var tokenAvailable: boolean = newSetting.Token != null && newSetting.Token != "";
+    // var gistAvailable: boolean = newSetting.Gist != null && newSetting.Gist != "";
 
-    var tokenAvailable: boolean = newSetting.Token != null && newSetting.Token != "";
-    var gistAvailable: boolean = newSetting.Gist != null && newSetting.Gist != "";
+    // let appSetting: string = en.APP_SETTINGS;
+    // let appSummary: string = en.APP_SUMMARY;
 
-    let appSetting: string = en.APP_SETTINGS;
-    let appSummary: string = en.APP_SUMMARY;
+    // while (appSetting.indexOf("/") > -1) {
+    //     appSetting = appSetting.replace("/", "\\");
+    // }
 
-    while (appSetting.indexOf("/") > -1) {
-        appSetting = appSetting.replace("/", "\\");
-    }
+    // while (appSummary.indexOf("/") > -1) {
+    //     appSummary = appSummary.replace("/", "\\");
+    // }
 
-    while (appSummary.indexOf("/") > -1) {
-        appSummary = appSummary.replace("/", "\\");
-    }
 
-    if (newSetting.autoUpload && tokenAvailable && gistAvailable) {
-        common.StartWatch();
-    }
 
     var updateSettings = vscode.commands.registerCommand('extension.updateSettings', async function () {
 
@@ -427,7 +421,7 @@ export async function activate(context: vscode.ExtensionContext) {
                                 vscode.window.setStatusBarMessage("");
                                 vscode.window.setStatusBarMessage("Sync : Download Complete.", 5000);
 
-                                if (newSetting.autoUpload) {
+                                if (syncSetting.autoUpload) {
                                     common.StartWatch();
                                 }
                             }
