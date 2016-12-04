@@ -109,7 +109,7 @@ export class Commons {
                         }, (reject) => {
                             uploadStopped = reject;
                         });
-                        
+
                     }
                 } else {
                     uploadStopped = true;
@@ -198,19 +198,23 @@ export class Commons {
 
     public StartMigrationProcess(): Promise<boolean> {
         let me: Commons = this;
-        let settingKeys = Object.keys(new LocalConfig());
+        let settingKeys = Object.keys(new ExtensionConfig());
         return new Promise<boolean>(async (resolve, reject) => {
             await FileManager.FileExists(me.en.APP_SETTINGS).then(async function (fileExist: boolean) {
 
                 if (fileExist) {
                     await FileManager.ReadFile(me.en.APP_SETTINGS).then(async function (settin: string) {
 
-                        vscode.window.setStatusBarMessage("");
-                        vscode.window.setStatusBarMessage("Sync : Migrating from Old Settings to Standard Settings File.", 2000);
+
 
                         if (settin) {
                             let oldsetting = JSON.parse(settin);
                             if (oldsetting.Token) {
+
+                                vscode.window.setStatusBarMessage("");
+                                vscode.window.setStatusBarMessage("Sync : Migrating from Old Settings to Standard Settings File.", 2000);
+
+
                                 let oldkeys = Object.keys(oldsetting);
                                 oldkeys.forEach(oldKey => {
                                     if (settingKeys.indexOf(oldKey) == -1) {
@@ -219,10 +223,10 @@ export class Commons {
                                 });
 
                                 await me.SaveSettings(oldsetting).then(async function (done) {
-                                    vscode.window.showInformationMessage("Sync : Settings File Location Changed, Please read the release notes.");
+                                    vscode.window.showInformationMessage("Sync : Now this extension follows standard code configuration to setup this extension. Settings migrated, Please read the release notes.");
                                 });
                             }
-                            await FileManager.DeleteFile(me.en.APP_SETTINGS);
+                            //await FileManager.DeleteFile(me.en.APP_SETTINGS);
                         }
                     });
                 }

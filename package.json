@@ -45,31 +45,40 @@
     ],
     "main": "./out/src/extension",
     "contributes": {
-        "commands": [{
-            "command": "extension.HowSettings",
-            "title": "Sync : How To Configure"
-        }, {
-            "command": "extension.downloadSettings",
-            "title": "Sync : Download Settings"
-        }, {
-            "command": "extension.updateSettings",
-            "title": "Sync : Update / Upload Settings"
-        }, {
-            "command": "extension.resetSettings",
-            "title": "Sync : Reset Extension Settings"
-        }, {
-            "command": "extension.otherOptions",
-            "title": "Sync : Advanced Options"
-        }],
-        "keybindings": [{
-            "key": "alt+shift+u",
-            "command": "extension.updateSettings",
-            "when": "editorTextFocus"
-        }, {
-            "key": "alt+shift+d",
-            "command": "extension.downloadSettings",
-            "when": "editorTextFocus"
-        }],
+        "commands": [
+            {
+                "command": "extension.HowSettings",
+                "title": "Sync : How To Configure"
+            },
+            {
+                "command": "extension.downloadSettings",
+                "title": "Sync : Download Settings"
+            },
+            {
+                "command": "extension.updateSettings",
+                "title": "Sync : Update / Upload Settings"
+            },
+            {
+                "command": "extension.resetSettings",
+                "title": "Sync : Reset Extension Settings"
+            },
+            {
+                "command": "extension.otherOptions",
+                "title": "Sync : Advanced Options"
+            }
+        ],
+        "keybindings": [
+            {
+                "key": "alt+shift+u",
+                "command": "extension.updateSettings",
+                "when": "editorTextFocus"
+            },
+            {
+                "key": "alt+shift+d",
+                "command": "extension.downloadSettings",
+                "when": "editorTextFocus"
+            }
+        ],
         "configuration": {
             "properties": {
                 "sync.token": {
@@ -112,11 +121,6 @@
                     "default": true,
                     "description": "Shows the summary page after download and upload."
                 },
-                "sync.publicgist": {
-                    "type": "boolean",
-                    "default": false,
-                    "description": "Set it to true if you want to create public GIST for sharing."
-                },
                 "sync.forcedownload": {
                     "type": "boolean",
                     "default": false,
@@ -127,7 +131,6 @@
                     "default": true,
                     "description": "Set it to false when you understand all the process and dont want to open links for references."
                 }
-
             },
             "title": "Code Settings Sync Configuration Settings"
         }
