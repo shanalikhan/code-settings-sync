@@ -243,10 +243,10 @@ export class Commons {
 
                 if (setting[keyName] != null) {
                     console.log(keyName + ":" + typeof (setting[keyName]));
-                    // if (keyName.toLowerCase() == "token") {
-                    //     allKeysUpdated.push(me.context.globalState.update("token", setting[keyName]));
-                    // }
-                    // else {
+                    if (keyName.toLowerCase() == "token") {
+                        allKeysUpdated.push(me.context.globalState.update("token", setting[keyName]));
+                    }
+                    else {
 
 
                     switch (typeof (setting[keyName])) {
@@ -257,7 +257,7 @@ export class Commons {
                             allKeysUpdated.push(config.update(keyName.toLowerCase(), setting[keyName], true));
                             break;
                     }
-                    //}
+                    }
                 }
             });
 
@@ -287,10 +287,10 @@ export class Commons {
         settings.showSummary = vscode.workspace.getConfiguration("sync")["showsummary"];
         settings.publicGist = vscode.workspace.getConfiguration("sync")["publicgist"];
         settings.forceDownload = vscode.workspace.getConfiguration("sync")["forcedownload"];
-        settings.Token = vscode.workspace.getConfiguration("sync")["token"];
-        // if (this.context.globalState.get('token')) {
-        //     settings.Token = JSON.stringify(this.context.globalState.get('token'));
-        // }
+        //settings.Token = vscode.workspace.getConfiguration("sync")["token"];
+        if (this.context.globalState.get('token')) {
+            settings.Token = JSON.stringify(this.context.globalState.get('token'));
+        }
 
         return settings;
     }
