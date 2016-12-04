@@ -185,7 +185,7 @@ export async function activate(context: vscode.ExtensionContext) {
                     if (gistObj) {
 
                         if (gistObj.owner.login != myGi.userName) {
-                            common.LogException(null, "Sync : You cant edit other user GIST", true);
+                            common.LogException(null, "Sync : You cant edit GIST for user : " + gistObj.owner.login, true);
                             return;
                         }
 
