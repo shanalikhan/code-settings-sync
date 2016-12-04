@@ -21,10 +21,13 @@ export class ExtensionConfig {
     }
 }
 
-export class LocalConfig extends ExtensionConfig{
-    public publicGist = false;
+export class LocalConfig{
+    public publicGist: boolean = false;
+    public userName : string= null;
+    public name : string = null;
+    public config: ExtensionConfig = null;
     constructor(){
-        super();
+        this.config = new ExtensionConfig();
     }
 }
 

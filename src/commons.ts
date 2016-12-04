@@ -139,13 +139,13 @@ export class Commons {
 
     }
 
-    public async InitializeSettings(askInformation: boolean, askGIST: boolean): Promise<LocalConfig> {
+    public async InitializeSettings(askInformation: boolean, askGIST: boolean): Promise<ExtensionConfig> {
         let config = vscode.workspace.getConfiguration('sync');
         let me: Commons = this;
 
-        return new Promise<LocalConfig>(async (resolve, reject) => {
+        return new Promise<ExtensionConfig>(async (resolve, reject) => {
 
-            let settings: LocalConfig = await me.GetSettings();
+            let settings: ExtensionConfig = await me.GetSettings();
 
             if (askInformation) {
                 if (settings.Token == null || settings.Token == "") {
@@ -218,9 +218,9 @@ export class Commons {
                     });
                 }
                 else {
-                    let settings: LocalConfig = await me.GetSettings();
+                    let settings: ExtensionConfig = await me.GetSettings();
                     if (settings.Version == 0 || settings.Version < Environment.CURRENT_VERSION) {
-                         if(settings.Version==0){
+                        if (settings.Version == 0) {
                             vscode.window.showInformationMessage("Sync : Settings Created");
                         }
 
@@ -235,19 +235,25 @@ export class Commons {
     }
 
 
-    public async SaveSettings(lsetting: LocalConfig): Promise<boolean> {
+    public async SaveSettings(setting: ExtensionConfig): Promise<boolean> {
         let me: Commons = this;
         let config = vscode.workspace.getConfiguration('sync');
         let allKeysUpdated = new Array<Thenable<void>>();
 
-        let setting: ExtensionConfig = lsetting;
+        
 
         return new Promise<boolean>((resolve, reject) => {
 
             let keys = Object.keys(setting);
             keys.forEach(async keyName => {
 
-                if (setting[keyName] == null || isNaN(setting[keyName])) {
+                if (keyName == "lastDownload" || keyName == "lastUpload") {
+                    if (isNaN(setting[keyName])) {
+                        setting[keyName] = "";
+                    }
+                }
+
+                if (setting[keyName] == null) {
                     setting[keyName] = "";
                 }
 
@@ -270,10 +276,10 @@ export class Commons {
 
     }
 
-    public GetSettings(): LocalConfig {
+    public GetSettings(): ExtensionConfig {
         var me = this;
 
-        let settings = new LocalConfig();
+        let settings = new ExtensionConfig();
         settings.Gist = vscode.workspace.getConfiguration("sync")["gist"];
         settings.lastUpload = new Date(vscode.workspace.getConfiguration("sync")["lastupload"]);
         settings.firstTime = vscode.workspace.getConfiguration("sync")["firsttime"];
@@ -283,7 +289,6 @@ export class Commons {
         settings.lastDownload = new Date(vscode.workspace.getConfiguration("sync")["lastdownload"]);
         settings.Version = vscode.workspace.getConfiguration("sync")["version"];
         settings.showSummary = vscode.workspace.getConfiguration("sync")["showsummary"];
-        settings.publicGist = vscode.workspace.getConfiguration("sync")["publicgist"];
         settings.forceDownload = vscode.workspace.getConfiguration("sync")["forcedownload"];
         //settings.Token = vscode.workspace.getConfiguration("sync")["token"];
         if (this.context.globalState.get('token')) {
@@ -294,7 +299,7 @@ export class Commons {
         return settings;
     }
 
-    public async GetTokenAndSave(sett: LocalConfig): Promise<string> {
+    public async GetTokenAndSave(sett: ExtensionConfig): Promise<string> {
         var me = this;
         var opt = Commons.GetInputBox(true);
         return new Promise<string>((resolve, reject) => {
@@ -324,7 +329,7 @@ export class Commons {
             } ());
         });
     }
-    public async GetGistAndSave(sett: LocalConfig): Promise<string> {
+    public async GetGistAndSave(sett: ExtensionConfig): Promise<string> {
         var me = this;
         var opt = Commons.GetInputBox(false);
         return new Promise<string>((resolve, reject) => {
@@ -415,8 +420,8 @@ export class Commons {
                     edit.insert(new vscode.Position(0, 0), "VISUAL STUDIO CODE SETTINGS SYNC \r\n\r\n" + status + " SUMMARY \r\n\r\n");
                     edit.insert(new vscode.Position(1, 0), "-------------------- \r\n");
 
-                    edit.insert(new vscode.Position(2, 0), "GITHUB TOKEN: " + syncSettings.Token + " \r\n");
-                    edit.insert(new vscode.Position(3, 0), "GITHUB GIST: " + syncSettings.Gist + " \r\n");
+                    edit.insert(new vscode.Position(2, 0), "GITHUB TOKEN: " + syncSettings.config.Token + " \r\n");
+                    edit.insert(new vscode.Position(3, 0), "GITHUB GIST: " + syncSettings.config.Gist + " \r\n");
                     var type: string = (syncSettings.publicGist == true) ? "Public" : "Secret"
                     edit.insert(new vscode.Position(4, 0), "GITHUB GIST TYPE: " + type + " \r\n \r\n");
                     edit.insert(new vscode.Position(5, 0), "-------------------- \r\n  \r\n");

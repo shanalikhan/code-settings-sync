@@ -40,13 +40,26 @@ export class GithubService {
             }
         }
     };
+    public userName : string = null;
+    public name : string = null;
 
     private GIST_JSON: any = null;
-
+    
     constructor(private TOKEN: string) {
+        var self : GithubService = this;
         github.authenticate({
             type: "oauth",
             token: TOKEN
+        });
+
+        github.users.get({}, function(err, res) {
+            if(err){
+                console.log(err);
+            }
+            else{
+                self.userName = res.login;
+                self.name = res.name;
+            }
         });
     }
 
