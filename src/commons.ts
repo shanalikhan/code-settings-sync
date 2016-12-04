@@ -226,7 +226,7 @@ export class Commons {
                                     vscode.window.showInformationMessage("Sync : Now this extension follows standard code configuration to setup this extension. Settings migrated, Please read the release notes.");
                                 });
                             }
-                            //await FileManager.DeleteFile(me.en.APP_SETTINGS);
+                            await FileManager.DeleteFile(me.en.APP_SETTINGS);
                         }
                     });
                 }
