@@ -16,6 +16,7 @@ export class Commons {
     private static configWatcher = null;
     private static extensionWatcher = null;
 
+
     constructor(private en: Environment, private context: vscode.ExtensionContext) {
 
     }
@@ -49,6 +50,7 @@ export class Commons {
     public StartWatch(): void {
 
         let uploadStopped: boolean = true;
+        let self: Commons = this;
 
         Commons.extensionWatcher = chokidar.watch(this.en.ExtensionFolder, { depth: 0, ignoreInitial: true });
         Commons.configWatcher = chokidar.watch(this.en.PATH + "/User/", { ignoreInitial: true });
@@ -94,14 +96,21 @@ export class Commons {
 
                 console.log("Sync : File Change Detected On : " + path);
 
-                if (requiredFileChanged) {
-                    console.log("Sync : Initiating Auto-upload For File : " + path);
-                    this.InitiateAutoUpload().then((resolve) => {
-                        uploadStopped = resolve;
-                    }, (reject) => {
-                        uploadStopped = reject;
-                    });
 
+                if (requiredFileChanged) {
+
+                    let setting: ExtensionConfig = self.GetSettings();
+
+                    if (setting.autoUpload) {
+
+                        console.log("Sync : Initiating Auto-upload For File : " + path);
+                        this.InitiateAutoUpload().then((resolve) => {
+                            uploadStopped = resolve;
+                        }, (reject) => {
+                            uploadStopped = reject;
+                        });
+                        
+                    }
                 } else {
                     uploadStopped = true;
                 }

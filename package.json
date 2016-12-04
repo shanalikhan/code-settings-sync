@@ -85,12 +85,12 @@
                 "sync.lastupload": {
                     "type": "string",
                     "default": "",
-                    "description": "Code Settings Sync last upload date. Set it as empty if you want to change."
+                    "description": "Code Settings Sync last upload date. Set it as empty if you want to manully hit download."
                 },
                 "sync.lastdownload": {
                     "type": "string",
                     "default": "",
-                    "description": "Code Settings Sync last download date. Set it as empty if you want to change."
+                    "description": "Code Settings Sync last download date. Set it as empty if you want to manully hit download."
                 },
                 "sync.autodownload": {
                     "type": "boolean",
@@ -115,7 +115,7 @@
                 "sync.publicgist": {
                     "type": "boolean",
                     "default": false,
-                    "description": "Set it to true if you want to create public GIST."
+                    "description": "Set it to true if you want to create public GIST for sharing."
                 },
                 "sync.forcedownload": {
                     "type": "boolean",
