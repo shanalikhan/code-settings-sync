@@ -30,8 +30,12 @@ export async function activate(context: vscode.ExtensionContext) {
             if (resolve.autoUpload && tokenAvailable && gistAvailable) {
                 common.StartWatch();
             }
+            
             if (tokenAvailable == true && gistAvailable == true && resolve.autoDownload == true) {
                 vscode.commands.executeCommand('extension.downloadSettings');
+            }
+            else {
+
             }
         }
 
@@ -181,7 +185,7 @@ export async function activate(context: vscode.ExtensionContext) {
                     if (gistObj) {
 
                         if (gistObj.owner.login != myGi.userName) {
-                            common.LogException(null,"Sync : You cant edit other user GIST",true);
+                            common.LogException(null, "Sync : You cant edit other user GIST", true);
                             return;
                         }
 
@@ -243,7 +247,7 @@ export async function activate(context: vscode.ExtensionContext) {
     });
 
 
-    var downloadSettings = vscode.commands.registerCommand('extension.downloadSettings', async function() {
+    var downloadSettings = vscode.commands.registerCommand('extension.downloadSettings', async function () {
 
         var en: Environment = new Environment(context);
         var common: Commons = new Commons(en, context);
