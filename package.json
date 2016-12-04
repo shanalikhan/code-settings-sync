@@ -126,11 +126,6 @@
                     "type": "boolean",
                     "default": true,
                     "description": "Set it to false when you understand all the process and dont want to open links for references."
-                },
-                "sync.allowupload": {
-                    "type": "boolean",
-                    "default": true,
-                    "description": "Set it to false when you are using shared GIST."
                 }
 
             },

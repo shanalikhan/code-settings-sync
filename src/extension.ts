@@ -96,10 +96,6 @@ export async function activate(context: vscode.ExtensionContext) {
         async function startGitProcess() {
 
             vscode.window.setStatusBarMessage("Sync : Uploading / Updating Your Settings In Github.");
-            if (!syncSetting.allowUpload) {
-                vscode.window.setStatusBarMessage("Sync : Upload to Other User GIST Not Allowed. Reset Settings Required!");
-                return;
-            }
 
             if (syncSetting.Token != null && syncSetting.Token != "") {
 
@@ -186,7 +182,7 @@ export async function activate(context: vscode.ExtensionContext) {
                     if (gistObj) {
 
                         if (gistObj.owner.login != myGi.userName) {
-                            vscode.window.showErrorMessage("Sync : You cant edit other user GIST");
+                            common.LogException(null,"Sync : You cant edit other user GIST",true);
                             return;
                         }
 

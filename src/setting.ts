@@ -10,7 +10,6 @@ export class ExtensionConfig {
     public firstTime: boolean = true;  // to open the toturial first time when used any command.
     public autoDownload: boolean = false;
     public autoUpload = false;
-    public allowUpload: boolean = true;
     public lastDownload: Date = null;
     public Version: number = null;
     public showSummary: boolean = true;

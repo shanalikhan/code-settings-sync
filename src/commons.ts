@@ -285,7 +285,6 @@ export class Commons {
         settings.firstTime = vscode.workspace.getConfiguration("sync")["firsttime"];
         settings.autoDownload = vscode.workspace.getConfiguration("sync")["autodownload"];
         settings.autoUpload = vscode.workspace.getConfiguration("sync")["autoupload"];
-        settings.allowUpload = vscode.workspace.getConfiguration("sync")["allowupload"];
         settings.lastDownload = new Date(vscode.workspace.getConfiguration("sync")["lastdownload"]);
         settings.Version = vscode.workspace.getConfiguration("sync")["version"];
         settings.showSummary = vscode.workspace.getConfiguration("sync")["showsummary"];
