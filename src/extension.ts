@@ -27,12 +27,11 @@ export async function activate(context: vscode.ExtensionContext) {
             let tokenAvailable: boolean = (resolve.Token != null) && (resolve.Token != "");
             let gistAvailable: boolean = (resolve.Gist != null) && (resolve.Gist != "");
 
-            if (tokenAvailable == true && gistAvailable == true && resolve.autoDownload == true) {
-                await vscode.commands.executeCommand('extension.downloadSettings');
-            }
-
             if (resolve.autoUpload && tokenAvailable && gistAvailable) {
                 common.StartWatch();
+            }
+            if (tokenAvailable == true && gistAvailable == true && resolve.autoDownload == true) {
+                vscode.commands.executeCommand('extension.downloadSettings');
             }
         }
 
@@ -244,7 +243,7 @@ export async function activate(context: vscode.ExtensionContext) {
     });
 
 
-    var downloadSettings = vscode.commands.registerCommand('extension.downloadSettings', async () => {
+    var downloadSettings = vscode.commands.registerCommand('extension.downloadSettings', async function() {
 
         var en: Environment = new Environment(context);
         var common: Commons = new Commons(en, context);
@@ -278,7 +277,8 @@ export async function activate(context: vscode.ExtensionContext) {
                     var keys = Object.keys(res.files);
                     if (keys.indexOf(en.FILE_CLOUDSETTINGS_NAME) > -1) {
                         var cloudSett: CloudSetting = JSON.parse(res.files[en.FILE_CLOUDSETTINGS_NAME].content);
-                        var stat: boolean = (syncSetting.lastUpload == cloudSett.lastUpload) || (syncSetting.lastDownload == cloudSett.lastUpload);
+                        cloudSett.lastUpload = new Date(cloudSett.lastUpload);
+                        var stat: boolean = (syncSetting.lastUpload.getTime() === cloudSett.lastUpload.getTime()) || (syncSetting.lastDownload.getTime() === cloudSett.lastUpload.getTime());
 
                         if (!syncSetting.forceDownload) {
                             if (stat) {

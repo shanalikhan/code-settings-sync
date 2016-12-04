@@ -227,7 +227,6 @@ export class Commons {
                         settings.Version = Environment.CURRENT_VERSION;
                         await me.SaveSettings(settings);
                     }
-
                 }
                 resolve(true);
             });
@@ -240,7 +239,7 @@ export class Commons {
         let config = vscode.workspace.getConfiguration('sync');
         let allKeysUpdated = new Array<Thenable<void>>();
 
-        
+
 
         return new Promise<boolean>((resolve, reject) => {
 
@@ -248,7 +247,8 @@ export class Commons {
             keys.forEach(async keyName => {
 
                 if (keyName == "lastDownload" || keyName == "lastUpload") {
-                    if (isNaN(setting[keyName])) {
+                    let zz = Date.parse(setting[keyName]);
+                    if (isNaN(zz)) {
                         setting[keyName] = "";
                     }
                 }
@@ -466,7 +466,7 @@ export class Commons {
                     }
                 });
                 e.document.save();
-                //vscode.commands.executeCommand("workbench.action.openPreviousRecentlyUsedEditorInGroup");
+                vscode.commands.executeCommand("workbench.action.nextEditorInGroup");
             });
         }, (error: any) => {
             console.error(error);
