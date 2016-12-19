@@ -66,7 +66,7 @@ export class GithubService {
     public AddFile(list: Array<fileManager.File>, GIST_JSON_b: any) {
         for (var i = 0; i < list.length; i++) {
             var file = list[i];
-            if (file.content) {
+            if (file.content!='') {
                 GIST_JSON_b.files[file.fileName] = {};
                 GIST_JSON_b.files[file.fileName].content = file.content;
             }

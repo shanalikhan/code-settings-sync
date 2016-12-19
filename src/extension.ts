@@ -152,7 +152,7 @@ export async function activate(context: vscode.ExtensionContext) {
 
                 var snippetFiles = await FileManager.ListFiles(en.FOLDER_SNIPPETS);
                 snippetFiles.forEach(snippetFile => {
-                    if (snippetFile.content != null) {
+                    if (snippetFile.content != "") {
                         allSettingFiles.push(snippetFile);
                     }
                 });
