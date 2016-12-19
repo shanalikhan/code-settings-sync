@@ -40,23 +40,23 @@ export class GithubService {
             }
         }
     };
-    public userName : string = null;
-    public name : string = null;
+    public userName: string = null;
+    public name: string = null;
 
     private GIST_JSON: any = null;
-    
+
     constructor(private TOKEN: string) {
-        var self : GithubService = this;
+        var self: GithubService = this;
         github.authenticate({
             type: "oauth",
             token: TOKEN
         });
 
-        github.users.get({}, function(err, res) {
-            if(err){
+        github.users.get({}, function (err, res) {
+            if (err) {
                 console.log(err);
             }
-            else{
+            else {
                 self.userName = res.login;
                 self.name = res.name;
             }
@@ -66,8 +66,10 @@ export class GithubService {
     public AddFile(list: Array<fileManager.File>, GIST_JSON_b: any) {
         for (var i = 0; i < list.length; i++) {
             var file = list[i];
-            GIST_JSON_b.files[file.fileName] = {};
-            GIST_JSON_b.files[file.fileName].content = file.content;
+            if (file.content) {
+                GIST_JSON_b.files[file.fileName] = {};
+                GIST_JSON_b.files[file.fileName].content = file.content;
+            }
         }
         return GIST_JSON_b;
     }
@@ -92,7 +94,7 @@ export class GithubService {
                         resolve(res.id);
                     } else {
                         console.error("ID is null");
-                        console.log("Sync : "+"Response from GitHub is: ");
+                        console.log("Sync : " + "Response from GitHub is: ");
                         console.log(res);
                     }
 

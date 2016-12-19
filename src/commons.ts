@@ -157,7 +157,7 @@ export class Commons {
             let settings: ExtensionConfig = await me.GetSettings();
 
             if (askInformation) {
-                if (settings.Token == null || settings.Token == "") {
+                if (settings.token == null || settings.token == "") {
                     openurl("https://github.com/settings/tokens");
 
                     await me.GetTokenAndSave(settings).then(function (token: string) {
@@ -166,7 +166,7 @@ export class Commons {
                             reject(false);
                         }
                         else {
-                            settings.Token = token;
+                            settings.token = token;
                         }
                     }, function (err: any) {
                         me.LogException(err, me.ERROR_MESSAGE, true);
@@ -175,10 +175,10 @@ export class Commons {
                 }
 
                 if (askGIST) {
-                    if (settings.Gist == null || settings.Gist === "") {
+                    if (settings.gist == null || settings.gist === "") {
                         await me.GetGistAndSave(settings).then(function (Gist: string) {
                             if (Gist) {
-                                settings.Gist = Gist;
+                                settings.gist = Gist;
                             }
                             else {
                                 vscode.window.showErrorMessage("Sync : Gist Not Saved.");
@@ -214,15 +214,12 @@ export class Commons {
                                 vscode.window.setStatusBarMessage("");
                                 vscode.window.setStatusBarMessage("Sync : Migrating from Old Settings to Standard Settings File.", 2000);
 
+                                let newSetting : ExtensionConfig = new ExtensionConfig();
+                                newSetting.token = oldsetting.Token;
+                                newSetting.gist = oldsetting.Gist;
+                                //Storing only GIST and token after migration.
 
-                                let oldkeys = Object.keys(oldsetting);
-                                oldkeys.forEach(oldKey => {
-                                    if (settingKeys.indexOf(oldKey) == -1) {
-                                        delete oldsetting[oldKey];
-                                    }
-                                });
-
-                                await me.SaveSettings(oldsetting).then(async function (done) {
+                                await me.SaveSettings(newSetting).then(async function (done) {
                                     vscode.window.showInformationMessage("Sync : Now this extension follows standard code configuration to setup this extension. Settings migrated, Please read the release notes.");
                                 });
                             }
@@ -232,12 +229,12 @@ export class Commons {
                 }
                 else {
                     let settings: ExtensionConfig = await me.GetSettings();
-                    if (settings.Version == 0 || settings.Version < Environment.CURRENT_VERSION) {
-                        if (settings.Version == 0) {
+                    if (settings.version == 0 || settings.version < Environment.CURRENT_VERSION) {
+                        if (settings.version == 0) {
                             vscode.window.showInformationMessage("Sync : Settings Created");
                         }
 
-                        settings.Version = Environment.CURRENT_VERSION;
+                        settings.version = Environment.CURRENT_VERSION;
                         await me.SaveSettings(settings);
                     }
                 }
@@ -274,7 +271,7 @@ export class Commons {
                     allKeysUpdated.push(me.context.globalState.update("token", setting[keyName]));
                 }
                 else {
-                    allKeysUpdated.push(config.update(keyName.toLowerCase(), setting[keyName], true));
+                    allKeysUpdated.push(config.update(keyName, setting[keyName], true));
                 }
             });
 
@@ -293,21 +290,21 @@ export class Commons {
         var me = this;
 
         let settings = new ExtensionConfig();
-        settings.Gist = vscode.workspace.getConfiguration("sync")["gist"];
-        settings.lastUpload = new Date(vscode.workspace.getConfiguration("sync")["lastupload"]);
-        settings.firstTime = vscode.workspace.getConfiguration("sync")["firsttime"];
-        settings.autoDownload = vscode.workspace.getConfiguration("sync")["autodownload"];
-        settings.autoUpload = vscode.workspace.getConfiguration("sync")["autoupload"];
-        settings.lastDownload = new Date(vscode.workspace.getConfiguration("sync")["lastdownload"]);
-        settings.Version = vscode.workspace.getConfiguration("sync")["version"];
-        settings.showSummary = vscode.workspace.getConfiguration("sync")["showsummary"];
-        settings.forceDownload = vscode.workspace.getConfiguration("sync")["forcedownload"];
-        //settings.Token = vscode.workspace.getConfiguration("sync")["token"];
-        if (this.context.globalState.get('token')) {
-            let token = this.context.globalState.get('token');
-            settings.Token = String(token);
-        }
+        let keys = Object.keys(settings);
 
+        keys.forEach(key => {
+            if (key != 'token') {
+                settings[key] = vscode.workspace.getConfiguration("sync")[key];
+            }
+            else {
+                if (this.context.globalState.get('token')) {
+                    let token = this.context.globalState.get('token');
+                    settings[key] = String(token);
+                }
+            }
+
+
+        });
         return settings;
     }
 
@@ -321,7 +318,7 @@ export class Commons {
                         token = token.trim();
 
                         if (token != 'esc') {
-                            sett.Token = token;
+                            sett.token = token;
                             await me.SaveSettings(sett).then(function (saved: boolean) {
                                 if (saved) {
                                     vscode.window.setStatusBarMessage("Sync : Token Saved", 1000);
@@ -350,7 +347,7 @@ export class Commons {
                     if (gist && gist.trim()) {
                         gist = gist.trim();
                         if (gist != 'esc') {
-                            sett.Gist = gist.trim();
+                            sett.gist = gist.trim();
                             await me.SaveSettings(sett).then(function (saved: boolean) {
                                 if (saved) {
                                     vscode.window.setStatusBarMessage("Sync : Gist Saved", 1000);
@@ -432,8 +429,8 @@ export class Commons {
                     edit.insert(new vscode.Position(0, 0), "VISUAL STUDIO CODE SETTINGS SYNC \r\n\r\n" + status + " SUMMARY \r\n\r\n");
                     edit.insert(new vscode.Position(1, 0), "-------------------- \r\n");
 
-                    edit.insert(new vscode.Position(2, 0), "GITHUB TOKEN: " + syncSettings.config.Token + " \r\n");
-                    edit.insert(new vscode.Position(3, 0), "GITHUB GIST: " + syncSettings.config.Gist + " \r\n");
+                    edit.insert(new vscode.Position(2, 0), "GITHUB TOKEN: " + syncSettings.config.token + " \r\n");
+                    edit.insert(new vscode.Position(3, 0), "GITHUB GIST: " + syncSettings.config.gist + " \r\n");
                     var type: string = (syncSettings.publicGist == true) ? "Public" : "Secret"
                     edit.insert(new vscode.Position(4, 0), "GITHUB GIST TYPE: " + type + " \r\n \r\n");
                     edit.insert(new vscode.Position(5, 0), "-------------------- \r\n  \r\n");

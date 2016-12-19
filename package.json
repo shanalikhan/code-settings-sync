@@ -45,8 +45,7 @@
     ],
     "main": "./out/src/extension",
     "contributes": {
-        "commands": [
-            {
+        "commands": [{
                 "command": "extension.HowSettings",
                 "title": "Sync : How To Configure"
             },
@@ -67,8 +66,7 @@
                 "title": "Sync : Advanced Options"
             }
         ],
-        "keybindings": [
-            {
+        "keybindings": [{
                 "key": "alt+shift+u",
                 "command": "extension.updateSettings",
                 "when": "editorTextFocus"
@@ -81,32 +79,27 @@
         ],
         "configuration": {
             "properties": {
-                "sync.token": {
-                    "type": "string",
-                    "default": "",
-                    "description": "Github Token for Code Settings Sync."
-                },
                 "sync.gist": {
                     "type": "string",
                     "default": "",
                     "description": "Github GIST ID for Code Settings Sync."
                 },
-                "sync.lastupload": {
+                "sync.lastUpload": {
                     "type": "string",
                     "default": "",
                     "description": "Code Settings Sync last upload date. Set it as empty if you want to manully hit download."
                 },
-                "sync.lastdownload": {
+                "sync.lastDownload": {
                     "type": "string",
                     "default": "",
                     "description": "Code Settings Sync last download date. Set it as empty if you want to manully hit download."
                 },
-                "sync.autodownload": {
+                "sync.autoDownload": {
                     "type": "boolean",
                     "default": false,
                     "description": "Set it true to Auto Download the settings on code start."
                 },
-                "sync.autoupload": {
+                "sync.autoUpload": {
                     "type": "boolean",
                     "default": false,
                     "description": "Set it true to Auto Upload on the settings change."
@@ -116,17 +109,17 @@
                     "default": 0,
                     "description": "Save the Code Settings Sync Version for migration code. Please dont remove this."
                 },
-                "sync.showsummary": {
+                "sync.showSummary": {
                     "type": "boolean",
                     "default": true,
                     "description": "Shows the summary page after download and upload."
                 },
-                "sync.forcedownload": {
+                "sync.forceDownload": {
                     "type": "boolean",
                     "default": false,
                     "description": "Set it to true if you want to download the settings everytime code starts."
                 },
-                "sync.firsttime": {
+                "sync.firstTime": {
                     "type": "boolean",
                     "default": true,
                     "description": "Set it to false when you understand all the process and dont want to open links for references."

@@ -24,13 +24,13 @@ export async function activate(context: vscode.ExtensionContext) {
     await common.InitializeSettings(false, false).then(async (resolve: ExtensionConfig) => {
 
         if (resolve) {
-            let tokenAvailable: boolean = (resolve.Token != null) && (resolve.Token != "");
-            let gistAvailable: boolean = (resolve.Gist != null) && (resolve.Gist != "");
+            let tokenAvailable: boolean = (resolve.token != null) && (resolve.token != "");
+            let gistAvailable: boolean = (resolve.gist != null) && (resolve.gist != "");
 
             if (resolve.autoUpload && tokenAvailable && gistAvailable) {
                 common.StartWatch();
             }
-            
+
             if (tokenAvailable == true && gistAvailable == true && resolve.autoDownload == true) {
                 vscode.commands.executeCommand('extension.downloadSettings');
             }
@@ -87,7 +87,7 @@ export async function activate(context: vscode.ExtensionContext) {
                     localConfig.publicGist = false;
                 }
             }
-            myGi = new GithubService(syncSetting.Token);
+            myGi = new GithubService(syncSetting.token);
 
             await startGitProcess();
 
@@ -100,7 +100,7 @@ export async function activate(context: vscode.ExtensionContext) {
 
             vscode.window.setStatusBarMessage("Sync : Uploading / Updating Your Settings In Github.");
 
-            if (syncSetting.Token != null && syncSetting.Token != "") {
+            if (syncSetting.token != null && syncSetting.token != "") {
 
                 syncSetting.lastUpload = dateNow;
                 vscode.window.setStatusBarMessage("Sync : Reading Settings and Extensions.");
@@ -152,7 +152,9 @@ export async function activate(context: vscode.ExtensionContext) {
 
                 var snippetFiles = await FileManager.ListFiles(en.FOLDER_SNIPPETS);
                 snippetFiles.forEach(snippetFile => {
-                    allSettingFiles.push(snippetFile);
+                    if (snippetFile.content != null) {
+                        allSettingFiles.push(snippetFile);
+                    }
                 });
 
                 var extProp: CloudSetting = new CloudSetting();
@@ -163,12 +165,12 @@ export async function activate(context: vscode.ExtensionContext) {
                 allSettingFiles.push(file);
 
                 var newGIST = false;
-                if (syncSetting.Gist == null || syncSetting.Gist === "") {
+                if (syncSetting.gist == null || syncSetting.gist === "") {
                     newGIST = true;
                     await myGi.CreateEmptyGIST(localConfig.publicGist).then(async function (gistID: string) {
                         if (gistID) {
-                            syncSetting.Gist = gistID;
-                            vscode.window.setStatusBarMessage("Sync : Empty GIST ID: " + syncSetting.Gist + " created To insert files, in Process...");
+                            syncSetting.gist = gistID;
+                            vscode.window.setStatusBarMessage("Sync : Empty GIST ID: " + syncSetting.gist + " created To insert files, in Process...");
                         }
                         else {
                             vscode.window.showInformationMessage("GIST UNABLE TO CREATE");
@@ -180,7 +182,7 @@ export async function activate(context: vscode.ExtensionContext) {
                     });
                 }
 
-                await myGi.ReadGist(syncSetting.Gist).then(async function (gistObj: any) {
+                await myGi.ReadGist(syncSetting.gist).then(async function (gistObj: any) {
 
                     if (gistObj) {
 
@@ -197,7 +199,7 @@ export async function activate(context: vscode.ExtensionContext) {
                                 await common.SaveSettings(syncSetting).then(function (added: boolean) {
                                     if (added) {
                                         if (newGIST) {
-                                            vscode.window.showInformationMessage("Uploaded Successfully." + " GIST ID :  " + syncSetting.Gist + " . Please copy and use this ID in other machines to sync all settings.");
+                                            vscode.window.showInformationMessage("Uploaded Successfully." + " GIST ID :  " + syncSetting.gist + " . Please copy and use this ID in other machines to sync all settings.");
                                         }
                                         else {
                                             vscode.window.setStatusBarMessage("");
@@ -232,7 +234,7 @@ export async function activate(context: vscode.ExtensionContext) {
                         });
                     }
                     else {
-                        vscode.window.showErrorMessage("GIST ID: " + syncSetting.Gist + " UNABLE TO READ.");
+                        vscode.window.showErrorMessage("GIST ID: " + syncSetting.gist + " UNABLE TO READ.");
                         return;
                     }
                 }, function (gistReadError: any) {
@@ -266,11 +268,11 @@ export async function activate(context: vscode.ExtensionContext) {
 
         async function StartDownload() {
 
-            myGi = new GithubService(syncSetting.Token);
+            myGi = new GithubService(syncSetting.token);
             vscode.window.setStatusBarMessage("");
             vscode.window.setStatusBarMessage("Sync : Reading Settings Online.", 2000);
 
-            myGi.ReadGist(syncSetting.Gist).then(async function (res: any) {
+            myGi.ReadGist(syncSetting.gist).then(async function (res: any) {
 
                 var addedExtensions: Array<ExtensionInformation> = new Array<ExtensionInformation>();
                 var deletedExtensions: Array<ExtensionInformation> = new Array<ExtensionInformation>();
@@ -520,8 +522,8 @@ export async function activate(context: vscode.ExtensionContext) {
         await common.InitializeSettings(false, false).then(async function (set: any) {
             if (set) {
                 setting = set;
-                tokenAvailable = setting.Token != null && setting.Token != "";
-                gistAvailable = setting.Gist != null && setting.Gist != "";
+                tokenAvailable = setting.token != null && setting.token != "";
+                gistAvailable = setting.gist != null && setting.gist != "";
                 if (tokenAvailable) {
                     //myGi = new GithubService(setting.Token);
                 }
@@ -555,7 +557,7 @@ export async function activate(context: vscode.ExtensionContext) {
                         if (resolve == "Yes") {
                             localSetting.publicGist = true;
                             settingChanged = true;
-                            setting.Gist = "";
+                            setting.gist = "";
                             selectedItem = 0;
                         }
                     }, (reject) => {
