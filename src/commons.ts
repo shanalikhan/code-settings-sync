@@ -407,10 +407,10 @@ export class Commons {
             status = downloaded;
         }
 
-        header = "\r\nFiles " + status + ". \r\n";
+        header = "\r\nFiles " + status + ".\r\n";
 
-        var deletedExtension: string = "\r\nEXTENSIONS REMOVED : \r\n";
-        var addedExtension: string = "\r\nEXTENSIONS ADDED : \r\n";
+        var deletedExtension: string = "\r\nEXTENSIONS REMOVED :\r\n";
+        var addedExtension: string = "\r\nEXTENSIONS ADDED :\r\n";
         var tempURI: string = this.en.APP_SUMMARY;
 
         console.log("Sync : " + "File Path For Summary Page : " + tempURI);
@@ -426,52 +426,52 @@ export class Commons {
             vscode.window.showTextDocument(a, vscode.ViewColumn.One, true).then((e: vscode.TextEditor) => {
 
                 e.edit(edit => {
-                    edit.insert(new vscode.Position(0, 0), "VISUAL STUDIO CODE SETTINGS SYNC \r\n\r\n" + status + " SUMMARY \r\n\r\n");
-                    edit.insert(new vscode.Position(1, 0), "-------------------- \r\n");
+                    edit.insert(new vscode.Position(0, 0), "VISUAL STUDIO CODE SETTINGS SYNC\r\n\r\n" + status + " SUMMARY\r\n\r\n");
+                    edit.insert(new vscode.Position(1, 0), "--------------------\r\n");
 
-                    edit.insert(new vscode.Position(2, 0), "GITHUB TOKEN: " + syncSettings.config.token + " \r\n");
-                    edit.insert(new vscode.Position(3, 0), "GITHUB GIST: " + syncSettings.config.gist + " \r\n");
+                    edit.insert(new vscode.Position(2, 0), "GITHUB TOKEN: " + syncSettings.config.token + "\r\n");
+                    edit.insert(new vscode.Position(3, 0), "GITHUB GIST: " + syncSettings.config.gist + "\r\n");
                     var type: string = (syncSettings.publicGist == true) ? "Public" : "Secret"
-                    edit.insert(new vscode.Position(4, 0), "GITHUB GIST TYPE: " + type + " \r\n \r\n");
-                    edit.insert(new vscode.Position(5, 0), "-------------------- \r\n  \r\n");
+                    edit.insert(new vscode.Position(4, 0), "GITHUB GIST TYPE: " + type + "\r\n\r\n");
+                    edit.insert(new vscode.Position(5, 0), "--------------------\r\n\r\n");
 
-                    edit.insert(new vscode.Position(6, 0), header + " \r\n");
+                    edit.insert(new vscode.Position(6, 0), header + "\r\n");
                     var row: number = 6;
                     for (var i = 0; i < files.length; i++) {
                         var element = files[i];
                         if (element.fileName.indexOf(".") > 0) {
-                            edit.insert(new vscode.Position(row, 0), element.fileName + " \r\n");
+                            edit.insert(new vscode.Position(row, 0), element.fileName + "\r\n");
                             row += 1;
                         }
 
                     }
                     if (removedExtensions) {
-                        edit.insert(new vscode.Position(row, 0), deletedExtension + " \r\n");
+                        edit.insert(new vscode.Position(row, 0), deletedExtension + "\r\n");
                         row += 1;
 
                         if (removedExtensions.length > 0) {
                             removedExtensions.forEach(ext => {
-                                edit.insert(new vscode.Position(row, 0), ext.name + " - Version :" + ext.version + " \r\n");
+                                edit.insert(new vscode.Position(row, 0), ext.name + " - Version :" + ext.version + "\r\n");
                                 row += 1;
                             });
                         }
                         else {
-                            edit.insert(new vscode.Position(row, 0), "No Extension needs to be removed. \r\n");
+                            edit.insert(new vscode.Position(row, 0), "No Extension needs to be removed.\r\n");
                         }
                     }
 
                     if (addedExtensions) {
                         row += 1;
-                        edit.insert(new vscode.Position(row, 0), " \r\n" + addedExtension + " \r\n");
+                        edit.insert(new vscode.Position(row, 0), "\r\n" + addedExtension + "\r\n");
                         row += 1;
                         if (addedExtensions.length > 0) {
                             addedExtensions.forEach(ext => {
-                                edit.insert(new vscode.Position(row, 0), ext.name + " - Version :" + ext.version + " \r\n");
+                                edit.insert(new vscode.Position(row, 0), ext.name + " - Version :" + ext.version + "\r\n");
                                 row += 1;
                             });
                         }
                         else {
-                            edit.insert(new vscode.Position(row, 0), "No Extension needs to install. \r\n");
+                            edit.insert(new vscode.Position(row, 0), "No Extension needs to install.\r\n");
                         }
                     }
                 });
