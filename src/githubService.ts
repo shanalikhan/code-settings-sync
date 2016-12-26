@@ -67,8 +67,8 @@ export class GithubService {
         for (var i = 0; i < list.length; i++) {
             var file = list[i];
             if (file.content!='') {
-                GIST_JSON_b.files[file.fileName] = {};
-                GIST_JSON_b.files[file.fileName].content = file.content;
+                GIST_JSON_b.files[file.gistName] = {};
+                GIST_JSON_b.files[file.gistName].content = file.content;
             }
         }
         return GIST_JSON_b;
@@ -125,7 +125,7 @@ export class GithubService {
             var exists = false;
 
             files.forEach((settingFile) => {
-                if (settingFile.fileName == fileName) {
+                if (settingFile.gistName == fileName) {
                     exists = true;
                 }
             });

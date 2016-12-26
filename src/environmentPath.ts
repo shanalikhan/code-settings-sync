@@ -10,6 +10,7 @@ export class Environment {
     private context: vscode.ExtensionContext;
     public isInsiders = null;
     public homeDir = null;
+    public USER_FOLDER = null;
     
     public ExtensionFolder: string = null;
     public PATH = null;
@@ -67,6 +68,7 @@ export class Environment {
 
         var codePath = this.isInsiders ? '/Code - Insiders' : '/Code';
         this.PATH = this.PATH + codePath;
+        this.USER_FOLDER = this.PATH.concat("/User/");
 
         this.FILE_EXTENSION = this.PATH.concat("/User/",this.FILE_EXTENSION_NAME);
         this.FILE_SETTING = this.PATH.concat("/User/",this.FILE_SETTING_NAME);

@@ -105,32 +105,24 @@ export async function activate(context: vscode.ExtensionContext) {
                 syncSetting.lastUpload = dateNow;
                 vscode.window.setStatusBarMessage("Sync : Reading Settings and Extensions.");
 
-                var settingFile: File = await FileManager.GetFile(en.FILE_SETTING, en.FILE_SETTING_NAME);
-                var launchFile: File = await FileManager.GetFile(en.FILE_LAUNCH, en.FILE_LAUNCH_NAME);
+                //var settingFile: File = await FileManager.GetFile(en.FILE_SETTING, en.FILE_SETTING_NAME);
+                //var launchFile: File = await FileManager.GetFile(en.FILE_LAUNCH, en.FILE_LAUNCH_NAME);
 
-                var destinationKeyBinding: string = "";
-                if (en.OsType == OsType.Mac) {
-                    destinationKeyBinding = en.FILE_KEYBINDING_MAC;
-                }
-                else {
-                    destinationKeyBinding = en.FILE_KEYBINDING_DEFAULT;
-                }
 
-                var keybindingFile: File = await FileManager.GetFile(en.FILE_KEYBINDING, destinationKeyBinding);
-                var localeFile: File = await FileManager.GetFile(en.FILE_LOCALE, en.FILE_LOCALE_NAME);
+                //var localeFile: File = await FileManager.GetFile(en.FILE_LOCALE, en.FILE_LOCALE_NAME);
 
-                if (settingFile) {
-                    allSettingFiles.push(settingFile);
-                }
-                if (launchFile) {
-                    allSettingFiles.push(launchFile);
-                }
-                if (keybindingFile) {
-                    allSettingFiles.push(keybindingFile);
-                }
-                if (localeFile) {
-                    allSettingFiles.push(localeFile);
-                }
+                // if (settingFile) {
+                //     allSettingFiles.push(settingFile);
+                // }
+                // if (launchFile) {
+                //     allSettingFiles.push(launchFile);
+                // }
+                // if (keybindingFile) {
+                //     allSettingFiles.push(keybindingFile);
+                // }
+                // if (localeFile) {
+                //     allSettingFiles.push(localeFile);
+                // }
 
                 uploadedExtensions = PluginService.CreateExtensionList();
 
@@ -147,13 +139,26 @@ export async function activate(context: vscode.ExtensionContext) {
                 var fileName = en.FILE_EXTENSION_NAME;
                 var filePath = en.FILE_EXTENSION;
                 var fileContent = JSON.stringify(uploadedExtensions, undefined, 2);;
-                var file: File = new File(fileName, fileContent, filePath);
+                var file: File = new File(fileName, fileContent, filePath, fileName);
                 allSettingFiles.push(file);
 
-                var snippetFiles = await FileManager.ListFiles(en.FOLDER_SNIPPETS);
-                snippetFiles.forEach(snippetFile => {
-                    if (snippetFile.content != "") {
-                        allSettingFiles.push(snippetFile);
+                var contentFiles = await FileManager.ListFiles(en.USER_FOLDER);
+                contentFiles.forEach(snippetFile => {
+
+                    if (snippetFile.fileName != en.APP_SUMMARY_NAME) {
+                        if (snippetFile.content != "") {
+                            if (snippetFile.fileName == en.FILE_KEYBINDING_NAME) {
+                                var destinationKeyBinding: string = "";
+                                if (en.OsType == OsType.Mac) {
+                                    destinationKeyBinding = en.FILE_KEYBINDING_MAC;
+                                }
+                                else {
+                                    destinationKeyBinding = en.FILE_KEYBINDING_DEFAULT;
+                                }
+                                snippetFile.gistName = destinationKeyBinding;
+                            }
+                            allSettingFiles.push(snippetFile);
+                        }
                     }
                 });
 
@@ -161,7 +166,7 @@ export async function activate(context: vscode.ExtensionContext) {
                 extProp.lastUpload = dateNow;
                 fileName = en.FILE_CLOUDSETTINGS_NAME;
                 fileContent = JSON.stringify(extProp);
-                file = new File(fileName, fileContent, "");
+                file = new File(fileName, fileContent, "", fileName);
                 allSettingFiles.push(file);
 
                 var newGIST = false;
@@ -300,7 +305,7 @@ export async function activate(context: vscode.ExtensionContext) {
                         if (res.files[fileName]) {
                             if (res.files[fileName].content) {
                                 if (fileName.indexOf(".") > -1) {
-                                    var f: File = new File(fileName, res.files[fileName].content, null);
+                                    var f: File = new File(fileName, res.files[fileName].content, null, fileName);
                                     updatedFiles.push(f);
                                 }
                             }
