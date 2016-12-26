@@ -200,7 +200,7 @@ export class Commons {
         let me: Commons = this;
         let settingKeys = Object.keys(new ExtensionConfig());
         return new Promise<boolean>(async (resolve, reject) => {
-            await FileManager.FileExists(me.en.APP_SETTINGS).then(async function (fileExist: boolean) {
+            let fileExist: boolean =  FileManager.FileExists(me.en.APP_SETTINGS);
 
                 if (fileExist) {
                     await FileManager.ReadFile(me.en.APP_SETTINGS).then(async function (settin: string) {
@@ -239,7 +239,6 @@ export class Commons {
                     }
                 }
                 resolve(true);
-            });
         });
     }
 

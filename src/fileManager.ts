@@ -11,16 +11,6 @@ export class File {
 }
 export class FileManager {
 
-    public static FileExists(filePath: string): Promise<boolean> {
-        return new Promise<boolean>((resolve, reject) => {
-            var stat: boolean = fs.existsSync(filePath);
-            if (stat) {
-                resolve(stat);
-            }
-            else resolve(stat);
-        });
-    }
-
     public static async ReadFile(filePath: string): Promise<string> {
         return new Promise<string>(async (resolve, reject) => {
 
@@ -49,38 +39,38 @@ export class FileManager {
     public static async GetFile(filePath: string, fileName: string): Promise<File> {
         var me: FileManager = this;
         return new Promise<File>(async (resolve, reject) => {
-            await FileManager.FileExists(filePath).then(async function (fileExists: boolean) {
-                if (fileExists) {
-                    FileManager.ReadFile(filePath).then(function (content: string) {
-                        if (content != null) {
-                            let pathFromUser: string = filePath.substring(filePath.lastIndexOf("User") + 5, filePath.length);
-                            let arr = new Array<string>();
-                            if (pathFromUser.indexOf("/")) {
-                                arr = pathFromUser.split("/");
+
+            let fileExists: boolean = FileManager.FileExists(filePath);
+            if (fileExists) {
+                FileManager.ReadFile(filePath).then(function (content: string) {
+                    if (content != null) {
+                        let pathFromUser: string = filePath.substring(filePath.lastIndexOf("User") + 5, filePath.length);
+                        let arr = new Array<string>();
+                        if (pathFromUser.indexOf("/")) {
+                            arr = pathFromUser.split("/");
+                        }
+                        else {
+                            arr = pathFromUser.split(path.sep);
+                        }
+                        let gistName: string = "";
+                        arr.forEach((element, index) => {
+                            if (index < arr.length - 1) {
+                                gistName += element + "|";
                             }
                             else {
-                                arr = pathFromUser.split(path.sep);
+                                gistName += element;
                             }
-                            let gistName: string = "";
-                            arr.forEach((element, index) => {
-                                if (index < arr.length - 1) {
-                                     gistName += element+".";
-                                }
-                                else {
-                                    gistName += element;
-                                }
 
-                            });
-                            var file: File = new File(fileName, content, filePath, gistName);
-                            resolve(file);
-                        }
-                        resolve(null);
-                    });
-                }
-                else {
+                        });
+                        var file: File = new File(fileName, content, filePath, gistName);
+                        resolve(file);
+                    }
                     resolve(null);
-                }
-            });
+                });
+            }
+            else {
+                resolve(null);
+            }
         });
     }
 
@@ -118,7 +108,7 @@ export class FileManager {
                     let fullPath: string = directory.concat(data[i]);
                     let isDir: boolean = await FileManager.IsDirectory(fullPath);
                     if (isDir) {
-                        let filews : Array<File> = await FileManager.ListFiles(fullPath+"/");
+                        let filews: Array<File> = await FileManager.ListFiles(fullPath + "/");
                         filews.forEach(element => {
                             files.push(element)
                         });
@@ -135,39 +125,62 @@ export class FileManager {
         });
     }
 
-    public static async DeleteFile(filePath: string): Promise<boolean> {
-        return new Promise<boolean>((resolve, reject) => {
-            if (filePath) {
-                this.FileExists(filePath).then(async function (fileExists: boolean) {
-                    if (fileExists) {
-                        await fs.unlinkSync(filePath);
-                    }
-                    resolve(true);
-                });
+    public static async CreateDirTree(userFolder: string, fileName: string): Promise<string> {
+        let me: FileManager = this;
+        let fullPath: string = userFolder;
+
+        return new Promise<string>(async (resolve, reject) => {
+            if (fileName.indexOf("|") > -1) {
+
+                let paths = fileName.split("|");
+
+                for (var i = 0; i < paths.length - 1; i++) {
+                    var element = paths[i];
+                    fullPath += element + "/";
+                    FileManager.CreateDirectory(fullPath);
+                }
+                resolve(fullPath.concat + "/" + paths[paths.length - 1]);
             }
-            else {
-                console.error("Unable to delete file. File Path is :" + filePath);
-                reject(false);
-            }
+            resolve(fullPath + fileName);
         });
     }
 
-    public static async CreateDirectory(name: string): Promise<boolean> {
-        return new Promise<boolean>((resolve, reject) => {
-            if (name) {
-                this.FileExists(name).then(async function (dirExist: boolean) {
-                    if (!dirExist) {
-                        await fs.mkdirSync(name);
 
-                    }
-                    resolve(true);
-                });
+    public static DeleteFile(filePath: string): boolean {
+        if (filePath) {
+            let stat: boolean = FileManager.FileExists(filePath)
+            if (stat) {
+                fs.unlinkSync(filePath);
             }
-            else {
-                console.error("Unable to Create Directory. Dir Name is :" + name);
-                reject(false);
-            }
-        });
+            return stat;
+        }
+        else {
+            console.error("Unable to delete file. File Path is :" + filePath);
+            return false;
+        }
     }
 
+    public static FileExists(filePath: string): boolean {
+        try {
+            fs.accessSync(filePath, fs.F_OK);
+            return true;
+        }
+        catch (e) {
+            return false;
+        }
+    }
+
+    public static CreateDirectory(name: string): boolean {
+
+        let dirExist: boolean = FileManager.FileExists(name);
+        try {
+            if (!dirExist) {
+                fs.mkdirSync(name);
+            }
+            return true;
+        }
+        catch (e) {
+            return false;
+        }
+    }
 }

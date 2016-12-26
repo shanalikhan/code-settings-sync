@@ -289,7 +289,18 @@ export async function activate(context: vscode.ExtensionContext) {
                     if (keys.indexOf(en.FILE_CLOUDSETTINGS_NAME) > -1) {
                         var cloudSett: CloudSetting = JSON.parse(res.files[en.FILE_CLOUDSETTINGS_NAME].content);
                         cloudSett.lastUpload = new Date(cloudSett.lastUpload);
-                        var stat: boolean = (syncSetting.lastUpload.getTime() === cloudSett.lastUpload.getTime()) || (syncSetting.lastDownload.getTime() === cloudSett.lastUpload.getTime());
+
+                        let lastUploadStr: string = syncSetting.lastUpload.toString();
+                        let lastDownloadStr: string = syncSetting.lastDownload.toString();
+
+                        var stat: boolean = false;
+                        if (lastDownloadStr != "") {
+                            stat = new Date(syncSetting.lastDownload).getTime() === new Date(cloudSett.lastUpload).getTime();
+                        }
+
+                        if (lastUploadStr != "") {
+                            stat = stat || new Date(syncSetting.lastUpload).getTime() === new Date(cloudSett.lastUpload).getTime();
+                        }
 
                         if (!syncSetting.forceDownload) {
                             if (stat) {
@@ -301,17 +312,17 @@ export async function activate(context: vscode.ExtensionContext) {
                         syncSetting.lastDownload = cloudSett.lastUpload;
                     }
 
-                    keys.forEach(fileName => {
-                        if (res.files[fileName]) {
-                            if (res.files[fileName].content) {
-                                if (fileName.indexOf(".") > -1) {
-                                    var f: File = new File(fileName, res.files[fileName].content, null, fileName);
+                    keys.forEach(gistName => {
+                        if (res.files[gistName]) {
+                            if (res.files[gistName].content) {
+                                if (gistName.indexOf(".") > -1) {
+                                    var f: File = new File(gistName, res.files[gistName].content, null, gistName);
                                     updatedFiles.push(f);
                                 }
                             }
                         }
                         else {
-                            console.log(fileName + " key in response is empty.");
+                            console.log(gistName + " key in response is empty.");
                         }
 
                     });
@@ -321,40 +332,13 @@ export async function activate(context: vscode.ExtensionContext) {
                         var file: File = updatedFiles[index];
                         var path: string = null;
                         var writeFile: boolean = false;
-                        var content: string = null;
+                        var content: string = file.content;
 
-                        switch (file.fileName) {
-                            case en.FILE_LAUNCH_NAME: {
-                                writeFile = true;
-                                path = en.FILE_LAUNCH;
-                                content = file.content;
+                        if (content != "") {
 
-                                break;
-                            }
-                            case en.FILE_SETTING_NAME: {
-                                writeFile = true;
-                                path = en.FILE_SETTING;
-                                content = file.content;
 
-                                break;
-                            }
-                            case en.FILE_KEYBINDING_DEFAULT:
-                            case en.FILE_KEYBINDING_MAC: {
-                                writeFile = en.OsType == OsType.Mac ? file.fileName == en.FILE_KEYBINDING_MAC : file.fileName == en.FILE_KEYBINDING_DEFAULT;
-                                path = en.FILE_KEYBINDING;
-                                if (writeFile) {
-                                    content = file.content;
-                                }
-                                break;
-                            }
-                            case en.FILE_LOCALE_NAME: {
-                                writeFile = true;
-                                path = en.FILE_LOCALE;
-                                content = file.content;
-                                break;
-                            }
-                            case en.FILE_EXTENSION_NAME: {
-                                writeFile = false;
+
+                            if (file.gistName == en.FILE_EXTENSION_NAME) {
 
                                 var extensionlist = PluginService.CreateExtensionList();
 
@@ -397,30 +381,30 @@ export async function activate(context: vscode.ExtensionContext) {
                                             }));
                                     });
                                 }
-                                break;
                             }
-                            default: {
-                                if (file.fileName.indexOf("keybinding") == -1) {
-                                    if (file.fileName.indexOf(".") > -1) {
-                                        writeFile = true;
-                                        await FileManager.CreateDirectory(en.FOLDER_SNIPPETS);
-                                        var snippetFile = en.FOLDER_SNIPPETS.concat(file.fileName);//.concat(".json");
-                                        path = snippetFile;
-                                        content = file.content;
+                            else {
+
+                                writeFile = true;
+                                if (file.gistName == en.FILE_KEYBINDING_DEFAULT || file.gistName == en.FILE_KEYBINDING_MAC) {
+                                    let test: string = "";
+                                    en.OsType == OsType.Mac ? test = en.FILE_KEYBINDING_MAC : test = en.FILE_KEYBINDING_DEFAULT;
+                                    if (file.gistName != test) {
+                                        writeFile = false;
                                     }
                                 }
-                                break;
-                            }
-                        }
-                        if (writeFile) {
-                            await actionList.push(FileManager.WriteFile(path, content).then(
-                                function (added: boolean) {
-                                    //TODO : add Name attribute in File and show information message here with name , when required.
-                                }, function (error: any) {
-                                    common.LogException(error, common.ERROR_MESSAGE, true);
-                                    return;
+                                if (writeFile) {
+
+                                    let filePath: string = await FileManager.CreateDirTree(en.USER_FOLDER, file.gistName);
+                                    await actionList.push(FileManager.WriteFile(filePath, content).then(
+                                        function (added: boolean) {
+                                            //TODO : add Name attribute in File and show information message here with name , when required.
+                                        }, function (error: any) {
+                                            common.LogException(error, common.ERROR_MESSAGE, true);
+                                            return;
+                                        }
+                                    ));
                                 }
-                            ));
+                            }
                         }
                     }
                 }
