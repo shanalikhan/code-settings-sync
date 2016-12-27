@@ -431,10 +431,11 @@ export async function activate(context: vscode.ExtensionContext) {
 
                         await common.SaveSettings(syncSetting).then(async function (added: boolean) {
                             if (added) {
-                                //vscode.window.showInformationMessage("Sync : Download Complete.");
+
                                 if (syncSetting.showSummary) {
                                     common.GenerateSummmaryFile(false, updatedFiles, deletedExtensions, addedExtensions, localSettings);
                                 }
+
                                 vscode.window.setStatusBarMessage("");
                                 vscode.window.setStatusBarMessage("Sync : Download Complete.", 5000);
 
@@ -480,7 +481,7 @@ export async function activate(context: vscode.ExtensionContext) {
 
                 await common.SaveSettings(syncSetting).then(function (added: boolean) {
                     if (added) {
-                        vscode.window.showInformationMessage("GIST ID and Github Token Cleared.");
+                        vscode.window.showInformationMessage("Sync : Settings Cleared.");
                     }
                 }, function (err: any) {
                     common.LogException(err, common.ERROR_MESSAGE, true);

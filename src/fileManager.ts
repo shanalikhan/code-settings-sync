@@ -40,7 +40,7 @@ export class FileManager {
         var me: FileManager = this;
         return new Promise<File>(async (resolve, reject) => {
 
-            let fileExists: boolean = FileManager.FileExists(filePath);
+            let fileExists: boolean = await FileManager.FileExists(filePath);
             if (fileExists) {
                 FileManager.ReadFile(filePath).then(function (content: string) {
                     if (content != null) {
@@ -74,17 +74,12 @@ export class FileManager {
         });
     }
 
-    public static WriteFile(filePath: string, data: string): Promise<boolean> {
+    public static async WriteFile(filePath: string, data: string): Promise<boolean> {
         return new Promise<boolean>((resolve, reject) => {
             if (data) {
-                fs.writeFile(filePath, data, function (err: any, data: any) {
-                    if (err) {
-                        console.error(err);
-                        reject(false);
-                    }
-                    else {
-                        resolve(true);
-                    }
+                fs.writeFile(filePath, data, (err) => {
+                    if (err) reject(false);
+                    else resolve(true);
                 });
             }
             else {
@@ -125,7 +120,7 @@ export class FileManager {
         });
     }
 
-    public static async CreateDirTree(userFolder: string, fileName: string): Promise<string> {
+    public static CreateDirTree(userFolder: string, fileName: string): Promise<string> {
         let me: FileManager = this;
         let fullPath: string = userFolder;
 
@@ -137,50 +132,60 @@ export class FileManager {
                 for (var i = 0; i < paths.length - 1; i++) {
                     var element = paths[i];
                     fullPath += element + "/";
-                    FileManager.CreateDirectory(fullPath);
+                    let x = await FileManager.CreateDirectory(fullPath);
+
                 }
-                resolve(fullPath.concat + "/" + paths[paths.length - 1]);
+                console.log(fullPath + paths[paths.length - 1]);
+
+                resolve(fullPath + paths[paths.length - 1]);
             }
-            resolve(fullPath + fileName);
+            else {
+                console.log(fullPath + fileName);
+
+                resolve(fullPath + fileName);
+            }
+
         });
     }
 
 
-    public static DeleteFile(filePath: string): boolean {
-        if (filePath) {
-            let stat: boolean = FileManager.FileExists(filePath)
-            if (stat) {
-                fs.unlinkSync(filePath);
+    public static async DeleteFile(filePath: string): Promise<boolean> {
+        return new Promise<boolean>(async resolve => {
+            if (filePath) {
+                let stat: boolean = await FileManager.FileExists(filePath)
+                if (stat) {
+                    fs.unlink(filePath, err => {
+                        if (err) resolve(false);
+                        else resolve(true);
+                    });
+                }
             }
-            return stat;
-        }
-        else {
-            console.error("Unable to delete file. File Path is :" + filePath);
-            return false;
-        }
+            else {
+                console.error("Unable to delete file. File Path is :" + filePath);
+                resolve(false);
+            }
+        });
     }
 
-    public static FileExists(filePath: string): boolean {
-        try {
-            fs.accessSync(filePath, fs.F_OK);
-            return true;
-        }
-        catch (e) {
-            return false;
-        }
+    public static async FileExists(filePath: string): Promise<boolean> {
+        return new Promise<boolean>(async resolve => {
+            fs.access(filePath, fs.F_OK, err => {
+                if (err) resolve(false);
+                else resolve(true);
+            });
+        });
     }
 
-    public static CreateDirectory(name: string): boolean {
 
-        let dirExist: boolean = FileManager.FileExists(name);
-        try {
-            if (!dirExist) {
-                fs.mkdirSync(name);
-            }
-            return true;
-        }
-        catch (e) {
-            return false;
-        }
+    public static CreateDirectory(name: string): Promise<boolean> {
+        return new Promise(async (resolve, reject) => {
+            fs.mkdir(name, err => {
+                if (err) reject(err);
+                else resolve();
+            });
+        }).then(() => true, err => {
+            if (err.code == "EEXIST") return false;
+            else throw err;
+        });
     }
 }

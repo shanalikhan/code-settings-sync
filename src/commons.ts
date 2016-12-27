@@ -200,45 +200,45 @@ export class Commons {
         let me: Commons = this;
         let settingKeys = Object.keys(new ExtensionConfig());
         return new Promise<boolean>(async (resolve, reject) => {
-            let fileExist: boolean =  FileManager.FileExists(me.en.APP_SETTINGS);
 
-                if (fileExist) {
-                    await FileManager.ReadFile(me.en.APP_SETTINGS).then(async function (settin: string) {
+            let fileExist: boolean = await FileManager.FileExists(me.en.APP_SETTINGS);
+            if (fileExist) {
+                await FileManager.ReadFile(me.en.APP_SETTINGS).then(async function (settin: string) {
 
+                    if (settin) {
+                        let oldsetting = JSON.parse(settin);
+                        if (oldsetting.Token) {
 
+                            vscode.window.setStatusBarMessage("");
+                            vscode.window.setStatusBarMessage("Sync : Migrating from Old Settings to Standard Settings File.", 2000);
 
-                        if (settin) {
-                            let oldsetting = JSON.parse(settin);
-                            if (oldsetting.Token) {
+                            let newSetting: ExtensionConfig = new ExtensionConfig();
+                            newSetting.token = oldsetting.Token;
+                            newSetting.gist = oldsetting.Gist;
+                            //Storing only GIST and token after migration.
 
-                                vscode.window.setStatusBarMessage("");
-                                vscode.window.setStatusBarMessage("Sync : Migrating from Old Settings to Standard Settings File.", 2000);
-
-                                let newSetting : ExtensionConfig = new ExtensionConfig();
-                                newSetting.token = oldsetting.Token;
-                                newSetting.gist = oldsetting.Gist;
-                                //Storing only GIST and token after migration.
-
-                                await me.SaveSettings(newSetting).then(async function (done) {
-                                    vscode.window.showInformationMessage("Sync : Now this extension follows standard code configuration to setup this extension. Settings migrated, Please read the release notes.");
-                                });
-                            }
-                            await FileManager.DeleteFile(me.en.APP_SETTINGS);
+                            await me.SaveSettings(newSetting).then(async function (done) {
+                                if (done) {
+                                    vscode.window.showInformationMessage("Sync : Now this extension follows standard code configuration to setup this extension. Settings are migrated.");
+                                    vscode.window.showInformationMessage("Sync : To Make it fully work you need to upload the settings once again.");
+                                    //await FileManager.DeleteFile(me.en.APP_SETTINGS);
+                                }
+                            });
                         }
-                    });
-                }
-                else {
-                    let settings: ExtensionConfig = await me.GetSettings();
-                    if (settings.version == 0 || settings.version < Environment.CURRENT_VERSION) {
-                        if (settings.version == 0) {
-                            vscode.window.showInformationMessage("Sync : Settings Created");
-                        }
-
-                        settings.version = Environment.CURRENT_VERSION;
-                        await me.SaveSettings(settings);
                     }
+                });
+            }
+            else {
+                let settings: ExtensionConfig = await me.GetSettings();
+                if (settings.version == 0 || settings.version < Environment.CURRENT_VERSION) {
+                    if (settings.version == 0) {
+                        vscode.window.showInformationMessage("Sync : Settings Created");
+                    }
+                    settings.version = Environment.CURRENT_VERSION;
+                    await me.SaveSettings(settings);
                 }
-                resolve(true);
+            }
+            resolve(true);
         });
     }
 
@@ -248,17 +248,17 @@ export class Commons {
         let config = vscode.workspace.getConfiguration('sync');
         let allKeysUpdated = new Array<Thenable<void>>();
 
-
-
         return new Promise<boolean>((resolve, reject) => {
 
             let keys = Object.keys(setting);
             keys.forEach(async keyName => {
 
                 if (keyName == "lastDownload" || keyName == "lastUpload") {
-                    let zz = Date.parse(setting[keyName]);
-                    if (isNaN(zz)) {
-                        setting[keyName] = "";
+                    try {
+                        let zz = new Date(setting[keyName]);
+                        setting[keyName] = zz;
+                    } catch (e) {
+                        setting[keyName] = new Date();
                     }
                 }
 
@@ -280,9 +280,7 @@ export class Commons {
                 me.LogException(b, me.ERROR_MESSAGE, true);
                 reject(false);
             });
-
         });
-
     }
 
     public GetSettings(): ExtensionConfig {
@@ -301,8 +299,6 @@ export class Commons {
                     settings[key] = String(token);
                 }
             }
-
-
         });
         return settings;
     }
@@ -328,11 +324,6 @@ export class Commons {
                             });
                         }
                     }
-                    //  else {
-                    //     if (token !== 'esc') {
-                    //         getToken()
-                    //     }
-                    // }
                 });
             } ());
         });
@@ -357,15 +348,8 @@ export class Commons {
                             });
                         }
                     }
-                    // else {
-                    //     if (gist !== 'esc') {
-                    //         getGist();
-                    //     }
-                    // }
-
                 });
             })();
-
         });
     }
 
@@ -414,12 +398,8 @@ export class Commons {
 
         console.log("Sync : " + "File Path For Summary Page : " + tempURI);
 
-        //        var setting: vscode.Uri = vscode.Uri.parse("untitled:" + tempURI);
-
         var setting: vscode.Uri = vscode.Uri.file(tempURI);
         fs.openSync(setting.fsPath, 'w');
-
-        //let a = vscode.window.activeTextEditor;
 
         vscode.workspace.openTextDocument(setting).then((a: vscode.TextDocument) => {
             vscode.window.showTextDocument(a, vscode.ViewColumn.One, true).then((e: vscode.TextEditor) => {
@@ -442,7 +422,6 @@ export class Commons {
                             edit.insert(new vscode.Position(row, 0), element.fileName + "\r\n");
                             row += 1;
                         }
-
                     }
                     if (removedExtensions) {
                         edit.insert(new vscode.Position(row, 0), deletedExtension + "\r\n");
@@ -481,8 +460,5 @@ export class Commons {
             console.error(error);
             return;
         });
-
     };
-
-
 }

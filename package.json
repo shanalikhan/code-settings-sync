@@ -1,7 +1,7 @@
 {
     "name": "code-settings-sync",
-    "displayName": "Visual Studio Code Settings Sync",
-    "description": "Synchronize Settings, Snippets, launch, keybindings files and extensions Across Multiple Machines using Github GIST.",
+    "displayName": "Settings Sync",
+    "description": "Synchronize Settings, Snippets, launch, keybindings, workspaces and extensions Across Multiple Machines using Github Gist.",
     "version": "2.4.0",
     "icon": "images/cloud.png",
     "publisher": "Shan",
@@ -24,7 +24,7 @@
         "email": "shanalikhan@hotmail.com"
     },
     "engines": {
-        "vscode": "^1.6.0"
+        "vscode": "^1.9.0"
     },
     "categories": [
         "Other"
@@ -33,7 +33,9 @@
         "vscode-sync",
         "sync",
         "vscode-settings-sync",
-        "code-settings-sync"
+        "code-settings-sync",
+        "settings-sync",
+        "workspace-sync"
     ],
     "activationEvents": [
         "*",
@@ -118,11 +120,6 @@
                     "type": "boolean",
                     "default": false,
                     "description": "Set it to true if you want to download the settings everytime code starts."
-                },
-                "sync.firstTime": {
-                    "type": "boolean",
-                    "default": true,
-                    "description": "Set it to false when you understand all the process and dont want to open links for references."
                 }
             },
             "title": "Code Settings Sync Configuration Settings"
@@ -134,14 +131,14 @@
         "postinstall": "node ./node_modules/vscode/bin/install"
     },
     "devDependencies": {
-        "typescript": "^2.0.3",
+        "typescript": "^2.1.4",
         "vscode": "^1.0.3"
     },
     "dependencies": {
-        "@types/node": "^6.0.45",
+        "@types/node": "^6.0.54",
         "adm-zip": "^0.4.7",
         "fs": "^0.0.2",
-        "github": "^7.0.0",
+        "github": "^7.1.0",
         "ncp": "^2.0.0",
         "open": "^0.0.5",
         "rimraf": "^2.5.4",

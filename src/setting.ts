@@ -7,7 +7,6 @@ export class ExtensionConfig {
     public token: string = null;
     public gist: string = null;
     public lastUpload: Date = null;
-    public firstTime: boolean = true;  // to open the toturial first time when used any command.
     public autoDownload: boolean = false;
     public autoUpload = false;
     public lastDownload: Date = null;
@@ -16,7 +15,6 @@ export class ExtensionConfig {
     public forceDownload = false;
     constructor(){
         this.version = Environment.CURRENT_VERSION;
-
     }
 }
 
