@@ -636,6 +636,10 @@ export async function activate(context: vscode.ExtensionContext) {
             return;
         }).then(async (resolve: any) => {
             if (settingChanged) {
+                if (selectedItem == 0) {
+                    var common: Commons = new Commons(en, context);
+                    common.CloseWatch();
+                }
                 await common.SaveSettings(setting).then(async function (added: boolean) {
                     if (added) {
                         switch (selectedItem) {
@@ -676,6 +680,7 @@ export async function activate(context: vscode.ExtensionContext) {
                                 break;
                             }
                             case 0: {
+
                                 await vscode.commands.executeCommand('extension.updateSettings', "publicGIST");
                                 break;
                             }

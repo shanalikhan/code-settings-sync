@@ -103,7 +103,7 @@ export class Commons {
 
                     if (setting.autoUpload) {
                         console.log("Sync : Initiating Auto-upload For File : " + path);
-                        this.InitiateAutoUpload().then((resolve) => {
+                        this.InitiateAutoUpload(path).then((resolve) => {
                             uploadStopped = resolve;
                         }, (reject) => {
                             uploadStopped = reject;
@@ -120,7 +120,7 @@ export class Commons {
         });
     }
 
-    public async InitiateAutoUpload(): Promise<boolean> {
+    public async InitiateAutoUpload(path : string): Promise<boolean> {
 
         return new Promise<boolean>(async (resolve, reject) => {
             vscode.window.setStatusBarMessage("");
@@ -128,7 +128,7 @@ export class Commons {
 
             setTimeout(function () {
 
-                vscode.commands.executeCommand('extension.updateSettings', "forceUpdate").then((res) => {
+                vscode.commands.executeCommand('extension.updateSettings', "forceUpdate", path).then((res) => {
                     resolve(true);
                 });
             }, 3000);
@@ -218,8 +218,9 @@ export class Commons {
                             await me.SaveSettings(newSetting).then(async function (done) {
                                 if (done) {
                                     vscode.window.showInformationMessage("Sync : Now this extension follows standard code configuration to setup this extension. Settings are migrated.");
-                                    vscode.window.showInformationMessage("Sync : To Make it fully work you need to upload the settings once again.");
-                                    //await FileManager.DeleteFile(me.en.APP_SETTINGS);
+                                    vscode.window.showInformationMessage("Sync : To Make it fully work you need to upload the settings once again. Uploading the Settings.");
+                                    vscode.commands.executeCommand('extension.updateSettings');
+                                    await FileManager.DeleteFile(me.en.APP_SETTINGS);
                                 }
                             });
                         }
