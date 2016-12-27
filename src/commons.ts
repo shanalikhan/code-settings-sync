@@ -92,24 +92,22 @@ export class Commons {
                 uploadStopped = false;
                 let requiredFileChanged: boolean = false;
 
-                requiredFileChanged = (path.indexOf("workspaceStorage") == -1) && (path.indexOf(".DS_Store") == -1) && (path.indexOf(this.en.FILE_LOCATIONSETTINGS_NAME) == -1) && (path.indexOf(this.en.APP_SUMMARY_NAME) == -1);
+                //requiredFileChanged = (path.indexOf("workspaceStorage") == -1) && (path.indexOf(".DS_Store") == -1) && (path.indexOf(this.en.FILE_LOCATIONSETTINGS_NAME) == -1) && (path.indexOf(this.en.APP_SUMMARY_NAME) == -1);
+                requiredFileChanged = (path.indexOf(".DS_Store") == -1) && (path.indexOf(this.en.FILE_LOCATIONSETTINGS_NAME) == -1) && (path.indexOf(this.en.APP_SUMMARY_NAME) == -1);
 
                 console.log("Sync : File Change Detected On : " + path);
-
 
                 if (requiredFileChanged) {
 
                     let setting: ExtensionConfig = self.GetSettings();
 
                     if (setting.autoUpload) {
-
                         console.log("Sync : Initiating Auto-upload For File : " + path);
                         this.InitiateAutoUpload().then((resolve) => {
                             uploadStopped = resolve;
                         }, (reject) => {
                             uploadStopped = reject;
                         });
-
                     }
                 } else {
                     uploadStopped = true;
