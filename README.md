@@ -1,4 +1,5 @@
-# Visual Studio Code Settings Sync
+# Settings Sync
+### Previously Known as Visual Studio Code Settings Sync
 
 [![Version](https://vsmarketplacebadge.apphb.com/version/Shan.code-settings-sync.svg)](https://marketplace.visualstudio.com/items?itemName=Shan.code-settings-sync)
 
@@ -9,13 +10,15 @@
 
 **Type Sync in command Palette in order to view all commands.**
 
+**Note :** Latest Update is available for Code Version 1.9+ as currently its in insiders and I want to make sure that it works well to publish in normal release.
+
 ## Key Features
 ```
-1. Use your github account token and GIST.
+1. Use your github account token and Gist.
 2. Easy to Upload and Download on one click.
 3. Upload Key : Shift + Alt + U
 4. Download Key : Shift + Alt + D
-5. Use Other User's Public GIST to completely sync your settings with them.
+5. Use Other User's Public Gist to completely sync your settings with them.
 6. Show a summary page at the end with details.
 7. Auto Download Latest Settings on Startup.
 8. Auto upload Settings on file change.
@@ -23,23 +26,25 @@
 
 ## It Syncs
 ```
-1. Settings File
-2. Keybinding File
-3. Launch File
-4. Snippets Folder
-5. VSCode Extensions
+All the extensions and complete User Folder that Contains
+    1. Settings File
+    2. Keybinding File
+    3. Launch File
+    4. Snippets Folder
+    5. VSCode Extensions Settings
+    6. Workspaces
 ```
    
 ## Steps To Get the Github Key.
 
-This extension required your GitHub Account Personal Access Token. You can create one simple by looking into the following pictures. Make sure you add **GIST** in scope.
+This extension required your GitHub Account Personal Access Token. You can create one simple by looking into the following pictures. Make sure you add **Gist** in scope.
 
 **Goto Settings / Personal Access Tokens / Generate New Token**
 
 
 ![Goto Settings / Personal Access Tokens](http://shanalikhan.github.io/img/github1.PNG)
 
-**Select GIST From Scopes**
+**Select Gist From Scopes**
 
 ![Select Scopes](http://shanalikhan.github.io/img/github2.PNG)
 
@@ -62,7 +67,7 @@ Enter the github account in the window and click enter.
 
 ![github account access token](http://shanalikhan.github.io/img/upload1.png)
 
-**Upload your settings automatically and give you GIST ID.**
+**Upload your settings automatically and give you Gist ID.**
 Copy this Gist ID in order to download the settings in other machines.
 
 ![uploaded automatically](http://shanalikhan.github.io/img/upload2.png)
@@ -78,24 +83,24 @@ Enter the github account in the window and click enter.
 
 ![github account access token](http://shanalikhan.github.io/img/upload1.png)
 
-**Enter Your GIST ID.**
+**Enter Your Gist ID.**
 you need to enter your Gist ID in order to get the all files
 
-![Enter Your GIST ID](http://shanalikhan.github.io/img/download2.png)
+![Enter Your Gist ID](http://shanalikhan.github.io/img/download2.png)
 
 **Settings Downloaded.**
 You are Done! All your files are downloaded
 
-![Enter Your GIST ID](http://shanalikhan.github.io/img/download3.png)
+![Enter Your Gist ID](http://shanalikhan.github.io/img/download3.png)
 
-## Reset Token / GIST Settings
+## Reset Token / Gist Settings
 
-> Type ">Sync" In Command Palette and select Reset Token and GIST Settings
+> Type ">Sync" In Command Palette and select Reset Token and Gist Settings
 
 ## Toggle Auto Download
 
-Auto Download is **enabled by default**. It will sync all the setting by default when the editor starts.
-Please make sure you have valid github Token and GIST available to make it work properly.
+Auto Download is **disabled by default**. It will sync all the setting by default when the editor starts.
+Please make sure you have valid github Token and Gist available to make it work properly.
 
 Select Command **"Sync : Advance Options > Toggle Auto-Download On Startup"** command to Turn ON / OFF the auto download.
 
@@ -103,14 +108,14 @@ Select Command **"Sync : Advance Options > Toggle Auto-Download On Startup"** co
 
 Force Download is **disabled by default**. By default extension wont download the latest settings if you already have latest downloaded version , but sometime when you delete some extension locally and dont upload the settings it will still show you have latest versions by date or time checks, by turning this ON it will always download the cloud settings on startup.
 
-Please make sure you have valid github Token and GIST available to make it work properly.
+Please make sure you have valid github Token and Gist available to make it work properly.
 
 Select Command **"Sync : Advance Options > Toggle Force Download"** command to Turn ON / OFF the force download.
 
 ## Toggle Auto-Upload on change
 Auto-upload is **disabled by default**. When the settings are changed and saved this feature will automatic start the upload process and save the settings online.
 
-Please make sure you have valid github Token and GIST available to make it work properly.
+Please make sure you have valid github Token and Gist available to make it work properly.
 
 Select Command **"Sync : Advance Options > Toggle Auto-Upload on Setting Change"** command to Turn ON / OFF the auto-upload.
 
@@ -123,23 +128,30 @@ You may turn it off in order to make a upload and download process clean and qui
 
 Select Command **"Sync : Advance Options > Toggle Summary Page On Upload / Download"** command to Turn ON / OFF the auto download.
 
-## Create Public GIST To Share
+## Create Public Gist To Share Settings
 
-By default, it creates secret GIST so only you can see it but if you want to share your GIST with other users, you can set it to public.
-You can't change the exiting GIST type from secret to public so it will reset the GIST ID so you can create new GIST with all the existing editor settings.
+By default, it creates secret Gist so only you can see it but if you want to share your Gist with other users, you can set it to public.
+You can't change the exiting Gist type from secret to public so it will reset the Gist ID so you can create new Gist with all the existing editor settings.
 
-Select Command **"Sync : Advance Options > Public / Private GIST Mode & Reset GIST"**
+Select Command **"Sync : Advance Options > Share Settings with Public GIST"**
 
-## Fetch Other User's Settings
-
-You may give the GIST ID to other users , your friends or employees so they download each of the extensions or settings you upload but they cant edit your GIST or upload anything on your GIST.
-
-Select Command **"Sync : Advance Options > Fetch Other User's Settings"**
+Other users can give your Gist Id to download the Gist, but they cant upload their settings on your Gist.
 
 
-# Step By Step Tutorial For 
+## Settings
 
-[How to share your visual studio code settings](http://shanalikhan.github.io/2016/09/02/how-to-Share-visual-studio-code-settings.html)
+```
+    "sync.gist": "",
+    "sync.version": 240,
+    "sync.lastUpload": "2016-12-27T16:34:19.308Z",
+    "sync.firstTime": true,
+    "sync.autoDownload": false,
+    "sync.autoUpload": true,
+    "sync.lastDownload": "2016-12-27T15:58:35.760Z",
+    "sync.showSummary": true,
+    "sync.forceDownload": true
+```
+
 
 
 # How To Contribute
