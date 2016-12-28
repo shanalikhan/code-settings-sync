@@ -639,7 +639,6 @@ export async function activate(context: vscode.ExtensionContext) {
         }).then(async (resolve: any) => {
             if (settingChanged) {
                 if (selectedItem == 0) {
-                    var common: Commons = new Commons(en, context);
                     common.CloseWatch();
                 }
                 await common.SaveSettings(setting).then(async function (added: boolean) {
