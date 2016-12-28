@@ -95,7 +95,7 @@ export class FileManager {
             fs.readdir(directory, async function (err: any, data: Array<string>) {
                 if (err) {
                     console.error(err);
-                    reject(null);
+                    resolve(null);
                 }
 
                 var files = new Array<File>();

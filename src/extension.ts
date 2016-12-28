@@ -143,6 +143,12 @@ export async function activate(context: vscode.ExtensionContext) {
                 allSettingFiles.push(file);
 
                 var contentFiles = await FileManager.ListFiles(en.USER_FOLDER);
+
+                if (contentFiles==null){
+                    common.LogException(null,common.ERROR_MESSAGE,true);
+                    return;
+                }
+
                 contentFiles.forEach(snippetFile => {
 
                     if (snippetFile.fileName != en.APP_SUMMARY_NAME) {
@@ -175,10 +181,10 @@ export async function activate(context: vscode.ExtensionContext) {
                     await myGi.CreateEmptyGIST(localConfig.publicGist).then(async function (gistID: string) {
                         if (gistID) {
                             syncSetting.gist = gistID;
-                            vscode.window.setStatusBarMessage("Sync : Empty GIST ID: " + syncSetting.gist + " created To insert files, in Process...");
+                            vscode.window.setStatusBarMessage("Sync : GIST ID: " + syncSetting.gist + " created.");
                         }
                         else {
-                            vscode.window.showInformationMessage("GIST UNABLE TO CREATE");
+                            vscode.window.showInformationMessage("Sync : Unable to create Gist.");
                             return;
                         }
                     }, function (error: any) {
@@ -324,7 +330,6 @@ export async function activate(context: vscode.ExtensionContext) {
                         else {
                             console.log(gistName + " key in response is empty.");
                         }
-
                     });
 
                     for (var index = 0; index < updatedFiles.length; index++) {
@@ -335,8 +340,6 @@ export async function activate(context: vscode.ExtensionContext) {
                         var content: string = file.content;
 
                         if (content != "") {
-
-
 
                             if (file.gistName == en.FILE_EXTENSION_NAME) {
 
@@ -409,8 +412,7 @@ export async function activate(context: vscode.ExtensionContext) {
                     }
                 }
                 else {
-                    console.log(res);
-                    vscode.window.showErrorMessage("Sync : Unable To Read Gist");
+                    common.LogException(res,"Sync : Unable to Read Gist.",true);
                 }
 
                 Promise.all(actionList)
@@ -490,7 +492,7 @@ export async function activate(context: vscode.ExtensionContext) {
 
             }
             catch (err) {
-                common.LogException(err, "Unable to clear settings. Error Logged on console. Please open an issue.", true);
+                common.LogException(err, "Sync : Unable to clear settings. Error Logged on console. Please open an issue.", true);
             }
         }
 
@@ -521,7 +523,7 @@ export async function activate(context: vscode.ExtensionContext) {
             }
 
         }, function (err: any) {
-            common.LogException(err, "Unable to toggle summary. Please open an issue.", true);
+            common.LogException(err, "Sync : Unable to toggle summary. Please open an issue.", true);
         });
 
         let items: Array<string> = new Array<string>();
@@ -690,7 +692,7 @@ export async function activate(context: vscode.ExtensionContext) {
                         vscode.window.showErrorMessage("Unable to Toggle.");
                     }
                 }, function (err: any) {
-                    common.LogException(err, "Unable to toggle. Please open an issue.", true);
+                    common.LogException(err, "Sync : Unable to toggle. Please open an issue.", true);
                     return;
                 });
             }

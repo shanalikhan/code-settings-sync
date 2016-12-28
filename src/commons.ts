@@ -266,7 +266,7 @@ export class Commons {
                 }
 
                 if (keyName.toLowerCase() == "token") {
-                    allKeysUpdated.push(me.context.globalState.update("token", setting[keyName]));
+                    allKeysUpdated.push(me.context.globalState.update("synctoken", setting[keyName]));
                 }
                 else {
                     allKeysUpdated.push(config.update(keyName, setting[keyName], true));
@@ -293,8 +293,8 @@ export class Commons {
                 settings[key] = vscode.workspace.getConfiguration("sync")[key];
             }
             else {
-                if (this.context.globalState.get('token')) {
-                    let token = this.context.globalState.get('token');
+                if (this.context.globalState.get('synctoken')) {
+                    let token = this.context.globalState.get('synctoken');
                     settings[key] = String(token);
                 }
             }
@@ -453,7 +453,7 @@ export class Commons {
                     }
                 });
                 e.document.save();
-                vscode.commands.executeCommand("workbench.action.nextEditorInGroup");
+                //vscode.commands.executeCommand("workbench.action.nextEditorInGroup");
             });
         }, (error: any) => {
             console.error(error);
