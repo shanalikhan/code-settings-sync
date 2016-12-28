@@ -201,6 +201,9 @@ export async function activate(context: vscode.ExtensionContext) {
                             common.LogException(null, "Sync : You cant edit GIST for user : " + gistObj.owner.login, true);
                             return;
                         }
+                        if(gistObj.public==true){
+                            localConfig.publicGist = true;
+                        }
 
                         vscode.window.setStatusBarMessage("Sync : Uploading Files Data.");
                         gistObj = myGi.UpdateGIST(gistObj, allSettingFiles);
@@ -291,6 +294,9 @@ export async function activate(context: vscode.ExtensionContext) {
                 var actionList = new Array<Promise<void | boolean>>();
 
                 if (res) {
+                    if(res.public==true){
+                        localSettings.publicGist = true;
+                    }
                     var keys = Object.keys(res.files);
                     if (keys.indexOf(en.FILE_CLOUDSETTINGS_NAME) > -1) {
                         var cloudSett: CloudSetting = JSON.parse(res.files[en.FILE_CLOUDSETTINGS_NAME].content);
