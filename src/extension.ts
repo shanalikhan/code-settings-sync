@@ -142,7 +142,7 @@ export async function activate(context: vscode.ExtensionContext) {
                 var file: File = new File(fileName, fileContent, filePath, fileName);
                 allSettingFiles.push(file);
 
-                var contentFiles = await FileManager.ListFiles(en.USER_FOLDER);
+                var contentFiles = await FileManager.ListFiles(en.USER_FOLDER,0);
 
                 if (contentFiles==null){
                     common.LogException(null,common.ERROR_MESSAGE,true);

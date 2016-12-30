@@ -5,6 +5,7 @@ import { File, FileManager } from './fileManager';
 import { ExtensionConfig, LocalConfig } from './setting';
 import { PluginService, ExtensionInformation } from './pluginService';
 import * as fs from 'fs';
+import * as path from 'path';
 
 var openurl = require('open');
 var chokidar = require('chokidar');
@@ -53,7 +54,7 @@ export class Commons {
         let self: Commons = this;
 
         Commons.extensionWatcher = chokidar.watch(this.en.ExtensionFolder, { depth: 0, ignoreInitial: true });
-        Commons.configWatcher = chokidar.watch(this.en.PATH + "/User/", { ignoreInitial: true });
+        Commons.configWatcher = chokidar.watch(this.en.PATH + "/User/", { depth: LocalConfig.DEPTH, ignoreInitial: true });
 
         //TODO : Uncomment the following lines when code allows feature to update Issue in github code repo - #14444
 
@@ -88,20 +89,32 @@ export class Commons {
 
         Commons.configWatcher.on('change', (path: string) => {
             if (uploadStopped) {
+                let settings: ExtensionConfig = this.GetSettings();
 
                 uploadStopped = false;
                 let requiredFileChanged: boolean = false;
 
-                //requiredFileChanged = (path.indexOf("workspaceStorage") == -1) && (path.indexOf(".DS_Store") == -1) && (path.indexOf(this.en.FILE_LOCATIONSETTINGS_NAME) == -1) && (path.indexOf(this.en.APP_SUMMARY_NAME) == -1);
-                requiredFileChanged = (path.indexOf(".DS_Store") == -1) && (path.indexOf(this.en.FILE_LOCATIONSETTINGS_NAME) == -1) && (path.indexOf(this.en.APP_SUMMARY_NAME) == -1);
+                if (settings.workspaceSync == true) {
+                    requiredFileChanged = (path.indexOf(".DS_Store") == -1) && (path.indexOf(this.en.FILE_LOCATIONSETTINGS_NAME) == -1) && (path.indexOf(this.en.APP_SUMMARY_NAME) == -1);
+                }
+                else {
+                    requiredFileChanged = (path.indexOf("workspaceStorage") == -1) && (path.indexOf(".DS_Store") == -1) && (path.indexOf(this.en.FILE_LOCATIONSETTINGS_NAME) == -1) && (path.indexOf(this.en.APP_SUMMARY_NAME) == -1);
+                }
 
                 console.log("Sync : File Change Detected On : " + path);
 
                 if (requiredFileChanged) {
 
-                    let setting: ExtensionConfig = self.GetSettings();
+                    if (settings.autoUpload) {
+                        if (settings.workspaceSync) {
+                            let fileType: string = path.substring(path.lastIndexOf('.'), path.length);
+                            if (fileType.indexOf('json') == -1) {
+                                console.log("Sync : Cannot Initiate Auto-upload on This File (Not JSON).");
+                                uploadStopped = true;
+                                return;
+                            }
+                        }
 
-                    if (setting.autoUpload) {
                         console.log("Sync : Initiating Auto-upload For File : " + path);
                         this.InitiateAutoUpload(path).then((resolve) => {
                             uploadStopped = resolve;
@@ -115,12 +128,12 @@ export class Commons {
             }
             else {
                 vscode.window.setStatusBarMessage("");
-                vscode.window.setStatusBarMessage("Sync : Updating In Progres... Please Wait.", 3000);
+                vscode.window.setStatusBarMessage("Sync : Updating In Progress... Please Wait.", 3000);
             }
         });
     }
 
-    public async InitiateAutoUpload(path : string): Promise<boolean> {
+    public async InitiateAutoUpload(path: string): Promise<boolean> {
 
         return new Promise<boolean>(async (resolve, reject) => {
             vscode.window.setStatusBarMessage("");

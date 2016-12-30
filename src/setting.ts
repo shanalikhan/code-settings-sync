@@ -1,5 +1,5 @@
 //"use strict";
-import {Environment} from './environmentPath';
+import { Environment } from './environmentPath';
 
 
 export class ExtensionConfig {
@@ -13,17 +13,19 @@ export class ExtensionConfig {
     public version: number = null;
     public showSummary: boolean = true;
     public forceDownload = false;
-    constructor(){
+    public workspaceSync = false;
+    constructor() {
         this.version = Environment.CURRENT_VERSION;
     }
 }
 
-export class LocalConfig{
+export class LocalConfig {
     public publicGist: boolean = false;
-    public userName : string= null;
-    public name : string = null;
+    public userName: string = null;
+    public name: string = null;
     public config: ExtensionConfig = null;
-    constructor(){
+    public static readonly DEPTH : number = 2;
+    constructor() {
         this.config = new ExtensionConfig();
     }
 }

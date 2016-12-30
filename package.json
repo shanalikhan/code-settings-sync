@@ -24,7 +24,7 @@
         "email": "shanalikhan@hotmail.com"
     },
     "engines": {
-        "vscode": "^1.9.0"
+        "vscode": "^1.8.0"
     },
     "categories": [
         "Other"
@@ -83,27 +83,27 @@
                 "sync.gist": {
                     "type": "string",
                     "default": "",
-                    "description": "Github GIST ID for Code Settings Sync."
+                    "description": "Github GIST ID for Settings Sync."
                 },
                 "sync.lastUpload": {
                     "type": "string",
                     "default": "",
-                    "description": "Code Settings Sync last upload date. Set it as empty if you want to manully hit download."
+                    "description": "Settings Sync last upload date. Set it as empty if you want to manully hit download."
                 },
                 "sync.lastDownload": {
                     "type": "string",
                     "default": "",
-                    "description": "Code Settings Sync last download date. Set it as empty if you want to manully hit download."
+                    "description": "Settings Sync last download date. Set it as empty if you want to manully hit download."
                 },
                 "sync.autoDownload": {
                     "type": "boolean",
                     "default": false,
-                    "description": "Set it true to Auto Download the settings on code start."
+                    "description": "Set it true to Auto Download the settings on code start. Code Restart Required to affect."
                 },
                 "sync.autoUpload": {
                     "type": "boolean",
                     "default": false,
-                    "description": "Set it true to Auto Upload on the settings change."
+                    "description": "Set it true to Auto Upload on the settings change. Code Restart Required to affect."
                 },
                 "sync.version": {
                     "type": "number",
@@ -119,6 +119,11 @@
                     "type": "boolean",
                     "default": false,
                     "description": "Set it to true if you want to download the settings everytime code starts."
+                },
+                "sync.workspaceSync": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "Set it to true if you want to sync the workspaceStorage folder. It will only upload .json files."
                 }
             },
             "title": "Code Settings Sync Configuration Settings"

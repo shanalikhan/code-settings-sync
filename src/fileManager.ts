@@ -1,3 +1,4 @@
+import { LocalConfig } from './setting';
 "use strict";
 var fs = require('fs');
 var path = require('path');
@@ -60,7 +61,6 @@ export class FileManager {
                             else {
                                 gistName += element;
                             }
-
                         });
                         var file: File = new File(fileName, content, filePath, gistName);
                         resolve(file);
@@ -89,7 +89,7 @@ export class FileManager {
         });
     }
 
-    public static async ListFiles(directory: string): Promise<Array<File>> {
+    public static async ListFiles(directory: string, depth: number): Promise<Array<File>> {
         var me = this;
         return new Promise<Array<File>>((resolve, reject) => {
             fs.readdir(directory, async function (err: any, data: Array<string>) {
@@ -103,16 +103,19 @@ export class FileManager {
                     let fullPath: string = directory.concat(data[i]);
                     let isDir: boolean = await FileManager.IsDirectory(fullPath);
                     if (isDir) {
-                        let filews: Array<File> = await FileManager.ListFiles(fullPath + "/");
-                        filews.forEach(element => {
-                            files.push(element)
-                        });
+                        if (depth < LocalConfig.DEPTH) {
+                            let filews: Array<File> = await FileManager.ListFiles(fullPath + "/", depth + 1);
+                            filews.forEach(element => {
+                                files.push(element)
+                            });
+                        }
                     }
                     else {
-                        var file: File = await FileManager.GetFile(fullPath, data[i]);
-                        files.push(file);
+                        if (fullPath.indexOf('json') > -1) {
+                            var file: File = await FileManager.GetFile(fullPath, data[i]);
+                            files.push(file);
+                        }
                     }
-
                 }
                 resolve(files);
             });
