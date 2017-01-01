@@ -232,10 +232,12 @@ export class Commons {
                                 if (done) {
                                     vscode.window.showInformationMessage("Sync : Now this extension follows standard code configuration to setup this extension. Settings are migrated.");
                                     vscode.window.showInformationMessage("Sync : To Make it fully work you need to upload the settings once again. Uploading the Settings.");
-                                    vscode.commands.executeCommand('extension.updateSettings');
                                     await FileManager.DeleteFile(me.en.APP_SETTINGS);
+                                    vscode.commands.executeCommand('extension.updateSettings');
                                 }
                             });
+                        } else {
+                            await FileManager.DeleteFile(me.en.APP_SETTINGS);
                         }
                     }
                 });
@@ -248,6 +250,7 @@ export class Commons {
                     }
                     settings.version = Environment.CURRENT_VERSION;
                     await me.SaveSettings(settings);
+                    vscode.window.setStatusBarMessage("Sync : Settings Version Updated",2000);
                 }
             }
             resolve(true);
