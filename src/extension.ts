@@ -142,10 +142,18 @@ export async function activate(context: vscode.ExtensionContext) {
                 var file: File = new File(fileName, fileContent, filePath, fileName);
                 allSettingFiles.push(file);
 
-                var contentFiles = await FileManager.ListFiles(en.USER_FOLDER,0);
+                var contentFiles: Array<File> = new Array();
 
-                if (contentFiles==null){
-                    common.LogException(null,common.ERROR_MESSAGE,true);
+                if (syncSetting.workspaceSync) {
+                    contentFiles = await FileManager.ListFiles(en.USER_FOLDER, 0, 2);
+                }
+                else {
+                    contentFiles = await FileManager.ListFiles(en.USER_FOLDER, 0, 1);
+                }
+
+
+                if (contentFiles == null) {
+                    common.LogException(null, common.ERROR_MESSAGE, true);
                     return;
                 }
 
@@ -201,7 +209,7 @@ export async function activate(context: vscode.ExtensionContext) {
                             common.LogException(null, "Sync : You cant edit GIST for user : " + gistObj.owner.login, true);
                             return;
                         }
-                        if(gistObj.public==true){
+                        if (gistObj.public == true) {
                             localConfig.publicGist = true;
                         }
 
@@ -294,7 +302,7 @@ export async function activate(context: vscode.ExtensionContext) {
                 var actionList = new Array<Promise<void | boolean>>();
 
                 if (res) {
-                    if(res.public==true){
+                    if (res.public == true) {
                         localSettings.publicGist = true;
                     }
                     var keys = Object.keys(res.files);
@@ -418,7 +426,7 @@ export async function activate(context: vscode.ExtensionContext) {
                     }
                 }
                 else {
-                    common.LogException(res,"Sync : Unable to Read Gist.",true);
+                    common.LogException(res, "Sync : Unable to Read Gist.", true);
                 }
 
                 Promise.all(actionList)

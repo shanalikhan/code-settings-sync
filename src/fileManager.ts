@@ -89,7 +89,7 @@ export class FileManager {
         });
     }
 
-    public static async ListFiles(directory: string, depth: number): Promise<Array<File>> {
+    public static async ListFiles(directory: string, depth: number, fullDepth : number): Promise<Array<File>> {
         var me = this;
         return new Promise<Array<File>>((resolve, reject) => {
             fs.readdir(directory, async function (err: any, data: Array<string>) {
@@ -103,8 +103,8 @@ export class FileManager {
                     let fullPath: string = directory.concat(data[i]);
                     let isDir: boolean = await FileManager.IsDirectory(fullPath);
                     if (isDir) {
-                        if (depth < LocalConfig.DEPTH) {
-                            let filews: Array<File> = await FileManager.ListFiles(fullPath + "/", depth + 1);
+                        if (depth < fullDepth) {
+                            let filews: Array<File> = await FileManager.ListFiles(fullPath + "/", depth + 1, fullDepth);
                             filews.forEach(element => {
                                 files.push(element)
                             });

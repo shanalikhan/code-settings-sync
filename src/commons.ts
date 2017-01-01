@@ -288,10 +288,10 @@ export class Commons {
 
             Promise.all(allKeysUpdated).then(function (a) {
 
-                if (this.context.globalState.get('syncCounter')) {
-                    let counter = this.context.globalState.get('syncCounter');
+                if (me.context.globalState.get('syncCounter')) {
+                    let counter = me.context.globalState.get('syncCounter');
                     let count: number = parseInt(String(counter));
-                    if (count % 300 == 0) {
+                    if (count % 100 == 0) {
                         vscode.window.showInformationMessage("Sync : Did you like this extension ? How about writing a review or send me some donation ;) ");
                     }
                     count = count + 1;
