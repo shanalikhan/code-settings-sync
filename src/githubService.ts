@@ -46,27 +46,29 @@ export class GithubService {
     private GIST_JSON: any = null;
 
     constructor(private TOKEN: string) {
-        var self: GithubService = this;
-        github.authenticate({
-            type: "oauth",
-            token: TOKEN
-        });
+        if (TOKEN != null) {
+            var self: GithubService = this;
+            github.authenticate({
+                type: "oauth",
+                token: TOKEN
+            });
 
-        github.users.get({}, function (err, res) {
-            if (err) {
-                console.log(err);
-            }
-            else {
-                self.userName = res.login;
-                self.name = res.name;
-            }
-        });
+            github.users.get({}, function (err, res) {
+                if (err) {
+                    console.log(err);
+                }
+                else {
+                    self.userName = res.login;
+                    self.name = res.name;
+                }
+            });
+        }
     }
 
     public AddFile(list: Array<fileManager.File>, GIST_JSON_b: any) {
         for (var i = 0; i < list.length; i++) {
             var file = list[i];
-            if (file.content!='') {
+            if (file.content != '') {
                 GIST_JSON_b.files[file.gistName] = {};
                 GIST_JSON_b.files[file.gistName].content = file.content;
             }
@@ -101,6 +103,36 @@ export class GithubService {
                 });
         });
     }
+
+    public async CreateAnonymousGist(publicGist: boolean, files: Array<fileManager.File>): Promise<any> {
+        var me = this;
+        if (publicGist) {
+            me.GIST_JSON_EMPTY.public = true;
+        }
+        else {
+            me.GIST_JSON_EMPTY.public = false;
+        }
+        let gist: any = me.AddFile(files, me.GIST_JSON_EMPTY);
+
+        return new Promise<string>((resolve, reject) => {
+            github.getGistsApi().create(gist
+                , function (err, res) {
+                    if (err) {
+                        console.error(err);
+                        reject(false);
+                    }
+                    if (res.id) {
+                        resolve(res.id);
+                    } else {
+                        console.error("ID is null");
+                        console.log("Sync : " + "Response from GitHub is: ");
+                        console.log(res);
+                    }
+
+                });
+        });
+    }
+
 
     public async ReadGist(GIST: string): Promise<any> {
         var me = this;

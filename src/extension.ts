@@ -70,11 +70,13 @@ export async function activate(context: vscode.ExtensionContext) {
         var myGi: GithubService = null;
         var dateNow: Date = new Date();
         var localConfig: LocalConfig = new LocalConfig();
-        var syncSetting: ExtensionConfig = null;
+        var syncSetting: ExtensionConfig = await common.GetSettings();
         var allSettingFiles = new Array<File>();
         var uploadedExtensions = new Array<ExtensionInformation>();
 
-        await common.InitializeSettings(true, false).then(async (resolve) => {
+        let askToken: boolean = !syncSetting.anonymousGist;
+
+        await common.InitializeSettings(askToken, false).then(async (resolve) => {
 
             localConfig.config = resolve;
             syncSetting = localConfig.config;
@@ -100,90 +102,116 @@ export async function activate(context: vscode.ExtensionContext) {
 
             vscode.window.setStatusBarMessage("Sync : Uploading / Updating Your Settings In Github.");
 
-            if (syncSetting.token != null && syncSetting.token != "") {
-
-                syncSetting.lastUpload = dateNow;
-                vscode.window.setStatusBarMessage("Sync : Reading Settings and Extensions.");
-
-                //var settingFile: File = await FileManager.GetFile(en.FILE_SETTING, en.FILE_SETTING_NAME);
-                //var launchFile: File = await FileManager.GetFile(en.FILE_LAUNCH, en.FILE_LAUNCH_NAME);
-
-
-                //var localeFile: File = await FileManager.GetFile(en.FILE_LOCALE, en.FILE_LOCALE_NAME);
-
-                // if (settingFile) {
-                //     allSettingFiles.push(settingFile);
-                // }
-                // if (launchFile) {
-                //     allSettingFiles.push(launchFile);
-                // }
-                // if (keybindingFile) {
-                //     allSettingFiles.push(keybindingFile);
-                // }
-                // if (localeFile) {
-                //     allSettingFiles.push(localeFile);
-                // }
-
-                uploadedExtensions = PluginService.CreateExtensionList();
-
-                uploadedExtensions.sort(function (a, b) {
-                    return a.name.localeCompare(b.name);
-                });
-
-
-                // var remoteList = ExtensionInformation.fromJSONList(file.content);
-                // var deletedList = PluginService.GetDeletedExtensions(uploadedExtensions);
-
-
-
-                var fileName = en.FILE_EXTENSION_NAME;
-                var filePath = en.FILE_EXTENSION;
-                var fileContent = JSON.stringify(uploadedExtensions, undefined, 2);;
-                var file: File = new File(fileName, fileContent, filePath, fileName);
-                allSettingFiles.push(file);
-
-                var contentFiles: Array<File> = new Array();
-
-                if (syncSetting.workspaceSync) {
-                    contentFiles = await FileManager.ListFiles(en.USER_FOLDER, 0, 2);
-                }
-                else {
-                    contentFiles = await FileManager.ListFiles(en.USER_FOLDER, 0, 1);
-                }
-
-
-                if (contentFiles == null) {
-                    common.LogException(null, common.ERROR_MESSAGE, true);
+            if (!syncSetting.anonymousGist) {
+                if (syncSetting.token != null && syncSetting.token != "") {
+                    vscode.window.showInformationMessage("Sync : Set Github Token or set anonymousGist to true from settings.");
                     return;
                 }
+            }
 
-                contentFiles.forEach(snippetFile => {
+            syncSetting.lastUpload = dateNow;
+            vscode.window.setStatusBarMessage("Sync : Reading Settings and Extensions.");
 
-                    if (snippetFile.fileName != en.APP_SUMMARY_NAME) {
-                        if (snippetFile.content != "") {
-                            if (snippetFile.fileName == en.FILE_KEYBINDING_NAME) {
-                                var destinationKeyBinding: string = "";
-                                if (en.OsType == OsType.Mac) {
-                                    destinationKeyBinding = en.FILE_KEYBINDING_MAC;
-                                }
-                                else {
-                                    destinationKeyBinding = en.FILE_KEYBINDING_DEFAULT;
-                                }
-                                snippetFile.gistName = destinationKeyBinding;
+            //var settingFile: File = await FileManager.GetFile(en.FILE_SETTING, en.FILE_SETTING_NAME);
+            //var launchFile: File = await FileManager.GetFile(en.FILE_LAUNCH, en.FILE_LAUNCH_NAME);
+
+
+            //var localeFile: File = await FileManager.GetFile(en.FILE_LOCALE, en.FILE_LOCALE_NAME);
+
+            // if (settingFile) {
+            //     allSettingFiles.push(settingFile);
+            // }
+            // if (launchFile) {
+            //     allSettingFiles.push(launchFile);
+            // }
+            // if (keybindingFile) {
+            //     allSettingFiles.push(keybindingFile);
+            // }
+            // if (localeFile) {
+            //     allSettingFiles.push(localeFile);
+            // }
+
+            uploadedExtensions = PluginService.CreateExtensionList();
+
+            uploadedExtensions.sort(function (a, b) {
+                return a.name.localeCompare(b.name);
+            });
+
+
+            // var remoteList = ExtensionInformation.fromJSONList(file.content);
+            // var deletedList = PluginService.GetDeletedExtensions(uploadedExtensions);
+
+
+
+            var fileName = en.FILE_EXTENSION_NAME;
+            var filePath = en.FILE_EXTENSION;
+            var fileContent = JSON.stringify(uploadedExtensions, undefined, 2);;
+            var file: File = new File(fileName, fileContent, filePath, fileName);
+            allSettingFiles.push(file);
+
+            var contentFiles: Array<File> = new Array();
+
+            if (syncSetting.workspaceSync) {
+                contentFiles = await FileManager.ListFiles(en.USER_FOLDER, 0, 2);
+            }
+            else {
+                contentFiles = await FileManager.ListFiles(en.USER_FOLDER, 0, 1);
+            }
+
+
+            if (contentFiles == null) {
+                common.LogException(null, common.ERROR_MESSAGE, true);
+                return;
+            }
+
+            contentFiles.forEach(snippetFile => {
+
+                if (snippetFile.fileName != en.APP_SUMMARY_NAME) {
+                    if (snippetFile.content != "") {
+                        if (snippetFile.fileName == en.FILE_KEYBINDING_NAME) {
+                            var destinationKeyBinding: string = "";
+                            if (en.OsType == OsType.Mac) {
+                                destinationKeyBinding = en.FILE_KEYBINDING_MAC;
                             }
-                            allSettingFiles.push(snippetFile);
+                            else {
+                                destinationKeyBinding = en.FILE_KEYBINDING_DEFAULT;
+                            }
+                            snippetFile.gistName = destinationKeyBinding;
                         }
+                        allSettingFiles.push(snippetFile);
                     }
+                }
+            });
+
+            var extProp: CloudSetting = new CloudSetting();
+            extProp.lastUpload = dateNow;
+            fileName = en.FILE_CLOUDSETTINGS_NAME;
+            fileContent = JSON.stringify(extProp);
+            file = new File(fileName, fileContent, "", fileName);
+            allSettingFiles.push(file);
+
+            let completed: boolean = false;
+            let newGIST: boolean = false;
+
+            if (syncSetting.anonymousGist) {
+                await myGi.CreateAnonymousGist(localConfig.publicGist, allSettingFiles).then(async function (gistID: string) {
+                    if (gistID) {
+                        newGIST = true;
+                        syncSetting.gist = gistID;
+                        completed = true;
+                        vscode.window.setStatusBarMessage("Sync : GIST ID: " + syncSetting.gist + " created.");
+                    }
+                    else {
+                        vscode.window.showInformationMessage("Sync : Unable to create Gist.");
+                        return;
+                    }
+                }, function (error: any) {
+                    common.LogException(error, common.ERROR_MESSAGE, true);
+                    return;
                 });
+            }
+            else {
 
-                var extProp: CloudSetting = new CloudSetting();
-                extProp.lastUpload = dateNow;
-                fileName = en.FILE_CLOUDSETTINGS_NAME;
-                fileContent = JSON.stringify(extProp);
-                file = new File(fileName, fileContent, "", fileName);
-                allSettingFiles.push(file);
-
-                var newGIST = false;
                 if (syncSetting.gist == null || syncSetting.gist === "") {
                     newGIST = true;
                     await myGi.CreateEmptyGIST(localConfig.publicGist).then(async function (gistID: string) {
@@ -204,10 +232,11 @@ export async function activate(context: vscode.ExtensionContext) {
                 await myGi.ReadGist(syncSetting.gist).then(async function (gistObj: any) {
 
                     if (gistObj) {
-
-                        if (gistObj.owner.login != myGi.userName) {
-                            common.LogException(null, "Sync : You cant edit GIST for user : " + gistObj.owner.login, true);
-                            return;
+                        if (gistObj.owner != null) {
+                            if (gistObj.owner.login != myGi.userName) {
+                                common.LogException(null, "Sync : You cant edit GIST for user : " + gistObj.owner.login, true);
+                                return;
+                            }
                         }
                         if (gistObj.public == true) {
                             localConfig.publicGist = true;
@@ -218,33 +247,8 @@ export async function activate(context: vscode.ExtensionContext) {
 
                         await myGi.SaveGIST(gistObj).then(async function (saved: boolean) {
                             if (saved) {
-                                await common.SaveSettings(syncSetting).then(function (added: boolean) {
-                                    if (added) {
-                                        if (newGIST) {
-                                            vscode.window.showInformationMessage("Uploaded Successfully." + " GIST ID :  " + syncSetting.gist + " . Please copy and use this ID in other machines to sync all settings.");
-                                        }
-                                        else {
-                                            vscode.window.setStatusBarMessage("");
-                                            vscode.window.setStatusBarMessage("Uploaded Successfully.", 5000);
-                                        }
+                                completed = true;
 
-                                        if (localConfig.publicGist) {
-                                            vscode.window.showInformationMessage("Sync : You can share the GIST ID to other users to download your settings.");
-                                        }
-
-                                        if (syncSetting.showSummary) {
-                                            common.GenerateSummmaryFile(true, allSettingFiles, null, uploadedExtensions, localConfig);
-
-                                        }
-                                        if (syncSetting.autoUpload) {
-                                            common.StartWatch();
-                                        }
-                                        vscode.window.setStatusBarMessage("");
-                                    }
-                                }, function (err: any) {
-                                    common.LogException(err, common.ERROR_MESSAGE, true);
-                                    return;
-                                });
                             }
                             else {
                                 vscode.window.showErrorMessage("GIST NOT SAVED");
@@ -264,8 +268,35 @@ export async function activate(context: vscode.ExtensionContext) {
                     return;
                 });
             }
-            else {
-                vscode.window.showErrorMessage("ERROR ! Github Account Token Not Set");
+
+            if (completed) {
+                await common.SaveSettings(syncSetting).then(function (added: boolean) {
+                    if (added) {
+                        if (newGIST) {
+                            vscode.window.showInformationMessage("Uploaded Successfully." + " GIST ID :  " + syncSetting.gist + " . Please copy and use this ID in other machines to sync all settings.");
+                        }
+                        else {
+                            vscode.window.setStatusBarMessage("");
+                            vscode.window.setStatusBarMessage("Uploaded Successfully.", 5000);
+                        }
+
+                        if (localConfig.publicGist) {
+                            vscode.window.showInformationMessage("Sync : You can share the GIST ID to other users to download your settings.");
+                        }
+
+                        if (syncSetting.showSummary) {
+                            common.GenerateSummmaryFile(true, allSettingFiles, null, uploadedExtensions, localConfig);
+
+                        }
+                        if (syncSetting.autoUpload) {
+                            common.StartWatch();
+                        }
+                        vscode.window.setStatusBarMessage("");
+                    }
+                }, function (err: any) {
+                    common.LogException(err, common.ERROR_MESSAGE, true);
+                    return;
+                });
             }
         }
     });

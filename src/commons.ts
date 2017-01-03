@@ -159,7 +159,7 @@ export class Commons {
 
     }
 
-    public async InitializeSettings(askInformation: boolean, askGIST: boolean): Promise<ExtensionConfig> {
+    public async InitializeSettings(askToken: boolean, askGIST: boolean): Promise<ExtensionConfig> {
         let config = vscode.workspace.getConfiguration('sync');
         let me: Commons = this;
 
@@ -167,7 +167,7 @@ export class Commons {
 
             let settings: ExtensionConfig = await me.GetSettings();
 
-            if (askInformation) {
+            if (askToken) {
                 if (settings.token == null || settings.token == "") {
                     openurl("https://github.com/settings/tokens");
 
@@ -184,24 +184,25 @@ export class Commons {
                         reject(err);
                     });
                 }
+            }
 
-                if (askGIST) {
-                    if (settings.gist == null || settings.gist === "") {
-                        await me.GetGistAndSave(settings).then(function (Gist: string) {
-                            if (Gist) {
-                                settings.gist = Gist;
-                            }
-                            else {
-                                vscode.window.showErrorMessage("Sync : Gist Not Saved.");
-                                reject(false);
-                            }
-                        }, function (err: any) {
-                            me.LogException(err, me.ERROR_MESSAGE, true);
-                            reject(err);
-                        });
-                    }
+            if (askGIST) {
+                if (settings.gist == null || settings.gist === "") {
+                    await me.GetGistAndSave(settings).then(function (Gist: string) {
+                        if (Gist) {
+                            settings.gist = Gist;
+                        }
+                        else {
+                            vscode.window.showErrorMessage("Sync : Gist Not Saved.");
+                            reject(false);
+                        }
+                    }, function (err: any) {
+                        me.LogException(err, me.ERROR_MESSAGE, true);
+                        reject(err);
+                    });
                 }
             }
+
             resolve(settings);
         });
     }
@@ -250,7 +251,7 @@ export class Commons {
                     }
                     settings.version = Environment.CURRENT_VERSION;
                     await me.SaveSettings(settings);
-                    vscode.window.setStatusBarMessage("Sync : Settings Version Updated",2000);
+                    vscode.window.setStatusBarMessage("Sync : Settings Version Updated", 2000);
                 }
             }
             resolve(true);
@@ -436,8 +437,12 @@ export class Commons {
                 e.edit(edit => {
                     edit.insert(new vscode.Position(0, 0), "VISUAL STUDIO CODE SETTINGS SYNC\r\n\r\n" + status + " SUMMARY\r\n\r\n");
                     edit.insert(new vscode.Position(1, 0), "--------------------\r\n");
+                    let tokenPlaceHolder : string = "Anonymous";
+                    if(syncSettings.config.token!=""){
+                        tokenPlaceHolder = syncSettings.config.token;
+                    }
 
-                    edit.insert(new vscode.Position(2, 0), "GITHUB TOKEN: " + syncSettings.config.token + "\r\n");
+                    edit.insert(new vscode.Position(2, 0), "GITHUB TOKEN: " + tokenPlaceHolder + "\r\n");
                     edit.insert(new vscode.Position(3, 0), "GITHUB GIST: " + syncSettings.config.gist + "\r\n");
                     var type: string = (syncSettings.publicGist == true) ? "Public" : "Secret"
                     edit.insert(new vscode.Position(4, 0), "GITHUB GIST TYPE: " + type + "\r\n\r\n");
