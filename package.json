@@ -24,7 +24,7 @@
         "email": "shanalikhan@hotmail.com"
     },
     "engines": {
-        "vscode": "^1.9.0"
+        "vscode": "^1.8.0"
     },
     "categories": [
         "Other"
@@ -124,6 +124,11 @@
                     "type": "boolean",
                     "default": false,
                     "description": "Set it to true if you want to sync the workspaceStorage folder. It will only upload .json files."
+                },
+                "sync.anonymousGist": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "Set it to true if you want to create or download from Anonymous Gist. Github token not required"
                 }
             },
             "title": "Code Settings Sync Configuration Settings"

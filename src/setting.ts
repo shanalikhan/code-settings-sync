@@ -12,8 +12,9 @@ export class ExtensionConfig {
     public lastDownload: Date = null;
     public version: number = null;
     public showSummary: boolean = true;
-    public forceDownload = false;
-    public workspaceSync = false;
+    public forceDownload : boolean = false;
+    public workspaceSync : boolean = false;
+    public anonymousGist : boolean = false;
     constructor() {
         this.version = Environment.CURRENT_VERSION;
     }
