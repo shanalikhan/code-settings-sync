@@ -2,7 +2,7 @@
     "name": "code-settings-sync",
     "displayName": "Settings Sync",
     "description": "Synchronize Settings, Snippets, launch, keybindings, workspaces and extensions Across Multiple Machines using Github Gist.",
-    "version": "2.4.1",
+    "version": "2.4.2",
     "icon": "images/cloud.png",
     "publisher": "Shan",
     "author": {
@@ -24,7 +24,7 @@
         "email": "shanalikhan@hotmail.com"
     },
     "engines": {
-        "vscode": "^1.9.0"
+        "vscode": "^1.8.0"
     },
     "categories": [
         "Other"
@@ -124,6 +124,11 @@
                     "type": "boolean",
                     "default": false,
                     "description": "Set it to true if you want to sync the workspaceStorage folder. It will only upload .json files."
+                },
+                "sync.anonymousGist": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "Set it to true if you want to create or download from Anonymous Gist. Extension won't ask for Github token"
                 }
             },
             "title": "Code Settings Sync Configuration Settings"
