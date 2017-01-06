@@ -232,7 +232,6 @@ export class Commons {
                                     vscode.window.showInformationMessage("Sync : Now this extension follows standard code configuration to setup this extension. Settings are migrated.");
                                     vscode.window.showInformationMessage("Sync : To Make it fully work you need to upload the settings once again. Extension is uploading the settings.");
                                     vscode.window.showInformationMessage("Sync : To Make it fully work you need to download the settings on others computer using this extension verion.");
-                                    vscode.window.showInformationMessage("Sync : How about writing some reviews or donation ;)");
                                     await FileManager.DeleteFile(me.en.APP_SETTINGS);
                                     vscode.commands.executeCommand('extension.updateSettings');
                                 }
@@ -450,6 +449,10 @@ export class Commons {
                     var type: string = (syncSettings.publicGist == true) ? "Public" : "Secret"
                     edit.insert(new vscode.Position(4, 0), "GITHUB GIST TYPE: " + type + "\r\n\r\n");
                     edit.insert(new vscode.Position(5, 0), "--------------------\r\n\r\n");
+                    if (syncSettings.config.token == "") {
+                        edit.insert(new vscode.Position(5, 0), "Anonymous Gist Cant be edited, extension will always create new one during upload.\r\n\r\n");
+                    }
+
 
                     edit.insert(new vscode.Position(6, 0), header + "\r\n");
                     var row: number = 6;
