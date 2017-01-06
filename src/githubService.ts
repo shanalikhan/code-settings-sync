@@ -46,7 +46,7 @@ export class GithubService {
     private GIST_JSON: any = null;
 
     constructor(private TOKEN: string) {
-        if (TOKEN != null) {
+        if (TOKEN != null && TOKEN!='') {
             var self: GithubService = this;
             github.authenticate({
                 type: "oauth",

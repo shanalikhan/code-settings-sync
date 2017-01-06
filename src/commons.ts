@@ -159,13 +159,11 @@ export class Commons {
 
     }
 
-    public async InitializeSettings(askToken: boolean, askGIST: boolean): Promise<ExtensionConfig> {
+    public async InitializeSettings(settings: ExtensionConfig, askToken: boolean, askGIST: boolean): Promise<ExtensionConfig> {
         let config = vscode.workspace.getConfiguration('sync');
         let me: Commons = this;
 
         return new Promise<ExtensionConfig>(async (resolve, reject) => {
-
-            let settings: ExtensionConfig = await me.GetSettings();
 
             if (askToken) {
                 if (settings.token == null || settings.token == "") {
@@ -232,7 +230,9 @@ export class Commons {
                             await me.SaveSettings(newSetting).then(async function (done) {
                                 if (done) {
                                     vscode.window.showInformationMessage("Sync : Now this extension follows standard code configuration to setup this extension. Settings are migrated.");
-                                    vscode.window.showInformationMessage("Sync : To Make it fully work you need to upload the settings once again. Uploading the Settings.");
+                                    vscode.window.showInformationMessage("Sync : To Make it fully work you need to upload the settings once again. Extension is uploading the settings.");
+                                    vscode.window.showInformationMessage("Sync : To Make it fully work you need to download the settings on others computer using this extension verion.");
+                                    vscode.window.showInformationMessage("Sync : How about writing some reviews or donation ;)");
                                     await FileManager.DeleteFile(me.en.APP_SETTINGS);
                                     vscode.commands.executeCommand('extension.updateSettings');
                                 }
@@ -295,7 +295,7 @@ export class Commons {
                 if (me.context.globalState.get('syncCounter')) {
                     let counter = me.context.globalState.get('syncCounter');
                     let count: number = parseInt(String(counter));
-                    if (count % 100 == 0) {
+                    if (count % 30 == 0) {
                         vscode.window.showInformationMessage("Sync : Did you like this extension ? How about writing a review or send me some donation ;) ");
                     }
                     count = count + 1;
@@ -327,6 +327,9 @@ export class Commons {
                 if (this.context.globalState.get('synctoken')) {
                     let token = this.context.globalState.get('synctoken');
                     settings[key] = String(token);
+                }
+                else {
+                    settings[key] = null;
                 }
             }
         });
@@ -437,8 +440,8 @@ export class Commons {
                 e.edit(edit => {
                     edit.insert(new vscode.Position(0, 0), "VISUAL STUDIO CODE SETTINGS SYNC\r\n\r\n" + status + " SUMMARY\r\n\r\n");
                     edit.insert(new vscode.Position(1, 0), "--------------------\r\n");
-                    let tokenPlaceHolder : string = "Anonymous";
-                    if(syncSettings.config.token!=""){
+                    let tokenPlaceHolder: string = "Anonymous";
+                    if (syncSettings.config.token != "") {
                         tokenPlaceHolder = syncSettings.config.token;
                     }
 

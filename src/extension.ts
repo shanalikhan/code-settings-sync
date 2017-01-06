@@ -20,28 +20,23 @@ export async function activate(context: vscode.ExtensionContext) {
     var common: Commons = new Commons(en, context);
 
     await common.StartMigrationProcess();
+    let startUpSetting: ExtensionConfig = await common.GetSettings();
 
-    await common.InitializeSettings(false, false).then(async (resolve: ExtensionConfig) => {
+    if (startUpSetting) {
+        let tokenAvailable: boolean = (startUpSetting.token != null) && (startUpSetting.token != "");
+        let gistAvailable: boolean = (startUpSetting.gist != null) && (startUpSetting.gist != "");
 
-        if (resolve) {
-            let tokenAvailable: boolean = (resolve.token != null) && (resolve.token != "");
-            let gistAvailable: boolean = (resolve.gist != null) && (resolve.gist != "");
-
-            if (resolve.autoUpload && tokenAvailable && gistAvailable) {
-                common.StartWatch();
-            }
-
-            if (tokenAvailable == true && gistAvailable == true && resolve.autoDownload == true) {
-                vscode.commands.executeCommand('extension.downloadSettings');
-            }
-            else {
-
-            }
+        if (startUpSetting.autoUpload && tokenAvailable && gistAvailable) {
+            common.StartWatch();
         }
 
-    }, (reject) => {
-        common.LogException(reject, common.ERROR_MESSAGE, false);
-    });
+        if (tokenAvailable == true && gistAvailable == true && startUpSetting.autoDownload == true) {
+            vscode.commands.executeCommand('extension.downloadSettings');
+        }
+        else {
+
+        }
+    }
 
     // var tokenAvailable: boolean = newSetting.Token != null && newSetting.Token != "";
     // var gistAvailable: boolean = newSetting.Gist != null && newSetting.Gist != "";
@@ -76,7 +71,7 @@ export async function activate(context: vscode.ExtensionContext) {
 
         let askToken: boolean = !syncSetting.anonymousGist;
 
-        await common.InitializeSettings(askToken, false).then(async (resolve) => {
+        await common.InitializeSettings(syncSetting, askToken, false).then(async (resolve) => {
 
             localConfig.config = resolve;
             syncSetting = localConfig.config;
@@ -103,7 +98,7 @@ export async function activate(context: vscode.ExtensionContext) {
             vscode.window.setStatusBarMessage("Sync : Uploading / Updating Your Settings In Github.");
 
             if (!syncSetting.anonymousGist) {
-                if (syncSetting.token != null && syncSetting.token != "") {
+                if (syncSetting.token == null && syncSetting.token == "") {
                     vscode.window.showInformationMessage("Sync : Set Github Token or set anonymousGist to true from settings.");
                     return;
                 }
@@ -310,9 +305,11 @@ export async function activate(context: vscode.ExtensionContext) {
 
         var myGi: GithubService = null;
         var localSettings: LocalConfig = new LocalConfig();
-        var syncSetting: ExtensionConfig = new ExtensionConfig();
+        var syncSetting: ExtensionConfig = await common.GetSettings();
 
-        await common.InitializeSettings(true, true).then(async (resolve) => {
+        let askToken: boolean = !syncSetting.anonymousGist;
+
+        await common.InitializeSettings(syncSetting, askToken, true).then(async (resolve) => {
 
             localSettings.config = resolve;
             syncSetting = localSettings.config;
@@ -512,15 +509,9 @@ export async function activate(context: vscode.ExtensionContext) {
         var en: Environment = new Environment(context);
         var fManager: FileManager;
         var common: Commons = new Commons(en, context);
-        var syncSetting: ExtensionConfig = new ExtensionConfig();
+        var syncSetting: ExtensionConfig = await common.GetSettings();
+        await Init();
 
-        await common.InitializeSettings(false, false).then(async (resolve) => {
-            syncSetting = resolve;
-            await Init();
-        }, (reject) => {
-            common.LogException(reject, common.ERROR_MESSAGE, true);
-
-        });
         async function Init() {
             vscode.window.setStatusBarMessage("Sync : Resetting Your Settings.", 2000);
             try {
@@ -550,29 +541,13 @@ export async function activate(context: vscode.ExtensionContext) {
     var otherOptions = vscode.commands.registerCommand('extension.otherOptions', async () => {
         var en: Environment = new Environment(context);
         var common: Commons = new Commons(en, context);
-        var setting: ExtensionConfig = null;
+        var setting: ExtensionConfig = await common.GetSettings();
         var localSetting: LocalConfig = new LocalConfig();
         //var myGi: GithubService = null;
-        var tokenAvailable: boolean = false;
-        var gistAvailable: boolean = false;
-
-        await common.InitializeSettings(false, false).then(async function (set: any) {
-            if (set) {
-                setting = set;
-                tokenAvailable = setting.token != null && setting.token != "";
-                gistAvailable = setting.gist != null && setting.gist != "";
-                if (tokenAvailable) {
-                    //myGi = new GithubService(setting.Token);
-                }
-
-            }
-
-        }, function (err: any) {
-            common.LogException(err, "Sync : Unable to toggle summary. Please open an issue.", true);
-        });
+        var tokenAvailable: boolean = setting.token != null && setting.token != "";
+        var gistAvailable: boolean = setting.gist != null && setting.gist != "";
 
         let items: Array<string> = new Array<string>();
-
 
         items.push("Sync : Share Settings with Public GIST");
         items.push("Sync : Toggle Force Download");
@@ -581,7 +556,6 @@ export async function activate(context: vscode.ExtensionContext) {
         items.push("Sync : Toggle Show Summary Page On Upload / Download");
         items.push("Sync : Open Issue");
         items.push("Sync : Release Notes");
-
 
         var selectedItem: Number = 0;
         var settingChanged: boolean = false;

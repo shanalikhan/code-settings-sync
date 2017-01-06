@@ -10,8 +10,6 @@
 
 **Type Sync in command Palette in order to view all commands.**
 
-**Note :** Latest Update is available for Code Version 1.9+ as currently its in insiders and I want to make sure that it works well to publish in normal release.
-
 ## Key Features
 ```
 1. Use your github account token and Gist.
@@ -138,6 +136,18 @@ Select Command **"Sync : Advance Options > Share Settings with Public GIST"**
 Other users can give your Gist Id to download the Gist, but they cant upload their settings on your Gist.
 
 
+## Workspaces Sync
+
+By default, extension will not sync your WorkspaceStorage folder. You need to set `sync.workspaceSync` to true in order to enable this. It will only sync the `.json` files inside your WorkspaceStorage folder.
+
+## Creating and Downloading Settings From Anonymous Gist
+
+**Turned Off** by default. Github provides a way to create Anonymous Gist so you can create Anonymous Gist without adding your account information (token). But you cant make change on Anonymous Gist once created, its the limitation from the Github so extension will always create new Anonymous Gist upon uploading the settings, you can download the settings from any Anonymous Gist without adding your account information.
+
+To turn on the Anonymous Gist , set `sync.anonymousGist` to true
+
+
+
 ## Settings
 
 ```
@@ -149,7 +159,9 @@ Other users can give your Gist Id to download the Gist, but they cant upload the
     "sync.autoUpload": true,
     "sync.lastDownload": "2016-12-27T15:58:35.760Z",
     "sync.showSummary": true,
-    "sync.forceDownload": true
+    "sync.forceDownload": true,
+    "sync.workspaceSync": false,
+    "sync.anonymousGist": false
 ```
 
 
