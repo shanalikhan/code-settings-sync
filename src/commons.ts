@@ -231,7 +231,7 @@ export class Commons {
                                 if (done) {
                                     vscode.window.showInformationMessage("Sync : Now this extension follows standard code configuration to setup this extension. Settings are migrated.");
                                     vscode.window.showInformationMessage("Sync : To Make it fully work you need to upload the settings once again. Extension is uploading the settings.");
-                                    vscode.window.showInformationMessage("Sync : To Make it fully work you need to download the settings on others computer using this extension verion.");
+                                    vscode.window.showInformationMessage("Sync : To Make it fully work you need to download the settings on others computer using this extension version.");
                                     await FileManager.DeleteFile(me.en.APP_SETTINGS);
                                     vscode.commands.executeCommand('extension.updateSettings');
                                 }
