@@ -13,26 +13,35 @@
 ## Key Features
 ```
 1. Use your github account token and Gist.
-2. Easy to Upload and Download on one click.
-3. Upload Key : Shift + Alt + U
-4. Download Key : Shift + Alt + D
-5. Use Other User's Public Gist to completely sync your settings with them.
-6. Show a summary page at the end with details.
-7. Auto Download Latest Settings on Startup.
-8. Auto upload Settings on file change.
+2. Can create Anonymous Gist without asking your Github account token.
+3. Easy to Upload and Download on one click.
+4. Show a summary page at the end with details about config and extensions effected.
+5. Auto Download Latest Settings on Startup.
+6. Auto upload Settings on file change.
+7. Share the Gist with other users and let them download your settings.
 ```      
+
 
 ## It Syncs
 ```
 All the extensions and complete User Folder that Contains
-    1. Settings File
-    2. Keybinding File
-    3. Launch File
-    4. Snippets Folder
-    5. VSCode Extensions Settings
-    6. Workspaces
+1. Settings File
+2. Keybinding File
+3. Launch File
+4. Snippets Folder
+5. VSCode Extensions Settings
+6. Workspaces
 ```
    
+## Shortcuts
+```
+1. Upload Key : Shift + Alt + U
+2. Download Key : Shift + Alt + D
+```
+
+
+
+
 ## Steps To Get the Github Key.
 
 This extension required your GitHub Account Personal Access Token. You can create one simple by looking into the following pictures. Make sure you add **Gist** in scope.
@@ -95,6 +104,12 @@ You are Done! All your files are downloaded
 
 > Type ">Sync" In Command Palette and select Reset Token and Gist Settings
 
+## Creating and Downloading Settings From Anonymous Gist
+
+Anonymous Gist is **Turned Off** by default. Github provides a way to create Anonymous Gist so you can create Anonymous Gist without adding your account information (token). But you cant make change on Anonymous Gist once created, its the limitation from the Github so extension will always create new Anonymous Gist upon uploading the settings, you can download the settings from any Anonymous Gist without adding your account information.
+
+To turn on the Anonymous Gist , set `sync.anonymousGist` to true
+
 ## Toggle Auto Download
 
 Auto Download is **disabled by default**. It will sync all the setting by default when the editor starts.
@@ -111,12 +126,12 @@ Please make sure you have valid github Token and Gist available to make it work 
 Select Command **"Sync : Advance Options > Toggle Force Download"** command to Turn ON / OFF the force download.
 
 ## Toggle Auto-Upload on change
+
 Auto-upload is **disabled by default**. When the settings are changed and saved this feature will automatic start the upload process and save the settings online.
 
 Please make sure you have valid github Token and Gist available to make it work properly.
 
 Select Command **"Sync : Advance Options > Toggle Auto-Upload on Setting Change"** command to Turn ON / OFF the auto-upload.
-
 
 
 ## Toggle Summary
@@ -139,12 +154,6 @@ Other users can give your Gist Id to download the Gist, but they cant upload the
 ## Workspaces Sync
 
 By default, extension will not sync your WorkspaceStorage folder. You need to set `sync.workspaceSync` to true in order to enable this. It will only sync the `.json` files inside your WorkspaceStorage folder.
-
-## Creating and Downloading Settings From Anonymous Gist
-
-**Turned Off** by default. Github provides a way to create Anonymous Gist so you can create Anonymous Gist without adding your account information (token). But you cant make change on Anonymous Gist once created, its the limitation from the Github so extension will always create new Anonymous Gist upon uploading the settings, you can download the settings from any Anonymous Gist without adding your account information.
-
-To turn on the Anonymous Gist , set `sync.anonymousGist` to true
 
 
 
