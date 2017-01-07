@@ -11,15 +11,15 @@
 **Type Sync in command Palette in order to view all commands.**
 
 ## Key Features
-```
-1. Use your github account token and Gist.
-2. Can create Anonymous Gist without asking your Github account token.
-3. Easy to Upload and Download on one click.
-4. Show a summary page at the end with details about config and extensions effected.
-5. Auto Download Latest Settings on Startup.
-6. Auto upload Settings on file change.
-7. Share the Gist with other users and let them download your settings.
-```      
+
+*. Use your github account token and Gist.
+*. Can create Anonymous Gist without asking your Github account token.
+*. Easy to Upload and Download on one click.
+*. Show a summary page at the end with details about config and extensions effected.
+*. Auto Download Latest Settings on Startup.
+*. Auto upload Settings on file change.
+*. Share the Gist with other users and let them download your settings.
+    
 
 
 ## It Syncs
@@ -158,14 +158,14 @@ By default, extension will not sync your WorkspaceStorage folder. You need to se
 
 
 ## Settings
+For details regarding settings keys, click [here](http://shanalikhan.github.io/2016/07/31/Visual-Studio-code-sync-setting-edit-manually.html)
 
 ```
     "sync.gist": "",
     "sync.version": 240,
     "sync.lastUpload": "2016-12-27T16:34:19.308Z",
-    "sync.firstTime": true,
     "sync.autoDownload": false,
-    "sync.autoUpload": true,
+    "sync.autoUpload": false,
     "sync.lastDownload": "2016-12-27T15:58:35.760Z",
     "sync.showSummary": true,
     "sync.forceDownload": true,
