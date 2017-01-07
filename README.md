@@ -11,15 +11,15 @@
 **Type Sync in command Palette in order to view all commands.**
 
 ## Key Features
-
-*. Use your github account token and Gist.
-*. Can create Anonymous Gist without asking your Github account token.
-*. Easy to Upload and Download on one click.
-*. Show a summary page at the end with details about config and extensions effected.
-*. Auto Download Latest Settings on Startup.
-*. Auto upload Settings on file change.
-*. Share the Gist with other users and let them download your settings.
-    
+```
+1. Use your github account token and Gist.
+2. Can create Anonymous Gist without asking your Github account token.
+3. Easy to Upload and Download on one click.
+4. Show a summary page at the end with details about config and extensions effected.
+5. Auto Download Latest Settings on Startup.
+6. Auto upload Settings on file change.
+7. Share the Gist with other users and let them download your settings.
+```      
 
 
 ## It Syncs
