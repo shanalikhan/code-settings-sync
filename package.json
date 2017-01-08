@@ -15,6 +15,28 @@
         "color": "#3B4859",
         "theme": "dark"
     },
+    "badges": [
+        {
+            "url": "https://vsmarketplacebadge.apphb.com/version/Shan.code-settings-sync.svg",
+            "description": "Latest Version",
+            "href": "https://marketplace.visualstudio.com/items?itemName=Shan.code-settings-sync"
+        },
+        {
+            "url": "https://vsmarketplacebadge.apphb.com/installs/Shan.code-settings-sync.svg",
+            "description": "Total Downloads",
+            "href": "https://marketplace.visualstudio.com/items?itemName=Shan.code-settings-sync"
+        },
+        {
+            "url": "https://vsmarketplacebadge.apphb.com/rating/Shan.code-settings-sync.svg",
+            "description": "Ratings",
+            "href": "https://marketplace.visualstudio.com/items?itemName=Shan.code-settings-sync"
+        },
+        {
+            "url": "https://badges.gitter.im/Join%20Chat.svg",
+            "description": "Join Chat",
+            "href": "https://gitter.im/code-settings-sync"
+        }
+    ],
     "repository": {
         "type": "git",
         "url": "https://github.com/shanalikhan/code-settings-sync.git"
@@ -46,7 +68,8 @@
     ],
     "main": "./out/src/extension",
     "contributes": {
-        "commands": [{
+        "commands": [
+            {
                 "command": "extension.HowSettings",
                 "title": "Sync : How To Configure"
             },
@@ -67,7 +90,8 @@
                 "title": "Sync : Advanced Options"
             }
         ],
-        "keybindings": [{
+        "keybindings": [
+            {
                 "key": "alt+shift+u",
                 "command": "extension.updateSettings",
                 "when": "editorTextFocus"
@@ -98,17 +122,17 @@
                 "sync.autoDownload": {
                     "type": "boolean",
                     "default": false,
-                    "description": "Set it true to Auto Download the settings on code start. Code Restart Required to affect."
+                    "description": "Set it true to Auto Download the settings on code start. [Code Restart Required]"
                 },
                 "sync.autoUpload": {
                     "type": "boolean",
                     "default": false,
-                    "description": "Set it true to Auto Upload on the settings change. Code Restart Required to affect."
+                    "description": "Set it true to Auto Upload on the settings change. [Code Restart Required]"
                 },
                 "sync.version": {
                     "type": "number",
                     "default": 0,
-                    "description": "Save the Code Settings Sync Version for migration code. Please dont remove this."
+                    "description": "Save the Code Settings Sync Version for migration code. [Dont Remove]"
                 },
                 "sync.showSummary": {
                     "type": "boolean",
@@ -128,7 +152,7 @@
                 "sync.anonymousGist": {
                     "type": "boolean",
                     "default": false,
-                    "description": "Set it to true if you want to create or download from Anonymous Gist. Extension won't ask for Github token"
+                    "description": "Set it to true if you want to create or download from Anonymous Gist. Extension will not ask for Github token."
                 }
             },
             "title": "Code Settings Sync Configuration Settings"
@@ -144,10 +168,10 @@
         "vscode": "^1.0.3"
     },
     "dependencies": {
-        "@types/node": "^6.0.54",
+        "@types/node": "^6.0.58",
         "adm-zip": "^0.4.7",
         "fs": "^0.0.2",
-        "github": "^7.1.0",
+        "github": "^7.3.1",
         "ncp": "^2.0.0",
         "open": "^0.0.5",
         "rimraf": "^2.5.4",
