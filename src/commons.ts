@@ -250,7 +250,7 @@ export class Commons {
                     }
                     settings.version = Environment.CURRENT_VERSION;
                     await me.SaveSettings(settings);
-                    vscode.window.setStatusBarMessage("Sync : Settings Version Updated", 2000);
+                    vscode.window.setStatusBarMessage("Sync : Settings Version Updated to v" + Environment.getVersion(), 2000);
                 }
             }
             resolve(true);
@@ -437,7 +437,7 @@ export class Commons {
             vscode.window.showTextDocument(a, vscode.ViewColumn.One, true).then((e: vscode.TextEditor) => {
 
                 e.edit(edit => {
-                    edit.insert(new vscode.Position(0, 0), "VISUAL STUDIO CODE SETTINGS SYNC\r\n\r\n" + status + " SUMMARY\r\n\r\n");
+                    edit.insert(new vscode.Position(0, 0), "VISUAL STUDIO CODE SETTINGS SYNC \r\nVersion: " + Environment.getVersion() + "\r\n\r\n" + status + " Summary\r\n\r\n");
                     edit.insert(new vscode.Position(1, 0), "--------------------\r\n");
                     let tokenPlaceHolder: string = "Anonymous";
                     if (syncSettings.config.token != "") {

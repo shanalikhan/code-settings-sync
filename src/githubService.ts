@@ -3,6 +3,7 @@
 import * as envir from './environmentPath';
 import * as fileManager from './fileManager';
 import * as vscode from 'vscode';
+import { Environment } from './environmentPath';
 
 var proxyURL: string = vscode.workspace.getConfiguration("http")["proxy"] || process.env["http_proxy"];
 var GitHubApi = require("github");
@@ -14,7 +15,7 @@ var github = new GitHubApi({
 export class GithubService {
 
     private GIST_JSON_EMPTY: any = {
-        "description": "Visual Studio Code Sync Settings GIST",
+        "description": "Visual Studio Code Sync Settings Gist v" + Environment.getVersion(),
         "public": false,
         "files": {
             "settings.json": {
@@ -46,7 +47,7 @@ export class GithubService {
     private GIST_JSON: any = null;
 
     constructor(private TOKEN: string) {
-        if (TOKEN != null && TOKEN!='') {
+        if (TOKEN != null && TOKEN != '') {
             var self: GithubService = this;
             github.authenticate({
                 type: "oauth",
