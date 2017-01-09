@@ -43,7 +43,7 @@ All the extensions and complete User Folder that Contains
 
 ## Steps To Get the Github Key.
 
-This extension required your GitHub Account Personal Access Token. You can create one simple by looking into the following pictures. Make sure you add **Gist** in scope.
+This extension requires your GitHub Account Personal Access Token. You can create one simple by looking into the following pictures. Make sure you add **Gist** in scope.
 
 **Goto Settings / Personal Access Tokens / Generate New Token**
 
@@ -118,7 +118,7 @@ Select Command **"Sync : Advance Options > Toggle Auto-Download On Startup"** co
 
 ## Toggle Force Download
 
-Force Download is **disabled by default**. By default extension wont download the latest settings if you already have latest downloaded version , but sometime when you delete some extension locally and dont upload the settings it will still show you have latest versions by date or time checks, by turning this ON it will always download the cloud settings on startup.
+Force Download is **disabled by default**. By default extension won't download the latest settings if you already have latest downloaded version , but sometime when you delete some extension locally and don't upload the settings it will still show that you have latest versions by date or time checks, by turning this ON it will always download the cloud settings on startup.
 
 Please make sure you have valid github Token and Gist available to make it work properly.
 
@@ -196,7 +196,7 @@ Submit a Pull Request.
 
 ## Through Donation
 
-If you enjoy this extension. How about donating, Your donation will help me to keep working and supporting this project.
+If you are enjoying this extension. What about donating, Your donation will help us to keep working and supporting this project.
 
 [<img src="https://www.paypalobjects.com/en_US/i/btn/btn_donateCC_LG.gif">](https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=4W3EWHHBSYMM8&lc=IE&item_name=Code%20Settings%20Sync&item_number=visual%20studio%20code%20settings%20sync&currency_code=USD&bn=PP%2dDonationsBF%3abtn_donate_SM%2egif%3aNonHosted)
   
