@@ -251,6 +251,19 @@ export class Commons {
                     vscode.window.setStatusBarMessage("Sync : Settings Version Updated to v" + Environment.getVersion(), 2000);
                 }
             }
+
+            fileExist = await FileManager.FileExists(me.en.FILE_CUSTOMIZEDSETTINGS);
+            if (fileExist) {
+                
+
+            } else {
+                //TODO : create file only when new setting is turned on
+                //let settings: ExtensionConfig = await me.GetSettings();
+                await FileManager.WriteFile(me.en.FILE_CUSTOMIZEDSETTINGS,"{}");
+            }
+
+
+
             resolve(true);
         });
     }

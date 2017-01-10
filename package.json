@@ -153,6 +153,11 @@
                     "type": "boolean",
                     "default": false,
                     "description": "Set it to true if you want to create or download from Anonymous Gist. Extension will not ask for Github token."
+                },
+                "sync.ignoreSomeSettings": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "Set it to true if you want to ignore some settings to download. [Code Restart Required]"
                 }
             },
             "title": "Code Settings Sync Configuration Settings"

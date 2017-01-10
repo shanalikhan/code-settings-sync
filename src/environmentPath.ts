@@ -27,6 +27,9 @@ export class Environment {
     public FILE_EXTENSION: string = null;
     public FILE_CLOUDSETTINGS: string = null;
 
+    public FILE_CUSTOMIZEDSETTINGS_NAME : string = "syncCustomSettings.json";
+    public FILE_CUSTOMIZEDSETTINGS : string = null;
+
     public FILE_SETTING_NAME: string = "settings.json";
     public FILE_LAUNCH_NAME: string = "launch.json";
     public FILE_KEYBINDING_NAME: string = "keybindings.json";
@@ -82,6 +85,7 @@ export class Environment {
         this.APP_SETTINGS = this.PATH.concat("/User/", this.FILE_LOCATIONSETTINGS_NAME);
         this.APP_SUMMARY = this.PATH.concat("/User/", this.APP_SUMMARY_NAME);
         this.FILE_CLOUDSETTINGS = this.PATH.concat("/User/", this.FILE_CLOUDSETTINGS_NAME);
+        this.FILE_CUSTOMIZEDSETTINGS = this.PATH.concat("/User/", this.FILE_CUSTOMIZEDSETTINGS_NAME);
 
     }
 
