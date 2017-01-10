@@ -15,7 +15,7 @@ var github = new GitHubApi({
 export class GithubService {
 
     private GIST_JSON_EMPTY: any = {
-        "description": "Visual Studio Code Sync Settings Gist v" + Environment.getVersion(),
+        "description": "Visual Studio Code Sync Settings Gist",
         "public": false,
         "files": {
             "settings.json": {

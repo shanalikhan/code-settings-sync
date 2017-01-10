@@ -38,22 +38,6 @@ export async function activate(context: vscode.ExtensionContext) {
         }
     }
 
-    // var tokenAvailable: boolean = newSetting.Token != null && newSetting.Token != "";
-    // var gistAvailable: boolean = newSetting.Gist != null && newSetting.Gist != "";
-
-    // let appSetting: string = en.APP_SETTINGS;
-    // let appSummary: string = en.APP_SUMMARY;
-
-    // while (appSetting.indexOf("/") > -1) {
-    //     appSetting = appSetting.replace("/", "\\");
-    // }
-
-    // while (appSummary.indexOf("/") > -1) {
-    //     appSummary = appSummary.replace("/", "\\");
-    // }
-
-
-
     var updateSettings = vscode.commands.registerCommand('extension.updateSettings', async function () {
 
         let args = arguments;
@@ -107,36 +91,14 @@ export async function activate(context: vscode.ExtensionContext) {
             syncSetting.lastUpload = dateNow;
             vscode.window.setStatusBarMessage("Sync : Reading Settings and Extensions.");
 
-            //var settingFile: File = await FileManager.GetFile(en.FILE_SETTING, en.FILE_SETTING_NAME);
-            //var launchFile: File = await FileManager.GetFile(en.FILE_LAUNCH, en.FILE_LAUNCH_NAME);
-
-
-            //var localeFile: File = await FileManager.GetFile(en.FILE_LOCALE, en.FILE_LOCALE_NAME);
-
-            // if (settingFile) {
-            //     allSettingFiles.push(settingFile);
-            // }
-            // if (launchFile) {
-            //     allSettingFiles.push(launchFile);
-            // }
-            // if (keybindingFile) {
-            //     allSettingFiles.push(keybindingFile);
-            // }
-            // if (localeFile) {
-            //     allSettingFiles.push(localeFile);
-            // }
-
             uploadedExtensions = PluginService.CreateExtensionList();
 
             uploadedExtensions.sort(function (a, b) {
                 return a.name.localeCompare(b.name);
             });
 
-
             // var remoteList = ExtensionInformation.fromJSONList(file.content);
             // var deletedList = PluginService.GetDeletedExtensions(uploadedExtensions);
-
-
 
             var fileName = en.FILE_EXTENSION_NAME;
             var filePath = en.FILE_EXTENSION;
@@ -295,7 +257,6 @@ export async function activate(context: vscode.ExtensionContext) {
             }
         }
     });
-
 
     var downloadSettings = vscode.commands.registerCommand('extension.downloadSettings', async function () {
 
@@ -543,12 +504,10 @@ export async function activate(context: vscode.ExtensionContext) {
         var common: Commons = new Commons(en, context);
         var setting: ExtensionConfig = await common.GetSettings();
         var localSetting: LocalConfig = new LocalConfig();
-        //var myGi: GithubService = null;
         var tokenAvailable: boolean = setting.token != null && setting.token != "";
         var gistAvailable: boolean = setting.gist != null && setting.gist != "";
 
         let items: Array<string> = new Array<string>();
-
         items.push("Sync : Share Settings with Public GIST");
         items.push("Sync : Toggle Force Download");
         items.push("Sync : Toggle Auto-Upload On Settings Change");
@@ -700,7 +659,6 @@ export async function activate(context: vscode.ExtensionContext) {
                                 break;
                             }
                             case 0: {
-
                                 await vscode.commands.executeCommand('extension.updateSettings', "publicGIST");
                                 break;
                             }

@@ -17,7 +17,6 @@ export class Commons {
     private static configWatcher = null;
     private static extensionWatcher = null;
 
-
     constructor(private en: Environment, private context: vscode.ExtensionContext) {
 
     }
@@ -200,7 +199,6 @@ export class Commons {
                     });
                 }
             }
-
             resolve(settings);
         });
     }
@@ -295,7 +293,7 @@ export class Commons {
                     let counter = me.context.globalState.get('syncCounter');
                     let count: number = parseInt(String(counter));
                     if (count % 30 == 0) {
-                        vscode.window.showInformationMessage("Sync : Did you like this extension ? How about writing a review or send me some donation ;) ");
+                        vscode.window.showInformationMessage("Sync : Do you like this extension ? How about writing a review or send me some donation ;) ");
                     }
                     count = count + 1;
                     me.context.globalState.update("syncCounter", count)
@@ -399,9 +397,9 @@ export class Commons {
         }
         else {
             let options: vscode.InputBoxOptions = {
-                placeHolder: "Enter GIST ID",
+                placeHolder: "Enter Gist Id",
                 password: false,
-                prompt: "Enter GIST ID from previously uploaded settings and press [Enter] or press / type 'esc' to cancel.",
+                prompt: "Enter Gist Id from previously uploaded settings and press [Enter] or press / type 'esc' to cancel.",
                 ignoreFocusOut: true
             };
             return options;

@@ -12,9 +12,9 @@ export class ExtensionConfig {
     public lastDownload: Date = null;
     public version: number = null;
     public showSummary: boolean = true;
-    public forceDownload : boolean = false;
-    public workspaceSync : boolean = false;
-    public anonymousGist : boolean = false;
+    public forceDownload: boolean = false;
+    public workspaceSync: boolean = false;
+    public anonymousGist: boolean = false;
     constructor() {
         this.version = Environment.CURRENT_VERSION;
     }
@@ -25,7 +25,6 @@ export class LocalConfig {
     public userName: string = null;
     public name: string = null;
     public config: ExtensionConfig = null;
-    public static readonly DEPTH : number = 2;
     constructor() {
         this.config = new ExtensionConfig();
     }
@@ -33,4 +32,8 @@ export class LocalConfig {
 
 export class CloudSetting {
     public lastUpload: Date = null;
+    public extensionVersion: string = null;
+    constructor() {
+        this.extensionVersion = "v" + Environment.getVersion();
+    }
 }
