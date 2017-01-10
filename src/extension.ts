@@ -296,7 +296,9 @@ export async function activate(context: vscode.ExtensionContext) {
                     }
                     var keys = Object.keys(res.files);
                     if (keys.indexOf(en.FILE_CLOUDSETTINGS_NAME) > -1) {
-                        var cloudSett: CloudSetting = JSON.parse(res.files[en.FILE_CLOUDSETTINGS_NAME].content);
+                        var cloudSettGist: Object = JSON.parse(res.files[en.FILE_CLOUDSETTINGS_NAME].content);
+                        
+                        var cloudSett : CloudSetting = new CloudSetting();
                         cloudSett.lastUpload = new Date(cloudSett.lastUpload);
 
                         let lastUploadStr: string = syncSetting.lastUpload.toString();

@@ -53,7 +53,7 @@ export class Commons {
         let self: Commons = this;
 
         Commons.extensionWatcher = chokidar.watch(this.en.ExtensionFolder, { depth: 0, ignoreInitial: true });
-        Commons.configWatcher = chokidar.watch(this.en.PATH + "/User/", { depth: LocalConfig.DEPTH, ignoreInitial: true });
+        Commons.configWatcher = chokidar.watch(this.en.PATH + "/User/", { depth: 2, ignoreInitial: true });
 
         //TODO : Uncomment the following lines when code allows feature to update Issue in github code repo - #14444
 
