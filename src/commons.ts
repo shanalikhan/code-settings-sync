@@ -29,6 +29,9 @@ export class Commons {
                 message = "Sync : Internet Not Connected or Unable to Connect to Github. Exception Logged in Console";
                 msgBox = false;
             }
+            if (error.code == 4) {
+                message = "Sync : Unable to Save Settings. Please make sure you have valid JSON settings.json file. ( e.g : No trailing commas )";
+            }
         }
         vscode.window.setStatusBarMessage("");
 
@@ -243,12 +246,17 @@ export class Commons {
             else {
                 let settings: ExtensionConfig = await me.GetSettings();
                 if (settings.version == 0 || settings.version < Environment.CURRENT_VERSION) {
-                    if (settings.version == 0) {
-                        vscode.window.showInformationMessage("Sync : Settings Created");
-                    }
+                    let oldSettingVersion: number = settings.version;
                     settings.version = Environment.CURRENT_VERSION;
-                    await me.SaveSettings(settings);
-                    vscode.window.setStatusBarMessage("Sync : Settings Version Updated to v" + Environment.getVersion(), 2000);
+                    let done: boolean = await me.SaveSettings(settings);
+                    if (done == true) {
+                        if (oldSettingVersion == 0) {
+                            vscode.window.showInformationMessage("Sync : Settings Created");
+                        }
+                        else {
+                            vscode.window.setStatusBarMessage("Sync : Settings Version Updated to v" + Environment.getVersion(), 2000);
+                        }
+                    }
                 }
             }
             resolve(true);
