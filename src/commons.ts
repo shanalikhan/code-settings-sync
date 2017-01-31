@@ -470,7 +470,15 @@ export class Commons {
                     for (var i = 0; i < files.length; i++) {
                         var element = files[i];
                         if (element.fileName.indexOf(".") > 0) {
-                            edit.insert(new vscode.Position(row, 0), element.fileName + "\r\n");
+                            let fileName = element.fileName;
+                            if (fileName != element.gistName) {
+                                if (upload) {
+                                    fileName += " > " + element.gistName;
+                                } else {
+                                    fileName = element.gistName + " > " + fileName;
+                                }
+                            }
+                            edit.insert(new vscode.Position(row, 0), fileName + "\r\n");
                             row += 1;
                         }
                     }

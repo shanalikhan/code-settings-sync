@@ -123,7 +123,7 @@ export async function activate(context: vscode.ExtensionContext) {
 
             contentFiles.forEach(snippetFile => {
 
-                if (snippetFile.fileName != en.APP_SUMMARY_NAME) {
+                if (snippetFile.fileName != en.APP_SUMMARY_NAME && snippetFile.fileName != en.FILE_KEYBINDING_MAC) {
                     if (snippetFile.content != "") {
                         if (snippetFile.fileName == en.FILE_KEYBINDING_NAME) {
                             var destinationKeyBinding: string = "";
@@ -327,6 +327,12 @@ export async function activate(context: vscode.ExtensionContext) {
                         if (res.files[gistName]) {
                             if (res.files[gistName].content) {
                                 if (gistName.indexOf(".") > -1) {
+                                    if (en.OsType == OsType.Mac && gistName == en.FILE_KEYBINDING_DEFAULT) {
+                                        return;
+                                    }
+                                    if (en.OsType != OsType.Mac && gistName == en.FILE_KEYBINDING_MAC) {
+                                        return;
+                                    }
                                     var f: File = new File(gistName, res.files[gistName].content, null, gistName);
                                     updatedFiles.push(f);
                                 }
@@ -401,8 +407,10 @@ export async function activate(context: vscode.ExtensionContext) {
                                     }
                                 }
                                 if (writeFile) {
-
-                                    let filePath: string = await FileManager.CreateDirTree(en.USER_FOLDER, file.gistName);
+                                    if (file.gistName == en.FILE_KEYBINDING_MAC) {
+                                        file.fileName = en.FILE_KEYBINDING_DEFAULT;
+                                    }
+                                    let filePath: string = await FileManager.CreateDirTree(en.USER_FOLDER, file.fileName);
                                     await actionList.push(FileManager.WriteFile(filePath, content).then(
                                         function (added: boolean) {
                                             //TODO : add Name attribute in File and show information message here with name , when required.
