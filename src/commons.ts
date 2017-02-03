@@ -281,7 +281,7 @@ export class Commons {
             let keys = Object.keys(setting);
             keys.forEach(async keyName => {
 
-                if (keyName == "lastDownload" || keyName == "lastUpload") {
+                if ((keyName == "lastDownload" || keyName == "lastUpload") && setting[keyName]) {
                     try {
                         let zz = new Date(setting[keyName]);
                         setting[keyName] = zz;
