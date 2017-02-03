@@ -257,6 +257,13 @@ export class Commons {
                             vscode.window.setStatusBarMessage("Sync : Settings Version Updated to v" + Environment.getVersion(), 2000);
                         }
                     }
+                    vscode.window.showInformationMessage("Sync : Do you want to auto upload the settings upon any extension install / remove ? Let the VS Team Know for feature request =)","Open URL").then(function(val:string){
+                        openurl("https://github.com/Microsoft/vscode/issues/14444");
+                    });
+
+                    vscode.window.showInformationMessage("Sync : Do you want to sync Code File Icons and themes ? Let the VS Team Know for feature request =)","Open URL").then(function(val:string){
+                        openurl("https://github.com/Microsoft/vscode/issues/12178");
+                    });
                 }
             }
             resolve(true);
