@@ -270,7 +270,7 @@ export async function activate(context: vscode.ExtensionContext) {
 
         let askToken: boolean = !syncSetting.anonymousGist;
 
-        await common.InitializeSettings(syncSetting, askToken, true).then(async (resolve) => {
+        await common.InitializeSettings(syncSetting, false, true).then(async (resolve) => {
 
             localSettings.config = resolve;
             syncSetting = localSettings.config;
