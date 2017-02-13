@@ -2,7 +2,11 @@
     "name": "code-settings-sync",
     "displayName": "Settings Sync",
     "description": "Synchronize Settings, Snippets, launch, keybindings, workspaces and extensions Across Multiple Machines using Github Gist.",
+<<<<<<< HEAD
     "version": "2.4.4",
+=======
+    "version": "2.4.3",
+>>>>>>> d4df114045c51058dbda5e0e1f80bae6efdb9ed1
     "icon": "images/cloud.png",
     "publisher": "Shan",
     "author": {

@@ -270,7 +270,7 @@ export async function activate(context: vscode.ExtensionContext) {
 
         let askToken: boolean = !syncSetting.anonymousGist;
 
-        await common.InitializeSettings(syncSetting, askToken, true).then(async (resolve) => {
+        await common.InitializeSettings(syncSetting, false, true).then(async (resolve) => {
 
             localSettings.config = resolve;
             syncSetting = localSettings.config;
@@ -297,24 +297,22 @@ export async function activate(context: vscode.ExtensionContext) {
                     var keys = Object.keys(res.files);
                     if (keys.indexOf(en.FILE_CLOUDSETTINGS_NAME) > -1) {
                         var cloudSettGist: Object = JSON.parse(res.files[en.FILE_CLOUDSETTINGS_NAME].content);
-                        
-                        var cloudSett : CloudSetting = new CloudSetting();
-                        cloudSett.lastUpload = new Date(cloudSett.lastUpload);
+                        var cloudSett : CloudSetting = Object.assign(new CloudSetting(), cloudSettGist);;
 
                         let lastUploadStr: string = syncSetting.lastUpload.toString();
                         let lastDownloadStr: string = syncSetting.lastDownload.toString();
 
-                        var stat: boolean = false;
+                        var upToDate: boolean = false;
                         if (lastDownloadStr != "") {
-                            stat = new Date(syncSetting.lastDownload).getTime() === new Date(cloudSett.lastUpload).getTime();
+                            upToDate = new Date(lastDownloadStr).getTime() === new Date(cloudSett.lastUpload).getTime();
                         }
 
                         if (lastUploadStr != "") {
-                            stat = stat || new Date(syncSetting.lastUpload).getTime() === new Date(cloudSett.lastUpload).getTime();
+                            upToDate = upToDate || new Date(lastUploadStr).getTime() === new Date(cloudSett.lastUpload).getTime();
                         }
 
                         if (!syncSetting.forceDownload) {
-                            if (stat) {
+                            if (upToDate) {
                                 vscode.window.setStatusBarMessage("");
                                 vscode.window.setStatusBarMessage("Sync : You already have latest version of saved settings.", 5000);
                                 return;

@@ -29,6 +29,9 @@ export class Commons {
                 message = "Sync : Internet Not Connected or Unable to Connect to Github. Exception Logged in Console";
                 msgBox = false;
             }
+            if (error.code == 4) {
+                message = "Sync : Unable to Save Settings. Please make sure you have valid JSON settings.json file. ( e.g : No trailing commas )";
+            }
         }
         vscode.window.setStatusBarMessage("");
 
@@ -243,12 +246,24 @@ export class Commons {
             else {
                 let settings: ExtensionConfig = await me.GetSettings();
                 if (settings.version == 0 || settings.version < Environment.CURRENT_VERSION) {
-                    if (settings.version == 0) {
-                        vscode.window.showInformationMessage("Sync : Settings Created");
-                    }
+                    let oldSettingVersion: number = settings.version;
                     settings.version = Environment.CURRENT_VERSION;
-                    await me.SaveSettings(settings);
-                    vscode.window.setStatusBarMessage("Sync : Settings Version Updated to v" + Environment.getVersion(), 2000);
+                    let done: boolean = await me.SaveSettings(settings);
+                    if (done == true) {
+                        if (oldSettingVersion == 0) {
+                            vscode.window.showInformationMessage("Sync : Settings Created");
+                        }
+                        else {
+                            vscode.window.setStatusBarMessage("Sync : Settings Version Updated to v" + Environment.getVersion(), 2000);
+                        }
+                    }
+                    vscode.window.showInformationMessage("Sync : Do you want to auto upload the settings upon any extension install / remove ? Let the VS Team Know for feature request =)","Open URL").then(function(val:string){
+                        openurl("https://github.com/Microsoft/vscode/issues/14444");
+                    });
+
+                    vscode.window.showInformationMessage("Sync : Do you want to sync Code File Icons and themes ? Let the VS Team Know for feature request =)","Open URL").then(function(val:string){
+                        openurl("https://github.com/Microsoft/vscode/issues/12178");
+                    });
                 }
             }
 
@@ -279,7 +294,7 @@ export class Commons {
             let keys = Object.keys(setting);
             keys.forEach(async keyName => {
 
-                if (keyName == "lastDownload" || keyName == "lastUpload") {
+                if ((keyName == "lastDownload" || keyName == "lastUpload") && setting[keyName]) {
                     try {
                         let zz = new Date(setting[keyName]);
                         setting[keyName] = zz;
