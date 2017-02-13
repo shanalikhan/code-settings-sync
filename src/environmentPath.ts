@@ -5,11 +5,7 @@ import { OsType } from './enums';
 
 export class Environment {
 
-<<<<<<< HEAD
     public static CURRENT_VERSION: number = 244;
-=======
-    public static CURRENT_VERSION: number = 243;
->>>>>>> d4df114045c51058dbda5e0e1f80bae6efdb9ed1
     public static getVersion(): string {
         var txt2 =  Environment.CURRENT_VERSION.toString().slice(0, 1) + "." +  Environment.CURRENT_VERSION.toString().slice(1,2)+ "." +  Environment.CURRENT_VERSION.toString().slice(2,3);
         return txt2;
