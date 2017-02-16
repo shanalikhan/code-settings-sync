@@ -109,7 +109,7 @@ export class Commons {
                 if (requiredFileChanged) {
 
                     if (settings.autoUpload) {
-                        if (customSettings.ignoreFolders.indexOf("workspaceStorage") > -1)  {
+                        if (customSettings.ignoreFolders.indexOf("workspaceStorage") > -1) {
                             let fileType: string = path.substring(path.lastIndexOf('.'), path.length);
                             if (fileType.indexOf('json') == -1) {
                                 console.log("Sync : Cannot Initiate Auto-upload on This File (Not JSON).");
@@ -149,7 +149,7 @@ export class Commons {
             }, 3000);
         });
     }
-    
+
     public CloseWatch(): void {
         if (Commons.configWatcher != null) {
             Commons.configWatcher.close();
@@ -272,7 +272,9 @@ export class Commons {
                             vscode.window.showInformationMessage("Sync : Settings Created");
                         }
                         else {
-                            vscode.window.setStatusBarMessage("Sync : Settings Version Updated to v" + Environment.getVersion(), 2000);
+                            vscode.window.showInformationMessage("Sync : Settings Version Updated to v" + Environment.getVersion(), "View Release Notes").then(function (val: string) {
+                                openurl("http://shanalikhan.github.io/2016/05/14/Visual-studio-code-sync-settings-release-notes.html");
+                            });
                         }
                     }
                     vscode.window.showInformationMessage("Sync : Do you want to auto upload the settings upon any extension install / remove ? Let the VS Team Know for feature request =)", "Open URL").then(function (val: string) {
