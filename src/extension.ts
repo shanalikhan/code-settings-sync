@@ -322,8 +322,8 @@ export async function activate(context: vscode.ExtensionContext) {
                         var cloudSettGist: Object = JSON.parse(res.files[en.FILE_CLOUDSETTINGS_NAME].content);
                         var cloudSett: CloudSetting = Object.assign(new CloudSetting(), cloudSettGist);;
 
-                        let lastUploadStr: string = syncSetting.lastUpload.toString();
-                        let lastDownloadStr: string = syncSetting.lastDownload.toString();
+                        let lastUploadStr: string = (syncSetting.lastUpload) ? syncSetting.lastUpload.toString(): "";
+                        let lastDownloadStr: string = (syncSetting.lastDownload) ? syncSetting.lastDownload.toString(): "";
 
                         var upToDate: boolean = false;
                         if (lastDownloadStr != "") {
