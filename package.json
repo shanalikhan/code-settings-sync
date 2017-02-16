@@ -144,11 +144,6 @@
                     "default": false,
                     "description": "Set it to true if you want to download the settings everytime code starts."
                 },
-                "sync.workspaceSync": {
-                    "type": "boolean",
-                    "default": false,
-                    "description": "Set it to true if you want to sync the workspaceStorage folder. It will only upload .json files."
-                },
                 "sync.anonymousGist": {
                     "type": "boolean",
                     "default": false,

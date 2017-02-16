@@ -13,7 +13,7 @@ export class ExtensionConfig {
     public version: number = null;
     public showSummary: boolean = true;
     public forceDownload: boolean = false;
-    public workspaceSync: boolean = false;
+    //public workspaceSync: boolean = false;
     public anonymousGist: boolean = false;
     constructor() {
         this.version = Environment.CURRENT_VERSION;
@@ -35,5 +35,17 @@ export class CloudSetting {
     public extensionVersion: string = null;
     constructor() {
         this.extensionVersion = "v" + Environment.getVersion();
+    }
+}
+
+export class CustomSettings {
+    public ignoreFiles: Array<string> = null;
+    public ignoreFolders: Array<string> = null;
+    public ignoreCodeSettings: Array<string> = null;
+    constructor() {
+        this.ignoreFiles = new Array<string>();
+        this.ignoreFolders = new Array<string>();
+        this.ignoreCodeSettings = new Array<string>();
+        this.ignoreFolders.push("workspaceStorage")
     }
 }
