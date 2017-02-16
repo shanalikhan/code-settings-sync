@@ -37,15 +37,20 @@ export class CloudSetting {
         this.extensionVersion = "v" + Environment.getVersion();
     }
 }
+export class NameValuePair {
+    constructor(public name: string, public value: string) {
+    }
+}
 
 export class CustomSettings {
     public ignoreFiles: Array<string> = null;
     public ignoreFolders: Array<string> = null;
-    public ignoreCodeSettings: Array<string> = null;
+    public ignoreCodeSettings: Array<NameValuePair> = null;
     constructor() {
         this.ignoreFiles = new Array<string>();
         this.ignoreFolders = new Array<string>();
-        this.ignoreCodeSettings = new Array<string>();
+        this.ignoreCodeSettings = new Array<NameValuePair>();
         this.ignoreFolders.push("workspaceStorage")
+        //this.ignoreCodeSettings.push(new NameValuePair("http.proxy",""));
     }
 }

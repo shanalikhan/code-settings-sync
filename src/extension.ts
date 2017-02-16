@@ -7,7 +7,7 @@ import { Environment } from './environmentPath';
 import { File, FileManager } from './fileManager';
 import { Commons } from './commons';
 import { GithubService } from './githubService';
-import { ExtensionConfig, LocalConfig, CloudSetting, CustomSettings } from './setting';
+import { ExtensionConfig, LocalConfig, CloudSetting, CustomSettings, NameValuePair } from './setting';
 import { OsType, SettingType } from './enums';
 
 export async function activate(context: vscode.ExtensionContext) {
@@ -289,13 +289,14 @@ export async function activate(context: vscode.ExtensionContext) {
         var myGi: GithubService = null;
         var localSettings: LocalConfig = new LocalConfig();
         var syncSetting: ExtensionConfig = await common.GetSettings();
-
+        let customSettings: CustomSettings = new CustomSettings();
         let askToken: boolean = !syncSetting.anonymousGist;
 
         await common.InitializeSettings(syncSetting, false, true).then(async (resolve) => {
 
             localSettings.config = resolve;
             syncSetting = localSettings.config;
+            customSettings = await common.GetCustomSettings();
             await StartDownload();
         });
 
@@ -473,6 +474,15 @@ export async function activate(context: vscode.ExtensionContext) {
 
                                 vscode.window.setStatusBarMessage("");
                                 vscode.window.setStatusBarMessage("Sync : Download Complete.", 5000);
+                                if (customSettings.ignoreCodeSettings.length > 0) {
+                                    let config = vscode.workspace.getConfiguration();
+                                    customSettings.ignoreCodeSettings.forEach((set: NameValuePair, index: number) => {
+                                        let c: string = undefined;
+                                        set.value == "" ? c == undefined : c = set.value;
+                                        config.update(set.name, c, true);
+                                    });
+                                }
+
 
                                 if (syncSetting.autoUpload) {
                                     common.StartWatch();
