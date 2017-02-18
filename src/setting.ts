@@ -43,14 +43,16 @@ export class NameValuePair {
 }
 
 export class CustomSettings {
-    public ignoreFiles: Array<string> = null;
-    public ignoreFolders: Array<string> = null;
-    public ignoreCodeSettings: Array<NameValuePair> = null;
+    public ignoreUploadFiles: Array<string> = null;
+    public ignoreUploadFolders: Array<string> = null;
+    public replaceCodeSettings: Array<NameValuePair> = null;
     constructor() {
-        this.ignoreFiles = new Array<string>();
-        this.ignoreFolders = new Array<string>();
-        this.ignoreCodeSettings = new Array<NameValuePair>();
-        this.ignoreFolders.push("workspaceStorage")
+        this.ignoreUploadFiles = new Array<string>();
+        this.ignoreUploadFolders = new Array<string>();
+        this.replaceCodeSettings = new Array<NameValuePair>();
+        this.ignoreUploadFolders.push("workspaceStorage");
+        this.ignoreUploadFiles.push("projects.json");
+        this.ignoreUploadFiles.push("projects_cache_git.json")
         //this.ignoreCodeSettings.push(new NameValuePair("http.proxy",""));
     }
 }

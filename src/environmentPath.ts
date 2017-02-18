@@ -27,7 +27,7 @@ export class Environment {
     public FILE_EXTENSION: string = null;
     public FILE_CLOUDSETTINGS: string = null;
 
-    public FILE_CUSTOMIZEDSETTINGS_NAME : string = "syncCustomSettings.json";
+    public FILE_CUSTOMIZEDSETTINGS_NAME : string = "syncLocalSettings.json";
     public FILE_CUSTOMIZEDSETTINGS : string = null;
 
     public FILE_SETTING_NAME: string = "settings.json";

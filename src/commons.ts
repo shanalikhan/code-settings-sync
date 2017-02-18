@@ -91,17 +91,21 @@ export class Commons {
 
         Commons.configWatcher.on('change', async (path: string) => {
             if (uploadStopped) {
+                uploadStopped = false;
                 let settings: ExtensionConfig = this.GetSettings();
                 let customSettings: CustomSettings = await this.GetCustomSettings();
+                if (customSettings == null) {
 
-                uploadStopped = false;
+                    return;
+                }
+
                 let requiredFileChanged: boolean = false;
 
-                if (customSettings.ignoreFolders.indexOf("workspaceStorage") > -1) {
-                    requiredFileChanged = (path.indexOf(".DS_Store") == -1) && (path.indexOf(this.en.FILE_LOCATIONSETTINGS_NAME) == -1) && (path.indexOf(this.en.APP_SUMMARY_NAME) == -1);
+                if (customSettings.ignoreUploadFolders.indexOf("workspaceStorage") == -1) {
+                    requiredFileChanged = (path.indexOf(".DS_Store") == -1) && (path.indexOf(this.en.FILE_LOCATIONSETTINGS_NAME) == -1) && (path.indexOf(this.en.APP_SUMMARY_NAME) == -1) && (path.indexOf(this.en.FILE_CUSTOMIZEDSETTINGS_NAME) == -1);
                 }
                 else {
-                    requiredFileChanged = (path.indexOf("workspaceStorage") == -1) && (path.indexOf(".DS_Store") == -1) && (path.indexOf(this.en.FILE_LOCATIONSETTINGS_NAME) == -1) && (path.indexOf(this.en.APP_SUMMARY_NAME) == -1);
+                    requiredFileChanged = (path.indexOf("workspaceStorage") == -1) && (path.indexOf(".DS_Store") == -1) && (path.indexOf(this.en.FILE_LOCATIONSETTINGS_NAME) == -1) && (path.indexOf(this.en.APP_SUMMARY_NAME) == -1) && (path.indexOf(this.en.FILE_CUSTOMIZEDSETTINGS_NAME) == -1);
                 }
 
                 console.log("Sync : File Change Detected On : " + path);
@@ -109,7 +113,7 @@ export class Commons {
                 if (requiredFileChanged) {
 
                     if (settings.autoUpload) {
-                        if (customSettings.ignoreFolders.indexOf("workspaceStorage") > -1) {
+                        if (customSettings.ignoreUploadFolders.indexOf("workspaceStorage") > -1) {
                             let fileType: string = path.substring(path.lastIndexOf('.'), path.length);
                             if (fileType.indexOf('json') == -1) {
                                 console.log("Sync : Cannot Initiate Auto-upload on This File (Not JSON).");
@@ -131,7 +135,7 @@ export class Commons {
             }
             else {
                 vscode.window.setStatusBarMessage("");
-                vscode.window.setStatusBarMessage("Sync : Updating In Progress... Please Wait.", 3000);
+                vscode.window.setStatusBarMessage("Sync : Updating In Progress ... Please Wait.", 3000);
             }
         });
     }
@@ -209,8 +213,8 @@ export class Commons {
         return new Promise<CustomSettings>(async (resolve, reject) => {
 
             let customSettings: CustomSettings = new CustomSettings();
-            let customExist: boolean = await FileManager.FileExists(me.en.FILE_CUSTOMIZEDSETTINGS);
             try {
+                let customExist: boolean = await FileManager.FileExists(me.en.FILE_CUSTOMIZEDSETTINGS);
                 if (customExist) {
                     let customSettingStr: string = await FileManager.ReadFile(me.en.FILE_CUSTOMIZEDSETTINGS);
                     Object.assign(customSettings, JSON.parse(customSettingStr));
@@ -218,6 +222,7 @@ export class Commons {
                 }
             }
             catch (e) {
+                this.LogException(e, "Sync : Unable to read " + this.en.FILE_CUSTOMIZEDSETTINGS_NAME + ". Make sure its Valid JSON.", true);
                 customSettings = null;
                 resolve(customSettings);
             }
@@ -272,17 +277,23 @@ export class Commons {
                             vscode.window.showInformationMessage("Sync : Settings Created");
                         }
                         else {
-                            vscode.window.showInformationMessage("Sync : Settings Version Updated to v" + Environment.getVersion(), "View Release Notes").then(function (val: string) {
-                                openurl("http://shanalikhan.github.io/2016/05/14/Visual-studio-code-sync-settings-release-notes.html");
+                            vscode.window.showInformationMessage("Sync : Settings Sync Updated to v" + Environment.getVersion(), "View Release Notes").then(function (val: string) {
+                                if (val == "View Release Notes") {
+                                    openurl("http://shanalikhan.github.io/2016/05/14/Visual-studio-code-sync-settings-release-notes.html");
+                                }
                             });
                         }
                     }
                     vscode.window.showInformationMessage("Sync : Do you want to auto upload the settings upon any extension install / remove ? Let the VS Team Know for feature request =)", "Open URL").then(function (val: string) {
-                        openurl("https://github.com/Microsoft/vscode/issues/14444");
+                        if (val == "Open URL") {
+                            openurl("https://github.com/Microsoft/vscode/issues/14444");
+                        }
                     });
 
                     vscode.window.showInformationMessage("Sync : Do you want to sync Code File Icons and themes ? Let the VS Team Know for feature request =)", "Open URL").then(function (val: string) {
-                        openurl("https://github.com/Microsoft/vscode/issues/12178");
+                        if (val == "Open URL") {
+                            openurl("https://github.com/Microsoft/vscode/issues/12178");
+                        }
                     });
                 }
             }

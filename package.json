@@ -46,7 +46,7 @@
         "email": "shanalikhan@hotmail.com"
     },
     "engines": {
-        "vscode": "^1.8.0"
+        "vscode": "^1.9.0"
     },
     "categories": [
         "Other"

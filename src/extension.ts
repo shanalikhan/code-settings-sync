@@ -121,26 +121,32 @@ export async function activate(context: vscode.ExtensionContext) {
             if (customExist) {
                 customSettings = await common.GetCustomSettings();
 
-                if (customSettings != null) {
+                contentFiles = contentFiles.filter((file: File, index: number) => {
+                    let a: boolean = file.fileName != en.FILE_CUSTOMIZEDSETTINGS_NAME;
+                    return a;
+                });
 
+                if (customSettings.ignoreUploadFiles.length > 0) {
                     contentFiles = contentFiles.filter((file: File, index: number) => {
-                        let a: boolean = customSettings.ignoreFiles.indexOf(file.fileName) == -1 && file.fileName != en.FILE_CUSTOMIZEDSETTINGS_NAME;
+                        let a: boolean = customSettings.ignoreUploadFiles.indexOf(file.fileName) == -1 && file.fileName != en.FILE_CUSTOMIZEDSETTINGS_NAME;
                         return a;
                     });
-
+                }
+                if (customSettings.ignoreUploadFolders.length > 0) {
                     contentFiles = contentFiles.filter((file: File, index: number) => {
-                        let matchedFolders = customSettings.ignoreFolders.filter((folder) => {
+                        let matchedFolders = customSettings.ignoreUploadFolders.filter((folder) => {
                             return file.filePath.indexOf(folder) == -1;
                         });
                         return matchedFolders.length > 0;
                     });
                 }
-                else {
-
-                    common.LogException(null, common.ERROR_MESSAGE, true);
-                    return;
-                }
             }
+            else {
+
+                common.LogException(null, common.ERROR_MESSAGE, true);
+                return;
+            }
+
 
 
             contentFiles.forEach(snippetFile => {
@@ -322,8 +328,8 @@ export async function activate(context: vscode.ExtensionContext) {
                         var cloudSettGist: Object = JSON.parse(res.files[en.FILE_CLOUDSETTINGS_NAME].content);
                         var cloudSett: CloudSetting = Object.assign(new CloudSetting(), cloudSettGist);;
 
-                        let lastUploadStr: string = (syncSetting.lastUpload) ? syncSetting.lastUpload.toString(): "";
-                        let lastDownloadStr: string = (syncSetting.lastDownload) ? syncSetting.lastDownload.toString(): "";
+                        let lastUploadStr: string = (syncSetting.lastUpload) ? syncSetting.lastUpload.toString() : "";
+                        let lastDownloadStr: string = (syncSetting.lastDownload) ? syncSetting.lastDownload.toString() : "";
 
                         var upToDate: boolean = false;
                         if (lastDownloadStr != "") {
@@ -474,9 +480,9 @@ export async function activate(context: vscode.ExtensionContext) {
 
                                 vscode.window.setStatusBarMessage("");
                                 vscode.window.setStatusBarMessage("Sync : Download Complete.", 5000);
-                                if (customSettings.ignoreCodeSettings.length > 0) {
+                                if (customSettings.replaceCodeSettings.length > 0) {
                                     let config = vscode.workspace.getConfiguration();
-                                    customSettings.ignoreCodeSettings.forEach((set: NameValuePair, index: number) => {
+                                    customSettings.replaceCodeSettings.forEach((set: NameValuePair, index: number) => {
                                         let c: string = undefined;
                                         set.value == "" ? c == undefined : c = set.value;
                                         config.update(set.name, c, true);
