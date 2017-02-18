@@ -5,7 +5,7 @@ var path = require('path');
 
 export class File {
 
-    constructor(public fileName: string, public content: string, private filePath: string, public gistName: string) {
+    constructor(public fileName: string, public content: string, public filePath: string, public gistName: string) {
         // this.fileName = file.split('.')[0];
         //this.fileName = file;
     }

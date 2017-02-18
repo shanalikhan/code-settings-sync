@@ -1,9 +1,7 @@
 # Settings Sync
 ### Previously Known as Visual Studio Code Settings Sync
 
-[![Version](https://vsmarketplacebadge.apphb.com/version/Shan.code-settings-sync.svg)](https://marketplace.visualstudio.com/items?itemName=Shan.code-settings-sync) 
-[![Travis](https://img.shields.io/travis/rust-lang/rust.svg)](https://marketplace.visualstudio.com/items?itemName=Shan.code-settings-sync) 
-[![Join Chat](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/code-settings-sync)
+[![Version](https://vsmarketplacebadge.apphb.com/version/Shan.code-settings-sync.svg)](https://marketplace.visualstudio.com/items?itemName=Shan.code-settings-sync) [![Travis](https://img.shields.io/travis/rust-lang/rust.svg)](https://marketplace.visualstudio.com/items?itemName=Shan.code-settings-sync) [![Join Chat](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/code-settings-sync)
 
 
 
@@ -81,13 +79,9 @@ Copy this Gist ID in order to download the settings in other machines.
 
 ## Download your Settings
 
-**Press Shift + Alt + D it will ask your github account access token.**
+**Press Shift + Alt + D it will ask your github Gist ID.**
 
 > Type ">Sync" In Command Palette into order download / upload
-
-Enter the github account in the window and click enter.
-
-![github account access token](http://shanalikhan.github.io/img/upload1.png)
 
 **Enter Your Gist ID.**
 you need to enter your Gist ID in order to get the all files
@@ -150,12 +144,6 @@ Select Command **"Sync : Advance Options > Share Settings with Public GIST"**
 Other users can give your Gist Id to download the Gist, but they cant upload their settings on your Gist.
 
 
-## Workspaces Sync
-
-By default, extension will not sync your WorkspaceStorage folder. You need to set `sync.workspaceSync` to true in order to enable this. It will only sync the `.json` files inside your WorkspaceStorage folder.
-
-
-
 ## Settings
 For details regarding settings keys, click [here](http://shanalikhan.github.io/2016/07/31/Visual-Studio-code-sync-setting-edit-manually.html)
 
@@ -168,7 +156,6 @@ For details regarding settings keys, click [here](http://shanalikhan.github.io/2
     "sync.lastDownload": "2016-12-27T15:58:35.760Z",
     "sync.showSummary": true,
     "sync.forceDownload": true,
-    "sync.workspaceSync": false,
     "sync.anonymousGist": false
 ```
 

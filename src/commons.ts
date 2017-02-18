@@ -2,7 +2,7 @@
 import * as vscode from 'vscode';
 import { Environment } from './environmentPath';
 import { File, FileManager } from './fileManager';
-import { ExtensionConfig, LocalConfig } from './setting';
+import { ExtensionConfig, LocalConfig, CustomSettings } from './setting';
 import { PluginService, ExtensionInformation } from './pluginService';
 import * as fs from 'fs';
 import * as path from 'path';
@@ -89,18 +89,23 @@ export class Commons {
         //     }
         // });
 
-        Commons.configWatcher.on('change', (path: string) => {
+        Commons.configWatcher.on('change', async (path: string) => {
             if (uploadStopped) {
-                let settings: ExtensionConfig = this.GetSettings();
-
                 uploadStopped = false;
+                let settings: ExtensionConfig = this.GetSettings();
+                let customSettings: CustomSettings = await this.GetCustomSettings();
+                if (customSettings == null) {
+
+                    return;
+                }
+
                 let requiredFileChanged: boolean = false;
 
-                if (settings.workspaceSync == true) {
-                    requiredFileChanged = (path.indexOf(".DS_Store") == -1) && (path.indexOf(this.en.FILE_LOCATIONSETTINGS_NAME) == -1) && (path.indexOf(this.en.APP_SUMMARY_NAME) == -1);
+                if (customSettings.ignoreUploadFolders.indexOf("workspaceStorage") == -1) {
+                    requiredFileChanged = (path.indexOf(".DS_Store") == -1) && (path.indexOf(this.en.FILE_LOCATIONSETTINGS_NAME) == -1) && (path.indexOf(this.en.APP_SUMMARY_NAME) == -1) && (path.indexOf(this.en.FILE_CUSTOMIZEDSETTINGS_NAME) == -1);
                 }
                 else {
-                    requiredFileChanged = (path.indexOf("workspaceStorage") == -1) && (path.indexOf(".DS_Store") == -1) && (path.indexOf(this.en.FILE_LOCATIONSETTINGS_NAME) == -1) && (path.indexOf(this.en.APP_SUMMARY_NAME) == -1);
+                    requiredFileChanged = (path.indexOf("workspaceStorage") == -1) && (path.indexOf(".DS_Store") == -1) && (path.indexOf(this.en.FILE_LOCATIONSETTINGS_NAME) == -1) && (path.indexOf(this.en.APP_SUMMARY_NAME) == -1) && (path.indexOf(this.en.FILE_CUSTOMIZEDSETTINGS_NAME) == -1);
                 }
 
                 console.log("Sync : File Change Detected On : " + path);
@@ -108,7 +113,7 @@ export class Commons {
                 if (requiredFileChanged) {
 
                     if (settings.autoUpload) {
-                        if (settings.workspaceSync) {
+                        if (customSettings.ignoreUploadFolders.indexOf("workspaceStorage") > -1) {
                             let fileType: string = path.substring(path.lastIndexOf('.'), path.length);
                             if (fileType.indexOf('json') == -1) {
                                 console.log("Sync : Cannot Initiate Auto-upload on This File (Not JSON).");
@@ -130,7 +135,7 @@ export class Commons {
             }
             else {
                 vscode.window.setStatusBarMessage("");
-                vscode.window.setStatusBarMessage("Sync : Updating In Progress... Please Wait.", 3000);
+                vscode.window.setStatusBarMessage("Sync : Updating In Progress ... Please Wait.", 3000);
             }
         });
     }
@@ -142,15 +147,13 @@ export class Commons {
             vscode.window.setStatusBarMessage("Sync : Auto Upload Initiating.", 3000);
 
             setTimeout(function () {
-
                 vscode.commands.executeCommand('extension.updateSettings', "forceUpdate", path).then((res) => {
                     resolve(true);
                 });
             }, 3000);
         });
-
-
     }
+
     public CloseWatch(): void {
         if (Commons.configWatcher != null) {
             Commons.configWatcher.close();
@@ -158,7 +161,6 @@ export class Commons {
         if (Commons.extensionWatcher != null) {
             Commons.extensionWatcher.close();
         }
-
     }
 
     public async InitializeSettings(settings: ExtensionConfig, askToken: boolean, askGIST: boolean): Promise<ExtensionConfig> {
@@ -206,6 +208,27 @@ export class Commons {
         });
     }
 
+    public async GetCustomSettings(): Promise<CustomSettings> {
+        let me: Commons = this;
+        return new Promise<CustomSettings>(async (resolve, reject) => {
+
+            let customSettings: CustomSettings = new CustomSettings();
+            try {
+                let customExist: boolean = await FileManager.FileExists(me.en.FILE_CUSTOMIZEDSETTINGS);
+                if (customExist) {
+                    let customSettingStr: string = await FileManager.ReadFile(me.en.FILE_CUSTOMIZEDSETTINGS);
+                    Object.assign(customSettings, JSON.parse(customSettingStr));
+                    resolve(customSettings);
+                }
+            }
+            catch (e) {
+                this.LogException(e, "Sync : Unable to read " + this.en.FILE_CUSTOMIZEDSETTINGS_NAME + ". Make sure its Valid JSON.", true);
+                customSettings = null;
+                resolve(customSettings);
+            }
+        });
+
+    }
 
     public StartMigrationProcess(): Promise<boolean> {
         let me: Commons = this;
@@ -254,18 +277,37 @@ export class Commons {
                             vscode.window.showInformationMessage("Sync : Settings Created");
                         }
                         else {
-                            vscode.window.setStatusBarMessage("Sync : Settings Version Updated to v" + Environment.getVersion(), 2000);
+                            vscode.window.showInformationMessage("Sync : Settings Sync Updated to v" + Environment.getVersion(), "View Release Notes").then(function (val: string) {
+                                if (val == "View Release Notes") {
+                                    openurl("http://shanalikhan.github.io/2016/05/14/Visual-studio-code-sync-settings-release-notes.html");
+                                }
+                            });
                         }
                     }
-                    vscode.window.showInformationMessage("Sync : Do you want to auto upload the settings upon any extension install / remove ? Let the VS Team Know for feature request =)","Open URL").then(function(val:string){
-                        openurl("https://github.com/Microsoft/vscode/issues/14444");
+                    vscode.window.showInformationMessage("Sync : Do you want to auto upload the settings upon any extension install / remove ? Let the VS Team Know for feature request =)", "Open URL").then(function (val: string) {
+                        if (val == "Open URL") {
+                            openurl("https://github.com/Microsoft/vscode/issues/14444");
+                        }
                     });
 
-                    vscode.window.showInformationMessage("Sync : Do you want to sync Code File Icons and themes ? Let the VS Team Know for feature request =)","Open URL").then(function(val:string){
-                        openurl("https://github.com/Microsoft/vscode/issues/12178");
+                    vscode.window.showInformationMessage("Sync : Do you want to sync Code File Icons and themes ? Let the VS Team Know for feature request =)", "Open URL").then(function (val: string) {
+                        if (val == "Open URL") {
+                            openurl("https://github.com/Microsoft/vscode/issues/12178");
+                        }
                     });
                 }
             }
+
+            fileExist = await FileManager.FileExists(me.en.FILE_CUSTOMIZEDSETTINGS);
+            if (fileExist) {
+
+
+            } else {
+                //TODO : create file only when new setting is turned on
+                //let settings: ExtensionConfig = await me.GetSettings();
+                await FileManager.WriteFile(me.en.FILE_CUSTOMIZEDSETTINGS, JSON.stringify(new CustomSettings()));
+            }
+
             resolve(true);
         });
     }
@@ -370,7 +412,7 @@ export class Commons {
                         }
                     }
                 });
-            } ());
+            }());
         });
     }
     public async GetGistAndSave(sett: ExtensionConfig): Promise<string> {

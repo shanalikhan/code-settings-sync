@@ -7,7 +7,7 @@ import { Environment } from './environmentPath';
 import { File, FileManager } from './fileManager';
 import { Commons } from './commons';
 import { GithubService } from './githubService';
-import { ExtensionConfig, LocalConfig, CloudSetting } from './setting';
+import { ExtensionConfig, LocalConfig, CloudSetting, CustomSettings, NameValuePair } from './setting';
 import { OsType, SettingType } from './enums';
 
 export async function activate(context: vscode.ExtensionContext) {
@@ -42,16 +42,18 @@ export async function activate(context: vscode.ExtensionContext) {
 
         let args = arguments;
 
-        var en: Environment = new Environment(context);
-        var common: Commons = new Commons(en, context);
+        let en: Environment = new Environment(context);
+        let common: Commons = new Commons(en, context);
         common.CloseWatch();
 
-        var myGi: GithubService = null;
-        var dateNow: Date = new Date();
-        var localConfig: LocalConfig = new LocalConfig();
-        var syncSetting: ExtensionConfig = await common.GetSettings();
-        var allSettingFiles = new Array<File>();
-        var uploadedExtensions = new Array<ExtensionInformation>();
+        let myGi: GithubService = null;
+        let dateNow: Date = new Date();
+        let localConfig: LocalConfig = new LocalConfig();
+        let syncSetting: ExtensionConfig = await common.GetSettings();
+        let allSettingFiles = new Array<File>();
+        let uploadedExtensions = new Array<ExtensionInformation>();
+
+        let customSettings: CustomSettings = new CustomSettings();
 
         let askToken: boolean = !syncSetting.anonymousGist;
 
@@ -100,26 +102,52 @@ export async function activate(context: vscode.ExtensionContext) {
             // var remoteList = ExtensionInformation.fromJSONList(file.content);
             // var deletedList = PluginService.GetDeletedExtensions(uploadedExtensions);
 
-            var fileName = en.FILE_EXTENSION_NAME;
-            var filePath = en.FILE_EXTENSION;
-            var fileContent = JSON.stringify(uploadedExtensions, undefined, 2);;
-            var file: File = new File(fileName, fileContent, filePath, fileName);
+            let fileName = en.FILE_EXTENSION_NAME;
+            let filePath = en.FILE_EXTENSION;
+            let fileContent = JSON.stringify(uploadedExtensions, undefined, 2);;
+            let file: File = new File(fileName, fileContent, filePath, fileName);
             allSettingFiles.push(file);
 
-            var contentFiles: Array<File> = new Array();
+            let contentFiles: Array<File> = new Array();
 
-            if (syncSetting.workspaceSync) {
-                contentFiles = await FileManager.ListFiles(en.USER_FOLDER, 0, 2);
+            // if (syncSetting.workspaceSync) {
+            contentFiles = await FileManager.ListFiles(en.USER_FOLDER, 0, 2);
+            // }
+            // else {
+            //     contentFiles = await FileManager.ListFiles(en.USER_FOLDER, 0, 1);
+            // }
+
+            let customExist: boolean = await FileManager.FileExists(en.FILE_CUSTOMIZEDSETTINGS);
+            if (customExist) {
+                customSettings = await common.GetCustomSettings();
+
+                contentFiles = contentFiles.filter((file: File, index: number) => {
+                    let a: boolean = file.fileName != en.FILE_CUSTOMIZEDSETTINGS_NAME;
+                    return a;
+                });
+
+                if (customSettings.ignoreUploadFiles.length > 0) {
+                    contentFiles = contentFiles.filter((file: File, index: number) => {
+                        let a: boolean = customSettings.ignoreUploadFiles.indexOf(file.fileName) == -1 && file.fileName != en.FILE_CUSTOMIZEDSETTINGS_NAME;
+                        return a;
+                    });
+                }
+                if (customSettings.ignoreUploadFolders.length > 0) {
+                    contentFiles = contentFiles.filter((file: File, index: number) => {
+                        let matchedFolders = customSettings.ignoreUploadFolders.filter((folder) => {
+                            return file.filePath.indexOf(folder) == -1;
+                        });
+                        return matchedFolders.length > 0;
+                    });
+                }
             }
             else {
-                contentFiles = await FileManager.ListFiles(en.USER_FOLDER, 0, 1);
-            }
 
-
-            if (contentFiles == null) {
                 common.LogException(null, common.ERROR_MESSAGE, true);
                 return;
             }
+
+
 
             contentFiles.forEach(snippetFile => {
 
@@ -267,13 +295,14 @@ export async function activate(context: vscode.ExtensionContext) {
         var myGi: GithubService = null;
         var localSettings: LocalConfig = new LocalConfig();
         var syncSetting: ExtensionConfig = await common.GetSettings();
-
+        let customSettings: CustomSettings = new CustomSettings();
         let askToken: boolean = !syncSetting.anonymousGist;
 
         await common.InitializeSettings(syncSetting, false, true).then(async (resolve) => {
 
             localSettings.config = resolve;
             syncSetting = localSettings.config;
+            customSettings = await common.GetCustomSettings();
             await StartDownload();
         });
 
@@ -297,10 +326,10 @@ export async function activate(context: vscode.ExtensionContext) {
                     var keys = Object.keys(res.files);
                     if (keys.indexOf(en.FILE_CLOUDSETTINGS_NAME) > -1) {
                         var cloudSettGist: Object = JSON.parse(res.files[en.FILE_CLOUDSETTINGS_NAME].content);
-                        var cloudSett : CloudSetting = Object.assign(new CloudSetting(), cloudSettGist);;
+                        var cloudSett: CloudSetting = Object.assign(new CloudSetting(), cloudSettGist);;
 
-                        let lastUploadStr: string = syncSetting.lastUpload.toString();
-                        let lastDownloadStr: string = syncSetting.lastDownload.toString();
+                        let lastUploadStr: string = (syncSetting.lastUpload) ? syncSetting.lastUpload.toString() : "";
+                        let lastDownloadStr: string = (syncSetting.lastDownload) ? syncSetting.lastDownload.toString() : "";
 
                         var upToDate: boolean = false;
                         if (lastDownloadStr != "") {
@@ -371,7 +400,7 @@ export async function activate(context: vscode.ExtensionContext) {
                                             }, (rej) => {
                                                 common.LogException(rej, common.ERROR_MESSAGE, true);
                                             }));
-                                    } (deletedExtension, en.ExtensionFolder));
+                                    }(deletedExtension, en.ExtensionFolder));
 
                                 }
 
@@ -451,6 +480,15 @@ export async function activate(context: vscode.ExtensionContext) {
 
                                 vscode.window.setStatusBarMessage("");
                                 vscode.window.setStatusBarMessage("Sync : Download Complete.", 5000);
+                                if (customSettings.replaceCodeSettings.length > 0) {
+                                    let config = vscode.workspace.getConfiguration();
+                                    customSettings.replaceCodeSettings.forEach((set: NameValuePair, index: number) => {
+                                        let c: string = undefined;
+                                        set.value == "" ? c == undefined : c = set.value;
+                                        config.update(set.name, c, true);
+                                    });
+                                }
+
 
                                 if (syncSetting.autoUpload) {
                                     common.StartWatch();
