@@ -223,6 +223,7 @@ export class Commons {
             }
             catch (e) {
                 this.LogException(e, "Sync : Unable to read " + this.en.FILE_CUSTOMIZEDSETTINGS_NAME + ". Make sure its Valid JSON.", true);
+                openurl("http://shanalikhan.github.io/2017/02/19/Option-to-ignore-settings-folders-code-settings-sync.html");
                 customSettings = null;
                 resolve(customSettings);
             }
