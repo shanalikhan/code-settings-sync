@@ -53,6 +53,6 @@ export class CustomSettings {
         this.ignoreUploadFolders.push("workspaceStorage");
         this.ignoreUploadFiles.push("projects.json");
         this.ignoreUploadFiles.push("projects_cache_git.json")
-        //this.ignoreCodeSettings.push(new NameValuePair("http.proxy",""));
+        //this.replaceCodeSettings.push(new NameValuePair("http.proxy",""));
     }
 }
