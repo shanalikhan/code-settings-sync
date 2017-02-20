@@ -30,7 +30,7 @@ export async function activate(context: vscode.ExtensionContext) {
             common.StartWatch();
         }
 
-        if (tokenAvailable == true && gistAvailable == true && startUpSetting.autoDownload == true) {
+        if (gistAvailable == true && startUpSetting.autoDownload == true) {
             vscode.commands.executeCommand('extension.downloadSettings');
         }
         else {
