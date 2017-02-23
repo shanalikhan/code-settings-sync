@@ -20,6 +20,7 @@ export class Commons {
     constructor(private en: Environment, private context: vscode.ExtensionContext) {
 
     }
+   
 
     public LogException(error: any, message: string, msgBox: boolean): void {
 
@@ -29,9 +30,15 @@ export class Commons {
                 message = "Sync : Internet Not Connected or Unable to Connect to Github. Exception Logged in Console";
                 msgBox = false;
             }
-            if (error.code == 4) {
+            else if (error.code == 4) {
                 message = "Sync : Unable to Save Settings. Please make sure you have valid JSON settings.json file. ( e.g : No trailing commas )";
             }
+            else if (error.message == "Bad credentials") {
+                msgBox = true;
+                message = "Sync : Invalid Github Token. Please generate new token. Exception Logged in Console.";
+                openurl("https://github.com/settings/tokens");
+            }
+
         }
         vscode.window.setStatusBarMessage("");
 
@@ -231,6 +238,24 @@ export class Commons {
 
     }
 
+
+    public async SetCustomSettings(setting: CustomSettings): Promise<boolean> {
+        let me: Commons = this;
+
+        return new Promise<boolean>(async (resolve, reject) => {
+            try {
+                await FileManager.WriteFile(me.en.FILE_CUSTOMIZEDSETTINGS, JSON.stringify(setting));
+                resolve(true);
+            }
+            catch (e) {
+                this.LogException(e, "Sync : Unable to write " + this.en.FILE_CUSTOMIZEDSETTINGS_NAME, true);
+                resolve(false);
+            }
+        });
+
+    }
+
+
     public StartMigrationProcess(): Promise<boolean> {
         let me: Commons = this;
         let settingKeys = Object.keys(new ExtensionConfig());
@@ -268,6 +293,7 @@ export class Commons {
                 });
             }
             else {
+
                 let settings: ExtensionConfig = await me.GetSettings();
                 if (settings.version == 0 || settings.version < Environment.CURRENT_VERSION) {
                     let oldSettingVersion: number = settings.version;
@@ -285,15 +311,16 @@ export class Commons {
                             });
                         }
                     }
-                    vscode.window.showInformationMessage("Sync : Do you want to auto upload the settings upon any extension install / remove ? Let the VS Team Know for feature request =)", "Open URL").then(function (val: string) {
-                        if (val == "Open URL") {
-                            openurl("https://github.com/Microsoft/vscode/issues/14444");
+
+                    vscode.window.showInformationMessage("Sync : Now you can exclude any file / folder for upload and settings for download.", "Open Tutorial").then(function (val: string) {
+                        if (val == "Open Tutorial") {
+                            openurl("http://shanalikhan.github.io/2017/02/19/Option-to-ignore-settings-folders-code-settings-sync.html");
                         }
                     });
 
-                    vscode.window.showInformationMessage("Sync : Do you want to sync Code File Icons and themes ? Let the VS Team Know for feature request =)", "Open URL").then(function (val: string) {
+                    vscode.window.showInformationMessage("Sync : Do you want to auto upload the settings upon any extension install / remove ? Please subscribe the issue and let Code team know.", "Open URL").then(function (val: string) {
                         if (val == "Open URL") {
-                            openurl("https://github.com/Microsoft/vscode/issues/12178");
+                            openurl("https://github.com/Microsoft/vscode/issues/14444");
                         }
                     });
                 }
@@ -350,8 +377,14 @@ export class Commons {
                 if (me.context.globalState.get('syncCounter')) {
                     let counter = me.context.globalState.get('syncCounter');
                     let count: number = parseInt(String(counter));
-                    if (count % 30 == 0) {
-                        vscode.window.showInformationMessage("Sync : Do you like this extension ? How about writing a review or send me some donation ;) ");
+                    if (count % 500 == 0) {
+                        vscode.window.showInformationMessage("Sync : Do you like this extension ? How about writing a review or send me some donation ;) ", "Donate Now", "Open Review Page").then((res) => {
+                            if (res == "Donate Now") {
+                                openurl("https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=4W3EWHHBSYMM8&lc=IE&item_name=Code%20Settings%20Sync&item_number=visual%20studio%20code%20settings%20sync&currency_code=USD&bn=PP-DonationsBF:btn_donate_SM.gif:NonHosted");
+                            } else if (res == "Open Review Page") {
+                                openurl("https://marketplace.visualstudio.com/items?itemName=Shan.code-settings-sync#review-details");
+                            }
+                        });
                     }
                     count = count + 1;
                     me.context.globalState.update("syncCounter", count)

@@ -12,7 +12,6 @@ import { OsType, SettingType } from './enums';
 
 export async function activate(context: vscode.ExtensionContext) {
 
-
     var openurl = require('open');
     var fs = require('fs');
 
@@ -552,13 +551,16 @@ export async function activate(context: vscode.ExtensionContext) {
         var localSetting: LocalConfig = new LocalConfig();
         var tokenAvailable: boolean = setting.token != null && setting.token != "";
         var gistAvailable: boolean = setting.gist != null && setting.gist != "";
+        let customSettings: CustomSettings = await common.GetCustomSettings();
 
         let items: Array<string> = new Array<string>();
+        items.push("Sync : Edit Extension Local Settings");
         items.push("Sync : Share Settings with Public GIST");
         items.push("Sync : Toggle Force Download");
         items.push("Sync : Toggle Auto-Upload On Settings Change");
         items.push("Sync : Toggle Auto-Download On Startup");
         items.push("Sync : Toggle Show Summary Page On Upload / Download");
+        items.push("Sync : Preserve Setting to stop overide during Download");
         items.push("Sync : Open Issue");
         items.push("Sync : Release Notes");
 
@@ -569,29 +571,56 @@ export async function activate(context: vscode.ExtensionContext) {
 
             switch (resolve) {
                 case items[0]: {
+                    //extension local settings
+                    var file: vscode.Uri = vscode.Uri.file(en.FILE_CUSTOMIZEDSETTINGS);
+                    fs.openSync(file.fsPath, 'r');
+
+                    await vscode.workspace.openTextDocument(file).then((a: vscode.TextDocument) => {
+                        vscode.window.showTextDocument(a, vscode.ViewColumn.One, true);
+                    });
+                    break;
+                }
+                case items[1]: {
+                    //share public gist
                     await vscode.window.showInformationMessage("Sync : This will remove current GIST and upload settings on new public GIST. Do you want to continue ?", "Yes").then((resolve) => {
                         if (resolve == "Yes") {
                             localSetting.publicGist = true;
                             settingChanged = true;
                             setting.gist = "";
-                            selectedItem = 0;
+                            selectedItem = 1;
                         }
                     }, (reject) => {
                         return;
                     });
                     break;
                 }
-                case items[5]: {
-                    openurl("https://github.com/shanalikhan/code-settings-sync/issues/new");
-                    break;
-                }
-                case items[6]: {
-                    openurl("http://shanalikhan.github.io/2016/05/14/Visual-studio-code-sync-settings-release-notes.html");
+                case items[2]: {
+                    //toggle force download
+                    selectedItem = 2;
+                    settingChanged = true;
+                    if (setting.forceDownload) {
+                        setting.forceDownload = false;
+                    }
+                    else {
+                        setting.forceDownload = true;
+                    }
                     break;
                 }
                 case items[3]: {
-                    //auto downlaod on startup
+                    //toggle auto upload
                     selectedItem = 3;
+                    settingChanged = true;
+                    if (setting.autoUpload) {
+                        setting.autoUpload = false;
+                    }
+                    else {
+                        setting.autoUpload = true;
+                    }
+                    break;
+                }
+                case items[4]: {
+                    //auto downlaod on startup
+                    selectedItem = 4;
                     settingChanged = true;
 
                     if (!setting) {
@@ -611,9 +640,9 @@ export async function activate(context: vscode.ExtensionContext) {
                     }
                     break;
                 }
-                case items[4]: {
+                case items[5]: {
                     //page summary toggle
-                    selectedItem = 4;
+                    selectedItem = 5;
                     settingChanged = true;
 
                     if (!tokenAvailable || !gistAvailable) {
@@ -628,47 +657,63 @@ export async function activate(context: vscode.ExtensionContext) {
                     }
                     break;
                 }
-                case items[1]: {
-                    //toggle force download
-                    selectedItem = 1;
-                    settingChanged = true;
-                    if (setting.forceDownload) {
-                        setting.forceDownload = false;
-                    }
-                    else {
-                        setting.forceDownload = true;
-                    }
+
+                case items[6]: {
+                    //preserve
+                    let options: vscode.InputBoxOptions = {
+                        ignoreFocusOut: true,
+                        placeHolder: "Enter any Key from settings.json to preserve.",
+                        prompt: "Example : Write 'http.proxy' => store this computer proxy and overwrite it , if set empty it will remove proxy."
+
+                    };
+                    vscode.window.showInputBox(options).then(async (res) => {
+                        //customSettings
+                        //debugger;
+                        if (res) {
+                            let settingKey: string = res;
+                            let a = vscode.workspace.getConfiguration();
+                            let val: string = a.get<string>(settingKey);
+                            customSettings.replaceCodeSettings.push(new NameValuePair(res, val));
+                            let done: boolean = await common.SetCustomSettings(customSettings);
+                            if (done) {
+                                if(val==""){
+                                    vscode.window.showInformationMessage("Sync : Done. "+ res +" value will be removed from settings.json after downloading.");
+                                }
+                                else{
+                                    vscode.window.showInformationMessage("Sync : Done. Extension will keep "+ res +" : "+ val +" in setting.json after downloading.");
+                                }
+                            }
+                        }
+                    });
                     break;
                 }
-                case items[2]: {
-                    //toggle auto upload
-                    selectedItem = 2;
-                    settingChanged = true;
-                    if (setting.autoUpload) {
-                        setting.autoUpload = false;
-                    }
-                    else {
-                        setting.autoUpload = true;
-                    }
+                case items[7]: {
+                    openurl("https://github.com/shanalikhan/code-settings-sync/issues/new");
+                    break;
+                }
+                case items[8]: {
+                    openurl("http://shanalikhan.github.io/2016/05/14/Visual-studio-code-sync-settings-release-notes.html");
                     break;
                 }
 
                 default: {
                     break;
                 }
+
+
             }
         }, (reject) => {
             common.LogException(reject, "Error", true);
             return;
         }).then(async (resolve: any) => {
             if (settingChanged) {
-                if (selectedItem == 0) {
+                if (selectedItem == 1) {
                     common.CloseWatch();
                 }
                 await common.SaveSettings(setting).then(async function (added: boolean) {
                     if (added) {
                         switch (selectedItem) {
-                            case 3: {
+                            case 4: {
                                 if (setting.autoDownload) {
                                     vscode.window.showInformationMessage("Sync : Auto Download turned ON upon VSCode Startup.");
                                 }
@@ -677,7 +722,7 @@ export async function activate(context: vscode.ExtensionContext) {
                                 }
                                 break;
                             }
-                            case 4: {
+                            case 5: {
                                 if (setting.showSummary) {
                                     vscode.window.showInformationMessage("Sync : Summary Will be shown upon download / upload.");
                                 }
@@ -686,7 +731,7 @@ export async function activate(context: vscode.ExtensionContext) {
                                 }
                                 break;
                             }
-                            case 1: {
+                            case 2: {
                                 if (setting.forceDownload) {
                                     vscode.window.showInformationMessage("Sync : Force Download Turned On.");
                                 }
@@ -695,7 +740,7 @@ export async function activate(context: vscode.ExtensionContext) {
                                 }
                                 break;
                             }
-                            case 2: {
+                            case 3: {
                                 if (setting.autoUpload) {
                                     vscode.window.showInformationMessage("Sync : Auto upload on Setting Change Turned On. Will be affected after restart.");
                                 }
@@ -704,7 +749,7 @@ export async function activate(context: vscode.ExtensionContext) {
                                 }
                                 break;
                             }
-                            case 0: {
+                            case 1: {
                                 await vscode.commands.executeCommand('extension.updateSettings', "publicGIST");
                                 break;
                             }

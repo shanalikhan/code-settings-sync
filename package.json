@@ -2,7 +2,7 @@
     "name": "code-settings-sync",
     "displayName": "Settings Sync",
     "description": "Synchronize Settings, Snippets, launch, keybindings, workspaces and extensions Across Multiple Machines using Github Gist.",
-    "version": "2.4.4",
+    "version": "2.5.0",
     "icon": "images/cloud.png",
     "publisher": "Shan",
     "author": {
@@ -148,11 +148,6 @@
                     "type": "boolean",
                     "default": false,
                     "description": "Set it to true if you want to create or download from Anonymous Gist. Extension will not ask for Github token."
-                },
-                "sync.ignoreSomeSettings": {
-                    "type": "boolean",
-                    "default": false,
-                    "description": "Set it to true if you want to ignore some settings to download. [Code Restart Required]"
                 }
             },
             "title": "Code Settings Sync Configuration Settings"
