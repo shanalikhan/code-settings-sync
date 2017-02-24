@@ -7,7 +7,7 @@ import { Environment } from './environmentPath';
 import { File, FileManager } from './fileManager';
 import { Commons } from './commons';
 import { GithubService } from './githubService';
-import { ExtensionConfig, LocalConfig, CloudSetting, CustomSettings, NameValuePair } from './setting';
+import { ExtensionConfig, LocalConfig, CloudSetting, CustomSettings } from './setting';
 import { OsType, SettingType } from './enums';
 
 export async function activate(context: vscode.ExtensionContext) {
@@ -479,12 +479,16 @@ export async function activate(context: vscode.ExtensionContext) {
 
                                 vscode.window.setStatusBarMessage("");
                                 vscode.window.setStatusBarMessage("Sync : Download Complete.", 5000);
-                                if (customSettings.replaceCodeSettings.length > 0) {
+                                if (Object.keys(customSettings.replaceCodeSettings).length > 0) {
                                     let config = vscode.workspace.getConfiguration();
-                                    customSettings.replaceCodeSettings.forEach((set: NameValuePair, index: number) => {
+                                    
+                                    let keysDefined : Array<string> = Object.keys(customSettings.replaceCodeSettings);
+
+                                    keysDefined.forEach((key: string, index: number) => {
                                         let c: string = undefined;
-                                        set.value == "" ? c == undefined : c = set.value;
-                                        config.update(set.name, c, true);
+                                        let value : string = customSettings.replaceCodeSettings[key];
+                                        value == "" ? c == undefined : c = value;
+                                        config.update(key, c, true);
                                     });
                                 }
 
@@ -673,14 +677,14 @@ export async function activate(context: vscode.ExtensionContext) {
                             let settingKey: string = res;
                             let a = vscode.workspace.getConfiguration();
                             let val: string = a.get<string>(settingKey);
-                            customSettings.replaceCodeSettings.push(new NameValuePair(res, val));
+                            customSettings.replaceCodeSettings[res] = val;
                             let done: boolean = await common.SetCustomSettings(customSettings);
                             if (done) {
-                                if(val==""){
-                                    vscode.window.showInformationMessage("Sync : Done. "+ res +" value will be removed from settings.json after downloading.");
+                                if (val == "") {
+                                    vscode.window.showInformationMessage("Sync : Done. " + res + " value will be removed from settings.json after downloading.");
                                 }
-                                else{
-                                    vscode.window.showInformationMessage("Sync : Done. Extension will keep "+ res +" : "+ val +" in setting.json after downloading.");
+                                else {
+                                    vscode.window.showInformationMessage("Sync : Done. Extension will keep " + res + " : " + val + " in setting.json after downloading.");
                                 }
                             }
                         }

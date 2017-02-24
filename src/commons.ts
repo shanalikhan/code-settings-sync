@@ -20,7 +20,7 @@ export class Commons {
     constructor(private en: Environment, private context: vscode.ExtensionContext) {
 
     }
-   
+
 
     public LogException(error: any, message: string, msgBox: boolean): void {
 
@@ -102,7 +102,6 @@ export class Commons {
                 let settings: ExtensionConfig = this.GetSettings();
                 let customSettings: CustomSettings = await this.GetCustomSettings();
                 if (customSettings == null) {
-
                     return;
                 }
 
@@ -301,9 +300,31 @@ export class Commons {
                     let done: boolean = await me.SaveSettings(settings);
                     if (done == true) {
                         if (oldSettingVersion == 0) {
-                            vscode.window.showInformationMessage("Sync : Settings Created");
+                            vscode.window.showInformationMessage("Sync : Settings Created. Thank You for Installing !");
+                            vscode.window.showInformationMessage("Sync : Need Help regarding configuring this extension ?", "Open Extension Page").then(function (val: string) {
+                                if (val == "Open Extension Page") {
+                                    openurl("https://marketplace.visualstudio.com/items?itemName=Shan.code-settings-sync");
+                                }
+                            });
+                            vscode.window.showInformationMessage("Sync : Now you can exclude any file / folder for upload and settings for download.", "Open Tutorial").then(function (val: string) {
+                                if (val == "Open Tutorial") {
+                                    openurl("http://shanalikhan.github.io/2017/02/19/Option-to-ignore-settings-folders-code-settings-sync.html");
+                                }
+                            });
                         }
                         else {
+
+                            fileExist = await FileManager.FileExists(me.en.FILE_CUSTOMIZEDSETTINGS);
+                            if (fileExist) {
+                                await FileManager.DeleteFile(me.en.FILE_CUSTOMIZEDSETTINGS);
+                            }
+
+                            vscode.window.showInformationMessage("Sync : Local Settings Layout has been changed. Old file is deleted. Open Tutorial for new Layout.", "Open Tutorial").then(function (val: string) {
+                                if (val == "Open Tutorial") {
+                                    openurl("http://shanalikhan.github.io/2017/02/19/Option-to-ignore-settings-folders-code-settings-sync.html");
+                                }
+                            });
+
                             vscode.window.showInformationMessage("Sync : Settings Sync Updated to v" + Environment.getVersion(), "View Release Notes").then(function (val: string) {
                                 if (val == "View Release Notes") {
                                     openurl("http://shanalikhan.github.io/2016/05/14/Visual-studio-code-sync-settings-release-notes.html");
@@ -311,14 +332,8 @@ export class Commons {
                             });
                         }
                     }
-
-                    vscode.window.showInformationMessage("Sync : Now you can exclude any file / folder for upload and settings for download.", "Open Tutorial").then(function (val: string) {
-                        if (val == "Open Tutorial") {
-                            openurl("http://shanalikhan.github.io/2017/02/19/Option-to-ignore-settings-folders-code-settings-sync.html");
-                        }
-                    });
-
-                    vscode.window.showInformationMessage("Sync : Do you want to auto upload the settings upon any extension install / remove ? Please subscribe the issue and let Code team know.", "Open URL").then(function (val: string) {
+                    vscode.window.showInformationMessage("Sync : Settings Sync Is Ready to Sync File Icons and Themes. [ Code : v1.10+ required ]");
+                    vscode.window.showInformationMessage("Sync : Do you want to auto upload the settings upon any extension install / remove ? Please subscribe & upvote the issue and let Code team know.", "Open URL").then(function (val: string) {
                         if (val == "Open URL") {
                             openurl("https://github.com/Microsoft/vscode/issues/14444");
                         }

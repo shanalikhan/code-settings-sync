@@ -37,19 +37,16 @@ export class CloudSetting {
         this.extensionVersion = "v" + Environment.getVersion();
     }
 }
-export class NameValuePair {
-    constructor(public name: string, public value: string) {
-    }
-}
+
 
 export class CustomSettings {
     public ignoreUploadFiles: Array<string> = null;
     public ignoreUploadFolders: Array<string> = null;
-    public replaceCodeSettings: Array<NameValuePair> = null;
+    public replaceCodeSettings: Object = null;
     constructor() {
         this.ignoreUploadFiles = new Array<string>();
         this.ignoreUploadFolders = new Array<string>();
-        this.replaceCodeSettings = new Array<NameValuePair>();
+        this.replaceCodeSettings = new Object();
         this.ignoreUploadFolders.push("workspaceStorage");
         this.ignoreUploadFiles.push("projects.json");
         this.ignoreUploadFiles.push("projects_cache_git.json")
