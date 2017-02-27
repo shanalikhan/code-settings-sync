@@ -6,10 +6,18 @@ import * as vscode from 'vscode';
 import { Environment } from './environmentPath';
 
 var proxyURL: string = vscode.workspace.getConfiguration("http")["proxy"] || process.env["http_proxy"];
+var host: string = vscode.workspace.getConfiguration("sync")["host"];
+var pathPrefix: string = vscode.workspace.getConfiguration("sync")["pathPrefix"];
+if (!host || host === "") {
+    host = "api.github.com";
+    pathPrefix = "";
+}
 var GitHubApi = require("github");
 var github = new GitHubApi({
     proxy: proxyURL,
     version: "3.0.0",
+    host: host,
+    pathPrefix: pathPrefix
 });
 
 export class GithubService {
