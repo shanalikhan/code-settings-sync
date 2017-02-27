@@ -148,6 +148,16 @@
                     "type": "boolean",
                     "default": false,
                     "description": "Set it to true if you want to create or download from Anonymous Gist. Extension will not ask for Github token."
+                },
+                "sync.host": {
+                    "type": "string",
+                    "default": "",
+                    "description": "Set it to your GitHub Enterprise host if you want to use GHE."
+                },
+                "sync.pathPrefix": {
+                    "type": "string",
+                    "default": "",
+                    "description": "Set it to your GitHub Enterprise api prefix if you want to use GHE. Normally '/api/v3'. Only used when host is set."
                 }
             },
             "title": "Code Settings Sync Configuration Settings"

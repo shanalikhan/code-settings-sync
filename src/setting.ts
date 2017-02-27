@@ -15,6 +15,8 @@ export class ExtensionConfig {
     public forceDownload: boolean = false;
     //public workspaceSync: boolean = false;
     public anonymousGist: boolean = false;
+    public host: string = null;
+    public pathPrefix: string = null;
     constructor() {
         this.version = Environment.CURRENT_VERSION;
     }
