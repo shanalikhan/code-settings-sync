@@ -306,7 +306,7 @@ export class Commons {
                                     openurl("https://marketplace.visualstudio.com/items?itemName=Shan.code-settings-sync");
                                 }
                             });
-                            vscode.window.showInformationMessage("Sync : Now you can exclude any file / folder for upload and settings for download.", "Open Tutorial").then(function (val: string) {
+                            vscode.window.showInformationMessage("Sync : You can exclude any file / folder for upload and settings for download.", "Open Tutorial").then(function (val: string) {
                                 if (val == "Open Tutorial") {
                                     openurl("http://shanalikhan.github.io/2017/02/19/Option-to-ignore-settings-folders-code-settings-sync.html");
                                 }
@@ -319,12 +319,6 @@ export class Commons {
                                 await FileManager.DeleteFile(me.en.FILE_CUSTOMIZEDSETTINGS);
                             }
 
-                            vscode.window.showInformationMessage("Sync : Local Settings Layout has been changed. Old file is deleted. Open Tutorial for new Layout.", "Open Tutorial").then(function (val: string) {
-                                if (val == "Open Tutorial") {
-                                    openurl("http://shanalikhan.github.io/2017/02/19/Option-to-ignore-settings-folders-code-settings-sync.html");
-                                }
-                            });
-
                             vscode.window.showInformationMessage("Sync : Settings Sync Updated to v" + Environment.getVersion(), "View Release Notes").then(function (val: string) {
                                 if (val == "View Release Notes") {
                                     openurl("http://shanalikhan.github.io/2016/05/14/Visual-studio-code-sync-settings-release-notes.html");
@@ -332,7 +326,6 @@ export class Commons {
                             });
                         }
                     }
-                    vscode.window.showInformationMessage("Sync : Settings Sync Is Ready to Sync File Icons and Themes. [ Code : v1.10+ required ]");
                     vscode.window.showInformationMessage("Sync : Do you want to auto upload the settings upon any extension install / remove ? Please subscribe & upvote the issue and let Code team know.", "Open URL").then(function (val: string) {
                         if (val == "Open URL") {
                             openurl("https://github.com/Microsoft/vscode/issues/14444");
@@ -393,10 +386,10 @@ export class Commons {
                     let counter = me.context.globalState.get('syncCounter');
                     let count: number = parseInt(String(counter));
                     if (count % 500 == 0) {
-                        vscode.window.showInformationMessage("Sync : Do you like this extension ? How about writing a review or send me some donation ;) ", "Donate Now", "Open Review Page").then((res) => {
+                        vscode.window.showInformationMessage("Sync : Do you like this extension ? How about writing a review or send me some donation ;) ", "Donate Now", "Write Review").then((res) => {
                             if (res == "Donate Now") {
                                 openurl("https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=4W3EWHHBSYMM8&lc=IE&item_name=Code%20Settings%20Sync&item_number=visual%20studio%20code%20settings%20sync&currency_code=USD&bn=PP-DonationsBF:btn_donate_SM.gif:NonHosted");
-                            } else if (res == "Open Review Page") {
+                            } else if (res == "Write Review") {
                                 openurl("https://marketplace.visualstudio.com/items?itemName=Shan.code-settings-sync#review-details");
                             }
                         });

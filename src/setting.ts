@@ -13,7 +13,6 @@ export class ExtensionConfig {
     public version: number = null;
     public showSummary: boolean = true;
     public forceDownload: boolean = false;
-    //public workspaceSync: boolean = false;
     public anonymousGist: boolean = false;
     public host: string = null;
     public pathPrefix: string = null;

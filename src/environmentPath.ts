@@ -5,9 +5,9 @@ import { OsType } from './enums';
 
 export class Environment {
 
-    public static CURRENT_VERSION: number = 251;
+    public static CURRENT_VERSION: number = 260;
     public static getVersion(): string {
-        var txt2 =  Environment.CURRENT_VERSION.toString().slice(0, 1) + "." +  Environment.CURRENT_VERSION.toString().slice(1,2)+ "." +  Environment.CURRENT_VERSION.toString().slice(2,3);
+        var txt2 = Environment.CURRENT_VERSION.toString().slice(0, 1) + "." + Environment.CURRENT_VERSION.toString().slice(1, 2) + "." + Environment.CURRENT_VERSION.toString().slice(2, 3);
         return txt2;
     }
 
@@ -27,8 +27,8 @@ export class Environment {
     public FILE_EXTENSION: string = null;
     public FILE_CLOUDSETTINGS: string = null;
 
-    public FILE_CUSTOMIZEDSETTINGS_NAME : string = "syncLocalSettings.json";
-    public FILE_CUSTOMIZEDSETTINGS : string = null;
+    public FILE_CUSTOMIZEDSETTINGS_NAME: string = "syncLocalSettings.json";
+    public FILE_CUSTOMIZEDSETTINGS: string = null;
 
     public FILE_SETTING_NAME: string = "settings.json";
     public FILE_LAUNCH_NAME: string = "launch.json";
