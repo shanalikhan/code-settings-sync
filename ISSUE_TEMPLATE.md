@@ -1,7 +1,7 @@
 **Visual Studio Code Version :** [ VERSION_HERE ]
 **Code Settings Sync Version :** [ VERSION_HERE ]
 **Operating System :** [ VERSION_HERE ]
-**Occurs On:** [Upload / Download / Setting Up]
+**Occurs On:** [Upload / Download / Help Configuring ]
 **Proxy Enabled:** [ Yes / No ]
 **GIst Id:** [ ID_HERE ]
 

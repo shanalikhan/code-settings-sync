@@ -52,7 +52,7 @@ export class Environment {
         this.homeDir = process.env[(process.platform == 'win32') ? 'USERPROFILE' : 'HOME'];
         this.ExtensionFolder = path.join(this.homeDir, this.isInsiders ? '.vscode-insiders' : '.vscode', 'extensions');
         var os = require("os");
-        console.log(os.type());
+        //console.log(os.type());
 
         this.PATH = process.env.APPDATA;
         this.OsType = OsType.Windows;

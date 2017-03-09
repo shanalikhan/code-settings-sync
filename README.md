@@ -10,7 +10,7 @@
 ## Key Features
 ```
 1. Use your github account token and Gist.
-2. Can create Anonymous Gist without asking your Github account token.
+2. Can create Anonymous Gist without using your Github account token.
 3. Easy to Upload and Download on one click.
 4. Show a summary page at the end with details about config and extensions effected.
 5. Auto Download Latest Settings on Startup.
