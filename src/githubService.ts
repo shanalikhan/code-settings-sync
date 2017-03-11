@@ -67,8 +67,8 @@ export class GithubService {
                     console.log(err);
                 }
                 else {
-                    self.userName = res.login;
-                    self.name = res.name;
+                    self.userName = res.data.login;
+                    self.name = res.data.name;
                 }
             });
         }
@@ -101,8 +101,8 @@ export class GithubService {
                         console.error(err);
                         reject(false);
                     }
-                    if (res.id) {
-                        resolve(res.id);
+                    if (res.data.id) {
+                        resolve(res.data.id);
                     } else {
                         console.error("ID is null");
                         console.log("Sync : " + "Response from GitHub is: ");
@@ -130,8 +130,8 @@ export class GithubService {
                         console.error(err);
                         reject(false);
                     }
-                    if (res.id) {
-                        resolve(res.id);
+                    if (res.data.id) {
+                        resolve(res.data.id);
                     } else {
                         console.error("ID is null");
                         console.log("Sync : " + "Response from GitHub is: ");
@@ -159,7 +159,7 @@ export class GithubService {
     public UpdateGIST(gistObject: any, files: Array<fileManager.File>): any {
 
         var me = this;
-        var allFiles: string[] = Object.keys(gistObject.files);
+        var allFiles: string[] = Object.keys(gistObject.data.files);
         for (var fileIndex = 0; fileIndex < allFiles.length; fileIndex++) {
             var fileName = allFiles[fileIndex];
 
@@ -172,12 +172,12 @@ export class GithubService {
             });
 
             if (!exists && !fileName.startsWith("keybindings")) {
-                gistObject.files[fileName] = null;
+                gistObject.data.files[fileName] = null;
             }
 
         }
 
-        gistObject = me.AddFile(files, gistObject);
+        gistObject.data = me.AddFile(files, gistObject.data);
         return gistObject;
     }
 

@@ -216,9 +216,9 @@ export async function activate(context: vscode.ExtensionContext) {
                 await myGi.ReadGist(syncSetting.gist).then(async function (gistObj: any) {
 
                     if (gistObj) {
-                        if (gistObj.owner != null) {
-                            if (gistObj.owner.login != myGi.userName) {
-                                common.LogException(null, "Sync : You cant edit GIST for user : " + gistObj.owner.login, true);
+                        if (gistObj.data.owner != null) {
+                            if (gistObj.data.owner.login != myGi.userName) {
+                                common.LogException(null, "Sync : You cant edit GIST for user : " + gistObj.data.owner.login, true);
                                 return;
                             }
                         }
@@ -229,7 +229,7 @@ export async function activate(context: vscode.ExtensionContext) {
                         vscode.window.setStatusBarMessage("Sync : Uploading Files Data.");
                         gistObj = myGi.UpdateGIST(gistObj, allSettingFiles);
 
-                        await myGi.SaveGIST(gistObj).then(async function (saved: boolean) {
+                        await myGi.SaveGIST(gistObj.data).then(async function (saved: boolean) {
                             if (saved) {
                                 completed = true;
 
@@ -322,9 +322,9 @@ export async function activate(context: vscode.ExtensionContext) {
                     if (res.public == true) {
                         localSettings.publicGist = true;
                     }
-                    var keys = Object.keys(res.files);
+                    var keys = Object.keys(res.data.files);
                     if (keys.indexOf(en.FILE_CLOUDSETTINGS_NAME) > -1) {
-                        var cloudSettGist: Object = JSON.parse(res.files[en.FILE_CLOUDSETTINGS_NAME].content);
+                        var cloudSettGist: Object = JSON.parse(res.data.files[en.FILE_CLOUDSETTINGS_NAME].content);
                         var cloudSett: CloudSetting = Object.assign(new CloudSetting(), cloudSettGist);;
 
                         let lastUploadStr: string = (syncSetting.lastUpload) ? syncSetting.lastUpload.toString() : "";
@@ -350,8 +350,8 @@ export async function activate(context: vscode.ExtensionContext) {
                     }
 
                     keys.forEach(gistName => {
-                        if (res.files[gistName]) {
-                            if (res.files[gistName].content) {
+                        if (res.data.files[gistName]) {
+                            if (res.data.files[gistName].content) {
                                 if (gistName.indexOf(".") > -1) {
                                     if (en.OsType == OsType.Mac && gistName == en.FILE_KEYBINDING_DEFAULT) {
                                         return;
@@ -359,7 +359,7 @@ export async function activate(context: vscode.ExtensionContext) {
                                     if (en.OsType != OsType.Mac && gistName == en.FILE_KEYBINDING_MAC) {
                                         return;
                                     }
-                                    var f: File = new File(gistName, res.files[gistName].content, null, gistName);
+                                    var f: File = new File(gistName, res.data.files[gistName].content, null, gistName);
                                     updatedFiles.push(f);
                                 }
                             }
@@ -481,12 +481,12 @@ export async function activate(context: vscode.ExtensionContext) {
                                 vscode.window.setStatusBarMessage("Sync : Download Complete.", 5000);
                                 if (Object.keys(customSettings.replaceCodeSettings).length > 0) {
                                     let config = vscode.workspace.getConfiguration();
-                                    
-                                    let keysDefined : Array<string> = Object.keys(customSettings.replaceCodeSettings);
+
+                                    let keysDefined: Array<string> = Object.keys(customSettings.replaceCodeSettings);
 
                                     keysDefined.forEach((key: string, index: number) => {
                                         let c: string = undefined;
-                                        let value : string = customSettings.replaceCodeSettings[key];
+                                        let value: string = customSettings.replaceCodeSettings[key];
                                         value == "" ? c == undefined : c = value;
                                         config.update(key, c, true);
                                     });
