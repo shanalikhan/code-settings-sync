@@ -59,7 +59,7 @@ export class Commons {
 
     public StartWatch(): void {
 
-        let uploadStopped: boolean = true;
+
         let self: Commons = this;
 
         Commons.extensionWatcher = chokidar.watch(this.en.ExtensionFolder, { depth: 0, ignoreInitial: true });
@@ -97,8 +97,11 @@ export class Commons {
         // });
 
         Commons.configWatcher.on('change', async (path: string) => {
+
+            let uploadStopped: boolean = (this.context.globalState.get("syncStopped") == true ? true : false);
             if (uploadStopped) {
                 uploadStopped = false;
+                self.context.globalState.update("syncStopped", false);
                 let settings: ExtensionConfig = this.GetSettings();
                 let customSettings: CustomSettings = await this.GetCustomSettings();
                 if (customSettings == null) {
@@ -124,6 +127,7 @@ export class Commons {
                             if (fileType.indexOf('json') == -1) {
                                 console.log("Sync : Cannot Initiate Auto-upload on This File (Not JSON).");
                                 uploadStopped = true;
+                                self.context.globalState.update("syncStopped", true);
                                 return;
                             }
                         }
@@ -131,12 +135,14 @@ export class Commons {
                         console.log("Sync : Initiating Auto-upload For File : " + path);
                         this.InitiateAutoUpload(path).then((resolve) => {
                             uploadStopped = resolve;
+                            self.context.globalState.update("syncStopped", resolve);
                         }, (reject) => {
-                            uploadStopped = reject;
+                            self.context.globalState.update("syncStopped", true);
                         });
                     }
                 } else {
                     uploadStopped = true;
+                    self.context.globalState.update("syncStopped", true);
                 }
             }
             else {
@@ -150,7 +156,7 @@ export class Commons {
 
         return new Promise<boolean>(async (resolve, reject) => {
             vscode.window.setStatusBarMessage("");
-            vscode.window.setStatusBarMessage("Sync : Auto Upload Initiating.", 3000);
+            vscode.window.setStatusBarMessage("Sync : Auto Upload Initiating In 5 Second.", 5000);
 
             setTimeout(function () {
                 vscode.commands.executeCommand('extension.updateSettings', "forceUpdate", path).then((res) => {
@@ -550,6 +556,7 @@ export class Commons {
                         edit.insert(new vscode.Position(5, 0), "Anonymous Gist Cant be edited, extension will always create new one during upload.\r\n\r\n");
                     }
 
+                    edit.insert(new vscode.Position(5, 0), "If current theme / file icon extension is not installed. Restart will be Required to Apply Theme and File Icon.\r\n\r\n");
 
                     edit.insert(new vscode.Position(6, 0), header + "\r\n");
                     var row: number = 6;

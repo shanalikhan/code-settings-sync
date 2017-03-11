@@ -529,6 +529,7 @@ export async function activate(context: vscode.ExtensionContext) {
 
                 await common.SaveSettings(syncSetting).then(function (added: boolean) {
                     if (added) {
+                        context.globalState.update("syncStopped", true);
                         vscode.window.showInformationMessage("Sync : Settings Cleared.");
                     }
                 }, function (err: any) {
