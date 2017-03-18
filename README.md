@@ -16,6 +16,7 @@
 5. Auto Download Latest Settings on Startup.
 6. Auto upload Settings on file change.
 7. Share the Gist with other users and let them download your settings.
+8. Supports GitHub Enterprise 
 ```      
 
 
@@ -159,6 +160,8 @@ For details regarding settings keys, click [here](http://shanalikhan.github.io/2
     "sync.showSummary": true,
     "sync.forceDownload": true,
     "sync.anonymousGist": false
+    "sync.host":"",
+    "sync.pathPrefix":""
 ```
 
 ## Customized Sync

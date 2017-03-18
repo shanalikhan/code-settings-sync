@@ -2,7 +2,7 @@
     "name": "code-settings-sync",
     "displayName": "Settings Sync",
     "description": "Synchronize Settings, Snippets, Themes, File Icons, Launch, Keybindings, Workspaces and Extensions Across Multiple Machines Using Github Gist.",
-    "version": "2.6.0",
+    "version": "2.6.1",
     "icon": "images/cloud.png",
     "publisher": "Shan",
     "author": {
@@ -15,7 +15,8 @@
         "color": "#3B4859",
         "theme": "dark"
     },
-    "badges": [{
+    "badges": [
+        {
             "url": "https://vsmarketplacebadge.apphb.com/version/Shan.code-settings-sync.svg",
             "description": "Latest Version",
             "href": "https://marketplace.visualstudio.com/items?itemName=Shan.code-settings-sync"
@@ -67,7 +68,8 @@
     ],
     "main": "./out/src/extension",
     "contributes": {
-        "commands": [{
+        "commands": [
+            {
                 "command": "extension.HowSettings",
                 "title": "Sync : How To Configure"
             },
@@ -88,7 +90,8 @@
                 "title": "Sync : Advanced Options"
             }
         ],
-        "keybindings": [{
+        "keybindings": [
+            {
                 "key": "alt+shift+u",
                 "command": "extension.updateSettings",
                 "when": "editorTextFocus"

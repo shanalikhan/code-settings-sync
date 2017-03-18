@@ -54,6 +54,7 @@ export class Environment {
         var os = require("os");
         //console.log(os.type());
 
+        process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0"
         this.PATH = process.env.APPDATA;
         this.OsType = OsType.Windows;
 
