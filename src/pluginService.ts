@@ -216,7 +216,7 @@ export class PluginService {
         return new Promise((resolve, reject) => {
             rmdir(destination, function (error) {
                 if (error) {
-                    console.log("Sync : "+"Error in uninstalling Extension.");
+                    console.log("Sync : " + "Error in uninstalling Extension.");
                     console.log(error);
                     reject(false);
                 }
@@ -246,19 +246,23 @@ export class PluginService {
 
         return await util.Util.HttpPostJson(apiPath, data, header)
             .then(function (res) {
+                try {
+                    var targetVersion = null;
+                    var content = JSON.parse(res);
 
-                var targetVersion = null;
-                var content = JSON.parse(res);
-
-                // Find correct version
-                for (var i = 0; i < content.results.length; i++) {
-                    var result = content.results[i];
-                    for (var k = 0; k < result.extensions.length; k++) {
-                        var extension = result.extensions[k];
-                        for (var j = 0; j < extension.versions.length; j++) {
-                            var version = extension.versions[j];
-                            if (version.version === item.version) {
-                                targetVersion = version;
+                    // Find correct version
+                    for (var i = 0; i < content.results.length; i++) {
+                        var result = content.results[i];
+                        for (var k = 0; k < result.extensions.length; k++) {
+                            var extension = result.extensions[k];
+                            for (var j = 0; j < extension.versions.length; j++) {
+                                var version = extension.versions[j];
+                                if (version.version === item.version) {
+                                    targetVersion = version;
+                                    break;
+                                }
+                            }
+                            if (targetVersion != null) {
                                 break;
                             }
                         }
@@ -266,19 +270,20 @@ export class PluginService {
                             break;
                         }
                     }
-                    if (targetVersion != null) {
-                        break;
+
+                    if (targetVersion == null) {
+                        // unable to find one
+                        throw "unable to find corresponding version of extension from gallery";
                     }
+
+                    // Proceed to install
+                    var downloadUrl = targetVersion.assetUri + '/Microsoft.VisualStudio.Services.VSIXPackage?install=true'
+                    return downloadUrl;
+                } catch (error) {
+                    console.log(error);
+                    console.log(res);
                 }
 
-                if (targetVersion == null) {
-                    // unable to find one
-                    throw "unable to find corresponding version of extension from gallery";
-                }
-
-                // Proceed to install
-                var downloadUrl = targetVersion.assetUri + '/Microsoft.VisualStudio.Services.VSIXPackage?install=true'
-                return downloadUrl;
             })
             .then(function (url) {
                 return util.Util.HttpGetFile(url);
