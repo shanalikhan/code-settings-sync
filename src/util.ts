@@ -32,11 +32,13 @@ export class Util {
                 Object.assign(newHeader, headers);
                 var options: https.RequestOptions = {
                     host: item.hostname,
-                    port: +item.port,
                     path: item.path,
                     method: 'POST',
                     headers: newHeader,
 
+                }
+                if (item.port) {
+                    options.port = +item.port
                 }
                 if (agent != null) {
                     options.agent = agent;
