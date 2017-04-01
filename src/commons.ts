@@ -9,6 +9,7 @@ import * as path from 'path';
 
 var openurl = require('open');
 var chokidar = require('chokidar');
+const lockfile = require('proper-lockfile');
 
 export class Commons {
 
@@ -57,11 +58,19 @@ export class Commons {
         });
     }
 
-    public StartWatch(): void {
+    public async StartWatch(): Promise<void> {
 
+        let lockExist: boolean = await FileManager.FileExists(this.en.FILE_SYNC_LOCK);
+        if (!lockExist) {
+            fs.closeSync(fs.openSync(this.en.FILE_SYNC_LOCK, 'w'));
+        }
 
         let self: Commons = this;
-
+        let locked: boolean = lockfile.checkSync(this.en.FILE_SYNC_LOCK);
+        if (locked) {
+            lockfile.unlockSync(this.en.FILE_SYNC_LOCK);
+        }
+        let uploadStopped: boolean = true;
         Commons.extensionWatcher = chokidar.watch(this.en.ExtensionFolder, { depth: 0, ignoreInitial: true });
         Commons.configWatcher = chokidar.watch(this.en.PATH + "/User/", { depth: 2, ignoreInitial: true });
 
@@ -97,11 +106,14 @@ export class Commons {
         // });
 
         Commons.configWatcher.on('change', async (path: string) => {
+            let locked: boolean = lockfile.checkSync(this.en.FILE_SYNC_LOCK);
+            if (locked) {
+                uploadStopped = false;
+            }
 
-            let uploadStopped: boolean = (this.context.globalState.get("syncStopped") == true ? true : false);
             if (uploadStopped) {
                 uploadStopped = false;
-                self.context.globalState.update("syncStopped", false);
+                lockfile.lockSync(self.en.FILE_SYNC_LOCK);
                 let settings: ExtensionConfig = this.GetSettings();
                 let customSettings: CustomSettings = await this.GetCustomSettings();
                 if (customSettings == null) {
@@ -127,7 +139,6 @@ export class Commons {
                             if (fileType.indexOf('json') == -1) {
                                 console.log("Sync : Cannot Initiate Auto-upload on This File (Not JSON).");
                                 uploadStopped = true;
-                                self.context.globalState.update("syncStopped", true);
                                 return;
                             }
                         }
@@ -135,14 +146,15 @@ export class Commons {
                         console.log("Sync : Initiating Auto-upload For File : " + path);
                         this.InitiateAutoUpload(path).then((resolve) => {
                             uploadStopped = resolve;
-                            self.context.globalState.update("syncStopped", resolve);
+                            lockfile.unlockSync(self.en.FILE_SYNC_LOCK);
                         }, (reject) => {
-                            self.context.globalState.update("syncStopped", true);
+                            lockfile.unlockSync(self.en.FILE_SYNC_LOCK);
+                            uploadStopped = true;
                         });
                     }
                 } else {
                     uploadStopped = true;
-                    self.context.globalState.update("syncStopped", true);
+                    lockfile.unlockSync(self.en.FILE_SYNC_LOCK);
                 }
             }
             else {

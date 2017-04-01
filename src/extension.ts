@@ -17,6 +17,8 @@ export async function activate(context: vscode.ExtensionContext) {
 
     var en: Environment = new Environment(context);
     var common: Commons = new Commons(en, context);
+    const lockfile = require('proper-lockfile');
+
 
     await common.StartMigrationProcess();
     let startUpSetting: ExtensionConfig = await common.GetSettings();
@@ -527,9 +529,17 @@ export async function activate(context: vscode.ExtensionContext) {
             try {
                 syncSetting = new ExtensionConfig();
 
-                await common.SaveSettings(syncSetting).then(function (added: boolean) {
+                await common.SaveSettings(syncSetting).then(async function (added: boolean) {
                     if (added) {
-                        context.globalState.update("syncStopped", true);
+
+                        let lockExist: boolean = await FileManager.FileExists(en.FILE_SYNC_LOCK);
+                        if (!lockExist) {
+                            fs.closeSync(fs.openSync(en.FILE_SYNC_LOCK, 'w'));
+                        }
+                        let locked: boolean = lockfile.checkSync(en.FILE_SYNC_LOCK);
+                        if (locked) {
+                            lockfile.unlockSync(en.FILE_SYNC_LOCK);
+                        }
                         vscode.window.showInformationMessage("Sync : Settings Cleared.");
                     }
                 }, function (err: any) {

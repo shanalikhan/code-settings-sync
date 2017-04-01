@@ -43,9 +43,7 @@ export class ExtensionInformation {
             if (item.name != "code-settings-sync") {
                 extList.push(item);
             }
-
         });
-
         return extList;
     }
 }
@@ -132,7 +130,6 @@ export class PluginService {
                 missingList.push(ext);
             }
         }
-
         return missingList;
     }
 
@@ -177,12 +174,7 @@ export class PluginService {
                     deletedList.push(ext);
                 }
             }
-
-
-
         }
-
-
         return deletedList;
     }
 
@@ -223,8 +215,6 @@ export class PluginService {
                 resolve(true);
             });
         });
-
-
     }
 
 
@@ -280,7 +270,9 @@ export class PluginService {
                     var downloadUrl = targetVersion.assetUri + '/Microsoft.VisualStudio.Services.VSIXPackage?install=true'
                     return downloadUrl;
                 } catch (error) {
+
                     console.log(error);
+                    console.log("Response :");
                     console.log(res);
                 }
 

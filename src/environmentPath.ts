@@ -26,6 +26,7 @@ export class Environment {
     public FILE_LOCALE: string = null;
     public FILE_EXTENSION: string = null;
     public FILE_CLOUDSETTINGS: string = null;
+    public FILE_SYNC_LOCK: string = null;
 
     public FILE_CUSTOMIZEDSETTINGS_NAME: string = "syncLocalSettings.json";
     public FILE_CUSTOMIZEDSETTINGS: string = null;
@@ -37,6 +38,7 @@ export class Environment {
     public FILE_KEYBINDING_DEFAULT: string = "keybindings.json";
     public FILE_EXTENSION_NAME: string = "extensions.json";
     public FILE_LOCALE_NAME: string = "locale.json";
+    public FILE_SYNC_LOCK_NAME: string = "sync.lock";
 
     public FILE_CLOUDSETTINGS_NAME: string = "cloudSettings";
     public FILE_LOCATIONSETTINGS_NAME: string = "syncSettings.json";
@@ -87,6 +89,7 @@ export class Environment {
         this.APP_SUMMARY = this.PATH.concat("/User/", this.APP_SUMMARY_NAME);
         this.FILE_CLOUDSETTINGS = this.PATH.concat("/User/", this.FILE_CLOUDSETTINGS_NAME);
         this.FILE_CUSTOMIZEDSETTINGS = this.PATH.concat("/User/", this.FILE_CUSTOMIZEDSETTINGS_NAME);
+        this.FILE_SYNC_LOCK = this.PATH.concat("/User/", this.FILE_SYNC_LOCK_NAME);
 
     }
 

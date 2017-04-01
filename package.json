@@ -15,8 +15,7 @@
         "color": "#3B4859",
         "theme": "dark"
     },
-    "badges": [
-        {
+    "badges": [{
             "url": "https://vsmarketplacebadge.apphb.com/version/Shan.code-settings-sync.svg",
             "description": "Latest Version",
             "href": "https://marketplace.visualstudio.com/items?itemName=Shan.code-settings-sync"
@@ -68,8 +67,7 @@
     ],
     "main": "./out/src/extension",
     "contributes": {
-        "commands": [
-            {
+        "commands": [{
                 "command": "extension.HowSettings",
                 "title": "Sync : How To Configure"
             },
@@ -90,8 +88,7 @@
                 "title": "Sync : Advanced Options"
             }
         ],
-        "keybindings": [
-            {
+        "keybindings": [{
                 "key": "alt+shift+u",
                 "command": "extension.updateSettings",
                 "when": "editorTextFocus"
@@ -170,19 +167,20 @@
         "test": "node ./node_modules/vscode/bin/test"
     },
     "devDependencies": {
-        "typescript": "^2.1.4",
-        "vscode": "^1.0.3",
-        "@types/node": "^6.0.58"
+        "typescript": "^2.2.2",
+        "vscode": "^1.1.0",
+        "@types/node": "^7.0.12"
     },
     "dependencies": {
         "adm-zip": "^0.4.7",
         "fs": "^0.0.2",
-        "github": "^9.1.0",
+        "github": "^9.2.0",
         "ncp": "^2.0.0",
         "open": "^0.0.5",
         "rimraf": "^2.6.1",
         "temp": "^0.8.3",
         "https-proxy-agent": "^1.0.0",
-        "chokidar": "^1.6.1"
+        "chokidar": "^1.6.1",
+        "proper-lockfile": "^2.0.0"
     }
 }
