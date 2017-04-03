@@ -19,6 +19,14 @@ export async function activate(context: vscode.ExtensionContext) {
     var common: Commons = new Commons(en, context);
     const lockfile = require('proper-lockfile');
 
+    let lockExist: boolean = await FileManager.FileExists(en.FILE_SYNC_LOCK);
+    if (!lockExist) {
+        fs.closeSync(fs.openSync(en.FILE_SYNC_LOCK, 'w'));
+    }
+    let locked: boolean = lockfile.checkSync(en.FILE_SYNC_LOCK);
+    if (locked) {
+        lockfile.unlockSync(en.FILE_SYNC_LOCK);
+    }
 
     await common.StartMigrationProcess();
     let startUpSetting: ExtensionConfig = await common.GetSettings();
