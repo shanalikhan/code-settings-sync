@@ -2,7 +2,7 @@
     "name": "code-settings-sync",
     "displayName": "Settings Sync",
     "description": "Synchronize Settings, Snippets, Themes, File Icons, Launch, Keybindings, Workspaces and Extensions Across Multiple Machines Using Github Gist.",
-    "version": "2.6.2",
+    "version": "2.7.0",
     "icon": "images/cloud.png",
     "publisher": "Shan",
     "author": {
@@ -45,7 +45,7 @@
         "email": "shanalikhan@hotmail.com"
     },
     "engines": {
-        "vscode": "^1.10.0"
+        "vscode": "^1.11.0"
     },
     "categories": [
         "Other"
@@ -131,11 +131,6 @@
                     "default": 0,
                     "description": "Save the Code Settings Sync Version for migration code. [Dont Remove]"
                 },
-                "sync.showSummary": {
-                    "type": "boolean",
-                    "default": true,
-                    "description": "Shows the summary page after download and upload."
-                },
                 "sync.forceDownload": {
                     "type": "boolean",
                     "default": false,
@@ -155,6 +150,11 @@
                     "type": "string",
                     "default": "",
                     "description": "Set it to your GitHub Enterprise api prefix if you want to use GHE. Normally '/api/v3'. Only used when host is set."
+                },
+                "sync.quietSync": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "When set to true, will show the result in status bar instead of summary page."
                 }
             },
             "title": "Code Settings Sync Configuration Settings"

@@ -56,11 +56,15 @@ export class GithubService {
 
     constructor(private TOKEN: string) {
         if (TOKEN != null && TOKEN != '') {
-            var self: GithubService = this;
-            github.authenticate({
-                type: "oauth",
-                token: TOKEN
-            });
+            try {
+                var self: GithubService = this;
+                github.authenticate({
+                    type: "oauth",
+                    token: TOKEN
+                });
+            } catch (error) {
+
+            }
 
             github.users.get({}, function (err, res) {
                 if (err) {
@@ -99,16 +103,17 @@ export class GithubService {
                 , function (err, res) {
                     if (err) {
                         console.error(err);
-                        reject(false);
+                        reject(err);
                     }
-                    if (res.data.id) {
-                        resolve(res.data.id);
-                    } else {
-                        console.error("ID is null");
-                        console.log("Sync : " + "Response from GitHub is: ");
-                        console.log(res);
+                    else {
+                        if (res.data.id) {
+                            resolve(res.data.id);
+                        } else {
+                            console.error("ID is null");
+                            console.log("Sync : " + "Response from GitHub is: ");
+                            console.log(res);
+                        }
                     }
-
                 });
         });
     }
@@ -128,7 +133,7 @@ export class GithubService {
                 , function (err, res) {
                     if (err) {
                         console.error(err);
-                        reject(false);
+                        reject(err);
                     }
                     if (res.data.id) {
                         resolve(res.data.id);

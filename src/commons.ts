@@ -13,7 +13,7 @@ const lockfile = require('proper-lockfile');
 
 export class Commons {
 
-    public ERROR_MESSAGE: string = "Error Logged In Console (Help menu > Toggle Developer Tools). You may open an issue using 'Sync : Open Issue' from advance setting command.";
+    public ERROR_MESSAGE: string = "Sync : Error Logged In Console (Help menu > Toggle Developer Tools).";
 
     private static configWatcher = null;
     private static extensionWatcher = null;
@@ -23,7 +23,7 @@ export class Commons {
     }
 
 
-    public LogException(error: any, message: string, msgBox: boolean): void {
+    public static LogException(error: any, message: string, msgBox: boolean): void {
 
         if (error) {
             console.error(error);
@@ -34,10 +34,17 @@ export class Commons {
             else if (error.code == 4) {
                 message = "Sync : Unable to Save Settings. Please make sure you have valid JSON settings.json file. ( e.g : No trailing commas )";
             }
-            else if (error.message == "Bad credentials") {
-                msgBox = true;
-                message = "Sync : Invalid Github Token. Please generate new token. Exception Logged in Console.";
-                openurl("https://github.com/settings/tokens");
+            else if (error.message) {
+                try {
+                    message = JSON.parse(error.message).message;
+                    if (message.toLowerCase() == 'bad credentials') {
+                        msgBox = true;
+                        message = "Sync : Invalid / Expired Github Token. Please generate new token with scopes mentioned in readme. Exception Logged in Console.";
+                        openurl("https://github.com/settings/tokens");
+                    }
+                } catch (error) {
+                    //message = error.message;
+                }
             }
 
         }
@@ -206,7 +213,7 @@ export class Commons {
                             settings.token = token;
                         }
                     }, function (err: any) {
-                        me.LogException(err, me.ERROR_MESSAGE, true);
+                        Commons.LogException(err, me.ERROR_MESSAGE, true);
                         reject(err);
                     });
                 }
@@ -223,7 +230,7 @@ export class Commons {
                             reject(false);
                         }
                     }, function (err: any) {
-                        me.LogException(err, me.ERROR_MESSAGE, true);
+                        Commons.LogException(err, me.ERROR_MESSAGE, true);
                         reject(err);
                     });
                 }
@@ -246,7 +253,7 @@ export class Commons {
                 }
             }
             catch (e) {
-                this.LogException(e, "Sync : Unable to read " + this.en.FILE_CUSTOMIZEDSETTINGS_NAME + ". Make sure its Valid JSON.", true);
+                Commons.LogException(e, "Sync : Unable to read " + this.en.FILE_CUSTOMIZEDSETTINGS_NAME + ". Make sure its Valid JSON.", true);
                 openurl("http://shanalikhan.github.io/2017/02/19/Option-to-ignore-settings-folders-code-settings-sync.html");
                 customSettings = null;
                 resolve(customSettings);
@@ -265,7 +272,7 @@ export class Commons {
                 resolve(true);
             }
             catch (e) {
-                this.LogException(e, "Sync : Unable to write " + this.en.FILE_CUSTOMIZEDSETTINGS_NAME, true);
+                Commons.LogException(e, "Sync : Unable to write " + this.en.FILE_CUSTOMIZEDSETTINGS_NAME, true);
                 resolve(false);
             }
         });
@@ -342,13 +349,14 @@ export class Commons {
                                     openurl("http://shanalikhan.github.io/2016/05/14/Visual-studio-code-sync-settings-release-notes.html");
                                 }
                             });
+
+                            vscode.window.showInformationMessage("Sync : Do you want to open summary page in background so you can keep working. Vote Here ! :-)", "Open URL").then(function (val: string) {
+                                if (val == "Open URL") {
+                                    openurl("https://github.com/Microsoft/vscode/issues/22847");
+                                }
+                            });
                         }
                     }
-                    vscode.window.showInformationMessage("Sync : Do you want to auto upload the settings upon any extension install / remove ? Please subscribe & upvote the issue and let Code team know.", "Open URL").then(function (val: string) {
-                        if (val == "Open URL") {
-                            openurl("https://github.com/Microsoft/vscode/issues/14444");
-                        }
-                    });
                 }
             }
 
@@ -421,7 +429,7 @@ export class Commons {
 
                 resolve(true);
             }, function (b: any) {
-                me.LogException(b, me.ERROR_MESSAGE, true);
+                Commons.LogException(b, me.ERROR_MESSAGE, true);
                 reject(false);
             });
         });

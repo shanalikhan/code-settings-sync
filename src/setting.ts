@@ -11,11 +11,11 @@ export class ExtensionConfig {
     public autoUpload = false;
     public lastDownload: Date = null;
     public version: number = null;
-    public showSummary: boolean = true;
     public forceDownload: boolean = false;
     public anonymousGist: boolean = false;
     public host: string = null;
     public pathPrefix: string = null;
+    public quietSync: boolean = false;
     constructor() {
         this.version = Environment.CURRENT_VERSION;
     }
@@ -43,11 +43,14 @@ export class CloudSetting {
 export class CustomSettings {
     public ignoreUploadFiles: Array<string> = null;
     public ignoreUploadFolders: Array<string> = null;
+    public ignoreUploadSettings: Object = null;
     public replaceCodeSettings: Object = null;
     constructor() {
         this.ignoreUploadFiles = new Array<string>();
         this.ignoreUploadFolders = new Array<string>();
         this.replaceCodeSettings = new Object();
+        this.ignoreUploadSettings = new Object();
+
         this.ignoreUploadFolders.push("workspaceStorage");
         this.ignoreUploadFiles.push("projects.json");
         this.ignoreUploadFiles.push("projects_cache_git.json")

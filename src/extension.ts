@@ -14,15 +14,16 @@ export async function activate(context: vscode.ExtensionContext) {
 
     var openurl = require('open');
     var fs = require('fs');
+    const lockfile = require('proper-lockfile');
 
     var en: Environment = new Environment(context);
     var common: Commons = new Commons(en, context);
-    const lockfile = require('proper-lockfile');
 
     let lockExist: boolean = await FileManager.FileExists(en.FILE_SYNC_LOCK);
     if (!lockExist) {
         fs.closeSync(fs.openSync(en.FILE_SYNC_LOCK, 'w'));
     }
+
     let locked: boolean = lockfile.checkSync(en.FILE_SYNC_LOCK);
     if (locked) {
         lockfile.unlockSync(en.FILE_SYNC_LOCK);
@@ -70,6 +71,13 @@ export async function activate(context: vscode.ExtensionContext) {
 
             localConfig.config = resolve;
             syncSetting = localConfig.config;
+            customSettings = await common.GetCustomSettings();
+            let config = vscode.workspace.getConfiguration();
+            Object.keys(customSettings.ignoreUploadSettings).forEach((key: string, index: number) => {
+                customSettings.ignoreUploadSettings[key] = config.get(key);
+                config.update(key, undefined, true);
+            });
+            await common.SetCustomSettings(customSettings);
 
             if (args.length > 0) {
                 if (args[0] == "publicGIST") {
@@ -84,7 +92,7 @@ export async function activate(context: vscode.ExtensionContext) {
             await startGitProcess();
 
         }, (reject) => {
-            common.LogException(reject, common.ERROR_MESSAGE, true);
+            Commons.LogException(reject, common.ERROR_MESSAGE, true);
             return;
         });
 
@@ -152,11 +160,9 @@ export async function activate(context: vscode.ExtensionContext) {
             }
             else {
 
-                common.LogException(null, common.ERROR_MESSAGE, true);
+                Commons.LogException(null, common.ERROR_MESSAGE, true);
                 return;
             }
-
-
 
             contentFiles.forEach(snippetFile => {
 
@@ -193,14 +199,14 @@ export async function activate(context: vscode.ExtensionContext) {
                         newGIST = true;
                         syncSetting.gist = gistID;
                         completed = true;
-                        vscode.window.setStatusBarMessage("Sync : GIST ID: " + syncSetting.gist + " created.");
+                        vscode.window.setStatusBarMessage("Sync : New gist created.");
                     }
                     else {
                         vscode.window.showInformationMessage("Sync : Unable to create Gist.");
                         return;
                     }
                 }, function (error: any) {
-                    common.LogException(error, common.ERROR_MESSAGE, true);
+                    Commons.LogException(error, common.ERROR_MESSAGE, true);
                     return;
                 });
             }
@@ -211,14 +217,14 @@ export async function activate(context: vscode.ExtensionContext) {
                     await myGi.CreateEmptyGIST(localConfig.publicGist).then(async function (gistID: string) {
                         if (gistID) {
                             syncSetting.gist = gistID;
-                            vscode.window.setStatusBarMessage("Sync : GIST ID: " + syncSetting.gist + " created.");
+                            vscode.window.setStatusBarMessage("Sync : New gist created.");
                         }
                         else {
                             vscode.window.showInformationMessage("Sync : Unable to create Gist.");
                             return;
                         }
                     }, function (error: any) {
-                        common.LogException(error, common.ERROR_MESSAGE, true);
+                        Commons.LogException(error, common.ERROR_MESSAGE, true);
                         return;
                     });
                 }
@@ -228,7 +234,7 @@ export async function activate(context: vscode.ExtensionContext) {
                     if (gistObj) {
                         if (gistObj.data.owner != null) {
                             if (gistObj.data.owner.login != myGi.userName) {
-                                common.LogException(null, "Sync : You cant edit GIST for user : " + gistObj.data.owner.login, true);
+                                Commons.LogException(null, "Sync : You cant edit GIST for user : " + gistObj.data.owner.login, true);
                                 return;
                             }
                         }
@@ -242,14 +248,13 @@ export async function activate(context: vscode.ExtensionContext) {
                         await myGi.SaveGIST(gistObj.data).then(async function (saved: boolean) {
                             if (saved) {
                                 completed = true;
-
                             }
                             else {
                                 vscode.window.showErrorMessage("GIST NOT SAVED");
                                 return;
                             }
                         }, function (error: any) {
-                            common.LogException(error, common.ERROR_MESSAGE, true);
+                            Commons.LogException(error, common.ERROR_MESSAGE, true);
                             return;
                         });
                     }
@@ -258,29 +263,32 @@ export async function activate(context: vscode.ExtensionContext) {
                         return;
                     }
                 }, function (gistReadError: any) {
-                    common.LogException(gistReadError, common.ERROR_MESSAGE, true);
+                    Commons.LogException(gistReadError, common.ERROR_MESSAGE, true);
                     return;
                 });
             }
 
             if (completed) {
                 await common.SaveSettings(syncSetting).then(function (added: boolean) {
+                     let config = vscode.workspace.getConfiguration();
+                    Object.keys(customSettings.ignoreUploadSettings).forEach((key: string, index: number) => {
+                        config.update(key, customSettings.ignoreUploadSettings[key], true);
+                    });
                     if (added) {
                         if (newGIST) {
-                            vscode.window.showInformationMessage("Uploaded Successfully." + " GIST ID :  " + syncSetting.gist + " . Please copy and use this ID in other machines to sync all settings.");
-                        }
-                        else {
-                            vscode.window.setStatusBarMessage("");
-                            vscode.window.setStatusBarMessage("Uploaded Successfully.", 5000);
+                            vscode.window.showInformationMessage("Sync : Upload Complete." + " GIST ID :  " + syncSetting.gist + " . Please copy and use this ID in other machines to download settings.");
                         }
 
                         if (localConfig.publicGist) {
                             vscode.window.showInformationMessage("Sync : You can share the GIST ID to other users to download your settings.");
                         }
 
-                        if (syncSetting.showSummary) {
+                        if (!syncSetting.quietSync) {
                             common.GenerateSummmaryFile(true, allSettingFiles, null, uploadedExtensions, localConfig);
-
+                        }
+                        else {
+                            vscode.window.setStatusBarMessage("");
+                            vscode.window.setStatusBarMessage("Sync : Uploaded Successfully.", 5000);
                         }
                         if (syncSetting.autoUpload) {
                             common.StartWatch();
@@ -288,7 +296,7 @@ export async function activate(context: vscode.ExtensionContext) {
                         vscode.window.setStatusBarMessage("");
                     }
                 }, function (err: any) {
-                    common.LogException(err, common.ERROR_MESSAGE, true);
+                    Commons.LogException(err, common.ERROR_MESSAGE, true);
                     return;
                 });
             }
@@ -387,9 +395,7 @@ export async function activate(context: vscode.ExtensionContext) {
                         var content: string = file.content;
 
                         if (content != "") {
-
                             if (file.gistName == en.FILE_EXTENSION_NAME) {
-
                                 var extensionlist = PluginService.CreateExtensionList();
 
                                 extensionlist.sort(function (a, b) {
@@ -407,7 +413,7 @@ export async function activate(context: vscode.ExtensionContext) {
                                                 //vscode.window.showInformationMessage(deletedExtension.name + '-' + deletedExtension.version + " is removed.");
                                                 deletedExtensions.push(deletedExtension);
                                             }, (rej) => {
-                                                common.LogException(rej, common.ERROR_MESSAGE, true);
+                                                Commons.LogException(rej, common.ERROR_MESSAGE, true);
                                             }));
                                     }(deletedExtension, en.ExtensionFolder));
 
@@ -451,7 +457,7 @@ export async function activate(context: vscode.ExtensionContext) {
                                         function (added: boolean) {
                                             //TODO : add Name attribute in File and show information message here with name , when required.
                                         }, function (error: any) {
-                                            common.LogException(error, common.ERROR_MESSAGE, true);
+                                            Commons.LogException(error, common.ERROR_MESSAGE, true);
                                             return;
                                         }
                                     ));
@@ -461,7 +467,7 @@ export async function activate(context: vscode.ExtensionContext) {
                     }
                 }
                 else {
-                    common.LogException(res, "Sync : Unable to Read Gist.", true);
+                    Commons.LogException(res, "Sync : Unable to Read Gist.", true);
                 }
 
                 Promise.all(actionList)
@@ -483,12 +489,13 @@ export async function activate(context: vscode.ExtensionContext) {
                         await common.SaveSettings(syncSetting).then(async function (added: boolean) {
                             if (added) {
 
-                                if (syncSetting.showSummary) {
+                                if (!syncSetting.quietSync) {
                                     common.GenerateSummmaryFile(false, updatedFiles, deletedExtensions, addedExtensions, localSettings);
                                 }
-
-                                vscode.window.setStatusBarMessage("");
-                                vscode.window.setStatusBarMessage("Sync : Download Complete.", 5000);
+                                else {
+                                    vscode.window.setStatusBarMessage("");
+                                    vscode.window.setStatusBarMessage("Sync : Download Complete.", 5000);
+                                }
                                 if (Object.keys(customSettings.replaceCodeSettings).length > 0) {
                                     let config = vscode.workspace.getConfiguration();
 
@@ -511,15 +518,15 @@ export async function activate(context: vscode.ExtensionContext) {
                                 vscode.window.showErrorMessage("Sync : Unable to save extension settings file.")
                             }
                         }, function (errSave: any) {
-                            common.LogException(errSave, common.ERROR_MESSAGE, true);
+                            Commons.LogException(errSave, common.ERROR_MESSAGE, true);
                             return;
                         });
                     })
                     .catch(function (e) {
-                        common.LogException(e, common.ERROR_MESSAGE, true);
+                        Commons.LogException(e, common.ERROR_MESSAGE, true);
                     });
             }, function (err: any) {
-                common.LogException(err, common.ERROR_MESSAGE, true);
+                Commons.LogException(err, common.ERROR_MESSAGE, true);
                 return;
             });
         }
@@ -551,16 +558,15 @@ export async function activate(context: vscode.ExtensionContext) {
                         vscode.window.showInformationMessage("Sync : Settings Cleared.");
                     }
                 }, function (err: any) {
-                    common.LogException(err, common.ERROR_MESSAGE, true);
+                    Commons.LogException(err, common.ERROR_MESSAGE, true);
                     return;
                 });
 
             }
             catch (err) {
-                common.LogException(err, "Sync : Unable to clear settings. Error Logged on console. Please open an issue.", true);
+                Commons.LogException(err, "Sync : Unable to clear settings. Error Logged on console. Please open an issue.", true);
             }
         }
-
     });
 
     var howSettings = vscode.commands.registerCommand('extension.HowSettings', async () => {
@@ -583,7 +589,7 @@ export async function activate(context: vscode.ExtensionContext) {
         items.push("Sync : Toggle Auto-Upload On Settings Change");
         items.push("Sync : Toggle Auto-Download On Startup");
         items.push("Sync : Toggle Show Summary Page On Upload / Download");
-        items.push("Sync : Preserve Setting to stop overide during Download");
+        items.push("Sync : Preserve Setting to stop overide after Download");
         items.push("Sync : Open Issue");
         items.push("Sync : Release Notes");
 
@@ -672,11 +678,11 @@ export async function activate(context: vscode.ExtensionContext) {
                         vscode.commands.executeCommand('extension.HowSettings');
                         return;
                     }
-                    if (setting.showSummary) {
-                        setting.showSummary = false;
+                    if (setting.quietSync) {
+                        setting.quietSync = false;
                     }
                     else {
-                        setting.showSummary = true;
+                        setting.quietSync = true;
                     }
                     break;
                 }
@@ -718,15 +724,12 @@ export async function activate(context: vscode.ExtensionContext) {
                     openurl("http://shanalikhan.github.io/2016/05/14/Visual-studio-code-sync-settings-release-notes.html");
                     break;
                 }
-
                 default: {
                     break;
                 }
-
-
             }
         }, (reject) => {
-            common.LogException(reject, "Error", true);
+            Commons.LogException(reject, "Error", true);
             return;
         }).then(async (resolve: any) => {
             if (settingChanged) {
@@ -746,11 +749,11 @@ export async function activate(context: vscode.ExtensionContext) {
                                 break;
                             }
                             case 5: {
-                                if (setting.showSummary) {
-                                    vscode.window.showInformationMessage("Sync : Summary Will be shown upon download / upload.");
+                                if (!setting.quietSync) {
+                                    vscode.window.showInformationMessage("Sync : Summary will be shown upon download / upload.");
                                 }
                                 else {
-                                    vscode.window.showInformationMessage("Sync : Summary Will be hidden upon download / upload.");
+                                    vscode.window.showInformationMessage("Sync : Status bar will be updated upon download / upload.");
                                 }
                                 break;
                             }
@@ -782,13 +785,13 @@ export async function activate(context: vscode.ExtensionContext) {
                         vscode.window.showErrorMessage("Unable to Toggle.");
                     }
                 }, function (err: any) {
-                    common.LogException(err, "Sync : Unable to toggle. Please open an issue.", true);
+                    Commons.LogException(err, "Sync : Unable to toggle. Please open an issue.", true);
                     return;
                 });
             }
 
         }, (reject: any) => {
-            common.LogException(reject, "Error", true);
+            Commons.LogException(reject, "Error", true);
             return;
         });
     });
