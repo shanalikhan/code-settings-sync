@@ -73,6 +73,7 @@ export class GithubService {
                 else {
                     self.userName = res.data.login;
                     self.name = res.data.name;
+                    console.log("Sync : Connected with user : " + "'" + self.userName + "'");
                 }
             });
         }

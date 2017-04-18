@@ -50,6 +50,8 @@ export class CustomSettings {
         this.ignoreUploadFolders = new Array<string>();
         this.replaceCodeSettings = new Object();
         this.ignoreUploadSettings = new Object();
+        this.ignoreUploadSettings["http.proxy"] = "";
+        this.ignoreUploadSettings["window.zoomLevel"] = "";
 
         this.ignoreUploadFolders.push("workspaceStorage");
         this.ignoreUploadFiles.push("projects.json");
