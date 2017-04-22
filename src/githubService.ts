@@ -98,7 +98,9 @@ export class GithubService {
         else {
             me.GIST_JSON_EMPTY.public = false;
         }
-        me.GIST_JSON_EMPTY.description = gistDesciption;
+        if (gistDesciption != null && gistDesciption != "") {
+            me.GIST_JSON_EMPTY.description = gistDesciption;
+        }
 
         return new Promise<string>((resolve, reject) => {
             github.getGistsApi().create(me.GIST_JSON_EMPTY
@@ -120,7 +122,7 @@ export class GithubService {
         });
     }
 
-    public async CreateAnonymousGist(publicGist: boolean, files: Array<fileManager.File>): Promise<any> {
+    public async CreateAnonymousGist(publicGist: boolean, files: Array<fileManager.File>, gistDesciption: string): Promise<any> {
         var me = this;
         if (publicGist) {
             me.GIST_JSON_EMPTY.public = true;
@@ -128,6 +130,10 @@ export class GithubService {
         else {
             me.GIST_JSON_EMPTY.public = false;
         }
+        if (gistDesciption != null && gistDesciption != "") {
+            me.GIST_JSON_EMPTY.description = gistDesciption;
+        }
+
         let gist: any = me.AddFile(files, me.GIST_JSON_EMPTY);
 
         return new Promise<string>((resolve, reject) => {

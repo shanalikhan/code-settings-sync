@@ -77,9 +77,9 @@ export async function activate(context: vscode.ExtensionContext) {
 
             let keysUpdated = new Array<Thenable<void>>();
             Object.keys(customSettings.ignoreUploadSettings).forEach(async (key: string, index: number) => {
-                let keyValue: string = "";
+                let keyValue: Object = null;
                 keyValue = config.get<null>(key, null);
-                if (keyValue != "") {
+                if (keyValue != null) {
                     customSettings.ignoreUploadSettings[key] = keyValue;
                     keysUpdated.push(config.update(key, keyValue, true));
                     keysUpdated.push(config.update(key, undefined, true));
@@ -211,7 +211,7 @@ export async function activate(context: vscode.ExtensionContext) {
             let newGIST: boolean = false;
 
             if (syncSetting.anonymousGist) {
-                await myGi.CreateAnonymousGist(localConfig.publicGist, allSettingFiles).then(async function (gistID: string) {
+                await myGi.CreateAnonymousGist(localConfig.publicGist, allSettingFiles, customSettings.gistDescription).then(async function (gistID: string) {
                     if (gistID) {
                         newGIST = true;
                         syncSetting.gist = gistID;
