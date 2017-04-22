@@ -73,23 +73,40 @@ export async function activate(context: vscode.ExtensionContext) {
             syncSetting = localConfig.config;
             customSettings = await common.GetCustomSettings();
             let config = vscode.workspace.getConfiguration();
-            Object.keys(customSettings.ignoreUploadSettings).forEach((key: string, index: number) => {
-                customSettings.ignoreUploadSettings[key] = config.get(key);
-                config.update(key, undefined, true);
+
+
+            let keysUpdated = new Array<Thenable<void>>();
+            Object.keys(customSettings.ignoreUploadSettings).forEach(async (key: string, index: number) => {
+                let keyValue: string = "";
+                keyValue = config.get<null>(key, null);
+                if (keyValue != "") {
+                    customSettings.ignoreUploadSettings[key] = keyValue;
+                    keysUpdated.push(config.update(key, keyValue, true));
+                    keysUpdated.push(config.update(key, undefined, true));
+                    //keysUpdated.push();
+                }
             });
-            await common.SetCustomSettings(customSettings);
 
-            if (args.length > 0) {
-                if (args[0] == "publicGIST") {
-                    localConfig.publicGist = true;
-                }
-                else {
-                    localConfig.publicGist = false;
-                }
-            }
-            myGi = new GithubService(syncSetting.token);
+            //let a: Object = await Promise.all(keysUpdated);
+            Promise.all(keysUpdated).then(async (res) => {
+                await common.SetCustomSettings(customSettings);
 
-            await startGitProcess();
+                if (args.length > 0) {
+                    if (args[0] == "publicGIST") {
+                        localConfig.publicGist = true;
+                    }
+                    else {
+                        localConfig.publicGist = false;
+                    }
+                }
+                myGi = new GithubService(syncSetting.token);
+
+                await startGitProcess();
+            }, (er) => {
+                Commons.LogException(er, common.ERROR_MESSAGE, true);
+                return;
+            });
+
 
         }, (reject) => {
             Commons.LogException(reject, common.ERROR_MESSAGE, true);
@@ -233,8 +250,13 @@ export async function activate(context: vscode.ExtensionContext) {
 
                     if (gistObj) {
                         if (gistObj.data.owner != null) {
-                            if (gistObj.data.owner.login != myGi.userName) {
-                                Commons.LogException(null, "Sync : You cant edit GIST for user : " + gistObj.data.owner.login, true);
+                            let gistOwnerName: string = gistObj.data.owner.login.trim();
+                            let userName: string = myGi.userName.trim();
+                            if (gistOwnerName != userName) {
+                                Commons.LogException(null, "Sync : You cant edit GIST for user : " + gistObj.data.owner.login, true, function () {
+                                    console.log("Sync : Current User : " + "'" + userName + "'");
+                                    console.log("Sync : Gist Owner User : " + "'" + gistOwnerName + "'");
+                                });
                                 return;
                             }
                         }
@@ -270,7 +292,7 @@ export async function activate(context: vscode.ExtensionContext) {
 
             if (completed) {
                 await common.SaveSettings(syncSetting).then(function (added: boolean) {
-                     let config = vscode.workspace.getConfiguration();
+                    let config = vscode.workspace.getConfiguration();
                     Object.keys(customSettings.ignoreUploadSettings).forEach((key: string, index: number) => {
                         config.update(key, customSettings.ignoreUploadSettings[key], true);
                     });
@@ -293,7 +315,6 @@ export async function activate(context: vscode.ExtensionContext) {
                         if (syncSetting.autoUpload) {
                             common.StartWatch();
                         }
-                        vscode.window.setStatusBarMessage("");
                     }
                 }, function (err: any) {
                     Commons.LogException(err, common.ERROR_MESSAGE, true);

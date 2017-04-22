@@ -23,7 +23,7 @@ export class Commons {
     }
 
 
-    public static LogException(error: any, message: string, msgBox: boolean): void {
+    public static LogException(error: any, message: string, msgBox: boolean, callback?: Function): void {
 
         if (error) {
             console.error(error);
@@ -54,8 +54,11 @@ export class Commons {
             vscode.window.showErrorMessage(message);
         }
         else {
-
             vscode.window.setStatusBarMessage(message, 5000);
+        }
+
+        if (callback) {
+            callback.apply(this);
         }
     }
 
@@ -139,7 +142,6 @@ export class Commons {
                 console.log("Sync : File Change Detected On : " + path);
 
                 if (requiredFileChanged) {
-
                     if (settings.autoUpload) {
                         if (customSettings.ignoreUploadFolders.indexOf("workspaceStorage") > -1) {
                             let fileType: string = path.substring(path.lastIndexOf('.'), path.length);
