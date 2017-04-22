@@ -90,7 +90,7 @@ export class GithubService {
         return GIST_JSON_b;
     }
 
-    public CreateEmptyGIST(publicGist: boolean): Promise<string> {
+    public CreateEmptyGIST(publicGist: boolean, gistDesciption: string): Promise<string> {
         var me = this;
         if (publicGist) {
             me.GIST_JSON_EMPTY.public = true;
@@ -98,6 +98,7 @@ export class GithubService {
         else {
             me.GIST_JSON_EMPTY.public = false;
         }
+        me.GIST_JSON_EMPTY.description = gistDesciption;
 
         return new Promise<string>((resolve, reject) => {
             github.getGistsApi().create(me.GIST_JSON_EMPTY

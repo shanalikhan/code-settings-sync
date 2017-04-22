@@ -231,7 +231,7 @@ export async function activate(context: vscode.ExtensionContext) {
 
                 if (syncSetting.gist == null || syncSetting.gist === "") {
                     newGIST = true;
-                    await myGi.CreateEmptyGIST(localConfig.publicGist).then(async function (gistID: string) {
+                    await myGi.CreateEmptyGIST(localConfig.publicGist, customSettings.gistDescription).then(async function (gistID: string) {
                         if (gistID) {
                             syncSetting.gist = gistID;
                             vscode.window.setStatusBarMessage("Sync : New gist created.");

@@ -45,17 +45,19 @@ export class CustomSettings {
     public ignoreUploadFolders: Array<string> = null;
     public ignoreUploadSettings: Object = null;
     public replaceCodeSettings: Object = null;
+    public gistDescription: string = null;
     constructor() {
+
         this.ignoreUploadFiles = new Array<string>();
         this.ignoreUploadFolders = new Array<string>();
         this.replaceCodeSettings = new Object();
         this.ignoreUploadSettings = new Object();
-        this.ignoreUploadSettings["http.proxy"] = "";
-        this.ignoreUploadSettings["window.zoomLevel"] = "";
 
         this.ignoreUploadFolders.push("workspaceStorage");
+
         this.ignoreUploadFiles.push("projects.json");
         this.ignoreUploadFiles.push("projects_cache_git.json")
-        //this.replaceCodeSettings.push(new NameValuePair("http.proxy",""));
+
+        this.gistDescription = "Visual Studio Code Settings Sync Gist";
     }
 }
