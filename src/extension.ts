@@ -51,18 +51,16 @@ export async function activate(context: vscode.ExtensionContext) {
     var updateSettings = vscode.commands.registerCommand('extension.updateSettings', async function () {
 
         let args = arguments;
-
+        let dateNow: Date = new Date();
         let en: Environment = new Environment(context);
         let common: Commons = new Commons(en, context);
         common.CloseWatch();
 
         let myGi: GithubService = null;
-        let dateNow: Date = new Date();
         let localConfig: LocalConfig = new LocalConfig();
         let syncSetting: ExtensionConfig = await common.GetSettings();
         let allSettingFiles = new Array<File>();
         let uploadedExtensions = new Array<ExtensionInformation>();
-
         let customSettings: CustomSettings = new CustomSettings();
 
         let askToken: boolean = !syncSetting.anonymousGist;
@@ -73,7 +71,6 @@ export async function activate(context: vscode.ExtensionContext) {
             syncSetting = localConfig.config;
             customSettings = await common.GetCustomSettings();
             let config = vscode.workspace.getConfiguration();
-
 
             let keysUpdated = new Array<Thenable<void>>();
             Object.keys(customSettings.ignoreUploadSettings).forEach(async (key: string, index: number) => {
@@ -176,7 +173,6 @@ export async function activate(context: vscode.ExtensionContext) {
                 }
             }
             else {
-
                 Commons.LogException(null, common.ERROR_MESSAGE, true);
                 return;
             }

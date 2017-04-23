@@ -41,10 +41,8 @@ export class Environment {
     public FILE_SYNC_LOCK_NAME: string = "sync.lock";
 
     public FILE_CLOUDSETTINGS_NAME: string = "cloudSettings";
-    public FILE_LOCATIONSETTINGS_NAME: string = "syncSettings.json";
 
     public FOLDER_SNIPPETS: string = null;
-    public APP_SETTINGS: string = null;
     public APP_SUMMARY_NAME: string = "syncSummary.txt";
     public APP_SUMMARY: string = null;
 
@@ -85,7 +83,6 @@ export class Environment {
         this.FILE_KEYBINDING = this.PATH.concat("/User/", this.FILE_KEYBINDING_NAME);
         this.FILE_LOCALE = this.PATH.concat("/User/", this.FILE_LOCALE_NAME);
         this.FOLDER_SNIPPETS = this.PATH.concat("/User/snippets/");
-        this.APP_SETTINGS = this.PATH.concat("/User/", this.FILE_LOCATIONSETTINGS_NAME);
         this.APP_SUMMARY = this.PATH.concat("/User/", this.APP_SUMMARY_NAME);
         this.FILE_CLOUDSETTINGS = this.PATH.concat("/User/", this.FILE_CLOUDSETTINGS_NAME);
         this.FILE_CUSTOMIZEDSETTINGS = this.PATH.concat("/User/", this.FILE_CUSTOMIZEDSETTINGS_NAME);

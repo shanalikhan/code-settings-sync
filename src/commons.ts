@@ -14,14 +14,12 @@ const lockfile = require('proper-lockfile');
 export class Commons {
 
     public ERROR_MESSAGE: string = "Sync : Error Logged In Console (Help menu > Toggle Developer Tools).";
-
     private static configWatcher = null;
     private static extensionWatcher = null;
 
     constructor(private en: Environment, private context: vscode.ExtensionContext) {
 
     }
-
 
     public static LogException(error: any, message: string, msgBox: boolean, callback?: Function): void {
 
@@ -46,7 +44,6 @@ export class Commons {
                     //message = error.message;
                 }
             }
-
         }
         vscode.window.setStatusBarMessage("");
 
@@ -60,12 +57,6 @@ export class Commons {
         if (callback) {
             callback.apply(this);
         }
-    }
-
-    public async InternetConnected(): Promise<boolean> {
-        return new Promise<boolean>(async (resolve, reject) => {
-            resolve(true);
-        });
     }
 
     public async StartWatch(): Promise<void> {
@@ -133,10 +124,10 @@ export class Commons {
                 let requiredFileChanged: boolean = false;
 
                 if (customSettings.ignoreUploadFolders.indexOf("workspaceStorage") == -1) {
-                    requiredFileChanged = (path.indexOf(self.en.FILE_SYNC_LOCK_NAME) == -1) && (path.indexOf(".DS_Store") == -1) && (path.indexOf(this.en.FILE_LOCATIONSETTINGS_NAME) == -1) && (path.indexOf(this.en.APP_SUMMARY_NAME) == -1) && (path.indexOf(this.en.FILE_CUSTOMIZEDSETTINGS_NAME) == -1);
+                    requiredFileChanged = (path.indexOf(self.en.FILE_SYNC_LOCK_NAME) == -1) && (path.indexOf(".DS_Store") == -1) && (path.indexOf(this.en.APP_SUMMARY_NAME) == -1) && (path.indexOf(this.en.FILE_CUSTOMIZEDSETTINGS_NAME) == -1);
                 }
                 else {
-                    requiredFileChanged = (path.indexOf(self.en.FILE_SYNC_LOCK_NAME) == -1) && (path.indexOf("workspaceStorage") == -1) && (path.indexOf(".DS_Store") == -1) && (path.indexOf(this.en.FILE_LOCATIONSETTINGS_NAME) == -1) && (path.indexOf(this.en.APP_SUMMARY_NAME) == -1) && (path.indexOf(this.en.FILE_CUSTOMIZEDSETTINGS_NAME) == -1);
+                    requiredFileChanged = (path.indexOf(self.en.FILE_SYNC_LOCK_NAME) == -1) && (path.indexOf("workspaceStorage") == -1) && (path.indexOf(".DS_Store") == -1) && (path.indexOf(this.en.APP_SUMMARY_NAME) == -1) && (path.indexOf(this.en.FILE_CUSTOMIZEDSETTINGS_NAME) == -1);
                 }
 
                 console.log("Sync : File Change Detected On : " + path);
@@ -201,7 +192,6 @@ export class Commons {
         let me: Commons = this;
 
         return new Promise<ExtensionConfig>(async (resolve, reject) => {
-
             if (askToken) {
                 if (settings.token == null || settings.token == "") {
                     openurl("https://github.com/settings/tokens");
@@ -261,9 +251,7 @@ export class Commons {
                 resolve(customSettings);
             }
         });
-
     }
-
 
     public async SetCustomSettings(setting: CustomSettings): Promise<boolean> {
         let me: Commons = this;
@@ -278,104 +266,59 @@ export class Commons {
                 resolve(false);
             }
         });
-
     }
-
 
     public StartMigrationProcess(): Promise<boolean> {
         let me: Commons = this;
         let settingKeys = Object.keys(new ExtensionConfig());
         return new Promise<boolean>(async (resolve, reject) => {
 
-            let fileExist: boolean = await FileManager.FileExists(me.en.APP_SETTINGS);
-            if (fileExist) {
-                await FileManager.ReadFile(me.en.APP_SETTINGS).then(async function (settin: string) {
-
-                    if (settin) {
-                        let oldsetting = JSON.parse(settin);
-                        if (oldsetting.Token) {
-
-                            vscode.window.setStatusBarMessage("");
-                            vscode.window.setStatusBarMessage("Sync : Migrating from Old Settings to Standard Settings File.", 2000);
-
-                            let newSetting: ExtensionConfig = new ExtensionConfig();
-                            newSetting.token = oldsetting.Token;
-                            newSetting.gist = oldsetting.Gist;
-                            //Storing only GIST and token after migration.
-
-                            await me.SaveSettings(newSetting).then(async function (done) {
-                                if (done) {
-                                    vscode.window.showInformationMessage("Sync : Now this extension follows standard code configuration to setup this extension. Settings are migrated.");
-                                    vscode.window.showInformationMessage("Sync : To Make it fully work you need to upload the settings once again. Extension is uploading the settings.");
-                                    vscode.window.showInformationMessage("Sync : To Make it fully work you need to download the settings on others computer using this extension version.");
-                                    await FileManager.DeleteFile(me.en.APP_SETTINGS);
-                                    vscode.commands.executeCommand('extension.updateSettings');
-                                }
-                            });
-                        } else {
-                            await FileManager.DeleteFile(me.en.APP_SETTINGS);
-                        }
-                    }
-                });
-            }
-            else {
-
-                let settings: ExtensionConfig = await me.GetSettings();
-                if (settings.version == 0 || settings.version < Environment.CURRENT_VERSION) {
-                    let oldSettingVersion: number = settings.version;
-                    settings.version = Environment.CURRENT_VERSION;
-                    let done: boolean = await me.SaveSettings(settings);
-                    if (done == true) {
-                        if (oldSettingVersion == 0) {
-                            vscode.window.showInformationMessage("Sync : Settings Created. Thank You for Installing !");
-                            vscode.window.showInformationMessage("Sync : Need Help regarding configuring this extension ?", "Open Extension Page").then(function (val: string) {
-                                if (val == "Open Extension Page") {
-                                    openurl("https://marketplace.visualstudio.com/items?itemName=Shan.code-settings-sync");
-                                }
-                            });
-                            vscode.window.showInformationMessage("Sync : You can exclude any file / folder for upload and settings for download.", "Open Tutorial").then(function (val: string) {
-                                if (val == "Open Tutorial") {
-                                    openurl("http://shanalikhan.github.io/2017/02/19/Option-to-ignore-settings-folders-code-settings-sync.html");
-                                }
-                            });
-                        }
-                        else {
-
-                            fileExist = await FileManager.FileExists(me.en.FILE_CUSTOMIZEDSETTINGS);
-                            if (fileExist) {
-                                await FileManager.DeleteFile(me.en.FILE_CUSTOMIZEDSETTINGS);
+            let settings: ExtensionConfig = await me.GetSettings();
+            if (settings.version == 0 || settings.version < Environment.CURRENT_VERSION) {
+                let oldSettingVersion: number = settings.version;
+                settings.version = Environment.CURRENT_VERSION;
+                let done: boolean = await me.SaveSettings(settings);
+                if (done == true) {
+                    if (oldSettingVersion == 0) {
+                        vscode.window.showInformationMessage("Sync : Settings Created. Thank You for Installing !");
+                        vscode.window.showInformationMessage("Sync : Need Help regarding configuring this extension ?", "Open Extension Page").then(function (val: string) {
+                            if (val == "Open Extension Page") {
+                                openurl("https://marketplace.visualstudio.com/items?itemName=Shan.code-settings-sync");
                             }
+                        });
+                        vscode.window.showInformationMessage("Sync : You can exclude any file / folder for upload and settings for download.", "Open Tutorial").then(function (val: string) {
+                            if (val == "Open Tutorial") {
+                                openurl("http://shanalikhan.github.io/2017/02/19/Option-to-ignore-settings-folders-code-settings-sync.html");
+                            }
+                        });
+                    }
+                    else {
+                        vscode.window.showInformationMessage("Sync : Settings Sync Updated to v" + Environment.getVersion(), "View Release Notes").then(function (val: string) {
+                            if (val == "View Release Notes") {
+                                openurl("http://shanalikhan.github.io/2016/05/14/Visual-studio-code-sync-settings-release-notes.html");
+                            }
+                        });
 
-                            vscode.window.showInformationMessage("Sync : Settings Sync Updated to v" + Environment.getVersion(), "View Release Notes").then(function (val: string) {
-                                if (val == "View Release Notes") {
-                                    openurl("http://shanalikhan.github.io/2016/05/14/Visual-studio-code-sync-settings-release-notes.html");
-                                }
-                            });
-
-                            vscode.window.showInformationMessage("Sync : Do you want to open summary page in background so you can keep working. Vote Here ! :-)", "Open URL").then(function (val: string) {
-                                if (val == "Open URL") {
-                                    openurl("https://github.com/Microsoft/vscode/issues/22847");
-                                }
-                            });
-                        }
+                        vscode.window.showInformationMessage("Sync : Do you want to open summary page in background so you can keep working. Vote Here ! :-)", "Open URL").then(function (val: string) {
+                            if (val == "Open URL") {
+                                openurl("https://github.com/Microsoft/vscode/issues/22847");
+                            }
+                        });
                     }
                 }
             }
 
-            fileExist = await FileManager.FileExists(me.en.FILE_CUSTOMIZEDSETTINGS);
+            let fileExist: boolean = await FileManager.FileExists(me.en.FILE_CUSTOMIZEDSETTINGS);
             if (fileExist) {
-
 
             } else {
                 //TODO : create file only when new setting is turned on
                 //let settings: ExtensionConfig = await me.GetSettings();
                 await FileManager.WriteFile(me.en.FILE_CUSTOMIZEDSETTINGS, JSON.stringify(new CustomSettings()));
             }
-
             resolve(true);
         });
     }
-
 
     public async SaveSettings(setting: ExtensionConfig): Promise<boolean> {
         let me: Commons = this;
@@ -386,7 +329,6 @@ export class Commons {
 
             let keys = Object.keys(setting);
             keys.forEach(async keyName => {
-
                 if ((keyName == "lastDownload" || keyName == "lastUpload") && setting[keyName]) {
                     try {
                         let zz = new Date(setting[keyName]);
@@ -428,7 +370,6 @@ export class Commons {
                 else {
                     me.context.globalState.update("syncCounter", 1)
                 }
-
                 resolve(true);
             }, function (b: any) {
                 Commons.LogException(b, me.ERROR_MESSAGE, true);
@@ -509,7 +450,6 @@ export class Commons {
             })();
         });
     }
-
 
     public static GetInputBox(token: boolean) {
 
