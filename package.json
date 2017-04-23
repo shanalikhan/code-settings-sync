@@ -10,7 +10,7 @@
         "url": "http://shanalikhan.github.io",
         "email": "shanalikhan@hotmail.com"
     },
-    "homepage": "https://github.com/shanalikhan/code-settings-sync",
+    "homepage": "https://shanalikhan.github.io",
     "galleryBanner": {
         "color": "#3B4859",
         "theme": "dark"
@@ -125,11 +125,6 @@
                     "type": "boolean",
                     "default": false,
                     "description": "Set it true to Auto Upload on the settings change. [Code Restart Required]"
-                },
-                "sync.version": {
-                    "type": "number",
-                    "default": 0,
-                    "description": "Save the Code Settings Sync Version for migration code. [Dont Remove]"
                 },
                 "sync.forceDownload": {
                     "type": "boolean",

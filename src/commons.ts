@@ -274,48 +274,54 @@ export class Commons {
         return new Promise<boolean>(async (resolve, reject) => {
 
             let settings: ExtensionConfig = await me.GetSettings();
-            if (settings.version == 0 || settings.version < Environment.CURRENT_VERSION) {
-                let oldSettingVersion: number = settings.version;
-                settings.version = Environment.CURRENT_VERSION;
-                let done: boolean = await me.SaveSettings(settings);
-                if (done == true) {
-                    if (oldSettingVersion == 0) {
-                        vscode.window.showInformationMessage("Sync : Settings Created. Thank You for Installing !");
-                        vscode.window.showInformationMessage("Sync : Need Help regarding configuring this extension ?", "Open Extension Page").then(function (val: string) {
-                            if (val == "Open Extension Page") {
-                                openurl("https://marketplace.visualstudio.com/items?itemName=Shan.code-settings-sync");
-                            }
-                        });
-                        vscode.window.showInformationMessage("Sync : You can exclude any file / folder for upload and settings for download.", "Open Tutorial").then(function (val: string) {
-                            if (val == "Open Tutorial") {
-                                openurl("http://shanalikhan.github.io/2017/02/19/Option-to-ignore-settings-folders-code-settings-sync.html");
-                            }
-                        });
-                    }
-                    else {
-                        vscode.window.showInformationMessage("Sync : Settings Sync Updated to v" + Environment.getVersion(), "View Release Notes").then(function (val: string) {
-                            if (val == "View Release Notes") {
-                                openurl("http://shanalikhan.github.io/2016/05/14/Visual-studio-code-sync-settings-release-notes.html");
-                            }
-                        });
-
-                        vscode.window.showInformationMessage("Sync : Do you want to open summary page in background so you can keep working. Vote Here ! :-)", "Open URL").then(function (val: string) {
-                            if (val == "Open URL") {
-                                openurl("https://github.com/Microsoft/vscode/issues/22847");
-                            }
-                        });
-                    }
-                }
-            }
-
             let fileExist: boolean = await FileManager.FileExists(me.en.FILE_CUSTOMIZEDSETTINGS);
-            if (fileExist) {
+            let customSettings: CustomSettings = null;
+            let firstTime: boolean = true;
 
-            } else {
-                //TODO : create file only when new setting is turned on
-                //let settings: ExtensionConfig = await me.GetSettings();
-                await FileManager.WriteFile(me.en.FILE_CUSTOMIZEDSETTINGS, JSON.stringify(new CustomSettings()));
+            if (fileExist) {
+                customSettings = await me.GetCustomSettings();
+                firstTime = false;
             }
+            else {
+                firstTime = true;
+                customSettings = new CustomSettings();
+            }
+
+            //let oldV: number = vscode.workspace.getConfiguration().get<number>("sync.version");
+            //if (oldV) {
+            vscode.workspace.getConfiguration().update("sync.version", undefined, true);
+
+            //    customSettings.version = oldV;
+            //}
+
+            if (firstTime) {
+                vscode.window.showInformationMessage("Sync : Settings Created. Thank You for Installing !");
+                vscode.window.showInformationMessage("Sync : Need Help regarding configuring this extension ?", "Open Extension Page").then(function (val: string) {
+                    if (val == "Open Extension Page") {
+                        openurl("https://marketplace.visualstudio.com/items?itemName=Shan.code-settings-sync");
+                    }
+                });
+                vscode.window.showInformationMessage("Sync : You can exclude any file / folder for upload and settings for download.", "Open Tutorial").then(function (val: string) {
+                    if (val == "Open Tutorial") {
+                        openurl("http://shanalikhan.github.io/2017/02/19/Option-to-ignore-settings-folders-code-settings-sync.html");
+                    }
+                });
+            }
+            else if (customSettings.version == 0 || customSettings.version < Environment.CURRENT_VERSION) {
+                vscode.window.showInformationMessage("Sync : Settings Sync Updated to v" + Environment.getVersion(), "View Release Notes").then(function (val: string) {
+                    if (val == "View Release Notes") {
+                        openurl("http://shanalikhan.github.io/2016/05/14/Visual-studio-code-sync-settings-release-notes.html");
+                    }
+                });
+
+                vscode.window.showInformationMessage("Sync : Do you want to open summary page in background so you can keep working. Vote Here ! :-)", "Open URL").then(function (val: string) {
+                    if (val == "Open URL") {
+                        openurl("https://github.com/Microsoft/vscode/issues/22847");
+                    }
+                });
+            }
+            customSettings.version = Environment.CURRENT_VERSION;
+            let done: boolean = await me.SetCustomSettings(customSettings);
             resolve(true);
         });
     }

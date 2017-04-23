@@ -10,15 +10,12 @@ export class ExtensionConfig {
     public autoDownload: boolean = false;
     public autoUpload = false;
     public lastDownload: Date = null;
-    public version: number = null;
     public forceDownload: boolean = false;
     public anonymousGist: boolean = false;
     public host: string = null;
     public pathPrefix: string = null;
     public quietSync: boolean = false;
-    constructor() {
-        this.version = Environment.CURRENT_VERSION;
-    }
+
 }
 
 export class LocalConfig {
@@ -46,18 +43,17 @@ export class CustomSettings {
     public ignoreUploadSettings: Object = null;
     public replaceCodeSettings: Object = null;
     public gistDescription: string = null;
+    public version: number = 0;
     constructor() {
 
         this.ignoreUploadFiles = new Array<string>();
         this.ignoreUploadFolders = new Array<string>();
         this.replaceCodeSettings = new Object();
         this.ignoreUploadSettings = new Object();
-
         this.ignoreUploadFolders.push("workspaceStorage");
-
         this.ignoreUploadFiles.push("projects.json");
         this.ignoreUploadFiles.push("projects_cache_git.json")
-
         this.gistDescription = "Visual Studio Code Settings Sync Gist";
+        this.version = Environment.CURRENT_VERSION;
     }
 }

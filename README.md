@@ -150,42 +150,43 @@ Other users can give your Gist Id to download the Gist, but they cant upload the
 
 For details regarding settings keys, click [here](http://shanalikhan.github.io/2016/07/31/Visual-Studio-code-sync-setting-edit-manually.html)
 
-```
+```json
     "sync.gist": "",
-    "sync.version": 240,
     "sync.lastUpload": "2016-12-27T16:34:19.308Z",
+    "sync.lastDownload": "2016-12-27T15:58:35.760Z",
     "sync.autoDownload": false,
     "sync.autoUpload": false,
-    "sync.lastDownload": "2016-12-27T15:58:35.760Z",
     "sync.showSummary": true,
     "sync.forceDownload": true,
     "sync.anonymousGist": false
     "sync.host":"",
-    "sync.pathPrefix":""
+    "sync.pathPrefix":"",
+    "sync.quietSync":false
 ```
 
 ## Customized Sync
 
-Now you can choose which file or folder you have to upload to Gist or which setting you want to keep after downloading the settings from other computers.
-Extension will create the syncLocalSettings.json insider User folder upon code start and connect with it.
+Extension will create the `syncLocalSettings.json` insider `User` folder upon code start.
+You can customize the sync:
+Options by which files / folders and settings you dont want to upload.
+The Gist Description when creating new Gist.
+Replace the code settings after downloading.
 
-The JSON will be created as:
+The Json will be created as:
 
-```
+```json
 {
-    "ignoreUploadFiles": [
-        "projects.json",
-        "projects_cache_git.json"
-    ],
-    "ignoreUploadFolders": [
-        "workspaceStorage"
-    ],
-    "replaceCodeSettings": 
-    {
-        "http.proxy" :"",
-        "files.autoSave" :"off"
-            
-    }
+    "version" : 270,
+    "ignoreUploadFiles": ["projects.json", "projects_cache_git.json"],
+    "ignoreUploadFolders": ["workspaceStorage"],
+    "ignoreUploadSettings": {
+        "sync.quietSync": false,
+        "editor.minimap.enabled": false
+    },
+    "replaceCodeSettings": {
+        "http.proxy": "XYZ"
+    },
+    "gistDescription": "Visual Studio Code Settings Sync Gist"
 }
 ```
 
