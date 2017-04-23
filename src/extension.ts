@@ -303,6 +303,7 @@ export async function activate(context: vscode.ExtensionContext) {
 
                         if (!syncSetting.quietSync) {
                             common.GenerateSummmaryFile(true, allSettingFiles, null, uploadedExtensions, localConfig);
+                            vscode.window.setStatusBarMessage("");
                         }
                         else {
                             vscode.window.setStatusBarMessage("");
@@ -508,6 +509,7 @@ export async function activate(context: vscode.ExtensionContext) {
 
                                 if (!syncSetting.quietSync) {
                                     common.GenerateSummmaryFile(false, updatedFiles, deletedExtensions, addedExtensions, localSettings);
+                                    vscode.window.setStatusBarMessage("");
                                 }
                                 else {
                                     vscode.window.setStatusBarMessage("");
