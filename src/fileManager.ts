@@ -1,7 +1,7 @@
 import { LocalConfig } from './setting';
 "use strict";
-var fs = require('fs');
-var path = require('path');
+const fs = require('fs');
+const path = require('path');
 
 export class File {
 

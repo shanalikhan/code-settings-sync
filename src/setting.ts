@@ -4,7 +4,6 @@ import { Environment } from './environmentPath';
 
 export class ExtensionConfig {
 
-    public token: string = null;
     public gist: string = null;
     public lastUpload: Date = null;
     public autoDownload: boolean = false;
@@ -22,9 +21,12 @@ export class LocalConfig {
     public publicGist: boolean = false;
     public userName: string = null;
     public name: string = null;
-    public config: ExtensionConfig = null;
+    public extConfig: ExtensionConfig = null;
+    public customConfig : CustomSettings = null;
+
     constructor() {
-        this.config = new ExtensionConfig();
+        this.extConfig = new ExtensionConfig();
+        this.customConfig = new CustomSettings();
     }
 }
 
@@ -44,6 +46,7 @@ export class CustomSettings {
     public replaceCodeSettings: Object = null;
     public gistDescription: string = null;
     public version: number = 0;
+    public token: string = null;
     constructor() {
 
         this.ignoreUploadFiles = new Array<string>();
@@ -55,5 +58,6 @@ export class CustomSettings {
         this.ignoreUploadFiles.push("projects_cache_git.json")
         this.gistDescription = "Visual Studio Code Settings Sync Gist";
         this.version = Environment.CURRENT_VERSION;
+        this.token = "";
     }
 }

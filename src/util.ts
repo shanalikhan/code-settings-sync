@@ -5,9 +5,9 @@ import * as vscode from 'vscode';
 import * as url from 'url';
 import * as fs from 'fs';
 
-var adm_zip = require('adm-zip');
-var temp = require('temp').track();
-var HttpsProxyAgent = require("https-proxy-agent");
+const adm_zip = require('adm-zip');
+const temp = require('temp').track();
+const HttpsProxyAgent = require("https-proxy-agent");
 var proxy = vscode.workspace.getConfiguration("http")["proxy"] || process.env["http_proxy"];
 var agent = null;
 if (proxy) {

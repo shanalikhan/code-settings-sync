@@ -4,12 +4,12 @@ import * as vscode from 'vscode';
 import * as util from './util';
 import * as path from 'path';
 import { FileManager } from './fileManager';
-var fs = require('fs');
-var ncp = require('ncp').ncp;
+const fs = require('fs');
+const ncp = require('ncp').ncp;
 
 var apiPath = 'https://marketplace.visualstudio.com/_apis/public/gallery/extensionquery';
 
-var rmdir = require('rimraf');
+const rmdir = require('rimraf');
 
 export class ExtensionInformation {
     metadata: ExtensionMetadata;
