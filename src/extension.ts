@@ -56,37 +56,22 @@ export async function activate(context: vscode.ExtensionContext) {
         let uploadedExtensions = new Array<ExtensionInformation>();
         let dateNow: Date = new Date();
         common.CloseWatch();
+        let ignoreSettings = new Object();
 
         try {
             localConfig = await common.InitalizeSettings(true, false);
-            let config = vscode.workspace.getConfiguration();
-
-            let keysUpdated = new Array<Thenable<void>>();
-            Object.keys(localConfig.customConfig.ignoreUploadSettings).forEach(async (key: string, index: number) => {
-                let keyValue: Object = null;
-                keyValue = config.get<null>(key, null);
-                if (keyValue != null) {
-                    localConfig.customConfig.ignoreUploadSettings[key] = keyValue;
-                    keysUpdated.push(config.update(key, keyValue, true));
-                    keysUpdated.push(config.update(key, undefined, true));
+            localConfig.publicGist = false;
+            if (args.length > 0) {
+                if (args[0] == "publicGIST") {
+                    localConfig.publicGist = true;
                 }
-            });
+            }
 
-            //let a: Object = await Promise.all(keysUpdated);
-            Promise.all(keysUpdated).then(async (res) => {
-                await common.SetCustomSettings(localConfig.customConfig);
-                localConfig.publicGist = false;
-                if (args.length > 0) {
-                    if (args[0] == "publicGIST") {
-                        localConfig.publicGist = true;
-                    }
-                }
-                myGi = new GithubService(localConfig.customConfig.token);
-                await startGitProcess(localConfig.extConfig, localConfig.customConfig);
-            }, (er) => {
-                Commons.LogException(er, common.ERROR_MESSAGE, true);
-                return;
-            });
+            myGi = new GithubService(localConfig.customConfig.token);
+            ignoreSettings = await common.GetIgnoredSettings(localConfig.customConfig.ignoreUploadSettings);
+            await startGitProcess(localConfig.extConfig, localConfig.customConfig);
+            await common.SetIgnoredSettings(ignoreSettings);
+
         } catch (error) {
             Commons.LogException(error, common.ERROR_MESSAGE, true);
             return;
@@ -94,7 +79,7 @@ export async function activate(context: vscode.ExtensionContext) {
 
         async function startGitProcess(syncSetting: ExtensionConfig, customSettings: CustomSettings) {
 
-            vscode.window.setStatusBarMessage("Sync : Uploading / Updating Your Settings In Github.",2000);
+            vscode.window.setStatusBarMessage("Sync : Uploading / Updating Your Settings In Github.", 2000);
 
             if (!syncSetting.anonymousGist) {
                 if (customSettings.token == null && customSettings.token == "") {
@@ -104,7 +89,7 @@ export async function activate(context: vscode.ExtensionContext) {
             }
 
             syncSetting.lastUpload = dateNow;
-            vscode.window.setStatusBarMessage("Sync : Reading Settings and Extensions.",2000);
+            vscode.window.setStatusBarMessage("Sync : Reading Settings and Extensions.", 2000);
 
             uploadedExtensions = PluginService.CreateExtensionList();
 
@@ -233,7 +218,7 @@ export async function activate(context: vscode.ExtensionContext) {
                             localConfig.publicGist = true;
                         }
 
-                        vscode.window.setStatusBarMessage("Sync : Uploading Files Data.");
+                        vscode.window.setStatusBarMessage("Sync : Uploading Files Data.",3000);
                         gistObj = myGi.UpdateGIST(gistObj, allSettingFiles);
 
                         await myGi.SaveGIST(gistObj.data).then(async function (saved: boolean) {
@@ -261,10 +246,6 @@ export async function activate(context: vscode.ExtensionContext) {
 
             if (completed) {
                 await common.SaveSettings(syncSetting).then(function (added: boolean) {
-                    let config = vscode.workspace.getConfiguration();
-                    Object.keys(customSettings.ignoreUploadSettings).forEach((key: string, index: number) => {
-                        config.update(key, customSettings.ignoreUploadSettings[key], true);
-                    });
                     if (added) {
                         if (newGIST) {
                             vscode.window.showInformationMessage("Sync : Upload Complete." + " GIST ID :  " + syncSetting.gist + " . Please copy and use this ID in other machines to download settings.");
@@ -300,11 +281,14 @@ export async function activate(context: vscode.ExtensionContext) {
         var common: Commons = new Commons(en, context);
         var myGi: GithubService = null;
         var localSettings: LocalConfig = new LocalConfig();
+        let ignoreSettings = new Object();
         common.CloseWatch();
 
         try {
             localSettings = await common.InitalizeSettings(false, true);
+            ignoreSettings = await common.GetIgnoredSettings(localSettings.customConfig.ignoreUploadSettings);
             await StartDownload(localSettings.extConfig, localSettings.customConfig);
+            await common.SetIgnoredSettings(ignoreSettings);
 
         } catch (error) {
             Commons.LogException(error, common.ERROR_MESSAGE, true);

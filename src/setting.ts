@@ -42,7 +42,7 @@ export class CloudSetting {
 export class CustomSettings {
     public ignoreUploadFiles: Array<string> = null;
     public ignoreUploadFolders: Array<string> = null;
-    public ignoreUploadSettings: Object = null;
+    public ignoreUploadSettings: Array<string> = null;
     public replaceCodeSettings: Object = null;
     public gistDescription: string = null;
     public version: number = 0;
@@ -52,7 +52,7 @@ export class CustomSettings {
         this.ignoreUploadFiles = new Array<string>();
         this.ignoreUploadFolders = new Array<string>();
         this.replaceCodeSettings = new Object();
-        this.ignoreUploadSettings = new Object();
+        this.ignoreUploadSettings = new Array<string>();
         this.ignoreUploadFolders.push("workspaceStorage");
         this.ignoreUploadFiles.push("projects.json");
         this.ignoreUploadFiles.push("projects_cache_git.json")

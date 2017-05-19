@@ -45,7 +45,6 @@ export class Commons {
                 }
             }
         }
-        //vscode.window.setStatusBarMessage("").dispose();
 
         if (msgBox == true) {
             vscode.window.showErrorMessage(message);
@@ -194,7 +193,7 @@ export class Commons {
             var extSettings: ExtensionConfig = me.GetSettings()
             var cusSettings: CustomSettings = await me.GetCustomSettings();
 
-            if (cusSettings.token=="") {
+            if (cusSettings.token == "") {
                 if (askToken == true) {
                     askToken = !extSettings.anonymousGist;
                 }
@@ -236,7 +235,11 @@ export class Commons {
                 let customExist: boolean = await FileManager.FileExists(me.en.FILE_CUSTOMIZEDSETTINGS);
                 if (customExist) {
                     let customSettingStr: string = await FileManager.ReadFile(me.en.FILE_CUSTOMIZEDSETTINGS);
-                    Object.assign(customSettings, JSON.parse(customSettingStr));
+                    let tempObj: Object = JSON.parse(customSettingStr);
+                    if (!Array.isArray(tempObj["ignoreUploadSettings"])) {
+                        tempObj["ignoreUploadSettings"] = new Array<string>();
+                    }
+                    Object.assign(customSettings, tempObj);
                     resolve(customSettings);
                 }
             }
@@ -468,6 +471,44 @@ export class Commons {
             return options;
         }
     };
+
+
+    /**
+     * IgnoreSettings
+     */
+    public async GetIgnoredSettings(settings: Array<String>): Promise<Object> {
+        let ignoreSettings: Object = new Object();
+        return new Promise<Object>((resolve, reject) => {
+            let config = vscode.workspace.getConfiguration();
+            let keysUpdated = new Array<Thenable<void>>();
+            settings.forEach(async (key: string, index: number) => {
+                let keyValue: Object = null;
+                keyValue = config.get<null>(key, null);
+                if (keyValue != null) {
+                    ignoreSettings[key] = keyValue;
+                    keysUpdated.push(config.update(key, undefined, true));
+                }
+            });
+            Promise.all(keysUpdated).then((a => {
+                resolve(ignoreSettings);
+            }), (rej) => {
+                rej(null);
+            });
+        });
+
+    }
+
+
+    /**
+     * RestoreIgnoredSettings
+     */
+    public SetIgnoredSettings(ignoredSettings: Object): void {
+        let config = vscode.workspace.getConfiguration();
+        let keysUpdated = new Array<Thenable<void>>();
+        Object.keys(ignoredSettings).forEach(async (key: string, index: number) => {
+            keysUpdated.push(config.update(key, ignoredSettings[key], true));
+        });
+    }
 
     public GenerateSummmaryFile(upload: boolean, files: Array<File>, removedExtensions: Array<ExtensionInformation>, addedExtensions: Array<ExtensionInformation>, syncSettings: LocalConfig) {
 
