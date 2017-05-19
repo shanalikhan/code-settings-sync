@@ -518,34 +518,37 @@ export async function activate(context: vscode.ExtensionContext) {
     });
 
     var resetSettings = vscode.commands.registerCommand('extension.resetSettings', async () => {
-        var en: Environment = new Environment(context);
-        var fManager: FileManager;
-        var common: Commons = new Commons(en, context);
-        var syncSetting: ExtensionConfig = await common.GetSettings();
+
+        var extSettings: ExtensionConfig = null;
+        var localSettings: CustomSettings = null;
         await Init();
 
         async function Init() {
             vscode.window.setStatusBarMessage("Sync : Resetting Your Settings.", 2000);
 
             try {
+                var en: Environment = new Environment(context);
+                var common: Commons = new Commons(en, context);
 
-                syncSetting = new ExtensionConfig();
-                await common.SaveSettings(syncSetting).then(async function (added: boolean) {
-                    if (added) {
-                        let lockExist: boolean = await FileManager.FileExists(en.FILE_SYNC_LOCK);
-                        if (!lockExist) {
-                            fs.closeSync(fs.openSync(en.FILE_SYNC_LOCK, 'w'));
-                        }
-                        let locked: boolean = lockfile.checkSync(en.FILE_SYNC_LOCK);
-                        if (locked) {
-                            lockfile.unlockSync(en.FILE_SYNC_LOCK);
-                        }
-                        vscode.window.showInformationMessage("Sync : Settings Cleared.");
-                    }
-                }, function (err: any) {
-                    Commons.LogException(err, common.ERROR_MESSAGE, true);
-                    return;
-                });
+                extSettings = new ExtensionConfig();
+                localSettings = new CustomSettings();
+
+                let extSaved: boolean = await common.SaveSettings(extSettings);
+                let customSaved: boolean = await common.SetCustomSettings(localSettings);
+                let lockExist: boolean = await FileManager.FileExists(en.FILE_SYNC_LOCK);
+
+                if (!lockExist) {
+                    fs.closeSync(fs.openSync(en.FILE_SYNC_LOCK, 'w'));
+                }
+
+                let locked: boolean = lockfile.checkSync(en.FILE_SYNC_LOCK);
+                if (locked) {
+                    lockfile.unlockSync(en.FILE_SYNC_LOCK);
+                }
+
+                if (extSaved && customSaved) {
+                    vscode.window.showInformationMessage("Sync : Settings Cleared.");
+                }
             }
             catch (err) {
                 Commons.LogException(err, "Sync : Unable to clear settings. Error Logged on console. Please open an issue.", true);
