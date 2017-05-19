@@ -193,27 +193,32 @@ export class Commons {
             var extSettings: ExtensionConfig = me.GetSettings()
             var cusSettings: CustomSettings = await me.GetCustomSettings();
 
-            if(askToken==true){
-                askToken = !extSettings.anonymousGist;
+            if (cusSettings.token=="") {
+                if (askToken == true) {
+                    askToken = !extSettings.anonymousGist;
+                }
+
+                if (askToken) {
+                    openurl("https://github.com/settings/tokens");
+                    let tokTemp: string = await me.GetTokenAndSave(cusSettings);
+                    if (!tokTemp) {
+                        vscode.window.showErrorMessage("Sync : Token Not Saved.");
+                        reject(false);
+                    }
+                    cusSettings.token = tokTemp;
+                }
             }
 
-            if (askToken) {
-                openurl("https://github.com/settings/tokens");
-                let tokTemp: string = await me.GetTokenAndSave(cusSettings);
-                if (!tokTemp) {
-                    vscode.window.showErrorMessage("Sync : Token Not Saved.");
-                    reject(false);
-                }
-                cusSettings.token = tokTemp;
-            }
 
-            if(askGist){
-                let gistTemp : string = await me.GetGistAndSave(extSettings);
-                if(!gistTemp){
-                    vscode.window.showErrorMessage("Sync : Gist Not Saved.");
-                    reject(false);
+            if (extSettings.gist == "") {
+                if (askGist) {
+                    let gistTemp: string = await me.GetGistAndSave(extSettings);
+                    if (!gistTemp) {
+                        vscode.window.showErrorMessage("Sync : Gist Not Saved.");
+                        reject(false);
+                    }
+                    extSettings.gist = gistTemp;
                 }
-                extSettings.gist = gistTemp;
             }
             settings.customConfig = cusSettings;
             settings.extConfig = extSettings;
