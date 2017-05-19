@@ -261,13 +261,20 @@ export class PluginService {
                         }
                     }
 
-                    if (targetVersion == null) {
+                    if (targetVersion == null || !targetVersion.assetUri) {
                         // unable to find one
-                        throw "unable to find corresponding version of extension from gallery";
+                        if (targetVersion == null)
+                            throw "unable to find corresponding version of extension from gallery";
+
+                        if (!targetVersion.assetUri)
+                            throw "unable to find corresponding version of extension from gallery with log : " + JSON.stringify(targetVersion);
+
                     }
 
                     // Proceed to install
-                    var downloadUrl = targetVersion.assetUri + '/Microsoft.VisualStudio.Services.VSIXPackage?install=true'
+                    var downloadUrl = targetVersion.assetUri + '/Microsoft.VisualStudio.Services.VSIXPackage?install=true';
+                    console.log("Installing from Url :" + downloadUrl);
+
                     return downloadUrl;
                 } catch (error) {
 
