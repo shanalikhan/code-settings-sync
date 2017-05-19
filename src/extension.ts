@@ -94,7 +94,7 @@ export async function activate(context: vscode.ExtensionContext) {
 
         async function startGitProcess(syncSetting: ExtensionConfig, customSettings: CustomSettings) {
 
-            vscode.window.setStatusBarMessage("Sync : Uploading / Updating Your Settings In Github.");
+            vscode.window.setStatusBarMessage("Sync : Uploading / Updating Your Settings In Github.",2000);
 
             if (!syncSetting.anonymousGist) {
                 if (customSettings.token == null && customSettings.token == "") {
@@ -104,7 +104,7 @@ export async function activate(context: vscode.ExtensionContext) {
             }
 
             syncSetting.lastUpload = dateNow;
-            vscode.window.setStatusBarMessage("Sync : Reading Settings and Extensions.");
+            vscode.window.setStatusBarMessage("Sync : Reading Settings and Extensions.",2000);
 
             uploadedExtensions = PluginService.CreateExtensionList();
 
@@ -276,10 +276,10 @@ export async function activate(context: vscode.ExtensionContext) {
 
                         if (!syncSetting.quietSync) {
                             common.GenerateSummmaryFile(true, allSettingFiles, null, uploadedExtensions, localConfig);
-                            vscode.window.setStatusBarMessage("");
+                            vscode.window.setStatusBarMessage("").dispose();
                         }
                         else {
-                            vscode.window.setStatusBarMessage("");
+                            vscode.window.setStatusBarMessage("").dispose();
                             vscode.window.setStatusBarMessage("Sync : Uploaded Successfully.", 5000);
                         }
                         if (syncSetting.autoUpload) {
@@ -314,7 +314,7 @@ export async function activate(context: vscode.ExtensionContext) {
         async function StartDownload(syncSetting: ExtensionConfig, customSettings: CustomSettings) {
 
             myGi = new GithubService(customSettings.token);
-            vscode.window.setStatusBarMessage("");
+            vscode.window.setStatusBarMessage("").dispose();
             vscode.window.setStatusBarMessage("Sync : Reading Settings Online.", 2000);
 
             myGi.ReadGist(syncSetting.gist).then(async function (res: any) {
@@ -478,10 +478,10 @@ export async function activate(context: vscode.ExtensionContext) {
                             if (added) {
                                 if (!syncSetting.quietSync) {
                                     common.GenerateSummmaryFile(false, updatedFiles, deletedExtensions, addedExtensions, localSettings);
-                                    vscode.window.setStatusBarMessage("");
+                                    vscode.window.setStatusBarMessage("").dispose();
                                 }
                                 else {
-                                    vscode.window.setStatusBarMessage("");
+                                    vscode.window.setStatusBarMessage("").dispose();
                                     vscode.window.setStatusBarMessage("Sync : Download Complete.", 5000);
                                 }
                                 if (Object.keys(customSettings.replaceCodeSettings).length > 0) {

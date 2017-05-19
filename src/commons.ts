@@ -49,9 +49,10 @@ export class Commons {
 
         if (msgBox == true) {
             vscode.window.showErrorMessage(message);
+            vscode.window.setStatusBarMessage("").dispose();
         }
         else {
-            vscode.window.setStatusBarMessage(message, 5000).dispose();
+            vscode.window.setStatusBarMessage(message, 5000);
         }
 
         if (callback) {
@@ -157,7 +158,7 @@ export class Commons {
                 }
             }
             else {
-                vscode.window.setStatusBarMessage("");
+                vscode.window.setStatusBarMessage("").dispose();
                 vscode.window.setStatusBarMessage("Sync : Updating In Progress ... Please Wait.", 3000);
             }
         });
@@ -166,7 +167,7 @@ export class Commons {
     public async InitiateAutoUpload(path: string): Promise<boolean> {
 
         return new Promise<boolean>(async (resolve, reject) => {
-            vscode.window.setStatusBarMessage("");
+            vscode.window.setStatusBarMessage("").dispose();
             vscode.window.setStatusBarMessage("Sync : Auto Upload Initiating In 5 Seconds.", 5000);
 
             setTimeout(function () {
