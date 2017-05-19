@@ -2,7 +2,7 @@
     "name": "code-settings-sync",
     "displayName": "Settings Sync",
     "description": "Synchronize Settings, Snippets, Themes, File Icons, Launch, Keybindings, Workspaces and Extensions Across Multiple Machines Using Github Gist.",
-    "version": "2.7.0",
+    "version": "2.8.0",
     "icon": "images/cloud.png",
     "publisher": "Shan",
     "author": {
@@ -129,7 +129,7 @@
                 "sync.forceDownload": {
                     "type": "boolean",
                     "default": false,
-                    "description": "Set it to true if you want to download the settings everytime code starts."
+                    "description": "Set it to true if you want to download the settings even when you have latest settings."
                 },
                 "sync.anonymousGist": {
                     "type": "boolean",
