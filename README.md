@@ -167,13 +167,13 @@ For details regarding settings keys, click [here](http://shanalikhan.github.io/2
 
 Extension will create the `syncLocalSettings.json` insider `User` folder upon code start.
 You can customize the sync:
+
 ```
 1. Options by which files / folders and settings to exclude from upload.
 2. The Gist Description when creating new Gist.
 3. Replace the code settings after downloading.
 4. Change the Gist description while creating new one in github.
 ```
-
 
 The Json will be created as:
 
