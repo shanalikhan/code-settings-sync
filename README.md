@@ -156,7 +156,6 @@ For details regarding settings keys, click [here](http://shanalikhan.github.io/2
     "sync.lastDownload": "2016-12-27T15:58:35.760Z",
     "sync.autoDownload": false,
     "sync.autoUpload": false,
-    "sync.showSummary": true,
     "sync.forceDownload": true,
     "sync.anonymousGist": false
     "sync.host":"",
@@ -168,21 +167,22 @@ For details regarding settings keys, click [here](http://shanalikhan.github.io/2
 
 Extension will create the `syncLocalSettings.json` insider `User` folder upon code start.
 You can customize the sync:
-Options by which files / folders and settings you dont want to upload.
-The Gist Description when creating new Gist.
-Replace the code settings after downloading.
+
+```
+1. Options by which files / folders and settings to exclude from upload.
+2. The Gist Description when creating new Gist.
+3. Replace the code settings after downloading.
+4. Change the Gist description while creating new one in github.
+```
 
 The Json will be created as:
 
 ```json
 {
+    "token":"YOUR_GITHUB_TOKEN_HERE",
     "version" : 270,
     "ignoreUploadFiles": ["projects.json", "projects_cache_git.json"],
     "ignoreUploadFolders": ["workspaceStorage"],
-    "ignoreUploadSettings": {
-        "sync.quietSync": false,
-        "editor.minimap.enabled": false
-    },
     "replaceCodeSettings": {
         "http.proxy": "XYZ"
     },

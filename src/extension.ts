@@ -12,7 +12,7 @@ import { OsType, SettingType } from './enums';
 
 export async function activate(context: vscode.ExtensionContext) {
 
-    var openurl = require('open');
+    var openurl = require('opn');
     var fs = require('fs');
     const lockfile = require('proper-lockfile');
 
@@ -31,98 +31,65 @@ export async function activate(context: vscode.ExtensionContext) {
 
     await common.StartMigrationProcess();
     let startUpSetting: ExtensionConfig = await common.GetSettings();
+    let startUpCustomSetting: CustomSettings = await common.GetCustomSettings();
 
     if (startUpSetting) {
-        let tokenAvailable: boolean = (startUpSetting.token != null) && (startUpSetting.token != "");
+        let tokenAvailable: boolean = (startUpCustomSetting.token != null) && (startUpCustomSetting.token != "");
         let gistAvailable: boolean = (startUpSetting.gist != null) && (startUpSetting.gist != "");
 
         if (startUpSetting.autoUpload && tokenAvailable && gistAvailable) {
             common.StartWatch();
         }
-
         if (gistAvailable == true && startUpSetting.autoDownload == true) {
             vscode.commands.executeCommand('extension.downloadSettings');
-        }
-        else {
-
         }
     }
 
     var updateSettings = vscode.commands.registerCommand('extension.updateSettings', async function () {
 
         let args = arguments;
-        let dateNow: Date = new Date();
         let en: Environment = new Environment(context);
         let common: Commons = new Commons(en, context);
-        common.CloseWatch();
-
         let myGi: GithubService = null;
         let localConfig: LocalConfig = new LocalConfig();
-        let syncSetting: ExtensionConfig = await common.GetSettings();
         let allSettingFiles = new Array<File>();
         let uploadedExtensions = new Array<ExtensionInformation>();
-        let customSettings: CustomSettings = new CustomSettings();
+        let dateNow: Date = new Date();
+        common.CloseWatch();
+        let ignoreSettings = new Object();
 
-        let askToken: boolean = !syncSetting.anonymousGist;
-
-        await common.InitializeSettings(syncSetting, askToken, false).then(async (resolve) => {
-
-            localConfig.config = resolve;
-            syncSetting = localConfig.config;
-            customSettings = await common.GetCustomSettings();
-            let config = vscode.workspace.getConfiguration();
-
-            let keysUpdated = new Array<Thenable<void>>();
-            Object.keys(customSettings.ignoreUploadSettings).forEach(async (key: string, index: number) => {
-                let keyValue: Object = null;
-                keyValue = config.get<null>(key, null);
-                if (keyValue != null) {
-                    customSettings.ignoreUploadSettings[key] = keyValue;
-                    keysUpdated.push(config.update(key, keyValue, true));
-                    keysUpdated.push(config.update(key, undefined, true));
-                    //keysUpdated.push();
+        try {
+            localConfig = await common.InitalizeSettings(true, false);
+            localConfig.publicGist = false;
+            if (args.length > 0) {
+                if (args[0] == "publicGIST") {
+                    localConfig.publicGist = true;
                 }
-            });
+            }
 
-            //let a: Object = await Promise.all(keysUpdated);
-            Promise.all(keysUpdated).then(async (res) => {
-                await common.SetCustomSettings(customSettings);
+            myGi = new GithubService(localConfig.customConfig.token);
+            ignoreSettings = await common.GetIgnoredSettings(localConfig.customConfig.ignoreUploadSettings);
+            await startGitProcess(localConfig.extConfig, localConfig.customConfig);
+            await common.SetIgnoredSettings(ignoreSettings);
 
-                if (args.length > 0) {
-                    if (args[0] == "publicGIST") {
-                        localConfig.publicGist = true;
-                    }
-                    else {
-                        localConfig.publicGist = false;
-                    }
-                }
-                myGi = new GithubService(syncSetting.token);
-
-                await startGitProcess();
-            }, (er) => {
-                Commons.LogException(er, common.ERROR_MESSAGE, true);
-                return;
-            });
-
-
-        }, (reject) => {
-            Commons.LogException(reject, common.ERROR_MESSAGE, true);
+        } catch (error) {
+            Commons.LogException(error, common.ERROR_MESSAGE, true);
             return;
-        });
+        }
 
-        async function startGitProcess() {
+        async function startGitProcess(syncSetting: ExtensionConfig, customSettings: CustomSettings) {
 
-            vscode.window.setStatusBarMessage("Sync : Uploading / Updating Your Settings In Github.");
+            vscode.window.setStatusBarMessage("Sync : Uploading / Updating Your Settings In Github.", 2000);
 
             if (!syncSetting.anonymousGist) {
-                if (syncSetting.token == null && syncSetting.token == "") {
+                if (customSettings.token == null && customSettings.token == "") {
                     vscode.window.showInformationMessage("Sync : Set Github Token or set anonymousGist to true from settings.");
                     return;
                 }
             }
 
             syncSetting.lastUpload = dateNow;
-            vscode.window.setStatusBarMessage("Sync : Reading Settings and Extensions.");
+            vscode.window.setStatusBarMessage("Sync : Reading Settings and Extensions.", 2000);
 
             uploadedExtensions = PluginService.CreateExtensionList();
 
@@ -140,18 +107,11 @@ export async function activate(context: vscode.ExtensionContext) {
             allSettingFiles.push(file);
 
             let contentFiles: Array<File> = new Array();
-
-            // if (syncSetting.workspaceSync) {
             contentFiles = await FileManager.ListFiles(en.USER_FOLDER, 0, 2);
-            // }
-            // else {
-            //     contentFiles = await FileManager.ListFiles(en.USER_FOLDER, 0, 1);
-            // }
 
             let customExist: boolean = await FileManager.FileExists(en.FILE_CUSTOMIZEDSETTINGS);
             if (customExist) {
                 customSettings = await common.GetCustomSettings();
-
                 contentFiles = contentFiles.filter((file: File, index: number) => {
                     let a: boolean = file.fileName != en.FILE_CUSTOMIZEDSETTINGS_NAME;
                     return a;
@@ -178,7 +138,6 @@ export async function activate(context: vscode.ExtensionContext) {
             }
 
             contentFiles.forEach(snippetFile => {
-
                 if (snippetFile.fileName != en.APP_SUMMARY_NAME && snippetFile.fileName != en.FILE_KEYBINDING_MAC) {
                     if (snippetFile.content != "") {
                         if (snippetFile.fileName == en.FILE_KEYBINDING_NAME) {
@@ -224,7 +183,6 @@ export async function activate(context: vscode.ExtensionContext) {
                 });
             }
             else {
-
                 if (syncSetting.gist == null || syncSetting.gist === "") {
                     newGIST = true;
                     await myGi.CreateEmptyGIST(localConfig.publicGist, customSettings.gistDescription).then(async function (gistID: string) {
@@ -260,7 +218,7 @@ export async function activate(context: vscode.ExtensionContext) {
                             localConfig.publicGist = true;
                         }
 
-                        vscode.window.setStatusBarMessage("Sync : Uploading Files Data.");
+                        vscode.window.setStatusBarMessage("Sync : Uploading Files Data.",3000);
                         gistObj = myGi.UpdateGIST(gistObj, allSettingFiles);
 
                         await myGi.SaveGIST(gistObj.data).then(async function (saved: boolean) {
@@ -288,25 +246,21 @@ export async function activate(context: vscode.ExtensionContext) {
 
             if (completed) {
                 await common.SaveSettings(syncSetting).then(function (added: boolean) {
-                    let config = vscode.workspace.getConfiguration();
-                    Object.keys(customSettings.ignoreUploadSettings).forEach((key: string, index: number) => {
-                        config.update(key, customSettings.ignoreUploadSettings[key], true);
-                    });
                     if (added) {
                         if (newGIST) {
                             vscode.window.showInformationMessage("Sync : Upload Complete." + " GIST ID :  " + syncSetting.gist + " . Please copy and use this ID in other machines to download settings.");
                         }
 
                         if (localConfig.publicGist) {
-                            vscode.window.showInformationMessage("Sync : You can share the GIST ID to other users to download your settings.");
+                            vscode.window.showInformationMessage("Sync : Share the Id with other extension users to share the settings.");
                         }
 
                         if (!syncSetting.quietSync) {
                             common.GenerateSummmaryFile(true, allSettingFiles, null, uploadedExtensions, localConfig);
-                            vscode.window.setStatusBarMessage("");
+                            vscode.window.setStatusBarMessage("").dispose();
                         }
                         else {
-                            vscode.window.setStatusBarMessage("");
+                            vscode.window.setStatusBarMessage("").dispose();
                             vscode.window.setStatusBarMessage("Sync : Uploaded Successfully.", 5000);
                         }
                         if (syncSetting.autoUpload) {
@@ -325,26 +279,26 @@ export async function activate(context: vscode.ExtensionContext) {
 
         var en: Environment = new Environment(context);
         var common: Commons = new Commons(en, context);
-        common.CloseWatch();
-
         var myGi: GithubService = null;
         var localSettings: LocalConfig = new LocalConfig();
-        var syncSetting: ExtensionConfig = await common.GetSettings();
-        let customSettings: CustomSettings = new CustomSettings();
-        let askToken: boolean = !syncSetting.anonymousGist;
+        let ignoreSettings = new Object();
+        common.CloseWatch();
 
-        await common.InitializeSettings(syncSetting, false, true).then(async (resolve) => {
+        try {
+            localSettings = await common.InitalizeSettings(false, true);
+            ignoreSettings = await common.GetIgnoredSettings(localSettings.customConfig.ignoreUploadSettings);
+            await StartDownload(localSettings.extConfig, localSettings.customConfig);
+            await common.SetIgnoredSettings(ignoreSettings);
 
-            localSettings.config = resolve;
-            syncSetting = localSettings.config;
-            customSettings = await common.GetCustomSettings();
-            await StartDownload();
-        });
+        } catch (error) {
+            Commons.LogException(error, common.ERROR_MESSAGE, true);
+            return;
+        }
 
-        async function StartDownload() {
+        async function StartDownload(syncSetting: ExtensionConfig, customSettings: CustomSettings) {
 
-            myGi = new GithubService(syncSetting.token);
-            vscode.window.setStatusBarMessage("");
+            myGi = new GithubService(customSettings.token);
+            vscode.window.setStatusBarMessage("").dispose();
             vscode.window.setStatusBarMessage("Sync : Reading Settings Online.", 2000);
 
             myGi.ReadGist(syncSetting.gist).then(async function (res: any) {
@@ -506,20 +460,18 @@ export async function activate(context: vscode.ExtensionContext) {
 
                         await common.SaveSettings(syncSetting).then(async function (added: boolean) {
                             if (added) {
-
                                 if (!syncSetting.quietSync) {
                                     common.GenerateSummmaryFile(false, updatedFiles, deletedExtensions, addedExtensions, localSettings);
-                                    vscode.window.setStatusBarMessage("");
+                                    vscode.window.setStatusBarMessage("").dispose();
                                 }
                                 else {
-                                    vscode.window.setStatusBarMessage("");
+                                    vscode.window.setStatusBarMessage("").dispose();
                                     vscode.window.setStatusBarMessage("Sync : Download Complete.", 5000);
                                 }
                                 if (Object.keys(customSettings.replaceCodeSettings).length > 0) {
+
                                     let config = vscode.workspace.getConfiguration();
-
                                     let keysDefined: Array<string> = Object.keys(customSettings.replaceCodeSettings);
-
                                     keysDefined.forEach((key: string, index: number) => {
                                         let c: string = undefined;
                                         let value: string = customSettings.replaceCodeSettings[key];
@@ -527,8 +479,6 @@ export async function activate(context: vscode.ExtensionContext) {
                                         config.update(key, c, true);
                                     });
                                 }
-
-
                                 if (syncSetting.autoUpload) {
                                     common.StartWatch();
                                 }
@@ -552,35 +502,37 @@ export async function activate(context: vscode.ExtensionContext) {
     });
 
     var resetSettings = vscode.commands.registerCommand('extension.resetSettings', async () => {
-        var en: Environment = new Environment(context);
-        var fManager: FileManager;
-        var common: Commons = new Commons(en, context);
-        var syncSetting: ExtensionConfig = await common.GetSettings();
+
+        var extSettings: ExtensionConfig = null;
+        var localSettings: CustomSettings = null;
         await Init();
 
         async function Init() {
             vscode.window.setStatusBarMessage("Sync : Resetting Your Settings.", 2000);
+
             try {
-                syncSetting = new ExtensionConfig();
+                var en: Environment = new Environment(context);
+                var common: Commons = new Commons(en, context);
 
-                await common.SaveSettings(syncSetting).then(async function (added: boolean) {
-                    if (added) {
+                extSettings = new ExtensionConfig();
+                localSettings = new CustomSettings();
 
-                        let lockExist: boolean = await FileManager.FileExists(en.FILE_SYNC_LOCK);
-                        if (!lockExist) {
-                            fs.closeSync(fs.openSync(en.FILE_SYNC_LOCK, 'w'));
-                        }
-                        let locked: boolean = lockfile.checkSync(en.FILE_SYNC_LOCK);
-                        if (locked) {
-                            lockfile.unlockSync(en.FILE_SYNC_LOCK);
-                        }
-                        vscode.window.showInformationMessage("Sync : Settings Cleared.");
-                    }
-                }, function (err: any) {
-                    Commons.LogException(err, common.ERROR_MESSAGE, true);
-                    return;
-                });
+                let extSaved: boolean = await common.SaveSettings(extSettings);
+                let customSaved: boolean = await common.SetCustomSettings(localSettings);
+                let lockExist: boolean = await FileManager.FileExists(en.FILE_SYNC_LOCK);
 
+                if (!lockExist) {
+                    fs.closeSync(fs.openSync(en.FILE_SYNC_LOCK, 'w'));
+                }
+
+                let locked: boolean = lockfile.checkSync(en.FILE_SYNC_LOCK);
+                if (locked) {
+                    lockfile.unlockSync(en.FILE_SYNC_LOCK);
+                }
+
+                if (extSaved && customSaved) {
+                    vscode.window.showInformationMessage("Sync : Settings Cleared.");
+                }
             }
             catch (err) {
                 Commons.LogException(err, "Sync : Unable to clear settings. Error Logged on console. Please open an issue.", true);
@@ -596,10 +548,10 @@ export async function activate(context: vscode.ExtensionContext) {
         var en: Environment = new Environment(context);
         var common: Commons = new Commons(en, context);
         var setting: ExtensionConfig = await common.GetSettings();
-        var localSetting: LocalConfig = new LocalConfig();
-        var tokenAvailable: boolean = setting.token != null && setting.token != "";
-        var gistAvailable: boolean = setting.gist != null && setting.gist != "";
         let customSettings: CustomSettings = await common.GetCustomSettings();
+        var localSetting: LocalConfig = new LocalConfig();
+        var tokenAvailable: boolean = customSettings.token != null && customSettings.token != "";
+        var gistAvailable: boolean = setting.gist != null && setting.gist != "";
 
         let items: Array<string> = new Array<string>();
         items.push("Sync : Edit Extension Local Settings");
@@ -622,7 +574,6 @@ export async function activate(context: vscode.ExtensionContext) {
                     //extension local settings
                     var file: vscode.Uri = vscode.Uri.file(en.FILE_CUSTOMIZEDSETTINGS);
                     fs.openSync(file.fsPath, 'r');
-
                     await vscode.workspace.openTextDocument(file).then((a: vscode.TextDocument) => {
                         vscode.window.showTextDocument(a, vscode.ViewColumn.One, true);
                     });
@@ -670,12 +621,10 @@ export async function activate(context: vscode.ExtensionContext) {
                     //auto downlaod on startup
                     selectedItem = 4;
                     settingChanged = true;
-
                     if (!setting) {
                         vscode.commands.executeCommand('extension.HowSettings');
                         return;
                     }
-
                     if (!tokenAvailable || !gistAvailable) {
                         vscode.commands.executeCommand('extension.HowSettings');
                         return;
@@ -715,8 +664,6 @@ export async function activate(context: vscode.ExtensionContext) {
 
                     };
                     vscode.window.showInputBox(options).then(async (res) => {
-                        //customSettings
-                        //debugger;
                         if (res) {
                             let settingKey: string = res;
                             let a = vscode.workspace.getConfiguration();
@@ -808,7 +755,6 @@ export async function activate(context: vscode.ExtensionContext) {
                     return;
                 });
             }
-
         }, (reject: any) => {
             Commons.LogException(reject, "Error", true);
             return;
