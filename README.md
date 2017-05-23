@@ -179,10 +179,6 @@ The Json will be created as:
     "version" : 270,
     "ignoreUploadFiles": ["projects.json", "projects_cache_git.json"],
     "ignoreUploadFolders": ["workspaceStorage"],
-    "ignoreUploadSettings": {
-        "sync.quietSync": false,
-        "editor.minimap.enabled": false
-    },
     "replaceCodeSettings": {
         "http.proxy": "XYZ"
     },

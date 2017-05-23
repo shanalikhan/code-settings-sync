@@ -256,7 +256,9 @@ export class Commons {
         let me: Commons = this;
         return new Promise<boolean>(async (resolve, reject) => {
             try {
-                await FileManager.WriteFile(me.en.FILE_CUSTOMIZEDSETTINGS, JSON.stringify(setting));
+                let json : Object =  Object.assign(setting);
+                delete json["ignoreUploadSettings"]
+                await FileManager.WriteFile(me.en.FILE_CUSTOMIZEDSETTINGS, JSON.stringify(json));
                 resolve(true);
             }
             catch (e) {
