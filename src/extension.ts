@@ -406,6 +406,8 @@ export async function activate(context: vscode.ExtensionContext) {
                                                 addedExtensions.push(element);
                                                 //var name = element.publisher + '.' + element.name + '-' + element.version;
                                                 //vscode.window.showInformationMessage("Extension " + name + " installed Successfully");
+                                            },function(a){
+
                                             }));
                                     });
                                 }

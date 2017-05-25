@@ -263,12 +263,7 @@ export class PluginService {
 
                     if (targetVersion == null || !targetVersion.assetUri) {
                         // unable to find one
-                        if (targetVersion == null)
-                            throw "unable to find corresponding version of extension from gallery";
-
-                        if (!targetVersion.assetUri)
-                            throw "unable to find corresponding version of extension from gallery with log : " + JSON.stringify(targetVersion);
-
+                       throw "NA";
                     }
 
                     // Proceed to install
@@ -277,7 +272,9 @@ export class PluginService {
 
                     return downloadUrl;
                 } catch (error) {
-
+                    if (error == "NA") {
+                        console.error("Sync : Extension : '"+ item.name +"' - Version : '"+ item.version+"' Not Found. You need to sync again to remove it from gist.");
+                    }
                     console.log(error);
                     console.log("Response :");
                     console.log(res);
