@@ -68,9 +68,9 @@ export async function activate(context: vscode.ExtensionContext) {
             }
 
             myGi = new GithubService(localConfig.customConfig.token);
-            ignoreSettings = await common.GetIgnoredSettings(localConfig.customConfig.ignoreUploadSettings);
+            //ignoreSettings = await common.GetIgnoredSettings(localConfig.customConfig.ignoreUploadSettings);
             await startGitProcess(localConfig.extConfig, localConfig.customConfig);
-            await common.SetIgnoredSettings(ignoreSettings);
+            //await common.SetIgnoredSettings(ignoreSettings);
 
         } catch (error) {
             Commons.LogException(error, common.ERROR_MESSAGE, true);
@@ -286,9 +286,9 @@ export async function activate(context: vscode.ExtensionContext) {
 
         try {
             localSettings = await common.InitalizeSettings(false, true);
-            ignoreSettings = await common.GetIgnoredSettings(localSettings.customConfig.ignoreUploadSettings);
+            //ignoreSettings = await common.GetIgnoredSettings(localSettings.customConfig.ignoreUploadSettings);
             await StartDownload(localSettings.extConfig, localSettings.customConfig);
-            await common.SetIgnoredSettings(ignoreSettings);
+            //await common.SetIgnoredSettings(ignoreSettings);
 
         } catch (error) {
             Commons.LogException(error, common.ERROR_MESSAGE, true);
