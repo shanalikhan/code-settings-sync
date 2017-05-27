@@ -73,6 +73,15 @@ export class Environment {
             }
         }
 
+        if(this.OsType == OsType.Linux){
+            let myExt = "chmod +x " + this.ExtensionFolder+"/Shan.code-settings-sync-"+ Environment.getVersion()+"/node-modules/opn/xdg-open";
+            var exec = require('child_process').exec;
+            exec(myExt, function(error, stdout, stderr) {
+                debugger;
+                // command output is in stdout
+            });
+        }
+
         var codePath = this.isInsiders ? '/Code - Insiders' : '/Code';
         this.PATH = this.PATH + codePath;
         this.USER_FOLDER = this.PATH.concat("/User/");

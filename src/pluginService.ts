@@ -275,7 +275,7 @@ export class PluginService {
                     if (error == "NA") {
                         console.error("Sync : Extension : '"+ item.name +"' - Version : '"+ item.version+"' Not Found. You need to sync again to remove it from gist.");
                     }
-                    console.log(error);
+                    console.error(error);
                     console.log("Response :");
                     console.log(res);
                 }
