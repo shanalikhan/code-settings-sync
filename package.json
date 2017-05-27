@@ -150,7 +150,13 @@
                     "type": "boolean",
                     "default": false,
                     "description": "When set to true, will show the result in status bar instead of summary page."
+                },
+                "sync.askGistName": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "Ask gist name upon creating. Helps you to identify the gist if you have multiple gists."
                 }
+
             },
             "title": "Code Settings Sync Configuration Settings"
         }

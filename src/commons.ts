@@ -256,7 +256,7 @@ export class Commons {
         let me: Commons = this;
         return new Promise<boolean>(async (resolve, reject) => {
             try {
-                let json : Object =  Object.assign(setting);
+                let json: Object = Object.assign(setting);
                 delete json["ignoreUploadSettings"]
                 await FileManager.WriteFile(me.en.FILE_CUSTOMIZEDSETTINGS, JSON.stringify(json));
                 resolve(true);
@@ -510,6 +510,22 @@ export class Commons {
         Object.keys(ignoredSettings).forEach(async (key: string, index: number) => {
             keysUpdated.push(config.update(key, ignoredSettings[key], true));
         });
+    }
+
+    /**
+     * AskGistName
+     */
+    public async AskGistName() : Promise<string> {
+        return new Promise<string>((resolve, reject) => {
+            vscode.window.showInputBox({
+                prompt: "Allows you to identify the settings if you have multiple gist. For example : Office Settings, Home Personal Dev Settings."
+                , ignoreFocusOut: true
+                , placeHolder: "Visual Studio Code Settings Sync Gist"
+            }).then((value) => {
+                resolve(value);
+            });
+        });
+
     }
 
     public GenerateSummmaryFile(upload: boolean, files: Array<File>, removedExtensions: Array<ExtensionInformation>, addedExtensions: Array<ExtensionInformation>, syncSettings: LocalConfig) {

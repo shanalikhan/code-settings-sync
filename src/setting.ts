@@ -14,6 +14,7 @@ export class ExtensionConfig {
     public host: string = null;
     public pathPrefix: string = null;
     public quietSync: boolean = false;
+    public askGistName: boolean = false;
 
 }
 
@@ -22,7 +23,7 @@ export class LocalConfig {
     public userName: string = null;
     public name: string = null;
     public extConfig: ExtensionConfig = null;
-    public customConfig : CustomSettings = null;
+    public customConfig: CustomSettings = null;
 
     constructor() {
         this.extConfig = new ExtensionConfig();

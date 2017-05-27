@@ -273,11 +273,11 @@ export class PluginService {
                     return downloadUrl;
                 } catch (error) {
                     if (error == "NA") {
-                        console.error("Sync : Extension : '"+ item.name +"' - Version : '"+ item.version+"' Not Found. You need to sync again to remove it from gist.");
+                        console.error("Sync : Extension : '"+ item.name +"' - Version : '"+ item.version+"' Not Found in marketplace. Remove the extension and upload the settings to fix this.");
                     }
                     console.error(error);
-                    console.log("Response :");
-                    console.log(res);
+                    // console.log("Response :");
+                    // console.log(res);
                 }
 
             })

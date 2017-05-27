@@ -166,12 +166,15 @@ export async function activate(context: vscode.ExtensionContext) {
             let newGIST: boolean = false;
 
             if (syncSetting.anonymousGist) {
+                if (syncSetting.askGistName) {
+                    customSettings.gistDescription = await common.AskGistName();
+                }
                 await myGi.CreateAnonymousGist(localConfig.publicGist, allSettingFiles, customSettings.gistDescription).then(async function (gistID: string) {
                     if (gistID) {
                         newGIST = true;
                         syncSetting.gist = gistID;
                         completed = true;
-                        vscode.window.setStatusBarMessage("Sync : New gist created.",2000);
+                        vscode.window.setStatusBarMessage("Sync : New gist created.", 2000);
                     }
                     else {
                         vscode.window.showInformationMessage("Sync : Unable to create Gist.");
@@ -184,11 +187,14 @@ export async function activate(context: vscode.ExtensionContext) {
             }
             else {
                 if (syncSetting.gist == null || syncSetting.gist === "") {
+                    if (syncSetting.askGistName) {
+                        customSettings.gistDescription = await common.AskGistName();
+                    }
                     newGIST = true;
                     await myGi.CreateEmptyGIST(localConfig.publicGist, customSettings.gistDescription).then(async function (gistID: string) {
                         if (gistID) {
                             syncSetting.gist = gistID;
-                            vscode.window.setStatusBarMessage("Sync : New gist created.",2000);
+                            vscode.window.setStatusBarMessage("Sync : New gist created.", 2000);
                         }
                         else {
                             vscode.window.showInformationMessage("Sync : Unable to create Gist.");
@@ -218,7 +224,7 @@ export async function activate(context: vscode.ExtensionContext) {
                             localConfig.publicGist = true;
                         }
 
-                        vscode.window.setStatusBarMessage("Sync : Uploading Files Data.",3000);
+                        vscode.window.setStatusBarMessage("Sync : Uploading Files Data.", 3000);
                         gistObj = myGi.UpdateGIST(gistObj, allSettingFiles);
 
                         await myGi.SaveGIST(gistObj.data).then(async function (saved: boolean) {
@@ -309,7 +315,7 @@ export async function activate(context: vscode.ExtensionContext) {
                 var actionList = new Array<Promise<void | boolean>>();
 
                 if (res) {
-                    if (res.public == true) {
+                    if (res.data.public == true) {
                         localSettings.publicGist = true;
                     }
                     var keys = Object.keys(res.data.files);
@@ -406,7 +412,7 @@ export async function activate(context: vscode.ExtensionContext) {
                                                 addedExtensions.push(element);
                                                 //var name = element.publisher + '.' + element.name + '-' + element.version;
                                                 //vscode.window.showInformationMessage("Extension " + name + " installed Successfully");
-                                            },function(a){
+                                            }, function (a) {
 
                                             }));
                                     });
