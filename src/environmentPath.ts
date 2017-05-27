@@ -77,7 +77,7 @@ export class Environment {
             let myExt = "chmod +x " + this.ExtensionFolder+"/Shan.code-settings-sync-"+ Environment.getVersion()+"/node-modules/opn/xdg-open";
             var exec = require('child_process').exec;
             exec(myExt, function(error, stdout, stderr) {
-                debugger;
+               
                 // command output is in stdout
             });
         }
