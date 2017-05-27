@@ -171,7 +171,7 @@ export async function activate(context: vscode.ExtensionContext) {
                         newGIST = true;
                         syncSetting.gist = gistID;
                         completed = true;
-                        vscode.window.setStatusBarMessage("Sync : New gist created.");
+                        vscode.window.setStatusBarMessage("Sync : New gist created.",2000);
                     }
                     else {
                         vscode.window.showInformationMessage("Sync : Unable to create Gist.");
@@ -188,7 +188,7 @@ export async function activate(context: vscode.ExtensionContext) {
                     await myGi.CreateEmptyGIST(localConfig.publicGist, customSettings.gistDescription).then(async function (gistID: string) {
                         if (gistID) {
                             syncSetting.gist = gistID;
-                            vscode.window.setStatusBarMessage("Sync : New gist created.");
+                            vscode.window.setStatusBarMessage("Sync : New gist created.",2000);
                         }
                         else {
                             vscode.window.showInformationMessage("Sync : Unable to create Gist.");
