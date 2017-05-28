@@ -337,7 +337,7 @@ export async function activate(context: vscode.ExtensionContext) {
 
                         if (!syncSetting.forceDownload) {
                             if (upToDate) {
-                                vscode.window.setStatusBarMessage("");
+                                vscode.window.setStatusBarMessage("").dispose();
                                 vscode.window.setStatusBarMessage("Sync : You already have latest version of saved settings.", 5000);
                                 return;
                             }
@@ -399,7 +399,7 @@ export async function activate(context: vscode.ExtensionContext) {
 
                                 var missingList = PluginService.GetMissingExtensions(remoteList);
                                 if (missingList.length == 0) {
-                                    vscode.window.setStatusBarMessage("");
+                                    vscode.window.setStatusBarMessage("").dispose();
                                     vscode.window.setStatusBarMessage("Sync : No Extension needs to be installed.", 2000);
                                 }
                                 else {
