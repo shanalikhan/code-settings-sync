@@ -311,16 +311,15 @@ export class Commons {
                         vscode.window.showInformationMessage("Sync : Now You can set your Github token manually in `syncLocalSettings.json`");
                     }
                 }
-                me.DonateMessage();
-                vscode.window.showInformationMessage("Sync : Settings Sync Updated to v" + Environment.getVersion(), "View Release Notes").then(function (val: string) {
-                    if (val == "View Release Notes") {
+                  vscode.window.showInformationMessage("Sync : Updated v"+ Environment.getVersion(),"Release Notes","Write Review","Donate Now").then(function(val: string){
+                    if(val == "Release Notes"){
                         openurl("http://shanalikhan.github.io/2016/05/14/Visual-studio-code-sync-settings-release-notes.html");
                     }
-                });
-
-                vscode.window.showInformationMessage("Sync : Do you want to open summary page in background so you can keep working. Vote Here ! :-)", "Open URL").then(function (val: string) {
-                    if (val == "Open URL") {
-                        openurl("https://github.com/Microsoft/vscode/issues/11247");
+                    if(val=="Write Review"){
+                        openurl("https://marketplace.visualstudio.com/items?itemName=Shan.code-settings-sync#review-details");
+                    }
+                    if(val=="Donate Now"){
+                        openurl("https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=4W3EWHHBSYMM8&lc=IE&item_name=Code%20Settings%20Sync&item_number=visual%20studio%20code%20settings%20sync&currency_code=USD&bn=PP-DonationsBF:btn_donate_SM.gif:NonHosted");
                     }
                 });
             }
