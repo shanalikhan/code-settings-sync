@@ -311,7 +311,7 @@ export class Commons {
                         vscode.window.showInformationMessage("Sync : Now You can set your Github token manually in `syncLocalSettings.json`");
                     }
                 }
-                  vscode.window.showInformationMessage("Sync : Updated v"+ Environment.getVersion(),"Release Notes","Write Review","Donate Now").then(function(val: string){
+                  vscode.window.showInformationMessage("Sync : Settings Sync Updated. v"+ Environment.getVersion(),"Release Notes","Write Review","Donate Now").then(function(val: string){
                     if(val == "Release Notes"){
                         openurl("http://shanalikhan.github.io/2016/05/14/Visual-studio-code-sync-settings-release-notes.html");
                     }
