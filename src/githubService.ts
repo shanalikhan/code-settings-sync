@@ -20,7 +20,7 @@ var github = new GitHubApi({
     pathPrefix: pathPrefix
 });
 
-export class GithubService {
+export class GitHubService {
 
     private GIST_JSON_EMPTY: any = {
         "description": "Visual Studio Code Sync Settings Gist",
@@ -57,7 +57,7 @@ export class GithubService {
     constructor(private TOKEN: string) {
         if (TOKEN != null && TOKEN != '') {
             try {
-                var self: GithubService = this;
+                var self: GitHubService = this;
                 github.authenticate({
                     type: "oauth",
                     token: TOKEN

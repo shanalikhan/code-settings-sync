@@ -1,7 +1,7 @@
 {
     "name": "code-settings-sync",
     "displayName": "Settings Sync",
-    "description": "Synchronize Settings, Snippets, Themes, File Icons, Launch, Keybindings, Workspaces and Extensions Across Multiple Machines Using Github Gist.",
+    "description": "Synchronize Settings, Snippets, Themes, File Icons, Launch, Keybindings, Workspaces and Extensions Across Multiple Machines Using GitHub Gist.",
     "version": "2.8.1",
     "icon": "images/cloud.png",
     "publisher": "Shan",
@@ -104,7 +104,7 @@
                 "sync.gist": {
                     "type": "string",
                     "default": "",
-                    "description": "Github GIST ID for Settings Sync."
+                    "description": "GitHub GIST ID for Settings Sync."
                 },
                 "sync.lastUpload": {
                     "type": "string",
@@ -134,7 +134,7 @@
                 "sync.anonymousGist": {
                     "type": "boolean",
                     "default": false,
-                    "description": "Set it to true if you want to create or download from Anonymous Gist. Extension will not ask for Github token."
+                    "description": "Set it to true if you want to create or download from Anonymous Gist. Extension will not ask for GitHub token."
                 },
                 "sync.host": {
                     "type": "string",
