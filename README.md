@@ -9,15 +9,15 @@
 
 ## Key Features
 ```
-1. Use your github account token and Gist.
-2. Can create Anonymous Gist without using your Github account token.
+1. Use your GitHub account token and Gist.
+2. Can create Anonymous Gist without using your GitHub account token.
 3. Easy to Upload and Download on one click.
 4. Show a summary page at the end with details about config and extensions effected.
 5. Auto Download Latest Settings on Startup.
 6. Auto upload Settings on file change.
 7. Share the Gist with other users and let them download your settings.
-8. Supports GitHub Enterprise 
-```      
+8. Supports GitHub Enterprise
+```
 
 
 ## It Syncs
@@ -30,7 +30,7 @@ All the extensions and complete User Folder that Contains
 5. VSCode Extensions Settings
 6. Workspaces
 ```
-   
+
 ## Shortcuts
 ```
 1. Upload Key : Shift + Alt + U
@@ -40,7 +40,7 @@ All the extensions and complete User Folder that Contains
 
 
 
-## Steps To Get the Github Key.
+## Steps To Get the GitHub Key.
 
 This extension requires your GitHub Account Personal Access Token. You can create one simple by looking into the following pictures. Make sure you add **Gist** in scope.
 
@@ -100,7 +100,7 @@ You are Done! All your files are downloaded
 
 ## Creating and Downloading Settings From Anonymous Gist
 
-Anonymous Gist is **Turned Off** by default. Github provides a way to create Anonymous Gist so you can create Anonymous Gist without adding your account information (token). But you cant make change on Anonymous Gist once created, its the limitation from the Github so extension will always create new Anonymous Gist upon uploading the settings, you can download the settings from any Anonymous Gist without adding your account information.
+Anonymous Gist is **Turned Off** by default. GitHub provides a way to create Anonymous Gist so you can create Anonymous Gist without adding your account information (token). But you cant make change on Anonymous Gist once created, its the limitation from the GitHub so extension will always create new Anonymous Gist upon uploading the settings, you can download the settings from any Anonymous Gist without adding your account information.
 
 To turn on the Anonymous Gist , set `sync.anonymousGist` to true
 
@@ -131,7 +131,7 @@ Select Command **"Sync : Advance Options > Toggle Auto-Upload on Setting Change"
 ## Toggle Summary
 
 Summary is **enabled by default** which shows all the files and extensions that are added or deleted in a single page.
-You may turn it off in order to make a upload and download process clean and quiet.  
+You may turn it off in order to make a upload and download process clean and quiet.
 
 Select Command **"Sync : Advance Options > Toggle Summary Page On Upload / Download"** command to Turn ON / OFF the auto download.
 
@@ -195,7 +195,7 @@ For details about customized sync, visit my post [here](http://shanalikhan.githu
 
 # How To Contribute
 
-If you have any idea, you can open an issue on the Github repository so we can further discuss it or you can send me a pull request.
+If you have any idea, you can open an issue on the GitHub repository so we can further discuss it or you can send me a pull request.
 
 ## Through Code
 
@@ -218,12 +218,12 @@ Submit a Pull Request.
 If you are enjoying this extension. What about donating, Your donation will help me to keep working and supporting this project.
 
 [<img src="https://www.paypalobjects.com/en_US/i/btn/btn_donateCC_LG.gif">](https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=4W3EWHHBSYMM8&lc=IE&item_name=Code%20Settings%20Sync&item_number=visual%20studio%20code%20settings%20sync&currency_code=USD&bn=PP%2dDonationsBF%3abtn_donate_SM%2egif%3aNonHosted)
-  
 
-    
+
+
 ## [Contributors](https://github.com/shanalikhan/code-settings-sync/graphs/contributors)
 # [Release Notes](http://shanalikhan.github.io/2016/05/14/Visual-studio-code-sync-settings-release-notes.html)
-    
+
 # License
 MIT
 

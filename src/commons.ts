@@ -26,7 +26,7 @@ export class Commons {
         if (error) {
             console.error(error);
             if (error.code == 500) {
-                message = "Sync : Internet Not Connected or Unable to Connect to Github. Exception Logged in Console";
+                message = "Sync : Internet Not Connected or Unable to Connect to GitHub. Exception Logged in Console";
                 msgBox = false;
             }
             else if (error.code == 4) {
@@ -37,7 +37,7 @@ export class Commons {
                     message = JSON.parse(error.message).message;
                     if (message.toLowerCase() == 'bad credentials') {
                         msgBox = true;
-                        message = "Sync : Invalid / Expired Github Token. Please generate new token with scopes mentioned in readme. Exception Logged in Console.";
+                        message = "Sync : Invalid / Expired GitHub Token. Please generate new token with scopes mentioned in readme. Exception Logged in Console.";
                         openurl("https://github.com/settings/tokens");
                     }
                 } catch (error) {
@@ -308,7 +308,7 @@ export class Commons {
                     if (token != "") {
                         customSettings.token = String(token);
                         this.context.globalState.update("synctoken", "");
-                        vscode.window.showInformationMessage("Sync : Now You can set your Github token manually in `syncLocalSettings.json`");
+                        vscode.window.showInformationMessage("Sync : Now You can set your GitHub token manually in `syncLocalSettings.json`");
                     }
                 }
                   vscode.window.showInformationMessage("Sync : Settings Sync Updated. v"+ Environment.getVersion(),"Release Notes","Write Review","Donate Now").then(function(val: string){
@@ -455,7 +455,7 @@ export class Commons {
 
         if (token) {
             let options: vscode.InputBoxOptions = {
-                placeHolder: "Enter Github Personal Access Token",
+                placeHolder: "Enter GitHub Personal Access Token",
                 password: false,
                 prompt: "Link opened to get the GitHub token. Enter token and press [Enter] or press / type 'esc' to cancel.",
                 ignoreFocusOut: true
