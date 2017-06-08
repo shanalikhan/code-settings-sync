@@ -1,12 +1,12 @@
 'use strict';
 
 import * as vscode from 'vscode';
-import { PluginService, ExtensionInformation } from './pluginService';
+import { PluginService, ExtensionInformation } from './Services/pluginService';
 import * as path from 'path';
 import { Environment } from './environmentPath';
 import { File, FileManager } from './fileManager';
 import { Commons } from './commons';
-import { GitHubService } from './githubService';
+import { GitHubService } from './Services/githubService';
 import { ExtensionConfig, LocalConfig, CloudSetting, CustomSettings } from './setting';
 import { OsType, SettingType } from './enums';
 

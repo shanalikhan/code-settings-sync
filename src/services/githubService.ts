@@ -1,9 +1,9 @@
 "use strict";
 
-import * as envir from './environmentPath';
-import * as fileManager from './fileManager';
+import * as envir from '../environmentPath';
+import * as fileManager from '../fileManager';
 import * as vscode from 'vscode';
-import { Environment } from './environmentPath';
+import { Environment } from '../environmentPath';
 
 var proxyURL: string = vscode.workspace.getConfiguration("http")["proxy"] || process.env["http_proxy"];
 var host: string = vscode.workspace.getConfiguration("sync")["host"];
