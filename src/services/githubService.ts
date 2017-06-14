@@ -1,9 +1,8 @@
 "use strict";
 
-import * as envir from '../environmentPath';
-import * as fileManager from '../fileManager';
+import { File } from '../manager/fileManager';
 import * as vscode from 'vscode';
-import { Environment } from '../environmentPath';
+import { Environment } from '../common/environmentPath';
 
 var proxyURL: string = vscode.workspace.getConfiguration("http")["proxy"] || process.env["http_proxy"];
 var host: string = vscode.workspace.getConfiguration("sync")["host"];
@@ -79,7 +78,7 @@ export class GitHubService {
         }
     }
 
-    public AddFile(list: Array<fileManager.File>, GIST_JSON_b: any) {
+    public AddFile(list: Array<File>, GIST_JSON_b: any) {
         for (var i = 0; i < list.length; i++) {
             var file = list[i];
             if (file.content != '') {
@@ -122,7 +121,7 @@ export class GitHubService {
         });
     }
 
-    public async CreateAnonymousGist(publicGist: boolean, files: Array<fileManager.File>, gistDesciption: string): Promise<any> {
+    public async CreateAnonymousGist(publicGist: boolean, files: Array<File>, gistDesciption: string): Promise<any> {
         var me = this;
         if (publicGist) {
             me.GIST_JSON_EMPTY.public = true;
@@ -155,7 +154,6 @@ export class GitHubService {
         });
     }
 
-
     public async ReadGist(GIST: string): Promise<any> {
         var me = this;
         return new Promise<any>(async (resolve, reject) => {
@@ -169,7 +167,7 @@ export class GitHubService {
         });
     }
 
-    public UpdateGIST(gistObject: any, files: Array<fileManager.File>): any {
+    public UpdateGIST(gistObject: any, files: Array<File>): any {
 
         var me = this;
         var allFiles: string[] = Object.keys(gistObject.data.files);

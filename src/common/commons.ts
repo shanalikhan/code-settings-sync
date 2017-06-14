@@ -1,9 +1,12 @@
 "use strict";
 import * as vscode from 'vscode';
 import { Environment } from './environmentPath';
-import { File, FileManager } from './fileManager';
-import { ExtensionConfig, LocalConfig, CustomSettings } from './setting';
-import { PluginService, ExtensionInformation } from './pluginService';
+import { File, FileManager } from '../manager/fileManager';
+import { CloudSetting } from '../models/cloudSetting';
+import { CustomSetting } from '../models/customSetting';
+import { ExtensionConfig } from '../models/extensionConfig';
+import { LocalConfig } from '../models/localConfig';
+import { PluginService, ExtensionInformation } from '../services/pluginService';
 import * as fs from 'fs';
 import * as path from 'path';
 
@@ -116,7 +119,7 @@ export class Commons {
                 uploadStopped = false;
                 lockfile.lockSync(self.en.FILE_SYNC_LOCK);
                 let settings: ExtensionConfig = this.GetSettings();
-                let customSettings: CustomSettings = await this.GetCustomSettings();
+                let customSettings: CustomSetting = await this.GetCustomSettings();
                 if (customSettings == null) {
                     return;
                 }
@@ -191,7 +194,7 @@ export class Commons {
         return new Promise<LocalConfig>(async (resolve, reject) => {
             var settings: LocalConfig = new LocalConfig();
             var extSettings: ExtensionConfig = me.GetSettings()
-            var cusSettings: CustomSettings = await me.GetCustomSettings();
+            var cusSettings: CustomSetting = await me.GetCustomSettings();
 
             if (cusSettings.token == "") {
                 if (askToken == true) {
@@ -226,11 +229,11 @@ export class Commons {
         });
     }
 
-    public async GetCustomSettings(): Promise<CustomSettings> {
+    public async GetCustomSettings(): Promise<CustomSetting> {
         let me: Commons = this;
-        return new Promise<CustomSettings>(async (resolve, reject) => {
+        return new Promise<CustomSetting>(async (resolve, reject) => {
 
-            let customSettings: CustomSettings = new CustomSettings();
+            let customSettings: CustomSetting = new CustomSetting();
             try {
                 let customExist: boolean = await FileManager.FileExists(me.en.FILE_CUSTOMIZEDSETTINGS);
                 if (customExist) {
@@ -252,7 +255,7 @@ export class Commons {
         });
     }
 
-    public async SetCustomSettings(setting: CustomSettings): Promise<boolean> {
+    public async SetCustomSettings(setting: CustomSetting): Promise<boolean> {
         let me: Commons = this;
         return new Promise<boolean>(async (resolve, reject) => {
             try {
@@ -275,7 +278,7 @@ export class Commons {
 
             let settings: ExtensionConfig = await me.GetSettings();
             let fileExist: boolean = await FileManager.FileExists(me.en.FILE_CUSTOMIZEDSETTINGS);
-            let customSettings: CustomSettings = null;
+            let customSettings: CustomSetting = null;
             let firstTime: boolean = true;
 
             if (fileExist) {
@@ -284,7 +287,7 @@ export class Commons {
             }
             else {
                 firstTime = true;
-                customSettings = new CustomSettings();
+                customSettings = new CustomSetting();
             }
             vscode.workspace.getConfiguration().update("sync.version", undefined, true);
 
@@ -402,7 +405,7 @@ export class Commons {
         return settings;
     }
 
-    public async GetTokenAndSave(sett: CustomSettings): Promise<string> {
+    public async GetTokenAndSave(sett: CustomSetting): Promise<string> {
         var me = this;
         var opt = Commons.GetInputBox(true);
         return new Promise<string>((resolve, reject) => {

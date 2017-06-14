@@ -3,12 +3,15 @@
 import * as vscode from 'vscode';
 import { PluginService, ExtensionInformation } from './Services/pluginService';
 import * as path from 'path';
-import { Environment } from './environmentPath';
-import { File, FileManager } from './fileManager';
-import { Commons } from './commons';
+import { Environment } from './common/environmentPath';
+import { File, FileManager } from './manager/fileManager';
+import { Commons } from './common/commons';
 import { GitHubService } from './Services/githubService';
-import { ExtensionConfig, LocalConfig, CloudSetting, CustomSettings } from './setting';
-import { OsType, SettingType } from './enums';
+import { OsType, SettingType } from './common/enums';
+import { CloudSetting } from './models/cloudSetting';
+import { CustomSetting } from './models/customSetting';
+import { ExtensionConfig } from './models/extensionConfig';
+import { LocalConfig } from './models/localConfig';
 
 export async function activate(context: vscode.ExtensionContext) {
 
@@ -31,7 +34,7 @@ export async function activate(context: vscode.ExtensionContext) {
 
     await common.StartMigrationProcess();
     let startUpSetting: ExtensionConfig = await common.GetSettings();
-    let startUpCustomSetting: CustomSettings = await common.GetCustomSettings();
+    let startUpCustomSetting: CustomSetting = await common.GetCustomSettings();
 
     if (startUpSetting) {
         let tokenAvailable: boolean = (startUpCustomSetting.token != null) && (startUpCustomSetting.token != "");
@@ -77,7 +80,7 @@ export async function activate(context: vscode.ExtensionContext) {
             return;
         }
 
-        async function startGitProcess(syncSetting: ExtensionConfig, customSettings: CustomSettings) {
+        async function startGitProcess(syncSetting: ExtensionConfig, customSettings: CustomSetting) {
 
             vscode.window.setStatusBarMessage("Sync : Uploading / Updating Your Settings In GitHub.", 2000);
 
@@ -301,7 +304,7 @@ export async function activate(context: vscode.ExtensionContext) {
             return;
         }
 
-        async function StartDownload(syncSetting: ExtensionConfig, customSettings: CustomSettings) {
+        async function StartDownload(syncSetting: ExtensionConfig, customSettings: CustomSetting) {
 
             myGi = new GitHubService(customSettings.token);
             vscode.window.setStatusBarMessage("").dispose();
@@ -512,7 +515,7 @@ export async function activate(context: vscode.ExtensionContext) {
     var resetSettings = vscode.commands.registerCommand('extension.resetSettings', async () => {
 
         var extSettings: ExtensionConfig = null;
-        var localSettings: CustomSettings = null;
+        var localSettings: CustomSetting = null;
         await Init();
 
         async function Init() {
@@ -523,7 +526,7 @@ export async function activate(context: vscode.ExtensionContext) {
                 var common: Commons = new Commons(en, context);
 
                 extSettings = new ExtensionConfig();
-                localSettings = new CustomSettings();
+                localSettings = new CustomSetting();
 
                 let extSaved: boolean = await common.SaveSettings(extSettings);
                 let customSaved: boolean = await common.SetCustomSettings(localSettings);
@@ -556,7 +559,7 @@ export async function activate(context: vscode.ExtensionContext) {
         var en: Environment = new Environment(context);
         var common: Commons = new Commons(en, context);
         var setting: ExtensionConfig = await common.GetSettings();
-        let customSettings: CustomSettings = await common.GetCustomSettings();
+        let customSettings: CustomSetting = await common.GetCustomSettings();
         var localSetting: LocalConfig = new LocalConfig();
         var tokenAvailable: boolean = customSettings.token != null && customSettings.token != "";
         var gistAvailable: boolean = setting.gist != null && setting.gist != "";
