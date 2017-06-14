@@ -1,15 +1,15 @@
-import { File } from './fileManager'
-import { OsType, SettingType } from './enums';
-import { Environment } from './environmentPath';
+import { File, FileManager } from './manager/fileManager';
+import { OsType, SettingType } from './common/enums';
+import { Environment } from './common/environmentPath';
 
 
 export class Gist {
 
-    public gistId: string = null;
-    public ownerName: string = null;
-    public ownerUser: string = null;
-    public files: Array<File> = null;
-    public publicGist: boolean = false;
+    private gistId: string = null;
+    private ownerName: string = null;
+    private ownerUser: string = null;
+    private files: Array<File> = null;
+    private publicGist: boolean = false;
 
     constructor(public gistResponse: Object, private en: Environment) {
 
@@ -48,9 +48,25 @@ export class Gist {
             }
         }
     }
-    public Add(f: File): void {
-
+    public AddFile(f: File): void {
         this.files.push(f);
     }
 
+    public GetOwnerUser(): string{
+        return this.ownerUser;
+    }
+
+    public GetOwnerName(): string{
+        return this.ownerName;
+    }
+
+    public IsPublic() : boolean{
+        return this.publicGist;
+    }
+
+// private gistId: string = null;
+//     private ownerName: string = null;
+//     private ownerUser: string = null;
+//     private files: Array<File> = null;
+//     private publicGist: boolean = false;
 }
