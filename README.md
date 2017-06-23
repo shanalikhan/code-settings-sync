@@ -44,7 +44,7 @@ All the extensions and complete User Folder that Contains
 
 This extension requires your GitHub Account Personal Access Token. You can create one simple by looking into the following pictures. Make sure you add **Gist** in scope.
 
-**Goto Settings / Personal Access Tokens / Generate New Token**
+**Goto [Settings](https://github.com/settings) / [Personal Access Tokens](https://github.com/settings/tokens) / Generate New Token**
 
 
 ![Goto Settings / Personal Access Tokens](http://shanalikhan.github.io/img/github1.PNG)
