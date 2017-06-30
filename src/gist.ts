@@ -29,16 +29,8 @@ export class Gist {
                 keys.forEach(gistName => {
                     if (this.gistResponse["files"][gistName]) {
                         if (this.gistResponse["files"][gistName].content) {
-                            //if (gistName.indexOf(".") > -1) {
-                            // if (en.OsType == OsType.Mac && gistName == en.FILE_KEYBINDING_DEFAULT) {
-                            //     return;
-                            // }
-                            // if (en.OsType != OsType.Mac && gistName == en.FILE_KEYBINDING_MAC) {
-                            //     return;
-                            // }
                             var f: File = new File(gistName, this.gistResponse["files"][gistName].content, null, gistName);
                             this.files.push(f);
-                            //}
                         }
                     }
                     else {
@@ -64,9 +56,4 @@ export class Gist {
         return this.publicGist;
     }
 
-// private gistId: string = null;
-//     private ownerName: string = null;
-//     private ownerUser: string = null;
-//     private files: Array<File> = null;
-//     private publicGist: boolean = false;
 }

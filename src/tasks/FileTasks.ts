@@ -1,6 +1,9 @@
 import { ITask } from './ITask';
 
 export class FileTasks implements ITask {
+    Create(): Promise<string> {
+        throw new Error("Method not implemented.");
+    }
 
     Save(): Promise<boolean> {
         throw new Error("Method not implemented.");
