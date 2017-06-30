@@ -214,14 +214,17 @@ export async function activate(context: vscode.ExtensionContext) {
                     if (gistObj) {
                         if (gistObj.data.owner != null) {
                             let gistOwnerName: string = gistObj.data.owner.login.trim();
-                            let userName: string = myGi.userName.trim();
-                            if (gistOwnerName != userName) {
-                                Commons.LogException(null, "Sync : You cant edit GIST for user : " + gistObj.data.owner.login, true, function () {
-                                    console.log("Sync : Current User : " + "'" + userName + "'");
-                                    console.log("Sync : Gist Owner User : " + "'" + gistOwnerName + "'");
-                                });
-                                return;
+                            if (myGi.userName != null) {
+                                let userName: string = myGi.userName.trim();
+                                if (gistOwnerName != userName) {
+                                    Commons.LogException(null, "Sync : You cant edit GIST for user : " + gistObj.data.owner.login, true, function () {
+                                        console.log("Sync : Current User : " + "'" + userName + "'");
+                                        console.log("Sync : Gist Owner User : " + "'" + gistOwnerName + "'");
+                                    });
+                                    return;
+                                }
                             }
+
                         }
                         if (gistObj.public == true) {
                             localConfig.publicGist = true;
