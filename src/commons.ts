@@ -399,6 +399,7 @@ export class Commons {
                 settings[key] = vscode.workspace.getConfiguration("sync")[key];
             }
         });
+        settings.gist = settings.gist.trim();
         return settings;
     }
 
