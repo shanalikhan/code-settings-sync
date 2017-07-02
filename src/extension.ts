@@ -6,7 +6,7 @@ import * as path from 'path';
 import { Environment } from './environmentPath';
 import { File, FileManager } from './fileManager';
 import { Commons } from './commons';
-import { GithubService } from './githubService';
+import { GitHubService } from './githubService';
 import { ExtensionConfig, LocalConfig, CloudSetting, CustomSettings } from './setting';
 import { OsType, SettingType } from './enums';
 
@@ -50,7 +50,7 @@ export async function activate(context: vscode.ExtensionContext) {
         let args = arguments;
         let en: Environment = new Environment(context);
         let common: Commons = new Commons(en, context);
-        let myGi: GithubService = null;
+        let myGi: GitHubService = null;
         let localConfig: LocalConfig = new LocalConfig();
         let allSettingFiles = new Array<File>();
         let uploadedExtensions = new Array<ExtensionInformation>();
@@ -67,7 +67,7 @@ export async function activate(context: vscode.ExtensionContext) {
                 }
             }
 
-            myGi = new GithubService(localConfig.customConfig.token);
+            myGi = new GitHubService(localConfig.customConfig.token);
             //ignoreSettings = await common.GetIgnoredSettings(localConfig.customConfig.ignoreUploadSettings);
             await startGitProcess(localConfig.extConfig, localConfig.customConfig);
             //await common.SetIgnoredSettings(ignoreSettings);
@@ -79,11 +79,11 @@ export async function activate(context: vscode.ExtensionContext) {
 
         async function startGitProcess(syncSetting: ExtensionConfig, customSettings: CustomSettings) {
 
-            vscode.window.setStatusBarMessage("Sync : Uploading / Updating Your Settings In Github.", 2000);
+            vscode.window.setStatusBarMessage("Sync : Uploading / Updating Your Settings In GitHub.", 2000);
 
             if (!syncSetting.anonymousGist) {
                 if (customSettings.token == null && customSettings.token == "") {
-                    vscode.window.showInformationMessage("Sync : Set Github Token or set anonymousGist to true from settings.");
+                    vscode.window.showInformationMessage("Sync : Set GitHub Token or set anonymousGist to true from settings.");
                     return;
                 }
             }
@@ -211,14 +211,17 @@ export async function activate(context: vscode.ExtensionContext) {
                     if (gistObj) {
                         if (gistObj.data.owner != null) {
                             let gistOwnerName: string = gistObj.data.owner.login.trim();
-                            let userName: string = myGi.userName.trim();
-                            if (gistOwnerName != userName) {
-                                Commons.LogException(null, "Sync : You cant edit GIST for user : " + gistObj.data.owner.login, true, function () {
-                                    console.log("Sync : Current User : " + "'" + userName + "'");
-                                    console.log("Sync : Gist Owner User : " + "'" + gistOwnerName + "'");
-                                });
-                                return;
+                            if (myGi.userName != null) {
+                                let userName: string = myGi.userName.trim();
+                                if (gistOwnerName != userName) {
+                                    Commons.LogException(null, "Sync : You cant edit GIST for user : " + gistObj.data.owner.login, true, function () {
+                                        console.log("Sync : Current User : " + "'" + userName + "'");
+                                        console.log("Sync : Gist Owner User : " + "'" + gistOwnerName + "'");
+                                    });
+                                    return;
+                                }
                             }
+
                         }
                         if (gistObj.public == true) {
                             localConfig.publicGist = true;
@@ -285,7 +288,7 @@ export async function activate(context: vscode.ExtensionContext) {
 
         var en: Environment = new Environment(context);
         var common: Commons = new Commons(en, context);
-        var myGi: GithubService = null;
+        var myGi: GitHubService = null;
         var localSettings: LocalConfig = new LocalConfig();
         let ignoreSettings = new Object();
         common.CloseWatch();
@@ -303,7 +306,7 @@ export async function activate(context: vscode.ExtensionContext) {
 
         async function StartDownload(syncSetting: ExtensionConfig, customSettings: CustomSettings) {
 
-            myGi = new GithubService(customSettings.token);
+            myGi = new GitHubService(customSettings.token);
             vscode.window.setStatusBarMessage("").dispose();
             vscode.window.setStatusBarMessage("Sync : Reading Settings Online.", 2000);
 
