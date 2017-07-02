@@ -240,6 +240,7 @@ export class Commons {
                         tempObj["ignoreUploadSettings"] = new Array<string>();
                     }
                     Object.assign(customSettings, tempObj);
+                    customSettings.token = customSettings.token.trim();
                     resolve(customSettings);
                 }
             }
