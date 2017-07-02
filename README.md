@@ -47,15 +47,15 @@ This extension requires your GitHub Account Personal Access Token. You can creat
 **Goto [Settings](https://github.com/settings) / [Personal Access Tokens](https://github.com/settings/tokens) / Generate New Token**
 
 
-![Goto Settings / Personal Access Tokens](http://shanalikhan.github.io/img/github1.PNG)
+![Goto Settings / Personal Access Tokens](https://shanalikhan.github.io/img/github1.PNG)
 
 **Select Gist From Scopes**
 
-![Select Scopes](http://shanalikhan.github.io/img/github2.PNG)
+![Select Scopes](https://shanalikhan.github.io/img/github2.PNG)
 
 **Get Unique Key**
 
-![Get Unique Key](http://shanalikhan.github.io/img/github3.PNG)
+![Get Unique Key](https://shanalikhan.github.io/img/github3.PNG)
 
 
 > Save the Key somewhere for future use.
@@ -70,12 +70,12 @@ This extension requires your GitHub Account Personal Access Token. You can creat
 
 Enter the github account in the window and click enter.
 
-![github account access token](http://shanalikhan.github.io/img/upload1.png)
+![github account access token](https://shanalikhan.github.io/img/upload1.png)
 
 **Upload your settings automatically and give you Gist ID.**
 Copy this Gist ID in order to download the settings in other machines.
 
-![uploaded automatically](http://shanalikhan.github.io/img/upload2.png)
+![uploaded automatically](https://shanalikhan.github.io/img/upload2.png)
 
 
 ## Download your Settings
@@ -87,12 +87,12 @@ Copy this Gist ID in order to download the settings in other machines.
 **Enter Your Gist ID.**
 you need to enter your Gist ID in order to get the all files
 
-![Enter Your Gist ID](http://shanalikhan.github.io/img/download2.png)
+![Enter Your Gist ID](https://shanalikhan.github.io/img/download2.png)
 
 **Settings Downloaded.**
 You are Done! All your files are downloaded
 
-![Enter Your Gist ID](http://shanalikhan.github.io/img/download3.png)
+![Enter Your Gist ID](https://shanalikhan.github.io/img/download3.png)
 
 ## Reset Token / Gist Settings
 
@@ -148,7 +148,7 @@ Other users can give your Gist Id to download the Gist, but they cant upload the
 ## Settings
 
 
-For details regarding settings keys, click [here](http://shanalikhan.github.io/2016/07/31/Visual-Studio-code-sync-setting-edit-manually.html)
+For details regarding settings keys, click [here](https://shanalikhan.github.io/2016/07/31/Visual-Studio-code-sync-setting-edit-manually.html)
 
 ```json
     "sync.gist": "",
@@ -190,7 +190,7 @@ The Json will be created as:
 }
 ```
 
-For details about customized sync, visit my post [here](http://shanalikhan.github.io/2017/02/19/Option-to-ignore-settings-folders-code-settings-sync.html)
+For details about customized sync, visit my post [here](https://shanalikhan.github.io/2017/02/19/Option-to-ignore-settings-folders-code-settings-sync.html)
 
 
 # How To Contribute
@@ -222,7 +222,7 @@ If you are enjoying this extension. What about donating, Your donation will help
 
 
 ## [Contributors](https://github.com/shanalikhan/code-settings-sync/graphs/contributors)
-# [Release Notes](http://shanalikhan.github.io/2016/05/14/Visual-studio-code-sync-settings-release-notes.html)
+# [Release Notes](https://shanalikhan.github.io/2016/05/14/Visual-studio-code-sync-settings-release-notes.html)
 
 # License
 MIT
