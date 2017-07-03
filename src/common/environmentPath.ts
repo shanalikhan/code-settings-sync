@@ -5,7 +5,7 @@ import { OsType } from './enums';
 
 export class Environment {
 
-    public static CURRENT_VERSION: number = 281;
+    public static CURRENT_VERSION: number = 282;
     public static getVersion(): string {
         var txt2 = Environment.CURRENT_VERSION.toString().slice(0, 1) + "." + Environment.CURRENT_VERSION.toString().slice(1, 2) + "." + Environment.CURRENT_VERSION.toString().slice(2, 3);
         return txt2;
