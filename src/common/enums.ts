@@ -1,3 +1,4 @@
+
 export enum OsType {
     Windows = 1,
     Linux ,
@@ -11,3 +12,8 @@ export enum SettingType{
     Locale,
     Extensions
 };
+
+export enum TaskType{
+     GitHub =1,
+     File 
+ }
