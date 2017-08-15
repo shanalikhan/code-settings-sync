@@ -1,6 +1,7 @@
+import * as vscode from 'vscode';
 
 export interface ITask {
-    Create(input : string) : Promise<string>
+    Create(input : string,context :vscode.ExtensionContext ) : Promise<string>
     Upload() : Promise<boolean>;
     Download () : Promise<boolean>;
     Reset () : Promise<boolean>;

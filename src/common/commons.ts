@@ -315,14 +315,14 @@ export class Commons {
                         vscode.window.showInformationMessage("Sync : Now You can set your GitHub token manually in `syncLocalSettings.json`");
                     }
                 }
-                  vscode.window.showInformationMessage("Sync : Updated to v"+ Environment.getVersion(),"Release Notes","Write Review","Support This Project").then(function(val: string){
-                    if(val == "Release Notes"){
+                vscode.window.showInformationMessage("Sync : Updated to v" + Environment.getVersion(), "Release Notes", "Write Review", "Support This Project").then(function (val: string) {
+                    if (val == "Release Notes") {
                         openurl("http://shanalikhan.github.io/2016/05/14/Visual-studio-code-sync-settings-release-notes.html");
                     }
-                    if(val=="Write Review"){
+                    if (val == "Write Review") {
                         openurl("https://marketplace.visualstudio.com/items?itemName=Shan.code-settings-sync#review-details");
                     }
-                    if(val=="Support This Project"){
+                    if (val == "Support This Project") {
                         openurl("https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=4W3EWHHBSYMM8&lc=IE&item_name=Code%20Settings%20Sync&item_number=visual%20studio%20code%20settings%20sync&currency_code=USD&bn=PP-DonationsBF:btn_donate_SM.gif:NonHosted");
                     }
                 });
@@ -519,7 +519,7 @@ export class Commons {
     /**
      * AskGistName
      */
-    public async AskGistName() : Promise<string> {
+    public async AskGistName(): Promise<string> {
         return new Promise<string>((resolve, reject) => {
             vscode.window.showInputBox({
                 prompt: "Allows you to identify the settings if you have multiple gist. For example : Office Settings, Home Personal Dev Settings."
@@ -530,6 +530,40 @@ export class Commons {
             });
         });
 
+    }
+    /**
+     * GetAllFiles
+     */
+    public async GetAllFiles(): Promise<Array<File>> {
+
+        let dateNow: Date = new Date();
+        let allSettingFiles = new Array<File>();
+        let customSettings: CustomSetting = null;
+        let uploadedExtensions = new Array<ExtensionInformation>();
+        uploadedExtensions = PluginService.CreateExtensionList();
+        uploadedExtensions.sort(function (a, b) {
+            return a.name.localeCompare(b.name);
+        });
+
+        let fileName = this.en.FILE_EXTENSION_NAME;
+        let filePath = this.en.FILE_EXTENSION;
+        let fileContent = JSON.stringify(uploadedExtensions, undefined, 2);;
+        let file: File = new File(fileName, fileContent, filePath, fileName);
+        allSettingFiles.push(file);
+
+        let contentFiles: Array<File> = new Array();
+        contentFiles = await FileManager.ListFiles(this.en.USER_FOLDER, 0, 2);
+
+        // TODO : Filter all files using ignore files in settings in task factory.
+        // TODO : Set keybind file name to mac when other OS used for upload gist file.
+        // TODO : add cloud setting for date in task factory also.
+        // var extProp: CloudSetting = new CloudSetting();
+        // extProp.lastUpload = dateNow;
+        // fileName = en.FILE_CLOUDSETTINGS_NAME;
+        // fileContent = JSON.stringify(extProp);
+        // file = new File(fileName, fileContent, "", fileName);
+
+        return null;
     }
 
     public GenerateSummmaryFile(upload: boolean, files: Array<File>, removedExtensions: Array<ExtensionInformation>, addedExtensions: Array<ExtensionInformation>, syncSettings: LocalConfig) {

@@ -10,17 +10,22 @@ export class GitHubTasks implements ITask {
     private gitService : GitHubService = null;
     private en : Environment = null;
     private com : Commons = null;
+    private token : string = null;
 
-    constructor(private TOKEN : string, private context :vscode.ExtensionContext ){
-        this.gitService = new GitHubService(TOKEN);
-        this.en = new Environment(this.context);
-        this.com = new Commons(this.en,this.context);
-    }
-    Create(): Promise<string> {
+    Create(input : string,context :vscode.ExtensionContext): Promise<string> {
         var self = this;
+        this.gitService = new GitHubService(input);
+        this.en = new Environment(context);
+        this.com = new Commons(this.en,context);
+
         return new Promise<string>((resolve,reject)=>{
-            if(self.TOKEN==""){
-                reject("Sync : Set GitHub Token or set anonymousGist to true from settings.");
+            if(self.token){
+                if(self.token=="ANON"){
+                    
+                }
+            }
+            if(self.token==""){
+                //reject("Sync : Set GitHub Token or set anonymousGist to true from settings.");
             }
             
         });

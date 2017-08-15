@@ -1,9 +1,9 @@
 "use strict";
 
 import * as vscode from 'vscode';
-import * as util from './util';
+import * as util from '../common/util';
 import * as path from 'path';
-import { FileManager } from './fileManager';
+import { FileManager } from '../manager//fileManager';
 const fs = require('fs');
 const ncp = require('ncp').ncp;
 
