@@ -277,14 +277,13 @@ export class Commons {
             let settings: ExtensionConfig = await me.GetSettings();
             let fileExist: boolean = await FileManager.FileExists(me.en.FILE_CUSTOMIZEDSETTINGS);
             let customSettings: CustomSettings = null;
-            let firstTime: boolean = true;
+            let firstTime: boolean = !fileExist;
+            let fileChanged: boolean = firstTime;
 
             if (fileExist) {
                 customSettings = await me.GetCustomSettings();
-                firstTime = false;
             }
             else {
-                firstTime = true;
                 customSettings = new CustomSettings();
             }
             vscode.workspace.getConfiguration().update("sync.version", undefined, true);
@@ -302,8 +301,8 @@ export class Commons {
                     }
                 });
             }
-            else if (customSettings.version == 0 || customSettings.version < Environment.CURRENT_VERSION) {
-
+            else if (customSettings.version < Environment.CURRENT_VERSION) {
+                fileChanged = true;
                 if (this.context.globalState.get('synctoken')) {
                     let token = this.context.globalState.get('synctoken');
                     if (token != "") {
@@ -312,7 +311,7 @@ export class Commons {
                         vscode.window.showInformationMessage("Sync : Now You can set your GitHub token manually in `syncLocalSettings.json`");
                     }
                 }
-                  vscode.window.showInformationMessage("Sync : Updated to v"+ Environment.getVersion(),"Release Notes","Write Review","Support This Project").then(function(val: string){
+                vscode.window.showInformationMessage("Sync : Updated to v"+ Environment.getVersion(),"Release Notes","Write Review","Support This Project").then(function(val: string){
                     if(val == "Release Notes"){
                         openurl("http://shanalikhan.github.io/2016/05/14/Visual-studio-code-sync-settings-release-notes.html");
                     }
@@ -324,8 +323,10 @@ export class Commons {
                     }
                 });
             }
-            customSettings.version = Environment.CURRENT_VERSION;
-            let done: boolean = await me.SetCustomSettings(customSettings);
+            if (fileChanged) {
+                customSettings.version = Environment.CURRENT_VERSION;
+                await me.SetCustomSettings(customSettings);
+            }
             resolve(true);
         });
     }
