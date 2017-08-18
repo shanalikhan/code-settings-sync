@@ -79,6 +79,9 @@ Copy this Gist ID in order to download the settings in other machines.
 
 ![uploaded automatically](https://shanalikhan.github.io/img/upload2.png)
 
+You can always **verify created gist** on the following url :
+
+> https://gist.github.com/<your_userName>/<gist_id>
 
 ## Download your Settings
 
