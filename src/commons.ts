@@ -520,9 +520,9 @@ export class Commons {
     public async AskGistName() : Promise<string> {
         return new Promise<string>((resolve, reject) => {
             vscode.window.showInputBox({
-                prompt: "Allows you to identify the settings if you have multiple gist. For example : Office Settings, Home Personal Dev Settings."
+                prompt: "Allows you to identify the settings if you have multiple gist."
                 , ignoreFocusOut: true
-                , placeHolder: "Visual Studio Code Settings Sync Gist"
+                , placeHolder: "Gist Name [ e.g : Personal Settings ]"
             }).then((value) => {
                 resolve(value);
             });
