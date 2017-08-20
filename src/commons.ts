@@ -40,6 +40,10 @@ export class Commons {
                         message = "Sync : Invalid / Expired GitHub Token. Please generate new token with scopes mentioned in readme. Exception Logged in Console.";
                         openurl("https://github.com/settings/tokens");
                     }
+                    if(message.toLowerCase() =='not found'){
+                        msgBox = true;
+                        message = "Sync : Invalid Gist Id Entered. Verify your gist : https://gist.github.com/<your_userName>/<gist_id>."
+                    }
                 } catch (error) {
                     //message = error.message;
                 }
