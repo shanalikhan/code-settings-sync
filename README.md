@@ -81,7 +81,7 @@ Copy this Gist ID in order to download the settings in other machines.
 
 You can always **verify created gist** on the following url :
 
-> https://gist.github.com/<your_userName>/<gist_id>
+> https://gist.github.com/{your_userName}/{gist_id}
 
 ## Download your Settings
 
