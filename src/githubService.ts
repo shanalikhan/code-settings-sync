@@ -17,7 +17,8 @@ var github = new GitHubApi({
     proxy: proxyURL,
     version: "3.0.0",
     host: host,
-    pathPrefix: pathPrefix
+    pathPrefix: pathPrefix,
+    rejectUnauthorized: false
 });
 
 export class GitHubService {
