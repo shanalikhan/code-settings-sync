@@ -43,6 +43,10 @@ export class Commons {
                         message = "Sync : Invalid / Expired GitHub Token. Please generate new token with scopes mentioned in readme. Exception Logged in Console.";
                         openurl("https://github.com/settings/tokens");
                     }
+                    if(message.toLowerCase() =='not found'){
+                        msgBox = true;
+                        message = "Sync : Invalid Gist Id Entered. Verify your gist : https://gist.github.com/<your_userName>/<gist_id>."
+                    }
                 } catch (error) {
                     //message = error.message;
                 }
@@ -279,16 +283,15 @@ export class Commons {
 
             let settings: ExtensionConfig = await me.GetSettings();
             let fileExist: boolean = await FileManager.FileExists(me.en.FILE_CUSTOMIZEDSETTINGS);
-            let customSettings: CustomSetting = null;
-            let firstTime: boolean = true;
+            let customSettings: CustomSettings = null;
+            let firstTime: boolean = !fileExist;
+            let fileChanged: boolean = firstTime;
 
             if (fileExist) {
                 customSettings = await me.GetCustomSettings();
-                firstTime = false;
             }
             else {
-                firstTime = true;
-                customSettings = new CustomSetting();
+                customSettings = new CustomSettings();
             }
             vscode.workspace.getConfiguration().update("sync.version", undefined, true);
 
@@ -305,8 +308,8 @@ export class Commons {
                     }
                 });
             }
-            else if (customSettings.version == 0 || customSettings.version < Environment.CURRENT_VERSION) {
-
+            else if (customSettings.version < Environment.CURRENT_VERSION) {
+                fileChanged = true;
                 if (this.context.globalState.get('synctoken')) {
                     let token = this.context.globalState.get('synctoken');
                     if (token != "") {
@@ -315,8 +318,8 @@ export class Commons {
                         vscode.window.showInformationMessage("Sync : Now You can set your GitHub token manually in `syncLocalSettings.json`");
                     }
                 }
-                vscode.window.showInformationMessage("Sync : Updated to v" + Environment.getVersion(), "Release Notes", "Write Review", "Support This Project").then(function (val: string) {
-                    if (val == "Release Notes") {
+                vscode.window.showInformationMessage("Sync : Updated to v"+ Environment.getVersion(),"Release Notes","Write Review","Support This Project").then(function(val: string){
+                    if(val == "Release Notes"){
                         openurl("http://shanalikhan.github.io/2016/05/14/Visual-studio-code-sync-settings-release-notes.html");
                     }
                     if (val == "Write Review") {
@@ -327,8 +330,10 @@ export class Commons {
                     }
                 });
             }
-            customSettings.version = Environment.CURRENT_VERSION;
-            let done: boolean = await me.SetCustomSettings(customSettings);
+            if (fileChanged) {
+                customSettings.version = Environment.CURRENT_VERSION;
+                await me.SetCustomSettings(customSettings);
+            }
             resolve(true);
         });
     }
@@ -522,9 +527,9 @@ export class Commons {
     public async AskGistName(): Promise<string> {
         return new Promise<string>((resolve, reject) => {
             vscode.window.showInputBox({
-                prompt: "Allows you to identify the settings if you have multiple gist. For example : Office Settings, Home Personal Dev Settings."
+                prompt: "Allows you to identify the settings if you have multiple gist."
                 , ignoreFocusOut: true
-                , placeHolder: "Visual Studio Code Settings Sync Gist"
+                , placeHolder: "Gist Name [ e.g : Personal Settings ]"
             }).then((value) => {
                 resolve(value);
             });

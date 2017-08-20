@@ -2,7 +2,7 @@
     "name": "code-settings-sync",
     "displayName": "Settings Sync",
     "description": "Synchronize Settings, Snippets, Themes, File Icons, Launch, Keybindings, Workspaces and Extensions Across Multiple Machines Using GitHub Gist.",
-    "version": "2.8.2",
+    "version": "2.8.3",
     "icon": "images/cloud.png",
     "publisher": "Shan",
     "author": {
@@ -15,7 +15,8 @@
         "color": "#3B4859",
         "theme": "dark"
     },
-    "badges": [{
+    "badges": [
+        {
             "url": "https://vsmarketplacebadge.apphb.com/version/Shan.code-settings-sync.svg",
             "description": "Latest Version",
             "href": "https://marketplace.visualstudio.com/items?itemName=Shan.code-settings-sync"
@@ -45,7 +46,7 @@
         "email": "shanalikhan@hotmail.com"
     },
     "engines": {
-        "vscode": "^1.11.0"
+        "vscode": "^1.15.0"
     },
     "categories": [
         "Other"
@@ -67,7 +68,8 @@
     ],
     "main": "./out/src/extension",
     "contributes": {
-        "commands": [{
+        "commands": [
+            {
                 "command": "extension.HowSettings",
                 "title": "Sync : How To Configure"
             },
@@ -88,7 +90,8 @@
                 "title": "Sync : Advanced Options"
             }
         ],
-        "keybindings": [{
+        "keybindings": [
+            {
                 "key": "alt+shift+u",
                 "command": "extension.updateSettings",
                 "when": "editorTextFocus"
@@ -156,7 +159,6 @@
                     "default": false,
                     "description": "Ask gist name upon creating. Helps you to identify the gist if you have multiple gists."
                 }
-
             },
             "title": "Code Settings Sync Configuration Settings"
         }
@@ -175,13 +177,13 @@
     "dependencies": {
         "adm-zip": "^0.4.7",
         "fs": "^0.0.2",
-        "github": "^9.2.0",
+        "github": "^9.3.1",
         "ncp": "^2.0.0",
-        "opn": "5.0.0",
+        "opn": "5.1.0",
         "rimraf": "^2.6.1",
         "temp": "^0.8.3",
-        "https-proxy-agent": "^1.0.0",
-        "chokidar": "^1.6.1",
-        "proper-lockfile": "^2.0.0"
+        "https-proxy-agent": "^2.1.0",
+        "chokidar": "^1.7.0",
+        "proper-lockfile": "^2.0.1"
     }
 }

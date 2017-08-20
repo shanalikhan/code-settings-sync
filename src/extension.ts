@@ -40,11 +40,16 @@ export async function activate(context: vscode.ExtensionContext) {
         let tokenAvailable: boolean = (startUpCustomSetting.token != null) && (startUpCustomSetting.token != "");
         let gistAvailable: boolean = (startUpSetting.gist != null) && (startUpSetting.gist != "");
 
+        if (gistAvailable == true && startUpSetting.autoDownload == true) {
+            vscode.commands.executeCommand('extension.downloadSettings').then(suc=>{
+                if (startUpSetting.autoUpload && tokenAvailable && gistAvailable) {
+                    common.StartWatch();
+                }
+            });
+            
+        }
         if (startUpSetting.autoUpload && tokenAvailable && gistAvailable) {
             common.StartWatch();
-        }
-        if (gistAvailable == true && startUpSetting.autoDownload == true) {
-            vscode.commands.executeCommand('extension.downloadSettings');
         }
     }
 
@@ -639,7 +644,7 @@ export async function activate(context: vscode.ExtensionContext) {
                         vscode.commands.executeCommand('extension.HowSettings');
                         return;
                     }
-                    if (!tokenAvailable || !gistAvailable) {
+                    if (!gistAvailable) {
                         vscode.commands.executeCommand('extension.HowSettings');
                         return;
                     }
