@@ -8,15 +8,18 @@ import {Commons} from '../common/commons'
 export class GitHubTasks implements ITask {
 
     private gitService : GitHubService = null;
-    private en : Environment = null;
     private com : Commons = null;
     private token : string = null;
-
-    Create(input : string,context :vscode.ExtensionContext): Promise<string> {
-        var self = this;
-        this.gitService = new GitHubService(input);
+    
+    constructor(private en : Environment,context :vscode.ExtensionContext){
         this.en = new Environment(context);
         this.com = new Commons(this.en,context);
+    }
+
+    Create(input : string): Promise<string> {
+        var self = this;
+        this.gitService = new GitHubService(input);
+       
 
         return new Promise<string>((resolve,reject)=>{
             if(self.token){
