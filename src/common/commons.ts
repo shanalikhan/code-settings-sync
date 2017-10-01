@@ -3,7 +3,7 @@ import * as vscode from 'vscode';
 import { Environment } from './environmentPath';
 import { File, FileManager } from '../manager/fileManager';
 import { CloudSetting } from '../models/cloudSetting';
-import { CustomSetting } from '../models/customSetting';
+import { CustomSetting, FileExportCustomSetting, GistExportCustomSetting } from '../models/customSetting';
 import { ExtensionConfig } from '../models/extensionConfig';
 import { LocalConfig } from '../models/localConfig';
 import { PluginService, ExtensionInformation } from '../services/pluginService';
@@ -200,7 +200,7 @@ export class Commons {
             var extSettings: ExtensionConfig = me.GetSettings()
             var cusSettings: CustomSetting = await me.GetCustomSettings();
 
-            if (cusSettings.token == "") {
+            if (cusSettings.gistSettings.token == "") {
                 if (askToken == true) {
                     askToken = !extSettings.anonymousGist;
                 }
@@ -212,7 +212,7 @@ export class Commons {
                         vscode.window.showErrorMessage("Sync : Token Not Saved.");
                         reject(false);
                     }
-                    cusSettings.token = tokTemp;
+                    cusSettings.gistSettings.token = tokTemp;
                 }
             }
 
@@ -243,11 +243,17 @@ export class Commons {
                 if (customExist) {
                     let customSettingStr: string = await FileManager.ReadFile(me.en.FILE_CUSTOMIZEDSETTINGS);
                     let tempObj: Object = JSON.parse(customSettingStr);
-                    if (!Array.isArray(tempObj["ignoreUploadSettings"])) {
-                        tempObj["ignoreUploadSettings"] = new Array<string>();
+                    let token : string = "";
+                    if(tempObj["token"]){
+                        token = tempObj["token"];
+                        delete tempObj["token"];
+                        customSettings.gistSettings = new GistExportCustomSetting();
+                        customSettings.gistSettings.token = token.trim();
+                        if(tempObj["gistDescription"]){
+                            customSettings.gistSettings.gistDescription = tempObj["gistDescription"];
+                            delete tempObj["gistDescription"];
+                        }
                     }
-                    Object.assign(customSettings, tempObj);
-                    customSettings.token = customSettings.token.trim();
                     resolve(customSettings);
                 }
             }
@@ -265,7 +271,8 @@ export class Commons {
         return new Promise<boolean>(async (resolve, reject) => {
             try {
                 let json: Object = Object.assign(setting);
-                delete json["ignoreUploadSettings"]
+                //TODO : line commented due to disabling the ignore setting
+                //delete json["ignoreUploadSettings"]
                 await FileManager.WriteFile(me.en.FILE_CUSTOMIZEDSETTINGS, JSON.stringify(json));
                 resolve(true);
             }
@@ -283,7 +290,7 @@ export class Commons {
 
             let settings: ExtensionConfig = await me.GetSettings();
             let fileExist: boolean = await FileManager.FileExists(me.en.FILE_CUSTOMIZEDSETTINGS);
-            let customSettings: CustomSettings = null;
+            let customSettings: CustomSetting = null;
             let firstTime: boolean = !fileExist;
             let fileChanged: boolean = firstTime;
 
@@ -291,7 +298,7 @@ export class Commons {
                 customSettings = await me.GetCustomSettings();
             }
             else {
-                customSettings = new CustomSettings();
+                customSettings = new CustomSetting();
             }
             vscode.workspace.getConfiguration().update("sync.version", undefined, true);
 
@@ -310,14 +317,6 @@ export class Commons {
             }
             else if (customSettings.version < Environment.CURRENT_VERSION) {
                 fileChanged = true;
-                if (this.context.globalState.get('synctoken')) {
-                    let token = this.context.globalState.get('synctoken');
-                    if (token != "") {
-                        customSettings.token = String(token);
-                        this.context.globalState.update("synctoken", "");
-                        vscode.window.showInformationMessage("Sync : Now You can set your GitHub token manually in `syncLocalSettings.json`");
-                    }
-                }
                 vscode.window.showInformationMessage("Sync : Updated to v"+ Environment.getVersion(),"Release Notes","Write Review","Support This Project").then(function(val: string){
                     if(val == "Release Notes"){
                         openurl("http://shanalikhan.github.io/2016/05/14/Visual-studio-code-sync-settings-release-notes.html");
@@ -358,12 +357,7 @@ export class Commons {
                 if (setting[keyName] == null) {
                     setting[keyName] = "";
                 }
-                if (keyName.toLowerCase() == "token") {
-                    allKeysUpdated.push(me.context.globalState.update("synctoken", setting[keyName]));
-                }
-                else {
                     allKeysUpdated.push(config.update(keyName, setting[keyName], true));
-                }
             });
 
             Promise.all(allKeysUpdated).then(function (a) {
@@ -421,7 +415,7 @@ export class Commons {
                     if (token && token.trim()) {
                         token = token.trim();
                         if (token != 'esc') {
-                            sett.token = token;
+                            sett.gistSettings.token = token.trim();
                             await me.SetCustomSettings(sett).then(function (saved: boolean) {
                                 if (saved) {
                                     vscode.window.setStatusBarMessage("Sync : Token Saved", 1000);
@@ -573,6 +567,7 @@ export class Commons {
 
     public GenerateSummmaryFile(upload: boolean, files: Array<File>, removedExtensions: Array<ExtensionInformation>, addedExtensions: Array<ExtensionInformation>, syncSettings: LocalConfig) {
 
+        //TODO : Use Code Output window in order to write summary.
         var header: string = null;
         var downloaded: string = "Download";
         var updated: string = "Upload";
@@ -602,8 +597,8 @@ export class Commons {
                     edit.insert(new vscode.Position(0, 0), "VISUAL STUDIO CODE SETTINGS SYNC \r\nVersion: " + Environment.getVersion() + "\r\n\r\n" + status + " Summary\r\n\r\n");
                     edit.insert(new vscode.Position(1, 0), "--------------------\r\n");
                     let tokenPlaceHolder: string = "Anonymous";
-                    if (syncSettings.customConfig.token != "") {
-                        tokenPlaceHolder = syncSettings.customConfig.token;
+                    if (syncSettings.customConfig.gistSettings.token != "") {
+                        tokenPlaceHolder = syncSettings.customConfig.gistSettings.token;
                     }
 
                     edit.insert(new vscode.Position(2, 0), "GITHUB TOKEN: " + tokenPlaceHolder + "\r\n");
@@ -611,7 +606,7 @@ export class Commons {
                     var type: string = (syncSettings.publicGist == true) ? "Public" : "Secret"
                     edit.insert(new vscode.Position(4, 0), "GITHUB GIST TYPE: " + type + "\r\n\r\n");
                     edit.insert(new vscode.Position(5, 0), "--------------------\r\n\r\n");
-                    if (syncSettings.customConfig.token == "") {
+                    if (syncSettings.customConfig.gistSettings.token == "") {
                         edit.insert(new vscode.Position(5, 0), "Anonymous Gist Cant be edited, extension will always create new one during upload.\r\n\r\n");
                     }
 
