@@ -42,25 +42,25 @@ All extensions and complete User Folder that Contains
 
 
 
-## Steps To Get the GitHub Key.
+## Steps To Get a Personal Access Token from GitHub.
 
-This extension requires your GitHub Account Personal Access Token. You can create one simple by looking into the following pictures. Make sure you add **Gist** in scope.
+This extension requires a Personal Access Token from your GitHub account. You can create one by simply following the steps shown in the pictures below. Make sure you add **Gist** in scope.
 
-**Go to [Settings](https://github.com/settings) / [Personal Access Tokens](https://github.com/settings/tokens) / Generate New Token**
+**Go to [Settings](https://github.com/settings) / [Developer settings](https://github.com/settings/tokens) / [Personal access tokens](https://github.com/settings/tokens) / Generate New Token**
 
 
-![Goto Settings / Personal Access Tokens](https://shanalikhan.github.io/img/github1.PNG)
+![Goto Settings / Developer settings / Personal Access Tokens](https://shanalikhan.github.io/img/github1.PNG)
 
 **Select Gist From Scopes**
 
 ![Select Scopes](https://shanalikhan.github.io/img/github2.PNG)
 
-**Get Unique Key**
+**Get an Access Token**
 
-![Get Unique Key](https://shanalikhan.github.io/img/github3.PNG)
+![Get Access Token](https://shanalikhan.github.io/img/github3.PNG)
 
 
-> Save the Key somewhere for future use.
+> Save the Token somewhere for future use.
 
 
 ## Upload Your Settings For the first time
