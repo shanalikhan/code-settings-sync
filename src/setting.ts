@@ -56,7 +56,9 @@ export class CustomSettings {
         this.ignoreUploadSettings = new Array<string>();
         this.ignoreUploadFolders.push("workspaceStorage");
         this.ignoreUploadFiles.push("projects.json");
+        this.ignoreUploadFiles.push("projects_cache_vscode.json")
         this.ignoreUploadFiles.push("projects_cache_git.json")
+        this.ignoreUploadFiles.push("projects_cache_svn.json")
         this.gistDescription = "Visual Studio Code Settings Sync Gist";
         this.version = Environment.CURRENT_VERSION;
         this.token = "";
