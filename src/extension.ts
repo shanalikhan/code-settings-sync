@@ -576,7 +576,7 @@ export async function activate(context: vscode.ExtensionContext) {
         items.push("Sync : Toggle Auto-Upload On Settings Change");
         items.push("Sync : Toggle Auto-Download On Startup");
         items.push("Sync : Toggle Show Summary Page On Upload / Download");
-        items.push("Sync : Preserve Setting to stop overide after Download");
+        items.push("Sync : Preserve Setting To Stop Override After Download");
         items.push("Sync : Open Issue");
         items.push("Sync : Release Notes");
 
