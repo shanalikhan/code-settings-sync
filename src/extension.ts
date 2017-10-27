@@ -583,7 +583,7 @@ export async function activate(context: vscode.ExtensionContext) {
         var selectedItem: Number = 0;
         var settingChanged: boolean = false;
 
-        var teims = vscode.window.showQuickPick(items).then(async (resolve: string) => {
+        vscode.window.showQuickPick(items).then(async (resolve: string) => {
 
             switch (resolve) {
                 case items[0]: {
