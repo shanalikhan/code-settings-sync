@@ -70,7 +70,9 @@ This extension requires a Personal Access Token from your GitHub account. You ca
 
 > Type ">Sync" In Command Palette into order download / upload
 
-Enter the GitHub account in the window and click enter.
+This will automatically open your GitHub settings page, allowing you to generate a new token for the application, as explained in the previous section.
+
+Enter the GitHub token in the window and click enter.
 
 ![github account access token](https://shanalikhan.github.io/img/upload1.png)
 
@@ -82,6 +84,10 @@ Copy this Gist ID in order to download the settings in other machines.
 You can always **verify created gist** on the following url :
 
 > https://gist.github.com/{your_userName}/{gist_id}
+
+Here is the gif of the complete process when you execute the Upload command:
+
+![Upload](https://media.giphy.com/media/3o7aDawiWmxsyNTuJa/source.gif)
 
 ## Download your Settings
 
@@ -98,6 +104,10 @@ you need to enter your Gist ID in order to get all files
 You are Done! All your files are downloaded
 
 ![Enter Your Gist ID](https://shanalikhan.github.io/img/download3.png)
+
+Here is the gif of the complete process when you execute the Download command:
+
+![Download](https://media.giphy.com/media/3ohhwn4fV49CmAljoc/source.gif)
 
 ## Reset Token / Gist Settings
 
