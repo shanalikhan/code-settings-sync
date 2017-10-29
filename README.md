@@ -87,7 +87,7 @@ You can always **verify created gist** on the following url :
 
 Here is the gif of the complete process when you execute the Upload command:
 
-![Upload](https://media.giphy.com/media/3o7aDawiWmxsyNTuJa/source.gif)
+![Upload](https://media.giphy.com/media/xT9IglKxSqs2Wdwq2c/source.gif)
 
 ## Download your Settings
 
@@ -107,7 +107,7 @@ You are Done! All your files are downloaded
 
 Here is the gif of the complete process when you execute the Download command:
 
-![Download](https://media.giphy.com/media/3ohhwn4fV49CmAljoc/source.gif)
+![Download](https://media.giphy.com/media/xT9Iglsi3CS9noE8tW/source.gif)
 
 ## Reset Token / Gist Settings
 
