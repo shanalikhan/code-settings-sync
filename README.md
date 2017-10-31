@@ -87,7 +87,7 @@ You can always **verify created gist** on the following url :
 
 Here is the gif of the complete process when you execute the Upload command (Might take some time to load)
 
-![Upload](https://shanalikhan.github.io/img/upload.gif)
+![Upload](https://media.giphy.com/media/xT9IglKxSqs2Wdwq2c/source.gif)
 
 ## Download your Settings
 
@@ -107,7 +107,9 @@ You are Done! All your files are downloaded
 
 Here is the gif of the complete process when you execute the Download command (Might take time to load)
 
-![Download](https://shanalikhan.github.io/img/download.gif)
+
+![Download](https://media.giphy.com/media/xT9Iglsi3CS9noE8tW/source.gif)
+
 
 ## Reset Token / Gist Settings
 
