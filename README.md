@@ -180,7 +180,7 @@ For details regarding settings keys, click [here](https://shanalikhan.github.io/
 
 ## Customized Sync
 
-Extension will create the `syncLocalSettings.json` insider `User` folder upon code start.
+Extension will create the `syncLocalSettings.json` inside `User` folder upon code start.
 You can customize the sync:
 
 ```
