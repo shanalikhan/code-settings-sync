@@ -85,7 +85,7 @@ You can always **verify created gist** on the following url :
 
 > https://gist.github.com/{your_userName}/{gist_id}
 
-Here is the gif of the complete process when you execute the Upload command:
+Here is the gif of the complete process when you execute the Upload command (Might take some time to load)
 
 ![Upload](https://media.giphy.com/media/xT9IglKxSqs2Wdwq2c/source.gif)
 
@@ -105,9 +105,11 @@ You are Done! All your files are downloaded
 
 ![Enter Your Gist ID](https://shanalikhan.github.io/img/download3.png)
 
-Here is the gif of the complete process when you execute the Download command:
+Here is the gif of the complete process when you execute the Download command (Might take time to load)
+
 
 ![Download](https://media.giphy.com/media/xT9Iglsi3CS9noE8tW/source.gif)
+
 
 ## Reset Token / Gist Settings
 
@@ -180,7 +182,7 @@ For details regarding settings keys, click [here](https://shanalikhan.github.io/
 
 ## Customized Sync
 
-Extension will create the `syncLocalSettings.json` insider `User` folder upon code start.
+Extension will create the `syncLocalSettings.json` inside `User` folder upon code start.
 You can customize the sync:
 
 ```
