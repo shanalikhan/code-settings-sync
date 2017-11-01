@@ -1,9 +1,11 @@
 import * as vscode from 'vscode';
+import { KeyValue} from '../models/keyvalue';
 
 export interface ITask {
-    Create(input : string,context :vscode.ExtensionContext ) : Promise<string>
-    Upload() : Promise<boolean>;
-    Download () : Promise<boolean>;
-    Reset () : Promise<boolean>;
-    Save() : Promise<boolean>;
+    Create(input : Array<KeyValue<string>>) : Promise<string>
+    Upload(input : Array<KeyValue<any>>) : Promise<boolean>;
+    Download (input : Array<KeyValue<any>>) : Promise<boolean>;
+    Reset (input : Array<KeyValue<string>>) : Promise<boolean>;
+    Save(input : Array<KeyValue<string>>) : Promise<boolean>;
+    Close(): void;
 }

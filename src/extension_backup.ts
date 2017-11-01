@@ -12,11 +12,6 @@ import { CloudSetting } from './models/cloudSetting';
 import { CustomSetting } from './models/customSetting';
 import { ExtensionConfig } from './models/extensionConfig';
 import { LocalConfig } from './models/localConfig';
-import { TaskFactory } from './tasks/TaskFactory';
-import { ITask } from './tasks/ITask';
-import { KeyValue } from './models/keyvalue';
-import { InputOptionFactory } from './inputOption/InputOptionFactory';
-import { IInputOption } from './inputOption/IInputOption';
 
 export async function activate(context: vscode.ExtensionContext) {
 
@@ -46,12 +41,12 @@ export async function activate(context: vscode.ExtensionContext) {
         let gistAvailable: boolean = (startUpSetting.gist != null) && (startUpSetting.gist != "");
 
         if (gistAvailable == true && startUpSetting.autoDownload == true) {
-            vscode.commands.executeCommand('extension.downloadSettings').then(suc => {
+            vscode.commands.executeCommand('extension.downloadSettings').then(suc=>{
                 if (startUpSetting.autoUpload && tokenAvailable && gistAvailable) {
                     common.StartWatch();
                 }
             });
-
+            
         }
         if (startUpSetting.autoUpload && tokenAvailable && gistAvailable) {
             common.StartWatch();
@@ -63,47 +58,23 @@ export async function activate(context: vscode.ExtensionContext) {
         let args = arguments;
         let en: Environment = new Environment(context);
         let common: Commons = new Commons(en, context);
-        let task: ITask = await TaskFactory.CreateTask(en, common);
-        try {
-            let uploadedExtensions = new Array<ExtensionInformation>();
-            let localConfig: LocalConfig = new LocalConfig();
-            let allSettingFiles = new Array<File>();
-
-            let settingOption: InputOptionFactory = new InputOptionFactory(en, common);
-            let settArray: Array<KeyValue<string>> = new Array<KeyValue<string>>();
-
-            if (args[0] == "publicGIST") {
-                let publicGist: KeyValue<string> = new KeyValue<string>();
-                publicGist.Key = "publicGIST";
-                publicGist.Value = "true";
-            }
-
-            let settingType :IInputOption =  await settingOption.getSettingType(settArray);
-            settingType.getSetting();
-
-//            localConfig.publicGist = false;
-
-
-        } catch (error) {
-
-        }
-        finally {
-            task.Close();
-        }
-
-
-
-
-
         let dateNow: Date = new Date();
-        
+        common.CloseWatch();
         let ignoreSettings = new Object();
 
 
         let myGi: GitHubService = null;
-
-        
+        let localConfig: LocalConfig = new LocalConfig();
+        let allSettingFiles = new Array<File>();
+        let uploadedExtensions = new Array<ExtensionInformation>();
         try {
+            localConfig = await common.InitalizeSettings(true, false);
+            localConfig.publicGist = false;
+            if (args.length > 0) {
+                if (args[0] == "publicGIST") {
+                    localConfig.publicGist = true;
+                }
+            }
 
             myGi = new GitHubService(localConfig.customConfig.token);
             //ignoreSettings = await common.GetIgnoredSettings(localConfig.customConfig.ignoreUploadSettings);
@@ -331,7 +302,7 @@ export async function activate(context: vscode.ExtensionContext) {
         common.CloseWatch();
         //TODO : Ignore setting 
         //let ignoreSettings = new Object();
-
+        
 
         try {
             localSettings = await common.InitalizeSettings(false, true);

@@ -193,40 +193,52 @@ export class Commons {
         }
     }
 
-    public async InitalizeSettings(askToken: boolean, askGist: boolean): Promise<LocalConfig> {
+    // public async InitalizeSettings(askToken: boolean, askGist: boolean): Promise<LocalConfig> {
+    //     let me: Commons = this;
+    //     return new Promise<LocalConfig>(async (resolve, reject) => {
+    //         var settings: LocalConfig = new LocalConfig();
+    //         var extSettings: ExtensionConfig = me.GetSettings()
+    //         var cusSettings: CustomSetting = await me.GetCustomSettings();
+
+    //         if (cusSettings.gistSettings.token == "") {
+    //             if (askToken == true) {
+    //                 askToken = !extSettings.anonymousGist;
+    //             }
+
+    //             if (askToken) {
+    //                 openurl("https://github.com/settings/tokens");
+    //                 let tokTemp: string = await me.GetTokenAndSave(cusSettings);
+    //                 if (!tokTemp) {
+    //                     vscode.window.showErrorMessage("Sync : Token Not Saved.");
+    //                     reject(false);
+    //                 }
+    //                 cusSettings.gistSettings.token = tokTemp;
+    //             }
+    //         }
+
+
+    //         if (extSettings.gist == "") {
+    //             if (askGist) {
+    //                 let gistTemp: string = await me.GetGistAndSave(extSettings);
+    //                 if (!gistTemp) {
+    //                     vscode.window.showErrorMessage("Sync : Gist Not Saved.");
+    //                     reject(false);
+    //                 }
+    //                 extSettings.gist = gistTemp;
+    //             }
+    //         }
+    //         settings.customConfig = cusSettings;
+    //         settings.extConfig = extSettings;
+    //         resolve(settings);
+    //     });
+    // }
+
+    public async InitalizeSettings(): Promise<LocalConfig> {
         let me: Commons = this;
         return new Promise<LocalConfig>(async (resolve, reject) => {
             var settings: LocalConfig = new LocalConfig();
             var extSettings: ExtensionConfig = me.GetSettings()
             var cusSettings: CustomSetting = await me.GetCustomSettings();
-
-            if (cusSettings.gistSettings.token == "") {
-                if (askToken == true) {
-                    askToken = !extSettings.anonymousGist;
-                }
-
-                if (askToken) {
-                    openurl("https://github.com/settings/tokens");
-                    let tokTemp: string = await me.GetTokenAndSave(cusSettings);
-                    if (!tokTemp) {
-                        vscode.window.showErrorMessage("Sync : Token Not Saved.");
-                        reject(false);
-                    }
-                    cusSettings.gistSettings.token = tokTemp;
-                }
-            }
-
-
-            if (extSettings.gist == "") {
-                if (askGist) {
-                    let gistTemp: string = await me.GetGistAndSave(extSettings);
-                    if (!gistTemp) {
-                        vscode.window.showErrorMessage("Sync : Gist Not Saved.");
-                        reject(false);
-                    }
-                    extSettings.gist = gistTemp;
-                }
-            }
             settings.customConfig = cusSettings;
             settings.extConfig = extSettings;
             resolve(settings);

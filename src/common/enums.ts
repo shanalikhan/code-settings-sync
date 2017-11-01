@@ -14,6 +14,6 @@ export enum SettingType{
 };
 
 export enum TaskType{
-     GitHub =1,
+     GitHubGist =1,
      File 
  }

@@ -22,6 +22,10 @@ var github = new GitHubApi({
 
 export class GitHubService {
 
+    public userName: string = null;
+    public name: string = null;
+
+    private GIST_JSON: any = null;
     private GIST_JSON_EMPTY: any = {
         "description": "Visual Studio Code Sync Settings Gist",
         "public": false,
@@ -49,10 +53,7 @@ export class GitHubService {
             }
         }
     };
-    public userName: string = null;
-    public name: string = null;
-
-    private GIST_JSON: any = null;
+   
 
     constructor(private TOKEN: string) {
         if (TOKEN != null && TOKEN != '') {
@@ -63,12 +64,12 @@ export class GitHubService {
                     token: TOKEN
                 });
             } catch (error) {
-
+                console.error(error);
             }
 
             github.users.get({}, function (err, res) {
                 if (err) {
-                    console.log(err);
+                    console.error(err);
                 }
                 else {
                     self.userName = res.data.login;
@@ -79,7 +80,7 @@ export class GitHubService {
         }
     }
 
-    public AddFile(list: Array<File>, GIST_JSON_b: any) {
+    public AddFile(list: Array<File>, GIST_JSON_b: any) : any{
         for (var i = 0; i < list.length; i++) {
             var file = list[i];
             if (file.content != '') {
@@ -113,7 +114,7 @@ export class GitHubService {
                         if (res.data.id) {
                             resolve(res.data.id);
                         } else {
-                            console.error("ID is null");
+                            console.error("Sync : Id is null");
                             console.log("Sync : " + "Response from GitHub is: ");
                             console.log(res);
                         }
@@ -122,7 +123,7 @@ export class GitHubService {
         });
     }
 
-    public async CreateAnonymousGist(publicGist: boolean, files: Array<File>, gistDesciption: string): Promise<any> {
+    public async CreateAnonymousGist(publicGist: boolean, files: Array<File>, gistDesciption: string): Promise<string> {
         var me = this;
         if (publicGist) {
             me.GIST_JSON_EMPTY.public = true;
@@ -146,11 +147,10 @@ export class GitHubService {
                     if (res.data.id) {
                         resolve(res.data.id);
                     } else {
-                        console.error("ID is null");
+                        console.error("Sync : Id is null");
                         console.log("Sync : " + "Response from GitHub is: ");
                         console.log(res);
                     }
-
                 });
         });
     }
@@ -174,19 +174,15 @@ export class GitHubService {
         var allFiles: string[] = Object.keys(gistObject.data.files);
         for (var fileIndex = 0; fileIndex < allFiles.length; fileIndex++) {
             var fileName = allFiles[fileIndex];
-
             var exists = false;
-
             files.forEach((settingFile) => {
                 if (settingFile.gistName == fileName) {
                     exists = true;
                 }
             });
-
             if (!exists && !fileName.startsWith("keybindings")) {
                 gistObject.data.files[fileName] = null;
             }
-
         }
 
         gistObject.data = me.AddFile(files, gistObject.data);
