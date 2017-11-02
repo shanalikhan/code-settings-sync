@@ -56,7 +56,8 @@
         "vscode-settings-sync",
         "code-settings-sync",
         "settings-sync",
-        "workspace-sync"
+        "workspace-sync",
+        "multi-root ready"
     ],
     "activationEvents": [
         "*",

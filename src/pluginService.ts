@@ -11,6 +11,8 @@ var apiPath = 'https://marketplace.visualstudio.com/_apis/public/gallery/extensi
 
 const rmdir = require('rimraf');
 
+const extensionDir = '.vscode';
+
 export class ExtensionInformation {
     metadata: ExtensionMetadata;
     name: string;
@@ -183,18 +185,19 @@ export class PluginService {
 
         for (var i = 0; i < vscode.extensions.all.length; i++) {
             var ext = vscode.extensions.all[i];
-            if (ext.packageJSON.isBuiltin == false) {
-                if (ext.packageJSON.__metadata == null) {
-                    // Not install from gallery, just skip
-                    continue;
-                }
-
-                var meta = ext.packageJSON.__metadata;
+            if (ext.extensionPath.includes(extensionDir) // skip if not install from gallery
+                && ext.packageJSON.isBuiltin == false
+            ) {
+                var meta = ext.packageJSON.__metadata || {
+                    id: ext.packageJSON.uuid,
+                    publisherId: ext.id,
+                    publisherDisplayName: ext.packageJSON.publisher
+                };
                 var data = new ExtensionMetadata(meta.galleryApiUrl, meta.id, meta.downloadUrl, meta.publisherId, meta.publisherDisplayName, meta.date);
                 var info = new ExtensionInformation();
                 info.metadata = data;
                 info.name = ext.packageJSON.name;
-                info.publisher = ext.packageJSON.publisher;
+                info.publisher = meta.publisherDisplayName;
                 info.version = ext.packageJSON.version;
                 list.push(info);
             }
