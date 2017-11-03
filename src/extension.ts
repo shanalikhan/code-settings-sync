@@ -5,7 +5,7 @@ import { PluginService, ExtensionInformation } from './pluginService';
 import * as path from 'path';
 import { Environment } from './environmentPath';
 import { File, FileManager } from './fileManager';
-import { Commons } from './commons';
+import Commons from './commons';
 import { GitHubService } from './githubService';
 import { ExtensionConfig, LocalConfig, CloudSetting, CustomSettings } from './setting';
 import { OsType, SettingType } from './enums';
@@ -270,7 +270,7 @@ export async function activate(context: vscode.ExtensionContext) {
                         }
 
                         if (!syncSetting.quietSync) {
-                            common.GenerateSummmaryFile(true, allSettingFiles, null, uploadedExtensions, localConfig);
+                            common.ShowSummmaryOutput(true, allSettingFiles, null, uploadedExtensions, localConfig);
                             vscode.window.setStatusBarMessage("").dispose();
                         }
                         else {
@@ -477,7 +477,7 @@ export async function activate(context: vscode.ExtensionContext) {
                         await common.SaveSettings(syncSetting).then(async function (added: boolean) {
                             if (added) {
                                 if (!syncSetting.quietSync) {
-                                    common.GenerateSummmaryFile(false, updatedFiles, deletedExtensions, addedExtensions, localSettings);
+                                    common.ShowSummmaryOutput(false, updatedFiles, deletedExtensions, addedExtensions, localSettings);
                                     vscode.window.setStatusBarMessage("").dispose();
                                 }
                                 else {
