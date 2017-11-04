@@ -541,7 +541,7 @@ export default class Commons {
         }
 
         const outputChannel = Commons.outputChannel;
-
+        outputChannel.clear();
         outputChannel.appendLine(`CODE SETTINGS SYNC ${upload ? "UPLOAD" : "DOWNLOAD"} SUMMARY`);
         outputChannel.appendLine(`Version: ${Environment.getVersion()}`);
         outputChannel.appendLine(`--------------------`);
