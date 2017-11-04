@@ -38,12 +38,12 @@ export async function activate(context: vscode.ExtensionContext) {
         let gistAvailable: boolean = (startUpSetting.gist != null) && (startUpSetting.gist != "");
 
         if (gistAvailable == true && startUpSetting.autoDownload == true) {
-            vscode.commands.executeCommand('extension.downloadSettings').then(suc=>{
+            vscode.commands.executeCommand('extension.downloadSettings').then(suc => {
                 if (startUpSetting.autoUpload && tokenAvailable && gistAvailable) {
                     common.StartWatch();
                 }
             });
-            
+
         }
         if (startUpSetting.autoUpload && tokenAvailable && gistAvailable) {
             common.StartWatch();
@@ -411,19 +411,22 @@ export async function activate(context: vscode.ExtensionContext) {
                                     vscode.window.setStatusBarMessage("Sync : No Extension needs to be installed.", 2000);
                                 }
                                 else {
-
-                                    vscode.window.setStatusBarMessage("Sync : Installing Extensions in background.");
+                                    let installed: number = 0;
+                                    vscode.window.setStatusBarMessage("Sync : Installing " + missingList.length.toString() + " Extensions in background.", 1000);
                                     missingList.forEach(async (element) => {
-
                                         await actionList.push(PluginService.InstallExtension(element, en.ExtensionFolder)
                                             .then(function () {
+                                                installed = installed + 1;
+                                                vscode.window.setStatusBarMessage("Sync : Extension " + installed + " of " + missingList.length.toString() + " installed.", 2000);
                                                 addedExtensions.push(element);
+
                                                 //var name = element.publisher + '.' + element.name + '-' + element.version;
                                                 //vscode.window.showInformationMessage("Extension " + name + " installed Successfully");
                                             }, function (a) {
-
+                                                vscode.window.setStatusBarMessage("").dispose();
                                             }));
                                     });
+                                    vscode.window.setStatusBarMessage("").dispose();
                                 }
                             }
                             else {
