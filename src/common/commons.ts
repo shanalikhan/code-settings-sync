@@ -14,11 +14,12 @@ const openurl = require('opn');
 const chokidar = require('chokidar');
 const lockfile = require('proper-lockfile');
 
-export class Commons {
+export default class Commons {
 
     public ERROR_MESSAGE: string = "Sync : Error Logged In Console (Help menu > Toggle Developer Tools).";
     private static configWatcher = null;
     private static extensionWatcher = null;
+    private static outputChannel: vscode.OutputChannel = null;
 
     constructor(private en: Environment, private context: vscode.ExtensionContext) {
 
@@ -577,106 +578,68 @@ export class Commons {
         return null;
     }
 
-    public GenerateSummmaryFile(upload: boolean, files: Array<File>, removedExtensions: Array<ExtensionInformation>, addedExtensions: Array<ExtensionInformation>, syncSettings: LocalConfig) {
-
-        //TODO : Use Code Output window in order to write summary.
-        var header: string = null;
-        var downloaded: string = "Download";
-        var updated: string = "Upload";
-        var status: string = null;
-
-        if (upload) {
-            status = updated;
-        }
-        else {
-            status = downloaded;
+    public ShowSummmaryOutput(upload: boolean, files: Array<File>, removedExtensions: Array<ExtensionInformation>, addedExtensions: Array<ExtensionInformation>, syncSettings: LocalConfig) {
+        if (Commons.outputChannel === null) {
+            Commons.outputChannel = vscode.window.createOutputChannel("Code Settings Sync");
         }
 
-        header = "\r\nFiles " + status + ".\r\n";
-        var deletedExtension: string = "\r\nEXTENSIONS REMOVED :\r\n";
-        var addedExtension: string = "\r\nEXTENSIONS ADDED :\r\n";
-        var tempURI: string = this.en.APP_SUMMARY;
+        const outputChannel = Commons.outputChannel;
 
-        console.log("Sync : " + "File Path For Summary Page : " + tempURI);
+        outputChannel.appendLine(`CODE SETTINGS SYNC ${upload ? "UPLOAD" : "DOWNLOAD"} SUMMARY`);
+        outputChannel.appendLine(`Version: ${Environment.getVersion()}`);
+        outputChannel.appendLine(`--------------------`);
+        outputChannel.appendLine(`GitHub Token: ${syncSettings.customConfig.gistSettings.token || "Anonymous"}`);
+        outputChannel.appendLine(`GitHub Gist: ${syncSettings.extConfig.gist}`);
+        outputChannel.appendLine(`GitHub Gist Type: ${syncSettings.publicGist ? "Public" : "Secret"}`);
+        outputChannel.appendLine(``);
+        if (!syncSettings.customConfig.gistSettings.token) {
+            outputChannel.appendLine(`Anonymous Gist cannot be edited, the extension will always create a new one during upload.`);
+        }
+        outputChannel.appendLine(`Restarting Visual Studio Code may be required to apply color and file icon theme.`);
+        outputChannel.appendLine(`--------------------`);
 
-        var setting: vscode.Uri = vscode.Uri.file(tempURI);
-        fs.openSync(setting.fsPath, 'w');
-
-        vscode.workspace.openTextDocument(setting).then((a: vscode.TextDocument) => {
-            vscode.window.showTextDocument(a, vscode.ViewColumn.One, true).then((e: vscode.TextEditor) => {
-
-                e.edit(edit => {
-                    edit.insert(new vscode.Position(0, 0), "VISUAL STUDIO CODE SETTINGS SYNC \r\nVersion: " + Environment.getVersion() + "\r\n\r\n" + status + " Summary\r\n\r\n");
-                    edit.insert(new vscode.Position(1, 0), "--------------------\r\n");
-                    let tokenPlaceHolder: string = "Anonymous";
-                    if (syncSettings.customConfig.gistSettings.token != "") {
-                        tokenPlaceHolder = syncSettings.customConfig.gistSettings.token;
+        outputChannel.appendLine(`Files ${upload ? "Upload" : "Download"}ed:`);
+        files
+            .filter(item =>item.fileName.indexOf(".") > 0)
+            .forEach(item => {
+                if (item.fileName != item.gistName) {
+                    if (upload) {
+                        outputChannel.appendLine(`  ${item.fileName} > ${item.gistName}`);
                     }
-
-                    edit.insert(new vscode.Position(2, 0), "GITHUB TOKEN: " + tokenPlaceHolder + "\r\n");
-                    edit.insert(new vscode.Position(3, 0), "GITHUB GIST: " + syncSettings.extConfig.gist + "\r\n");
-                    var type: string = (syncSettings.publicGist == true) ? "Public" : "Secret"
-                    edit.insert(new vscode.Position(4, 0), "GITHUB GIST TYPE: " + type + "\r\n\r\n");
-                    edit.insert(new vscode.Position(5, 0), "--------------------\r\n\r\n");
-                    if (syncSettings.customConfig.gistSettings.token == "") {
-                        edit.insert(new vscode.Position(5, 0), "Anonymous Gist Cant be edited, extension will always create new one during upload.\r\n\r\n");
+                    else {
+                        outputChannel.appendLine(`  ${item.gistName} > ${item.fileName}`);
                     }
-
-                    edit.insert(new vscode.Position(5, 0), "If current theme / file icon extension is not installed. Restart will be Required to Apply Theme and File Icon.\r\n\r\n");
-
-                    edit.insert(new vscode.Position(6, 0), header + "\r\n");
-                    var row: number = 6;
-                    for (var i = 0; i < files.length; i++) {
-                        var element = files[i];
-                        if (element.fileName.indexOf(".") > 0) {
-                            let fileName = element.fileName;
-                            if (fileName != element.gistName) {
-                                if (upload) {
-                                    fileName += " > " + element.gistName;
-                                } else {
-                                    fileName = element.gistName + " > " + fileName;
-                                }
-                            }
-                            edit.insert(new vscode.Position(row, 0), fileName + "\r\n");
-                            row += 1;
-                        }
-                    }
-                    if (removedExtensions) {
-                        edit.insert(new vscode.Position(row, 0), deletedExtension + "\r\n");
-                        row += 1;
-
-                        if (removedExtensions.length > 0) {
-                            removedExtensions.forEach(ext => {
-                                edit.insert(new vscode.Position(row, 0), ext.name + " - Version :" + ext.version + "\r\n");
-                                row += 1;
-                            });
-                        }
-                        else {
-                            edit.insert(new vscode.Position(row, 0), "No Extension needs to be removed.\r\n");
-                        }
-                    }
-
-                    if (addedExtensions) {
-                        row += 1;
-                        edit.insert(new vscode.Position(row, 0), "\r\n" + addedExtension + "\r\n");
-                        row += 1;
-                        if (addedExtensions.length > 0) {
-                            addedExtensions.forEach(ext => {
-                                edit.insert(new vscode.Position(row, 0), ext.name + " - Version :" + ext.version + "\r\n");
-                                row += 1;
-                            });
-                        }
-                        else {
-                            edit.insert(new vscode.Position(row, 0), "No Extension needs to install.\r\n");
-                        }
-                    }
-                });
-                e.document.save();
-                //vscode.commands.executeCommand("workbench.action.nextEditorInGroup");
+                }
             });
-        }, (error: any) => {
-            console.error(error);
-            return;
-        });
+
+        if (removedExtensions) {
+            outputChannel.appendLine(``);
+            outputChannel.appendLine(`Extensions Removed:`);
+            
+            if (removedExtensions.length === 0) {
+                outputChannel.appendLine("  No extensions removed.");
+            }
+
+            removedExtensions.forEach(extn => {
+                outputChannel.appendLine(`  ${extn.name} v${extn.version}`);
+            });
+        }
+
+        if (addedExtensions) {
+            outputChannel.appendLine(``)
+            outputChannel.appendLine(`Extensions Added:`)
+
+            if (addedExtensions.length === 0) {
+                outputChannel.appendLine("  No extensions installed.");
+            }
+
+            addedExtensions.forEach(extn => {
+                outputChannel.appendLine(`  ${extn.name} v${extn.version}`);
+            });
+        }
+
+        outputChannel.appendLine(`--------------------`);
+        outputChannel.append(`Done.`)
+        outputChannel.show(true)
     };
 }

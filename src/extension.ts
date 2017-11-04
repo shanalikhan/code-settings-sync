@@ -5,7 +5,7 @@ import { PluginService, ExtensionInformation } from './Services/pluginService';
 import * as path from 'path';
 import { Environment } from './common/environmentPath';
 import { File, FileManager } from './manager/fileManager';
-import { Commons } from './common/commons';
+import Commons  from './common/commons';
 import { GitHubService } from './Services/githubService';
 import { OsType, SettingType } from './common/enums';
 import { CloudSetting } from './models/cloudSetting';
@@ -303,7 +303,7 @@ export async function activate(context: vscode.ExtensionContext) {
                         }
 
                         if (!syncSetting.quietSync) {
-                            common.GenerateSummmaryFile(true, allSettingFiles, null, uploadedExtensions, localConfig);
+                            common.ShowSummmaryOutput(true, allSettingFiles, null, uploadedExtensions, localConfig);
                             vscode.window.setStatusBarMessage("").dispose();
                         }
                         else {
@@ -512,7 +512,7 @@ export async function activate(context: vscode.ExtensionContext) {
                         await common.SaveSettings(syncSetting).then(async function (added: boolean) {
                             if (added) {
                                 if (!syncSetting.quietSync) {
-                                    common.GenerateSummmaryFile(false, updatedFiles, deletedExtensions, addedExtensions, localSettings);
+                                    common.ShowSummmaryOutput(false, updatedFiles, deletedExtensions, addedExtensions, localSettings);
                                     vscode.window.setStatusBarMessage("").dispose();
                                 }
                                 else {
@@ -611,14 +611,14 @@ export async function activate(context: vscode.ExtensionContext) {
         items.push("Sync : Toggle Auto-Upload On Settings Change");
         items.push("Sync : Toggle Auto-Download On Startup");
         items.push("Sync : Toggle Show Summary Page On Upload / Download");
-        items.push("Sync : Preserve Setting to stop overide after Download");
+        items.push("Sync : Preserve Setting To Stop Override After Download");
         items.push("Sync : Open Issue");
         items.push("Sync : Release Notes");
 
         var selectedItem: Number = 0;
         var settingChanged: boolean = false;
 
-        var teims = vscode.window.showQuickPick(items).then(async (resolve: string) => {
+        vscode.window.showQuickPick(items).then(async (resolve: string) => {
 
             switch (resolve) {
                 case items[0]: {
