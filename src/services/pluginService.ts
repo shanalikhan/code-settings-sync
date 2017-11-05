@@ -197,7 +197,7 @@ export class PluginService {
                 var info = new ExtensionInformation();
                 info.metadata = data;
                 info.name = ext.packageJSON.name;
-                info.publisher = meta.publisherDisplayName;
+                info.publisher = ext.packageJSON.publisher;
                 info.version = ext.packageJSON.version;
                 list.push(info);
             }
@@ -307,6 +307,10 @@ export class PluginService {
                 var destination = path.join(ExtensionFolder, item.publisher + '.' + item.name + '-' + item.version);
                 var source = path.join(extractPath, 'extension');
                 return PluginService.CopyExtension(destination, source);
+            })
+            .catch(function (error) {
+                console.error("Sync : Extension : '"+ item.name +"' - Version : '"+ item.version+"' "+ error);
+                throw error;
             });
     }
 }

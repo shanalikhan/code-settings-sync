@@ -1,10 +1,8 @@
-#### Version - 2.8.4
+####Version - 2.8.5
 
-
-* Fixing extension after API Changes [#428](https://github.com/shanalikhan/code-settings-sync/issues/428) (By: @sonhanguyen)
-* Added GIF for Upload and Download for readme (By: @mmakarios)
-* Documentation Improved (By: @VictorioBerra and @eliasmeire )
-* Typo Fix ( By : @guiconti )
+* Bug Fix : [#440](https://github.com/shanalikhan/code-settings-sync/issues/440)
+* Summary will be displayed on Code Output Window [#137](https://github.com/shanalikhan/code-settings-sync/issues/137) (By : @ThisIsManta)
+* Extension installation message improved [#359](https://github.com/shanalikhan/code-settings-sync/issues/359)
 
 
 I'm looking for contributors to work with me so we can make extension smoother and more feature riched.
