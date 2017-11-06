@@ -1,4 +1,4 @@
-####Version - 2.8.5
+#### Version - 2.8.5
 
 * Bug Fix : [#440](https://github.com/shanalikhan/code-settings-sync/issues/440)
 * Summary will be displayed on Code Output Window [#137](https://github.com/shanalikhan/code-settings-sync/issues/137) (By : @ThisIsManta)
