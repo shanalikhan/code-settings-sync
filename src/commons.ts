@@ -291,7 +291,7 @@ export default class Commons {
             else {
                 customSettings = new CustomSettings();
             }
-            vscode.workspace.getConfiguration().update("sync.version", undefined, true);
+            //vscode.workspace.getConfiguration().update("sync.version", undefined, true);
 
             if (firstTime) {
                 vscode.window.showInformationMessage("Sync : Settings Created. Thank You for Installing !");
