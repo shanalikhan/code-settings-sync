@@ -2,7 +2,7 @@
     "name": "code-settings-sync",
     "displayName": "Settings Sync",
     "description": "Synchronize Settings, Snippets, Themes, File Icons, Launch, Keybindings, Workspaces and Extensions Across Multiple Machines Using GitHub Gist.",
-    "version": "2.8.5",
+    "version": "2.8.6",
     "icon": "images/cloud.png",
     "publisher": "Shan",
     "author": {

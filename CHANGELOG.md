@@ -1,8 +1,7 @@
-#### Version - 2.8.5
+#### Version - 2.8.6
 
-* Bug Fix : [#440](https://github.com/shanalikhan/code-settings-sync/issues/440)
-* Summary will be displayed on Code Output Window [#137](https://github.com/shanalikhan/code-settings-sync/issues/137) (By : @ThisIsManta)
-* Extension installation message improved [#359](https://github.com/shanalikhan/code-settings-sync/issues/359)
+* Bug Fix : [#444](https://github.com/shanalikhan/code-settings-sync/issues/444) - Added support for Latest VS Code.
+* Documentation Improved [#448](https://github.com/shanalikhan/code-settings-sync/pull/448) (By : @textortexxel)
 
 
 I'm looking for contributors to work with me so we can make extension smoother and more feature riched.
