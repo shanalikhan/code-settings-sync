@@ -10,27 +10,23 @@
 
 ## Key Features:
 
-```
-1. Uses Github's Gist system to sync (more to come!).
-2. Anonymous Gist - no user account token rquire.
-3. One click Upload/Download. Supports keyboard shortcuts.
-4. Togglable summary page on affected settings and extensions.
-5. Automatic Upload & Download of settings on start-up.
-6. Share your Gists with others.
-7. GitHub Enterprise support.
-```
+- Uses Github's Gist system to sync (more to come!).
+- Anonymous Gist - no user account token rquire.
+- One click Upload/Download. Supports keyboard shortcuts.
+- Togglable summary page on affected settings and extensions.
+- Automatic Upload & Download of settings on start-up.
+- Share your Gists with others.
+- GitHub Enterprise support.
 
 
 ## What is synced?
-```
-All extensions and complete User Folder that Contains
-1. Settings
-2. Keyboard Shortcuts
-3. Launch Settings
-4. User Snippets
-5. VSCode Extensions and Settings
-6. Workspace Metadata.
-```
+All extensions, and everything inside User Folder, including:
+- Settings
+- Keyboard Shortcuts
+- Launch Settings
+- User Snippets
+- VSCode Extensions and Settings
+- Workspace Metadata.
 
 ## Shortcuts
 ```
