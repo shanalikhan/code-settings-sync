@@ -465,7 +465,7 @@ export default class Commons {
             let options: vscode.InputBoxOptions = {
                 placeHolder: "Enter GitHub Personal Access Token",
                 password: false,
-                prompt: "Link opened to get the GitHub token. Enter token and press [Enter] or press / type 'esc' to cancel.",
+                prompt: "Link opened! You can manually add token also (User Folder / syncLocalSettings.json). Press [Enter] or press / type 'esc' to cancel.",
                 ignoreFocusOut: true
             };
             return options;
@@ -474,7 +474,7 @@ export default class Commons {
             let options: vscode.InputBoxOptions = {
                 placeHolder: "Enter Gist Id",
                 password: false,
-                prompt: "Enter Gist Id from previously uploaded settings and press [Enter] or press / type 'esc' to cancel.",
+                prompt: "Enter Gist Id from previously uploaded settings. You can also set manually in code settings (sync.gist). Press [Enter] or press / type 'esc' to cancel.",
                 ignoreFocusOut: true
             };
             return options;

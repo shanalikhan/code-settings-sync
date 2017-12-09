@@ -299,7 +299,7 @@ export async function activate(context: vscode.ExtensionContext) {
         common.CloseWatch();
 
         try {
-            localSettings = await common.InitalizeSettings(false, true);
+            localSettings = await common.InitalizeSettings(true, true);
             //ignoreSettings = await common.GetIgnoredSettings(localSettings.customConfig.ignoreUploadSettings);
             await StartDownload(localSettings.extConfig, localSettings.customConfig);
             //await common.SetIgnoredSettings(ignoreSettings);

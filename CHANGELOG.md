@@ -1,10 +1,10 @@
-#### Version - 2.8.6
+#### Version - 2.8.7
 
-* Bug Fix : [#444](https://github.com/shanalikhan/code-settings-sync/issues/444) - Added support for Latest VS Code.
-* Documentation Improved [#448](https://github.com/shanalikhan/code-settings-sync/pull/448) (By : @textortexxel)
+* Token dialog will appear when you hit download command [#461](https://github.com/shanalikhan/code-settings-sync/issues/461)
+* Documentation Improved [#467](https://github.com/shanalikhan/code-settings-sync/pull/467) - By @Modelmat
 
 
 I'm looking for contributors to work with me so we can make the extension smoother and more feature rich.
-Let me know if anyone is interested.
+Let me know if anyone is willing to contribute.
 
 For Previous releases change log view the [post](http://shanalikhan.github.io/2016/05/14/Visual-studio-code-sync-settings-release-notes.html)
