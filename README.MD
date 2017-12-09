@@ -29,10 +29,8 @@ All extensions, and everything inside User Folder, including:
 - Workspace Metadata.
 
 ## Shortcuts
-```
-1. Upload Key : Shift + Alt + U
-2. Download Key : Shift + Alt + D
-```
+- Upload Key : Shift + Alt + U
+- Download Key : Shift + Alt + D
 
 ## Documentation
 View the [wiki](https://github.com/shanalikhan/code-settings-sync/wiki).
