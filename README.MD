@@ -6,7 +6,7 @@
 
 
 
-**Type Sync in command Palette in order to view all commands.**
+**Type >Sync in command Palette in order to view all commands.**
 
 ## Key Features:
 
