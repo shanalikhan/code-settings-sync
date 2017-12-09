@@ -8,29 +8,28 @@
 
 **Type Sync in command Palette in order to view all commands.**
 
-## Key Features
+## Key Features:
 
 ```
-1. Use your GitHub account token and Gist.
-2. Can create Anonymous Gist without using your GitHub account token.
-3. Easy to Upload and Download on one click.
-4. Show a summary page at the end with details about config and extensions effected.
-5. Auto Download Latest Settings on Startup.
-6. Auto upload Settings on file change.
-7. Share the Gist with other users and let them download your settings.
-8. Supports GitHub Enterprise
+1. Uses Github's Gist system to sync (more to come!).
+2. Anonymous Gist - no user account token rquire.
+3. One click Upload/Download. Supports keyboard shortcuts.
+4. Togglable summary page on affected settings and extensions.
+5. Automatic Upload & Download of settings on start-up.
+6. Share your Gists with others.
+7. GitHub Enterprise support.
 ```
 
 
-## It Syncs
+## What is synced?
 ```
 All extensions and complete User Folder that Contains
-1. Settings File
-2. Keybinding File
-3. Launch File
-4. Snippets Folder
-5. VSCode Extensions Settings
-6. Workspaces
+1. Settings
+2. Keyboard Shortcuts
+3. Launch Settings
+4. User Snippets
+5. VSCode Extensions and Settings
+6. Workspace Metadata.
 ```
 
 ## Shortcuts
@@ -39,5 +38,5 @@ All extensions and complete User Folder that Contains
 2. Download Key : Shift + Alt + D
 ```
 
-#Documentation
-https://github.com/shanalikhan/code-settings-sync/wiki
+## Documentation
+View the [wiki](https://github.com/shanalikhan/code-settings-sync/wiki).
