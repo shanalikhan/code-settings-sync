@@ -2,7 +2,7 @@
     "name": "code-settings-sync",
     "displayName": "Settings Sync",
     "description": "Synchronize Settings, Snippets, Themes, File Icons, Launch, Keybindings, Workspaces and Extensions Across Multiple Machines Using GitHub Gist.",
-    "version": "2.8.5",
+    "version": "2.8.7",
     "icon": "images/cloud.png",
     "publisher": "Shan",
     "author": {
@@ -94,13 +94,11 @@
         "keybindings": [
             {
                 "key": "alt+shift+u",
-                "command": "extension.updateSettings",
-                "when": "editorTextFocus"
+                "command": "extension.updateSettings"
             },
             {
                 "key": "alt+shift+d",
-                "command": "extension.downloadSettings",
-                "when": "editorTextFocus"
+                "command": "extension.downloadSettings"
             }
         ],
         "configuration": {
