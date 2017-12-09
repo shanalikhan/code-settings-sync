@@ -11,13 +11,12 @@
 ## Key Features:
 
 - Uses Github's Gist system to sync (more to come!).
-- Anonymous Gist - no user account token rquire.
+- Anonymous Gist - no user account token is required.
 - One click Upload/Download. Supports keyboard shortcuts.
-- Togglable summary page on affected settings and extensions.
+- A togglable summary page on affected settings and extensions.
 - Automatic Upload & Download of settings on start-up.
 - Share your Gists with others.
 - GitHub Enterprise support.
-
 
 ## What is synced?
 All extensions, and everything inside User Folder, including:
