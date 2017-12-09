@@ -156,7 +156,7 @@ Select Command **"Sync : Advance Options > Toggle Summary Page On Upload / Downl
 By default, it creates secret Gist so only you can see it but if you want to share your Gist with other users, you can set it to public.
 You can't change the exiting Gist type from secret to public so it will reset the Gist ID so you can create new Gist with all existing editor settings.
 
-Select Command **"Sync : Advance Options > Share Settings with Public GIST"**
+Select Command **"Sync : Advanced Options > Share Settings with Public GIST"**
 
 Other users can give your Gist Id to download the Gist, but they can't upload their settings on your Gist.
 
@@ -174,14 +174,18 @@ For details regarding settings keys, click [here](https://shanalikhan.github.io/
     "sync.autoUpload": false,
     "sync.forceDownload": true,
     "sync.anonymousGist": false
-    "sync.host":"",
-    "sync.pathPrefix":"",
-    "sync.quietSync":false
+    "sync.host": "",
+    "sync.pathPrefix": "",
+    "sync.quietSync": false
 ```
 
 ## Customized Sync
 
-Extension will create the `syncLocalSettings.json` inside `User` folder upon code start.
+Extension will create the `syncLocalSettings.json` inside `User` folder upon code start. <br>
+On Windows, this is `%APPDATA%\Code\User\syncLocalSettings.json`. <br>
+Mac, `$HOME/Library/Application Support/Code/User/syncLocalSettings.json`. <br>
+Linux, `~/.config/Code/User/settings.json`. <br>
+
 You can customize the sync:
 
 ```
@@ -191,7 +195,7 @@ You can customize the sync:
 4. Change the Gist description while creating new one in github.
 ```
 
-The Json will be created as:
+The JSON will be created as:
 
 ```json
 {
@@ -200,7 +204,7 @@ The Json will be created as:
     "ignoreUploadFiles": ["projects.json", "projects_cache_git.json"],
     "ignoreUploadFolders": ["workspaceStorage"],
     "replaceCodeSettings": {
-        "http.proxy": "XYZ"
+        "http.proxy": "http://my.proxy.address:8080"
     },
     "gistDescription": "Visual Studio Code Settings Sync Gist"
 }
@@ -217,7 +221,7 @@ If you have any idea, you can open an issue on the GitHub repository so we can f
 
 Download source code and install dependencies
 
-```
+```bash
 git clone https://github.com/shanalikhan/code-settings-sync.git
 cd code-settings-sync
 npm install
