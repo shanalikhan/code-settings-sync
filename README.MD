@@ -4,9 +4,8 @@
 
 [![Version](https://vsmarketplacebadge.apphb.com/version/Shan.code-settings-sync.svg)](https://marketplace.visualstudio.com/items?itemName=Shan.code-settings-sync) [![Travis](https://img.shields.io/travis/rust-lang/rust.svg)](https://marketplace.visualstudio.com/items?itemName=Shan.code-settings-sync) [![Join Chat](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/code-settings-sync)
 
+Welcome to the wiki for the `Setting Sync` extension.
 
-
-**Type >Sync in command Palette in order to view all commands.**
 
 ## Key Features:
 
@@ -18,6 +17,7 @@
 - Share your Gists with others.
 - GitHub Enterprise support.
 
+
 ## What is synced?
 All extensions, and everything inside User Folder, including:
 - Settings
@@ -28,8 +28,8 @@ All extensions, and everything inside User Folder, including:
 - Workspace Metadata.
 
 ## Shortcuts
-- Upload Key : Shift + Alt + U
-- Download Key : Shift + Alt + D
+- Upload Key : <kbd>Shift</kbd> + <kbd>Alt</kbd> + <kbd>U</kbd>
+- Download Key : <kbd>Shift</kbd> + <kbd>Alt</kbd> + <kbd>D</kbd>
 
 ## Documentation
 View the [wiki](https://github.com/shanalikhan/code-settings-sync/wiki).
