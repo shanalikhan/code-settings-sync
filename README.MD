@@ -32,4 +32,4 @@ All extensions, and everything inside User Folder, including:
 - Download Key : <kbd>Shift</kbd> + <kbd>Alt</kbd> + <kbd>D</kbd>
 
 ## Documentation
-View the [wiki](https://github.com/shanalikhan/code-settings-sync/wiki).
+View the [wiki](/wiki/).
