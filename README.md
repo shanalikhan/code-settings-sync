@@ -102,7 +102,7 @@ Enter the GitHub token in the window and click enter.
 
 **Enter Your Gist ID.**
 
-Uou need to enter your Gist ID in order to download the files you have uploaded with Shift + Alt + U.
+You need to enter your Gist ID in order to download the files you have uploaded with Shift + Alt + U.
 
 ![Enter Your Gist ID](https://shanalikhan.github.io/img/download2.png)
 
