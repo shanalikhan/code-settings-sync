@@ -1,6 +1,7 @@
 "use strict";
 import * as vscode from 'vscode';
 import * as path from 'path';
+import { statSync } from 'fs';
 import { OsType } from './enums';
 
 export class Environment {
@@ -82,8 +83,14 @@ export class Environment {
             });
         }
 
-        var codePath = this.isInsiders ? '/Code - Insiders' : '/Code';
-        this.PATH = this.PATH + codePath;
+        const possibleCodePaths = [this.isInsiders ? '/Code - Insiders' : '/Code', '/Code - OSS'];
+        for (const _path of possibleCodePaths) {
+            try {
+                fs.statSync(this.PATH + _path);
+                this.PATH = this.PATH + _path;
+                break;
+            } catch(e) {}
+        }
         this.USER_FOLDER = this.PATH.concat("/User/");
 
         this.FILE_EXTENSION = this.PATH.concat("/User/", this.FILE_EXTENSION_NAME);
