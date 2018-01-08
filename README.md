@@ -191,7 +191,7 @@ For details regarding settings keys, click [here](https://shanalikhan.github.io/
 Extension will create the `syncLocalSettings.json` inside `User` folder upon code start. <br>
 On Windows, this is `%APPDATA%\Code\User\syncLocalSettings.json`. <br>
 Mac, `$HOME/Library/Application Support/Code/User/syncLocalSettings.json`. <br>
-Linux, `~/.config/Code/User/settings.json`. <br>
+Linux, `~/.config/Code/User/syncLocalSettings.json`. <br>
 
 You can customize the sync:
 
