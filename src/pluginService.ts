@@ -11,6 +11,8 @@ var apiPath = 'https://marketplace.visualstudio.com/_apis/public/gallery/extensi
 
 const rmdir = require('rimraf');
 
+const extensionDir = '.vscode';
+
 export class ExtensionInformation {
     metadata: ExtensionMetadata;
     name: string;
@@ -183,13 +185,14 @@ export class PluginService {
 
         for (var i = 0; i < vscode.extensions.all.length; i++) {
             var ext = vscode.extensions.all[i];
-            if (ext.packageJSON.isBuiltin == false) {
-                if (ext.packageJSON.__metadata == null) {
-                    // Not install from gallery, just skip
-                    continue;
-                }
-
-                var meta = ext.packageJSON.__metadata;
+            if (ext.extensionPath.includes(extensionDir) // skip if not install from gallery
+                && ext.packageJSON.isBuiltin == false
+            ) {
+                var meta = ext.packageJSON.__metadata || {
+                    id: ext.packageJSON.uuid,
+                    publisherId: ext.id,
+                    publisherDisplayName: ext.packageJSON.publisher
+                };
                 var data = new ExtensionMetadata(meta.galleryApiUrl, meta.id, meta.downloadUrl, meta.publisherId, meta.publisherDisplayName, meta.date);
                 var info = new ExtensionInformation();
                 info.metadata = data;
@@ -304,6 +307,10 @@ export class PluginService {
                 var destination = path.join(ExtensionFolder, item.publisher + '.' + item.name + '-' + item.version);
                 var source = path.join(extractPath, 'extension');
                 return PluginService.CopyExtension(destination, source);
+            })
+            .catch(function (error) {
+                console.error("Sync : Extension : '"+ item.name +"' - Version : '"+ item.version+"' "+ error);
+                throw error;
             });
     }
 }

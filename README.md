@@ -44,46 +44,51 @@ All extensions and complete User Folder that Contains
 
 
 
-## Steps To Get the GitHub Key.
+## Steps To Get a Personal Access Token from GitHub
 
-This extension requires your GitHub Account Personal Access Token. You can create one simple by looking into the following pictures. Make sure you add **Gist** in scope.
+This extension requires a Personal Access Token from your GitHub account. You can create one by simply following the steps shown in the pictures below. Make sure you add **Gist** in scope.
 
-**Go to [Settings](https://github.com/settings) / [Personal Access Tokens](https://github.com/settings/tokens) / Generate New Token**
+**Go to [Settings](https://github.com/settings) / [Developer settings](https://github.com/settings/tokens) / [Personal access tokens](https://github.com/settings/tokens) / Generate New Token**
 
 
-![Goto Settings / Personal Access Tokens](https://shanalikhan.github.io/img/github1.PNG)
+![Goto Settings / Developer settings / Personal Access Tokens](https://shanalikhan.github.io/img/github1.PNG)
 
-**Select Gist From Scopes**
+**Select Gist From Scopes.**
 
 ![Select Scopes](https://shanalikhan.github.io/img/github2.PNG)
 
-**Get Unique Key**
+**Get an Access Token.**
 
-![Get Unique Key](https://shanalikhan.github.io/img/github3.PNG)
+![Get Access Token](https://shanalikhan.github.io/img/github3.PNG)
 
 
-> Save the Key somewhere for future use.
+> Save the Token somewhere for future use (i.e. to upload from other machines).
 
 
 ## Upload Your Settings For the first time
-
 
 **Press Shift + Alt + U it will ask your GitHub account access token.**
 
 > Type ">Sync" In Command Palette into order download / upload
 
-Enter the GitHub account in the window and click enter.
+This will automatically open your GitHub settings page, allowing you to generate a new token for the application, as explained in the previous section. This token will allow the extension to create gists.
+
+Enter the GitHub token in the window and click enter.
 
 ![github account access token](https://shanalikhan.github.io/img/upload1.png)
 
-**Upload your settings automatically and give you Gist ID.**
-Copy this Gist ID in order to download the settings in other machines.
+**Upload your settings automatically and the extension gives you Gist ID in the system message.**
+Gist ID is needed to access the data you have uploaded with your token. Copy this Gist ID in order to download the settings to other machines. 
 
 ![uploaded automatically](https://shanalikhan.github.io/img/upload2.png)
 
-You can always **verify created gist** on the following url :
+You can always **verify created gist** on the following url:
 
 > https://gist.github.com/{your_userName}/{gist_id}
+
+Here is the gif of the complete process when you execute the Upload command (Might take some time to load)
+
+![Upload](https://media.giphy.com/media/xT9IglKxSqs2Wdwq2c/source.gif)
 
 ## Download your Settings
 
@@ -91,8 +96,15 @@ You can always **verify created gist** on the following url :
 
 > Type ">Sync" In Command Palette into order download / upload
 
+**Enter Your GitHub Token.**
+
+Enter the GitHub token in the window and click enter.
+
+![github account access token](https://shanalikhan.github.io/img/upload1.png)
+
 **Enter Your Gist ID.**
-you need to enter your Gist ID in order to get all files
+
+You need to enter your Gist ID in order to download the files you have uploaded with Shift + Alt + U.
 
 ![Enter Your Gist ID](https://shanalikhan.github.io/img/download2.png)
 
@@ -100,6 +112,12 @@ you need to enter your Gist ID in order to get all files
 You are Done! All your files are downloaded
 
 ![Enter Your Gist ID](https://shanalikhan.github.io/img/download3.png)
+
+Here is the gif of the complete process when you execute the Download command (Might take time to load)
+
+
+![Download](https://media.giphy.com/media/xT9Iglsi3CS9noE8tW/source.gif)
+
 
 ## Reset Token / Gist Settings
 
@@ -147,7 +165,7 @@ Select Command **"Sync : Advance Options > Toggle Summary Page On Upload / Downl
 By default, it creates secret Gist so only you can see it but if you want to share your Gist with other users, you can set it to public.
 You can't change the exiting Gist type from secret to public so it will reset the Gist ID so you can create new Gist with all existing editor settings.
 
-Select Command **"Sync : Advance Options > Share Settings with Public GIST"**
+Select Command **"Sync : Advanced Options > Share Settings with Public GIST"**
 
 Other users can give your Gist Id to download the Gist, but they can't upload their settings on your Gist.
 
@@ -165,14 +183,18 @@ For details regarding settings keys, click [here](https://shanalikhan.github.io/
     "sync.autoUpload": false,
     "sync.forceDownload": true,
     "sync.anonymousGist": false
-    "sync.host":"",
-    "sync.pathPrefix":"",
-    "sync.quietSync":false
+    "sync.host": "",
+    "sync.pathPrefix": "",
+    "sync.quietSync": false
 ```
 
 ## Customized Sync
 
-Extension will create the `syncLocalSettings.json` insider `User` folder upon code start.
+Extension will create the `syncLocalSettings.json` inside `User` folder upon code start. <br>
+On Windows, this is `%APPDATA%\Code\User\syncLocalSettings.json`. <br>
+Mac, `$HOME/Library/Application Support/Code/User/syncLocalSettings.json`. <br>
+Linux, `~/.config/Code/User/syncLocalSettings.json`. <br>
+
 You can customize the sync:
 
 ```
@@ -182,7 +204,7 @@ You can customize the sync:
 4. Change the Gist description while creating new one in github.
 ```
 
-The Json will be created as:
+The JSON will be created as:
 
 ```json
 {
@@ -191,7 +213,7 @@ The Json will be created as:
     "ignoreUploadFiles": ["projects.json", "projects_cache_git.json"],
     "ignoreUploadFolders": ["workspaceStorage"],
     "replaceCodeSettings": {
-        "http.proxy": "XYZ"
+        "http.proxy": "http://my.proxy.address:8080"
     },
     "gistDescription": "Visual Studio Code Settings Sync Gist"
 }
@@ -208,7 +230,7 @@ If you have any idea, you can open an issue on the GitHub repository so we can f
 
 Download source code and install dependencies
 
-```
+```bash
 git clone https://github.com/shanalikhan/code-settings-sync.git
 cd code-settings-sync
 npm install

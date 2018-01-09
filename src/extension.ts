@@ -5,7 +5,7 @@ import { PluginService, ExtensionInformation } from './pluginService';
 import * as path from 'path';
 import { Environment } from './environmentPath';
 import { File, FileManager } from './fileManager';
-import { Commons } from './commons';
+import Commons from './commons';
 import { GitHubService } from './githubService';
 import { ExtensionConfig, LocalConfig, CloudSetting, CustomSettings } from './setting';
 import { OsType, SettingType } from './enums';
@@ -38,12 +38,12 @@ export async function activate(context: vscode.ExtensionContext) {
         let gistAvailable: boolean = (startUpSetting.gist != null) && (startUpSetting.gist != "");
 
         if (gistAvailable == true && startUpSetting.autoDownload == true) {
-            vscode.commands.executeCommand('extension.downloadSettings').then(suc=>{
+            vscode.commands.executeCommand('extension.downloadSettings').then(suc => {
                 if (startUpSetting.autoUpload && tokenAvailable && gistAvailable) {
                     common.StartWatch();
                 }
             });
-            
+
         }
         if (startUpSetting.autoUpload && tokenAvailable && gistAvailable) {
             common.StartWatch();
@@ -270,7 +270,7 @@ export async function activate(context: vscode.ExtensionContext) {
                         }
 
                         if (!syncSetting.quietSync) {
-                            common.GenerateSummmaryFile(true, allSettingFiles, null, uploadedExtensions, localConfig);
+                            common.ShowSummmaryOutput(true, allSettingFiles, null, uploadedExtensions, localConfig);
                             vscode.window.setStatusBarMessage("").dispose();
                         }
                         else {
@@ -299,7 +299,7 @@ export async function activate(context: vscode.ExtensionContext) {
         common.CloseWatch();
 
         try {
-            localSettings = await common.InitalizeSettings(false, true);
+            localSettings = await common.InitalizeSettings(true, true);
             //ignoreSettings = await common.GetIgnoredSettings(localSettings.customConfig.ignoreUploadSettings);
             await StartDownload(localSettings.extConfig, localSettings.customConfig);
             //await common.SetIgnoredSettings(ignoreSettings);
@@ -411,19 +411,22 @@ export async function activate(context: vscode.ExtensionContext) {
                                     vscode.window.setStatusBarMessage("Sync : No Extension needs to be installed.", 2000);
                                 }
                                 else {
-
-                                    vscode.window.setStatusBarMessage("Sync : Installing Extensions in background.");
+                                    let installed: number = 0;
+                                    vscode.window.setStatusBarMessage("Sync : Installing " + missingList.length.toString() + " Extensions in background.", 1000);
                                     missingList.forEach(async (element) => {
-
                                         await actionList.push(PluginService.InstallExtension(element, en.ExtensionFolder)
                                             .then(function () {
+                                                installed = installed + 1;
+                                                vscode.window.setStatusBarMessage("Sync : Extension " + installed + " of " + missingList.length.toString() + " installed.", 2000);
                                                 addedExtensions.push(element);
+
                                                 //var name = element.publisher + '.' + element.name + '-' + element.version;
                                                 //vscode.window.showInformationMessage("Extension " + name + " installed Successfully");
                                             }, function (a) {
-
+                                                vscode.window.setStatusBarMessage("").dispose();
                                             }));
                                     });
+                                    vscode.window.setStatusBarMessage("").dispose();
                                 }
                             }
                             else {
@@ -477,7 +480,7 @@ export async function activate(context: vscode.ExtensionContext) {
                         await common.SaveSettings(syncSetting).then(async function (added: boolean) {
                             if (added) {
                                 if (!syncSetting.quietSync) {
-                                    common.GenerateSummmaryFile(false, updatedFiles, deletedExtensions, addedExtensions, localSettings);
+                                    common.ShowSummmaryOutput(false, updatedFiles, deletedExtensions, addedExtensions, localSettings);
                                     vscode.window.setStatusBarMessage("").dispose();
                                 }
                                 else {
@@ -576,14 +579,14 @@ export async function activate(context: vscode.ExtensionContext) {
         items.push("Sync : Toggle Auto-Upload On Settings Change");
         items.push("Sync : Toggle Auto-Download On Startup");
         items.push("Sync : Toggle Show Summary Page On Upload / Download");
-        items.push("Sync : Preserve Setting to stop overide after Download");
+        items.push("Sync : Preserve Setting To Stop Override After Download");
         items.push("Sync : Open Issue");
         items.push("Sync : Release Notes");
 
         var selectedItem: Number = 0;
         var settingChanged: boolean = false;
 
-        var teims = vscode.window.showQuickPick(items).then(async (resolve: string) => {
+        vscode.window.showQuickPick(items).then(async (resolve: string) => {
 
             switch (resolve) {
                 case items[0]: {
