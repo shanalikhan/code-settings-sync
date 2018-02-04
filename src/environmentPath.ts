@@ -3,6 +3,7 @@ import * as vscode from 'vscode';
 import * as path from 'path';
 import { statSync } from 'fs';
 import { OsType } from './enums';
+import * as fs from 'fs';
 
 export class Environment {
 
@@ -89,7 +90,10 @@ export class Environment {
                 fs.statSync(this.PATH + _path);
                 this.PATH = this.PATH + _path;
                 break;
-            } catch(e) {}
+            } catch(e) {
+                console.error("Error :"+ _path);
+                console.error(e);
+            }
         }
         this.USER_FOLDER = this.PATH.concat("/User/");
 
