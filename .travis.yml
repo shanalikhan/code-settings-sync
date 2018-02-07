@@ -2,7 +2,7 @@ language: node_js
 
 before_install:
   - npm install
-  - npm run postinstall
+  - npm install -g vsce
 
 install:
-  - vscode:prepublish
+  - vsce package
