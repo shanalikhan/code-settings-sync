@@ -7,3 +7,5 @@ before_install:
 
 install:
   - vsce package
+  
+script: echo "npm test temporarily disabled"
