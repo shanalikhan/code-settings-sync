@@ -111,12 +111,12 @@
                 "sync.lastUpload": {
                     "type": "string",
                     "default": "",
-                    "description": "Settings Sync last upload date. Set it as empty if you want to manully hit download."
+                    "description": "Settings Sync last upload date. Set it as empty if you want to manually hit download."
                 },
                 "sync.lastDownload": {
                     "type": "string",
                     "default": "",
-                    "description": "Settings Sync last download date. Set it as empty if you want to manully hit download."
+                    "description": "Settings Sync last download date. Set it as empty if you want to manually hit download."
                 },
                 "sync.autoDownload": {
                     "type": "boolean",
