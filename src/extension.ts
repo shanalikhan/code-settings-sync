@@ -1,25 +1,24 @@
 'use strict';
 
 import * as vscode from 'vscode';
-import { PluginService, ExtensionInformation } from './pluginService';
+import { PluginService, ExtensionInformation } from './service/pluginService';
 import * as path from 'path';
 import { Environment } from './environmentPath';
-import { File, FileManager } from './fileManager';
+import { File, FileService } from './service/fileService';
 import Commons from './commons';
 import { GitHubService } from './githubService';
-import { ExtensionConfig, LocalConfig, CloudSetting, CustomSettings } from './setting';
+import { ExtensionConfig, LocalConfig, CloudSetting, CustomSettings, KeyValue } from './setting';
 import { OsType, SettingType } from './enums';
 
 export async function activate(context: vscode.ExtensionContext) {
 
-    var openurl = require('opn');
     var fs = require('fs');
     const lockfile = require('proper-lockfile');
 
     var en: Environment = new Environment(context);
     var common: Commons = new Commons(en, context);
 
-    let lockExist: boolean = await FileManager.FileExists(en.FILE_SYNC_LOCK);
+    let lockExist: boolean = await FileService.FileExists(en.FILE_SYNC_LOCK);
     if (!lockExist) {
         fs.closeSync(fs.openSync(en.FILE_SYNC_LOCK, 'w'));
     }
@@ -43,7 +42,6 @@ export async function activate(context: vscode.ExtensionContext) {
                     common.StartWatch();
                 }
             });
-
         }
         if (startUpSetting.autoUpload && tokenAvailable && gistAvailable) {
             common.StartWatch();
@@ -96,25 +94,28 @@ export async function activate(context: vscode.ExtensionContext) {
             syncSetting.lastUpload = dateNow;
             vscode.window.setStatusBarMessage("Sync : Reading Settings and Extensions.", 2000);
 
-            uploadedExtensions = PluginService.CreateExtensionList();
 
-            uploadedExtensions.sort(function (a, b) {
-                return a.name.localeCompare(b.name);
-            });
 
             // var remoteList = ExtensionInformation.fromJSONList(file.content);
             // var deletedList = PluginService.GetDeletedExtensions(uploadedExtensions);
+            if (syncSetting.syncExtensions) {
+                uploadedExtensions = PluginService.CreateExtensionList();
 
-            let fileName = en.FILE_EXTENSION_NAME;
-            let filePath = en.FILE_EXTENSION;
-            let fileContent = JSON.stringify(uploadedExtensions, undefined, 2);;
-            let file: File = new File(fileName, fileContent, filePath, fileName);
-            allSettingFiles.push(file);
+                uploadedExtensions.sort(function (a, b) {
+                    return a.name.localeCompare(b.name);
+                });
+                let fileName = en.FILE_EXTENSION_NAME;
+                let filePath = en.FILE_EXTENSION;
+                let fileContent = JSON.stringify(uploadedExtensions, undefined, 2);
+                let file: File = new File(fileName, fileContent, filePath, fileName);
+                allSettingFiles.push(file);
+            }
+
 
             let contentFiles: Array<File> = new Array();
-            contentFiles = await FileManager.ListFiles(en.USER_FOLDER, 0, 2);
+            contentFiles = await FileService.ListFiles(en.USER_FOLDER, 0, 2);
 
-            let customExist: boolean = await FileManager.FileExists(en.FILE_CUSTOMIZEDSETTINGS);
+            let customExist: boolean = await FileService.FileExists(en.FILE_CUSTOMIZEDSETTINGS);
             if (customExist) {
                 customSettings = await common.GetCustomSettings();
                 contentFiles = contentFiles.filter((file: File, index: number) => {
@@ -162,9 +163,9 @@ export async function activate(context: vscode.ExtensionContext) {
 
             var extProp: CloudSetting = new CloudSetting();
             extProp.lastUpload = dateNow;
-            fileName = en.FILE_CLOUDSETTINGS_NAME;
-            fileContent = JSON.stringify(extProp);
-            file = new File(fileName, fileContent, "", fileName);
+            var fileName: string = en.FILE_CLOUDSETTINGS_NAME;
+            var fileContent: string = JSON.stringify(extProp);
+            var file: File = new File(fileName, fileContent, "", fileName);
             allSettingFiles.push(file);
 
             let completed: boolean = false;
@@ -382,55 +383,37 @@ export async function activate(context: vscode.ExtensionContext) {
 
                         if (content != "") {
                             if (file.gistName == en.FILE_EXTENSION_NAME) {
-                                var extensionlist = PluginService.CreateExtensionList();
 
-                                extensionlist.sort(function (a, b) {
-                                    return a.name.localeCompare(b.name);
-                                });
-
-                                var remoteList = ExtensionInformation.fromJSONList(file.content);
-                                var deletedList = PluginService.GetDeletedExtensions(remoteList);
-
-                                for (var deletedItemIndex = 0; deletedItemIndex < deletedList.length; deletedItemIndex++) {
-                                    var deletedExtension = deletedList[deletedItemIndex];
-                                    (async function (deletedExtension: ExtensionInformation, ExtensionFolder: string) {
-                                        await actionList.push(PluginService.DeleteExtension(deletedExtension, en.ExtensionFolder)
-                                            .then((res) => {
-                                                //vscode.window.showInformationMessage(deletedExtension.name + '-' + deletedExtension.version + " is removed.");
-                                                deletedExtensions.push(deletedExtension);
-                                            }, (rej) => {
-                                                Commons.LogException(rej, common.ERROR_MESSAGE, true);
-                                            }));
-                                    }(deletedExtension, en.ExtensionFolder));
-
-                                }
-
-                                var missingList = PluginService.GetMissingExtensions(remoteList);
-                                if (missingList.length == 0) {
-                                    vscode.window.setStatusBarMessage("").dispose();
-                                    vscode.window.setStatusBarMessage("Sync : No Extension needs to be installed.", 2000);
-                                }
-                                else {
-                                    let installed: number = 0;
-                                    vscode.window.setStatusBarMessage("Sync : Installing " + missingList.length.toString() + " Extensions in background.", 1000);
-                                    missingList.forEach(async (element) => {
-                                        await actionList.push(PluginService.InstallExtension(element, en.ExtensionFolder)
-                                            .then(function () {
-                                                installed = installed + 1;
-                                                vscode.window.setStatusBarMessage("Sync : Extension " + installed + " of " + missingList.length.toString() + " installed.", 2000);
-                                                addedExtensions.push(element);
-
-                                                //var name = element.publisher + '.' + element.name + '-' + element.version;
-                                                //vscode.window.showInformationMessage("Extension " + name + " installed Successfully");
-                                            }, function (a) {
-                                                vscode.window.setStatusBarMessage("").dispose();
-                                            }));
-                                    });
-                                    vscode.window.setStatusBarMessage("").dispose();
+                              
+                                if (syncSetting.syncExtensions) {
+                                    var extDelStatus: Array<KeyValue<string, boolean>> = new Array<KeyValue<string, boolean>>();
+                                    if (syncSetting.removeExtensions) {
+                                        try {
+                                            deletedExtensions = await PluginService.DeleteExtensions(file.content, en.ExtensionFolder);
+                                        }
+                                        catch (uncompletedExtensions) {
+                                            vscode.window.showErrorMessage("Sync : Unable to remove some extensions.");
+                                            deletedExtensions = uncompletedExtensions;
+                                        }
+    
+                                    }
+                                    try {
+                                        addedExtensions = await PluginService.InstallExtensions(file.content, en.ExtensionFolder, function (message: string, dispose: boolean) {
+                                            //TODO:
+                                            if (dispose) {
+                                                vscode.window.setStatusBarMessage(message, 2000);
+                                            }
+                                            else {
+                                                vscode.window.setStatusBarMessage(message, 5000);
+                                            }
+                                        });
+                                    }
+                                    catch (extensions) {
+                                        addedExtensions = extensions;
+                                    }
                                 }
                             }
                             else {
-
                                 writeFile = true;
                                 if (file.gistName == en.FILE_KEYBINDING_DEFAULT || file.gistName == en.FILE_KEYBINDING_MAC) {
                                     let test: string = "";
@@ -443,8 +426,8 @@ export async function activate(context: vscode.ExtensionContext) {
                                     if (file.gistName == en.FILE_KEYBINDING_MAC) {
                                         file.fileName = en.FILE_KEYBINDING_DEFAULT;
                                     }
-                                    let filePath: string = await FileManager.CreateDirTree(en.USER_FOLDER, file.fileName);
-                                    await actionList.push(FileManager.WriteFile(filePath, content).then(
+                                    let filePath: string = await FileService.CreateDirTree(en.USER_FOLDER, file.fileName);
+                                    await actionList.push(FileService.WriteFile(filePath, content).then(
                                         function (added: boolean) {
                                             //TODO : add Name attribute in File and show information message here with name , when required.
                                         }, function (error: any) {
@@ -538,7 +521,7 @@ export async function activate(context: vscode.ExtensionContext) {
 
                 let extSaved: boolean = await common.SaveSettings(extSettings);
                 let customSaved: boolean = await common.SetCustomSettings(localSettings);
-                let lockExist: boolean = await FileManager.FileExists(en.FILE_SYNC_LOCK);
+                let lockExist: boolean = await FileService.FileExists(en.FILE_SYNC_LOCK);
 
                 if (!lockExist) {
                     fs.closeSync(fs.openSync(en.FILE_SYNC_LOCK, 'w'));
@@ -560,7 +543,7 @@ export async function activate(context: vscode.ExtensionContext) {
     });
 
     var howSettings = vscode.commands.registerCommand('extension.HowSettings', async () => {
-        openurl("http://shanalikhan.github.io/2015/12/15/Visual-Studio-Code-Sync-Settings.html");
+        vscode.commands.executeCommand('vscode.open', vscode.Uri.parse('"http://shanalikhan.github.io/2015/12/15/Visual-Studio-Code-Sync-Settings.html'));
     });
 
     var otherOptions = vscode.commands.registerCommand('extension.otherOptions', async () => {
@@ -702,11 +685,11 @@ export async function activate(context: vscode.ExtensionContext) {
                     break;
                 }
                 case items[7]: {
-                    openurl("https://github.com/shanalikhan/code-settings-sync/issues/new");
+                    vscode.commands.executeCommand('vscode.open', vscode.Uri.parse('https://github.com/shanalikhan/code-settings-sync/issues/new'));
                     break;
                 }
                 case items[8]: {
-                    openurl("http://shanalikhan.github.io/2016/05/14/Visual-studio-code-sync-settings-release-notes.html");
+                    vscode.commands.executeCommand('vscode.open', vscode.Uri.parse('http://shanalikhan.github.io/2016/05/14/Visual-studio-code-sync-settings-release-notes.html'));
                     break;
                 }
                 default: {

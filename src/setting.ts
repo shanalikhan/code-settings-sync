@@ -15,7 +15,8 @@ export class ExtensionConfig {
     public pathPrefix: string = null;
     public quietSync: boolean = false;
     public askGistName: boolean = false;
-
+    public removeExtensions: boolean = true;
+    public syncExtensions: boolean = true;
 }
 
 export class LocalConfig {
@@ -39,6 +40,12 @@ export class CloudSetting {
     }
 }
 
+export class KeyValue<T,S>{
+    
+    constructor(public Key : T , public Value : S){
+        
+    }
+}
 
 export class CustomSettings {
     public ignoreUploadFiles: Array<string> = null;

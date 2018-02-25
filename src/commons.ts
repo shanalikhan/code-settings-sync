@@ -1,13 +1,12 @@
 "use strict";
 import * as vscode from 'vscode';
 import { Environment } from './environmentPath';
-import { File, FileManager } from './fileManager';
+import { File, FileService } from './service/fileService';
 import { ExtensionConfig, LocalConfig, CustomSettings } from './setting';
-import { PluginService, ExtensionInformation } from './pluginService';
+import { PluginService, ExtensionInformation } from './service/pluginService';
 import * as fs from 'fs';
 import * as path from 'path';
 
-const openurl = require('opn');
 const chokidar = require('chokidar');
 const lockfile = require('proper-lockfile');
 
@@ -39,9 +38,9 @@ export default class Commons {
                     if (message.toLowerCase() == 'bad credentials') {
                         msgBox = true;
                         message = "Sync : Invalid / Expired GitHub Token. Please generate new token with scopes mentioned in readme. Exception Logged in Console.";
-                        openurl("https://github.com/settings/tokens");
+                        vscode.commands.executeCommand('vscode.open', vscode.Uri.parse('https://github.com/settings/tokens'));
                     }
-                    if(message.toLowerCase() =='not found'){
+                    if (message.toLowerCase() == 'not found') {
                         msgBox = true;
                         message = "Sync : Invalid Gist Id Entered. Verify your gist : https://gist.github.com/<your_userName>/<gist_id>."
                     }
@@ -66,7 +65,7 @@ export default class Commons {
 
     public async StartWatch(): Promise<void> {
 
-        let lockExist: boolean = await FileManager.FileExists(this.en.FILE_SYNC_LOCK);
+        let lockExist: boolean = await FileService.FileExists(this.en.FILE_SYNC_LOCK);
         if (!lockExist) {
             fs.closeSync(fs.openSync(this.en.FILE_SYNC_LOCK, 'w'));
         }
@@ -204,7 +203,7 @@ export default class Commons {
                 }
 
                 if (askToken) {
-                    openurl("https://github.com/settings/tokens");
+                    vscode.commands.executeCommand('vscode.open', vscode.Uri.parse('https://github.com/settings/tokens'))
                     let tokTemp: string = await me.GetTokenAndSave(cusSettings);
                     if (!tokTemp) {
                         vscode.window.showErrorMessage("Sync : Token Not Saved.");
@@ -237,9 +236,9 @@ export default class Commons {
 
             let customSettings: CustomSettings = new CustomSettings();
             try {
-                let customExist: boolean = await FileManager.FileExists(me.en.FILE_CUSTOMIZEDSETTINGS);
+                let customExist: boolean = await FileService.FileExists(me.en.FILE_CUSTOMIZEDSETTINGS);
                 if (customExist) {
-                    let customSettingStr: string = await FileManager.ReadFile(me.en.FILE_CUSTOMIZEDSETTINGS);
+                    let customSettingStr: string = await FileService.ReadFile(me.en.FILE_CUSTOMIZEDSETTINGS);
                     let tempObj: Object = JSON.parse(customSettingStr);
                     if (!Array.isArray(tempObj["ignoreUploadSettings"])) {
                         tempObj["ignoreUploadSettings"] = new Array<string>();
@@ -251,7 +250,7 @@ export default class Commons {
             }
             catch (e) {
                 Commons.LogException(e, "Sync : Unable to read " + this.en.FILE_CUSTOMIZEDSETTINGS_NAME + ". Make sure its Valid JSON.", true);
-                openurl("http://shanalikhan.github.io/2017/02/19/Option-to-ignore-settings-folders-code-settings-sync.html");
+                vscode.commands.executeCommand('vscode.open', vscode.Uri.parse('http://shanalikhan.github.io/2017/02/19/Option-to-ignore-settings-folders-code-settings-sync.html'));
                 customSettings = null;
                 resolve(customSettings);
             }
@@ -264,7 +263,7 @@ export default class Commons {
             try {
                 let json: Object = Object.assign(setting);
                 delete json["ignoreUploadSettings"]
-                await FileManager.WriteFile(me.en.FILE_CUSTOMIZEDSETTINGS, JSON.stringify(json));
+                await FileService.WriteFile(me.en.FILE_CUSTOMIZEDSETTINGS, JSON.stringify(json));
                 resolve(true);
             }
             catch (e) {
@@ -280,7 +279,7 @@ export default class Commons {
         return new Promise<boolean>(async (resolve, reject) => {
 
             let settings: ExtensionConfig = await me.GetSettings();
-            let fileExist: boolean = await FileManager.FileExists(me.en.FILE_CUSTOMIZEDSETTINGS);
+            let fileExist: boolean = await FileService.FileExists(me.en.FILE_CUSTOMIZEDSETTINGS);
             let customSettings: CustomSettings = null;
             let firstTime: boolean = !fileExist;
             let fileChanged: boolean = firstTime;
@@ -297,12 +296,12 @@ export default class Commons {
                 vscode.window.showInformationMessage("Sync : Settings Created. Thank You for Installing !");
                 vscode.window.showInformationMessage("Sync : Need Help regarding configuring this extension ?", "Open Extension Page").then(function (val: string) {
                     if (val == "Open Extension Page") {
-                        openurl("https://marketplace.visualstudio.com/items?itemName=Shan.code-settings-sync");
+                        vscode.commands.executeCommand('vscode.open', vscode.Uri.parse('https://marketplace.visualstudio.com/items?itemName=Shan.code-settings-sync'))
                     }
                 });
                 vscode.window.showInformationMessage("Sync : You can exclude any file / folder for upload and settings for download.", "Open Tutorial").then(function (val: string) {
                     if (val == "Open Tutorial") {
-                        openurl("http://shanalikhan.github.io/2017/02/19/Option-to-ignore-settings-folders-code-settings-sync.html");
+                        vscode.commands.executeCommand('vscode.open', vscode.Uri.parse('http://shanalikhan.github.io/2017/02/19/Option-to-ignore-settings-folders-code-settings-sync.html'))
                     }
                 });
             }
@@ -316,15 +315,15 @@ export default class Commons {
                         vscode.window.showInformationMessage("Sync : Now You can set your GitHub token manually in `syncLocalSettings.json`");
                     }
                 }
-                vscode.window.showInformationMessage("Sync : Updated to v"+ Environment.getVersion(),"Release Notes","Write Review","Support This Project").then(function(val: string){
-                    if(val == "Release Notes"){
-                        openurl("http://shanalikhan.github.io/2016/05/14/Visual-studio-code-sync-settings-release-notes.html");
+                vscode.window.showInformationMessage("Sync : Updated to v" + Environment.getVersion(), "Release Notes", "Write Review", "Support This Project").then(function (val: string) {
+                    if (val == "Release Notes") {
+                        vscode.commands.executeCommand('vscode.open', vscode.Uri.parse('http://shanalikhan.github.io/2016/05/14/Visual-studio-code-sync-settings-release-notes.html'));
                     }
-                    if(val=="Write Review"){
-                        openurl("https://marketplace.visualstudio.com/items?itemName=Shan.code-settings-sync#review-details");
+                    if (val == "Write Review") {
+                        vscode.commands.executeCommand('vscode.open', vscode.Uri.parse('https://marketplace.visualstudio.com/items?itemName=Shan.code-settings-sync#review-details'));
                     }
-                    if(val=="Support This Project"){
-                        openurl("https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=4W3EWHHBSYMM8&lc=IE&item_name=Code%20Settings%20Sync&item_number=visual%20studio%20code%20settings%20sync&currency_code=USD&bn=PP-DonationsBF:btn_donate_SM.gif:NonHosted");
+                    if (val == "Support This Project") {
+                        vscode.commands.executeCommand('vscode.open', vscode.Uri.parse('https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=4W3EWHHBSYMM8&lc=IE&item_name=Code%20Settings%20Sync&item_number=visual%20studio%20code%20settings%20sync&currency_code=USD&bn=PP-DonationsBF:btn_donate_SM.gif:NonHosted'));
                     }
                 });
             }
@@ -389,9 +388,9 @@ export default class Commons {
     public DonateMessage(): void {
         vscode.window.showInformationMessage("Sync : Do you like this extension ? How about writing a review or send me some donation ;) ", "Donate Now", "Write Review").then((res) => {
             if (res == "Donate Now") {
-                openurl("https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=4W3EWHHBSYMM8&lc=IE&item_name=Code%20Settings%20Sync&item_number=visual%20studio%20code%20settings%20sync&currency_code=USD&bn=PP-DonationsBF:btn_donate_SM.gif:NonHosted");
+                vscode.commands.executeCommand('vscode.open', vscode.Uri.parse('https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=4W3EWHHBSYMM8&lc=IE&item_name=Code%20Settings%20Sync&item_number=visual%20studio%20code%20settings%20sync&currency_code=USD&bn=PP-DonationsBF:btn_donate_SM.gif:NonHosted'));
             } else if (res == "Write Review") {
-                openurl("https://marketplace.visualstudio.com/items?itemName=Shan.code-settings-sync#review-details");
+                vscode.commands.executeCommand('vscode.open', vscode.Uri.parse('https://marketplace.visualstudio.com/items?itemName=Shan.code-settings-sync#review-details'));
             }
         });
     }
@@ -522,7 +521,7 @@ export default class Commons {
     /**
      * AskGistName
      */
-    public async AskGistName() : Promise<string> {
+    public async AskGistName(): Promise<string> {
         return new Promise<string>((resolve, reject) => {
             vscode.window.showInputBox({
                 prompt: "Allows you to identify the settings if you have multiple gist."
@@ -557,7 +556,7 @@ export default class Commons {
 
         outputChannel.appendLine(`Files ${upload ? "Upload" : "Download"}ed:`);
         files
-            .filter(item =>item.fileName.indexOf(".") > 0)
+            .filter(item => item.fileName.indexOf(".") > 0)
             .forEach(item => {
                 if (item.fileName != item.gistName) {
                     if (upload) {
@@ -569,17 +568,24 @@ export default class Commons {
                 }
             });
 
-        if (removedExtensions) {
-            outputChannel.appendLine(``);
-            outputChannel.appendLine(`Extensions Removed:`);
-            
-            if (removedExtensions.length === 0) {
-                outputChannel.appendLine("  No extensions removed.");
-            }
+        outputChannel.appendLine(``);
+        outputChannel.appendLine(`  Extensions Removed:`);
 
-            removedExtensions.forEach(extn => {
-                outputChannel.appendLine(`  ${extn.name} v${extn.version}`);
-            });
+        if (!syncSettings.extConfig.removeExtensions) {
+            outputChannel.appendLine(' Feature Disabled.');
+        }
+        else {
+            if (removedExtensions) {
+                if (removedExtensions.length === 0) {
+                    outputChannel.appendLine("  No extensions removed.");
+                }
+                else {
+
+                    removedExtensions.forEach(extn => {
+                        outputChannel.appendLine(`  ${extn.name} v${extn.version}`);
+                    });
+                }
+            }
         }
 
         if (addedExtensions) {

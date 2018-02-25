@@ -185,7 +185,9 @@ For details regarding settings keys, click [here](https://shanalikhan.github.io/
     "sync.anonymousGist": false
     "sync.host": "",
     "sync.pathPrefix": "",
-    "sync.quietSync": false
+    "sync.quietSync": false,
+    "sync.removeExtensions": true,
+    "sync.syncExtensions": true
 ```
 
 ## Customized Sync
