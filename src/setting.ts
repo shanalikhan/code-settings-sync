@@ -15,7 +15,8 @@ export class ExtensionConfig {
     public pathPrefix: string = null;
     public quietSync: boolean = false;
     public askGistName: boolean = false;
-
+    public removeExtensions: boolean = true;
+    public syncExtensions: boolean = true;
 }
 
 export class LocalConfig {
@@ -39,6 +40,12 @@ export class CloudSetting {
     }
 }
 
+export class KeyValue<T,S>{
+    
+    constructor(public Key : T , public Value : S){
+        
+    }
+}
 
 export class CustomSettings {
     public ignoreUploadFiles: Array<string> = null;
@@ -48,12 +55,14 @@ export class CustomSettings {
     public gistDescription: string = null;
     public version: number = 0;
     public token: string = null;
+    public supportedFileExtensions : Array<string> = null;
     constructor() {
 
         this.ignoreUploadFiles = new Array<string>();
         this.ignoreUploadFolders = new Array<string>();
         this.replaceCodeSettings = new Object();
         this.ignoreUploadSettings = new Array<string>();
+        this.supportedFileExtensions = new Array<string>();
         this.ignoreUploadFolders.push("workspaceStorage");
         this.ignoreUploadFiles.push("projects.json");
         this.ignoreUploadFiles.push("projects_cache_vscode.json")
@@ -63,6 +72,8 @@ export class CustomSettings {
         this.ignoreUploadFiles.push("gpm-recentItems.json")
         this.gistDescription = "Visual Studio Code Settings Sync Gist";
         this.version = Environment.CURRENT_VERSION;
+        this.supportedFileExtensions.push("json");
+        this.supportedFileExtensions.push("code-snippets");
         this.token = "";
     }
 }

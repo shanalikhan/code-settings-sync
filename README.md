@@ -185,7 +185,9 @@ For details regarding settings keys, click [here](https://shanalikhan.github.io/
     "sync.anonymousGist": false
     "sync.host": "",
     "sync.pathPrefix": "",
-    "sync.quietSync": false
+    "sync.quietSync": false,
+    "sync.removeExtensions": true,
+    "sync.syncExtensions": true
 ```
 
 ## Customized Sync
@@ -208,14 +210,22 @@ The JSON will be created as:
 
 ```json
 {
-    "token":"YOUR_GITHUB_TOKEN_HERE",
-    "version" : 270,
-    "ignoreUploadFiles": ["projects.json", "projects_cache_git.json"],
-    "ignoreUploadFolders": ["workspaceStorage"],
+    "ignoreUploadFiles": [ "projects.json", "projects_cache_vscode.json",
+        "projects_cache_git.json", "projects_cache_svn.json", "gpm_projects.json",
+        "gpm-recentItems.json"
+    ],
+    "ignoreUploadFolders": [
+        "workspaceStorage"
+    ],
     "replaceCodeSettings": {
-        "http.proxy": "http://my.proxy.address:8080"
+         "http.proxy": "http://my.proxy.address:8080"
     },
-    "gistDescription": "Visual Studio Code Settings Sync Gist"
+    "gistDescription": "Visual Studio Code Settings Sync Gist",
+    "version": 290,
+    "token": "YOUR_GITHUB_TOKEN_HERE",
+    "supportedFileExtensions": [
+        "json", "code-snippets"
+    ]
 }
 ```
 
