@@ -89,7 +89,7 @@ export class FileService {
         });
     }
 
-    public static async ListFiles(directory: string, depth: number, fullDepth : number): Promise<Array<File>> {
+    public static async ListFiles(directory: string, depth: number, fullDepth: number, fileExtensions: Array<string>): Promise<Array<File>> {
         var me = this;
         return new Promise<Array<File>>((resolve, reject) => {
             fs.readdir(directory, async function (err: any, data: Array<string>) {
@@ -104,17 +104,29 @@ export class FileService {
                     let isDir: boolean = await FileService.IsDirectory(fullPath);
                     if (isDir) {
                         if (depth < fullDepth) {
-                            let filews: Array<File> = await FileService.ListFiles(fullPath + "/", depth + 1, fullDepth);
+                            let filews: Array<File> = await FileService.ListFiles(fullPath + "/", depth + 1, fullDepth, fileExtensions);
                             filews.forEach(element => {
                                 files.push(element)
                             });
                         }
                     }
                     else {
-                        if (fullPath.indexOf('json') > -1) {
+                        let hasExtension: boolean = fullPath.lastIndexOf(".") > 0 ? true : false;
+                        let allowedFile: boolean = false;
+                        if (hasExtension) {
+                            let extension: string = fullPath.substr(fullPath.lastIndexOf(".") + 1, fullPath.length);
+                            extension = extension.toLowerCase();
+                            allowedFile = fileExtensions.filter(m => m == extension).length > 0 ? true : false;
+                        }
+                        else {
+                            allowedFile = fileExtensions.filter(m => m == "").length > 0 ? true : false;
+                        }
+
+                        if (allowedFile) {
                             var file: File = await FileService.GetFile(fullPath, data[i]);
                             files.push(file);
                         }
+
                     }
                 }
                 resolve(files);

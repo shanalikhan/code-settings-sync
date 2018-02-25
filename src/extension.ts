@@ -4,9 +4,9 @@ import * as vscode from 'vscode';
 import { PluginService, ExtensionInformation } from './service/pluginService';
 import * as path from 'path';
 import { Environment } from './environmentPath';
-import { File, FileService } from './service/fileService';
+import { File,FileService } from './service/fileService';
 import Commons from './commons';
-import { GitHubService } from './githubService';
+import { GitHubService } from './service/githubService';
 import { ExtensionConfig, LocalConfig, CloudSetting, CustomSettings, KeyValue } from './setting';
 import { OsType, SettingType } from './enums';
 
@@ -113,7 +113,7 @@ export async function activate(context: vscode.ExtensionContext) {
 
 
             let contentFiles: Array<File> = new Array();
-            contentFiles = await FileService.ListFiles(en.USER_FOLDER, 0, 2);
+            contentFiles = await FileService.ListFiles(en.USER_FOLDER, 0, 2,customSettings.supportedFileExtensions);
 
             let customExist: boolean = await FileService.FileExists(en.FILE_CUSTOMIZEDSETTINGS);
             if (customExist) {
@@ -383,8 +383,6 @@ export async function activate(context: vscode.ExtensionContext) {
 
                         if (content != "") {
                             if (file.gistName == en.FILE_EXTENSION_NAME) {
-
-                              
                                 if (syncSetting.syncExtensions) {
                                     var extDelStatus: Array<KeyValue<string, boolean>> = new Array<KeyValue<string, boolean>>();
                                     if (syncSetting.removeExtensions) {

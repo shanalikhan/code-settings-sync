@@ -55,12 +55,14 @@ export class CustomSettings {
     public gistDescription: string = null;
     public version: number = 0;
     public token: string = null;
+    public supportedFileExtensions : Array<string> = null;
     constructor() {
 
         this.ignoreUploadFiles = new Array<string>();
         this.ignoreUploadFolders = new Array<string>();
         this.replaceCodeSettings = new Object();
         this.ignoreUploadSettings = new Array<string>();
+        this.supportedFileExtensions = new Array<string>();
         this.ignoreUploadFolders.push("workspaceStorage");
         this.ignoreUploadFiles.push("projects.json");
         this.ignoreUploadFiles.push("projects_cache_vscode.json")
@@ -70,6 +72,8 @@ export class CustomSettings {
         this.ignoreUploadFiles.push("gpm-recentItems.json")
         this.gistDescription = "Visual Studio Code Settings Sync Gist";
         this.version = Environment.CURRENT_VERSION;
+        this.supportedFileExtensions.push("json");
+        this.supportedFileExtensions.push("code-snippets");
         this.token = "";
     }
 }
