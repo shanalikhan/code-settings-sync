@@ -190,10 +190,9 @@
         "fs": "^0.0.2",
         "github": "^11.0.0",
         "ncp": "^2.0.0",
-        "opn": "5.1.0",
-        "rimraf": "^2.6.1",
+        "rimraf": "^2.6.2",
         "temp": "^0.8.3",
-        "https-proxy-agent": "^2.1.0",
+        "https-proxy-agent": "^2.1.1",
         "chokidar": "^1.7.0",
         "proper-lockfile": "^2.0.1"
     }
