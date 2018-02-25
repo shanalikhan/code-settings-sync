@@ -2,6 +2,7 @@ language: node_js
 node_js:
   - node
 before_install:
+  - npm install node-pre-gyp
   - npm install
   - npm install -g vsce
 
