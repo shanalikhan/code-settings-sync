@@ -10,7 +10,6 @@ export class ExtensionConfig {
     public autoUpload = false;
     public lastDownload: Date = null;
     public forceDownload: boolean = false;
-    public anonymousGist: boolean = false;
     public host: string = null;
     public pathPrefix: string = null;
     public quietSync: boolean = false;
@@ -55,6 +54,7 @@ export class CustomSettings {
     public gistDescription: string = null;
     public version: number = 0;
     public token: string = null;
+    public downloadPublicGist = null;
     public supportedFileExtensions : Array<string> = null;
     constructor() {
 
@@ -75,5 +75,6 @@ export class CustomSettings {
         this.supportedFileExtensions.push("json");
         this.supportedFileExtensions.push("code-snippets");
         this.token = "";
+        this.downloadPublicGist = false;
     }
 }

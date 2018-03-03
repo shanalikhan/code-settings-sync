@@ -133,11 +133,6 @@
                     "default": false,
                     "description": "Set it to true if you want to download the settings even when you have latest settings."
                 },
-                "sync.anonymousGist": {
-                    "type": "boolean",
-                    "default": false,
-                    "description": "Set it to true if you want to create or download from Anonymous Gist. Extension will not ask for GitHub token."
-                },
                 "sync.host": {
                     "type": "string",
                     "default": "",
@@ -185,13 +180,13 @@
     },
     "dependencies": {
         "adm-zip": "^0.4.7",
+        "chokidar": "^2.0.2",
         "fs": "^0.0.2",
         "github": "^11.0.0",
-        "ncp": "^2.0.0",
-        "rimraf": "^2.6.2",
-        "temp": "^0.8.3",
-        "chokidar": "^2.0.2",
         "https-proxy-agent": "^2.1.1",
-        "proper-lockfile": "^2.0.1"
+        "ncp": "^2.0.0",
+        "proper-lockfile": "^2.0.1",
+        "rimraf": "^2.6.2",
+        "temp": "^0.8.3"
     }
 }

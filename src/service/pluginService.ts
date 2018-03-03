@@ -33,20 +33,25 @@ export class ExtensionInformation {
 
     public static fromJSONList(text: string) {
         var extList = new Array<ExtensionInformation>();
-        var list = JSON.parse(text);
-        list.forEach(obj => {
-            var meta = new ExtensionMetadata(obj.metadata.galleryApiUrl, obj.metadata.id, obj.metadata.downloadUrl, obj.metadata.publisherId, obj.metadata.publisherDisplayName, obj.metadata.date);
-            var item = new ExtensionInformation();
-            item.metadata = meta;
-            item.name = obj.name;
-            item.publisher = obj.publisher;
-            item.version = obj.version;
+        try {
+            var list = JSON.parse(text);
+            list.forEach(obj => {
+                var meta = new ExtensionMetadata(obj.metadata.galleryApiUrl, obj.metadata.id, obj.metadata.downloadUrl, obj.metadata.publisherId, obj.metadata.publisherDisplayName, obj.metadata.date);
+                var item = new ExtensionInformation();
+                item.metadata = meta;
+                item.name = obj.name;
+                item.publisher = obj.publisher;
+                item.version = obj.version;
 
-            //Not to download this extension again and again.
-            if (item.name != "code-settings-sync") {
-                extList.push(item);
-            }
-        });
+                if (item.name != "code-settings-sync") {
+                    extList.push(item);
+                }
+            });
+        }
+        catch (err) {
+            console.error("Sync : Unable to Parse extensions list",err);
+        }
+
         return extList;
     }
 }
@@ -226,7 +231,7 @@ export class PluginService {
             var remoteList = ExtensionInformation.fromJSONList(extensionsJson);
             var deletedList = PluginService.GetDeletedExtensions(remoteList);
             let deletedExt: Array<ExtensionInformation> = new Array<ExtensionInformation>();
-            if(deletedList.length==0){
+            if (deletedList.length == 0) {
                 res(deletedExt);
             }
             for (var deletedItemIndex = 0; deletedItemIndex < deletedList.length; deletedItemIndex++) {
@@ -236,9 +241,9 @@ export class PluginService {
                 try {
                     let status: boolean = await PluginService.DeleteExtension(selectedExtension, extensionFolder);
                     deletedExt.push(selectedExtension);
-                    
+
                 } catch (err) {
-                    console.error("Sync : Unable to delete extension "+ selectedExtension.name + " "+ selectedExtension.version);
+                    console.error("Sync : Unable to delete extension " + selectedExtension.name + " " + selectedExtension.version);
                     console.error(err);
                     rej(deletedExt);
                 }
@@ -254,25 +259,25 @@ export class PluginService {
                 notificationCallBack("Sync : No Extensions needs to be installed.");
                 res(new Array<ExtensionInformation>());
             }
-            let actionList: Array<Promise<void>> = new  Array<Promise<void>>();
-            let addedExtensions : Array<ExtensionInformation> = new Array<ExtensionInformation>();
-            var totalInstalled : number =0;
+            let actionList: Array<Promise<void>> = new Array<Promise<void>>();
+            let addedExtensions: Array<ExtensionInformation> = new Array<ExtensionInformation>();
+            var totalInstalled: number = 0;
             await missingList.forEach(async (element, index) => {
-                    (function(ext : ExtensionInformation, folder : string){
-                        actionList.push(PluginService.InstallExtension(element, extFolder).then(function(){
-                            totalInstalled = totalInstalled+1;
-                            notificationCallBack("Sync : Extension " +totalInstalled+ " of " + missingList.length.toString() + " installed.", false);
-                            addedExtensions.push(element);
-                        },function(err : any){
-                            console.error(err);
-                            notificationCallBack("Sync : "+ element.name+" Download Failed.", true);
-                        }));
-                    }(element,extFolder));
-           
+                (function (ext: ExtensionInformation, folder: string) {
+                    actionList.push(PluginService.InstallExtension(element, extFolder).then(function () {
+                        totalInstalled = totalInstalled + 1;
+                        notificationCallBack("Sync : Extension " + totalInstalled + " of " + missingList.length.toString() + " installed.", false);
+                        addedExtensions.push(element);
+                    }, function (err: any) {
+                        console.error(err);
+                        notificationCallBack("Sync : " + element.name + " Download Failed.", true);
+                    }));
+                }(element, extFolder));
+
             });
-            Promise.all(actionList).then(function(){
+            Promise.all(actionList).then(function () {
                 res(addedExtensions);
-            },function(){
+            }, function () {
                 rej(addedExtensions);
             });
         });

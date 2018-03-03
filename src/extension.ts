@@ -4,7 +4,7 @@ import * as vscode from 'vscode';
 import { PluginService, ExtensionInformation } from './service/pluginService';
 import * as path from 'path';
 import { Environment } from './environmentPath';
-import { File,FileService } from './service/fileService';
+import { File, FileService } from './service/fileService';
 import Commons from './commons';
 import { GitHubService } from './service/githubService';
 import { ExtensionConfig, LocalConfig, CloudSetting, CustomSettings, KeyValue } from './setting';
@@ -84,9 +84,9 @@ export async function activate(context: vscode.ExtensionContext) {
 
             vscode.window.setStatusBarMessage("Sync : Uploading / Updating Your Settings In GitHub.", 2000);
 
-            if (!syncSetting.anonymousGist) {
-                if (customSettings.token == null && customSettings.token == "") {
-                    vscode.window.showInformationMessage("Sync : Set GitHub Token or set anonymousGist to true from settings.");
+            if (customSettings.downloadPublicGist) {
+                if (customSettings.token == null || customSettings.token == "") {
+                    vscode.window.showInformationMessage("Sync : Set GitHub Token or disable 'downloadPublicGist' from local Sync settings file.");;
                     return;
                 }
             }
@@ -113,7 +113,7 @@ export async function activate(context: vscode.ExtensionContext) {
 
 
             let contentFiles: Array<File> = new Array();
-            contentFiles = await FileService.ListFiles(en.USER_FOLDER, 0, 2,customSettings.supportedFileExtensions);
+            contentFiles = await FileService.ListFiles(en.USER_FOLDER, 0, 2, customSettings.supportedFileExtensions);
 
             let customExist: boolean = await FileService.FileExists(en.FILE_CUSTOMIZEDSETTINGS);
             if (customExist) {
@@ -171,15 +171,14 @@ export async function activate(context: vscode.ExtensionContext) {
             let completed: boolean = false;
             let newGIST: boolean = false;
 
-            if (syncSetting.anonymousGist) {
+            if (syncSetting.gist == null || syncSetting.gist === "") {
                 if (syncSetting.askGistName) {
                     customSettings.gistDescription = await common.AskGistName();
                 }
-                await myGi.CreateAnonymousGist(localConfig.publicGist, allSettingFiles, customSettings.gistDescription).then(async function (gistID: string) {
+                newGIST = true;
+                await myGi.CreateEmptyGIST(localConfig.publicGist, customSettings.gistDescription).then(async function (gistID: string) {
                     if (gistID) {
-                        newGIST = true;
                         syncSetting.gist = gistID;
-                        completed = true;
                         vscode.window.setStatusBarMessage("Sync : New gist created.", 2000);
                     }
                     else {
@@ -191,19 +190,37 @@ export async function activate(context: vscode.ExtensionContext) {
                     return;
                 });
             }
-            else {
-                if (syncSetting.gist == null || syncSetting.gist === "") {
-                    if (syncSetting.askGistName) {
-                        customSettings.gistDescription = await common.AskGistName();
+
+            await myGi.ReadGist(syncSetting.gist).then(async function (gistObj: any) {
+
+                if (gistObj) {
+                    if (gistObj.data.owner != null) {
+                        let gistOwnerName: string = gistObj.data.owner.login.trim();
+                        if (myGi.userName != null) {
+                            let userName: string = myGi.userName.trim();
+                            if (gistOwnerName != userName) {
+                                Commons.LogException(null, "Sync : You cant edit GIST for user : " + gistObj.data.owner.login, true, function () {
+                                    console.log("Sync : Current User : " + "'" + userName + "'");
+                                    console.log("Sync : Gist Owner User : " + "'" + gistOwnerName + "'");
+                                });
+                                return;
+                            }
+                        }
+
                     }
-                    newGIST = true;
-                    await myGi.CreateEmptyGIST(localConfig.publicGist, customSettings.gistDescription).then(async function (gistID: string) {
-                        if (gistID) {
-                            syncSetting.gist = gistID;
-                            vscode.window.setStatusBarMessage("Sync : New gist created.", 2000);
+                    if (gistObj.public == true) {
+                        localConfig.publicGist = true;
+                    }
+
+                    vscode.window.setStatusBarMessage("Sync : Uploading Files Data.", 3000);
+                    gistObj = myGi.UpdateGIST(gistObj, allSettingFiles);
+
+                    await myGi.SaveGIST(gistObj.data).then(async function (saved: boolean) {
+                        if (saved) {
+                            completed = true;
                         }
                         else {
-                            vscode.window.showInformationMessage("Sync : Unable to create Gist.");
+                            vscode.window.showErrorMessage("GIST NOT SAVED");
                             return;
                         }
                     }, function (error: any) {
@@ -211,53 +228,14 @@ export async function activate(context: vscode.ExtensionContext) {
                         return;
                     });
                 }
-
-                await myGi.ReadGist(syncSetting.gist).then(async function (gistObj: any) {
-
-                    if (gistObj) {
-                        if (gistObj.data.owner != null) {
-                            let gistOwnerName: string = gistObj.data.owner.login.trim();
-                            if (myGi.userName != null) {
-                                let userName: string = myGi.userName.trim();
-                                if (gistOwnerName != userName) {
-                                    Commons.LogException(null, "Sync : You cant edit GIST for user : " + gistObj.data.owner.login, true, function () {
-                                        console.log("Sync : Current User : " + "'" + userName + "'");
-                                        console.log("Sync : Gist Owner User : " + "'" + gistOwnerName + "'");
-                                    });
-                                    return;
-                                }
-                            }
-
-                        }
-                        if (gistObj.public == true) {
-                            localConfig.publicGist = true;
-                        }
-
-                        vscode.window.setStatusBarMessage("Sync : Uploading Files Data.", 3000);
-                        gistObj = myGi.UpdateGIST(gistObj, allSettingFiles);
-
-                        await myGi.SaveGIST(gistObj.data).then(async function (saved: boolean) {
-                            if (saved) {
-                                completed = true;
-                            }
-                            else {
-                                vscode.window.showErrorMessage("GIST NOT SAVED");
-                                return;
-                            }
-                        }, function (error: any) {
-                            Commons.LogException(error, common.ERROR_MESSAGE, true);
-                            return;
-                        });
-                    }
-                    else {
-                        vscode.window.showErrorMessage("GIST ID: " + syncSetting.gist + " UNABLE TO READ.");
-                        return;
-                    }
-                }, function (gistReadError: any) {
-                    Commons.LogException(gistReadError, common.ERROR_MESSAGE, true);
+                else {
+                    vscode.window.showErrorMessage("GIST ID: " + syncSetting.gist + " UNABLE TO READ.");
                     return;
-                });
-            }
+                }
+            }, function (gistReadError: any) {
+                Commons.LogException(gistReadError, common.ERROR_MESSAGE, true);
+                return;
+            });
 
             if (completed) {
                 await common.SaveSettings(syncSetting).then(function (added: boolean) {
@@ -393,7 +371,7 @@ export async function activate(context: vscode.ExtensionContext) {
                                             vscode.window.showErrorMessage("Sync : Unable to remove some extensions.");
                                             deletedExtensions = uncompletedExtensions;
                                         }
-    
+
                                     }
                                     try {
                                         addedExtensions = await PluginService.InstallExtensions(file.content, en.ExtensionFolder, function (message: string, dispose: boolean) {
@@ -556,11 +534,13 @@ export async function activate(context: vscode.ExtensionContext) {
         let items: Array<string> = new Array<string>();
         items.push("Sync : Edit Extension Local Settings");
         items.push("Sync : Share Settings with Public GIST");
+        items.push("Sync : Download Settings from Public GIST");
         items.push("Sync : Toggle Force Download");
         items.push("Sync : Toggle Auto-Upload On Settings Change");
         items.push("Sync : Toggle Auto-Download On Startup");
         items.push("Sync : Toggle Show Summary Page On Upload / Download");
         items.push("Sync : Preserve Setting To Stop Override After Download");
+        items.push("Sync : Join Community");
         items.push("Sync : Open Issue");
         items.push("Sync : Release Notes");
 
@@ -593,9 +573,18 @@ export async function activate(context: vscode.ExtensionContext) {
                     });
                     break;
                 }
-                case items[2]: {
-                    //toggle force download
+                case items[2]:{
+                    //Download Settings from Public GIST
                     selectedItem = 2;
+                    customSettings.downloadPublicGist = true;
+                    setting.gist="";
+                    settingChanged = true;
+                    let done: boolean = await common.SetCustomSettings(customSettings);
+                    break;
+                }
+                case items[3]: {
+                    //toggle force download
+                    selectedItem = 3;
                     settingChanged = true;
                     if (setting.forceDownload) {
                         setting.forceDownload = false;
@@ -605,9 +594,9 @@ export async function activate(context: vscode.ExtensionContext) {
                     }
                     break;
                 }
-                case items[3]: {
+                case items[4]: {
                     //toggle auto upload
-                    selectedItem = 3;
+                    selectedItem = 4;
                     settingChanged = true;
                     if (setting.autoUpload) {
                         setting.autoUpload = false;
@@ -617,9 +606,9 @@ export async function activate(context: vscode.ExtensionContext) {
                     }
                     break;
                 }
-                case items[4]: {
+                case items[5]: {
                     //auto downlaod on startup
-                    selectedItem = 4;
+                    selectedItem = 5;
                     settingChanged = true;
                     if (!setting) {
                         vscode.commands.executeCommand('extension.HowSettings');
@@ -637,9 +626,9 @@ export async function activate(context: vscode.ExtensionContext) {
                     }
                     break;
                 }
-                case items[5]: {
+                case items[6]: {
                     //page summary toggle
-                    selectedItem = 5;
+                    selectedItem = 6;
                     settingChanged = true;
 
                     if (!tokenAvailable || !gistAvailable) {
@@ -655,7 +644,7 @@ export async function activate(context: vscode.ExtensionContext) {
                     break;
                 }
 
-                case items[6]: {
+                case items[7]: {
                     //preserve
                     let options: vscode.InputBoxOptions = {
                         ignoreFocusOut: true,
@@ -682,11 +671,11 @@ export async function activate(context: vscode.ExtensionContext) {
                     });
                     break;
                 }
-                case items[7]: {
+                case items[8]: {
                     vscode.commands.executeCommand('vscode.open', vscode.Uri.parse('https://github.com/shanalikhan/code-settings-sync/issues/new'));
                     break;
                 }
-                case items[8]: {
+                case items[9]: {
                     vscode.commands.executeCommand('vscode.open', vscode.Uri.parse('http://shanalikhan.github.io/2016/05/14/Visual-studio-code-sync-settings-release-notes.html'));
                     break;
                 }
@@ -705,7 +694,7 @@ export async function activate(context: vscode.ExtensionContext) {
                 await common.SaveSettings(setting).then(async function (added: boolean) {
                     if (added) {
                         switch (selectedItem) {
-                            case 4: {
+                            case 5: {
                                 if (setting.autoDownload) {
                                     vscode.window.showInformationMessage("Sync : Auto Download turned ON upon VSCode Startup.");
                                 }
@@ -714,7 +703,7 @@ export async function activate(context: vscode.ExtensionContext) {
                                 }
                                 break;
                             }
-                            case 5: {
+                            case 6: {
                                 if (!setting.quietSync) {
                                     vscode.window.showInformationMessage("Sync : Summary will be shown upon download / upload.");
                                 }
@@ -723,7 +712,7 @@ export async function activate(context: vscode.ExtensionContext) {
                                 }
                                 break;
                             }
-                            case 2: {
+                            case 3: {
                                 if (setting.forceDownload) {
                                     vscode.window.showInformationMessage("Sync : Force Download Turned On.");
                                 }
@@ -732,7 +721,7 @@ export async function activate(context: vscode.ExtensionContext) {
                                 }
                                 break;
                             }
-                            case 3: {
+                            case 4: {
                                 if (setting.autoUpload) {
                                     vscode.window.showInformationMessage("Sync : Auto upload on Setting Change Turned On. Will be affected after restart.");
                                 }
@@ -744,6 +733,9 @@ export async function activate(context: vscode.ExtensionContext) {
                             case 1: {
                                 await vscode.commands.executeCommand('extension.updateSettings', "publicGIST");
                                 break;
+                            }
+                            case 2:{
+                                vscode.window.showInformationMessage("Sync : Settings Sync will not ask for GitHub Token from now on.");
                             }
                         }
                     }
