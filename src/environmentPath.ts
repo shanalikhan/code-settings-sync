@@ -7,7 +7,7 @@ import * as fs from 'fs';
 
 export class Environment {
 
-    public static CURRENT_VERSION: number = 287;
+    public static CURRENT_VERSION: number = 290;
     public static getVersion(): string {
         var txt2 = Environment.CURRENT_VERSION.toString().slice(0, 1) + "." + Environment.CURRENT_VERSION.toString().slice(1, 2) + "." + Environment.CURRENT_VERSION.toString().slice(2, 3);
         return txt2;

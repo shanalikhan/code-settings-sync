@@ -1,11 +1,16 @@
 # Settings Sync
 
+
+
+**Previously known as Visual Studio Code Settings Sync**
+
+[![Version](https://vsmarketplacebadge.apphb.com/version/Shan.code-settings-sync.svg)](https://marketplace.visualstudio.com/items?itemName=Shan.code-settings-sync) [![Travis](https://img.shields.io/travis/rust-lang/rust.svg)](https://marketplace.visualstudio.com/items?itemName=Shan.code-settings-sync) 
 [![Greenkeeper badge](https://badges.greenkeeper.io/shanalikhan/code-settings-sync.svg)](https://greenkeeper.io/)
 
-### Previously known as Visual Studio Code Settings Sync
 
-[![Version](https://vsmarketplacebadge.apphb.com/version/Shan.code-settings-sync.svg)](https://marketplace.visualstudio.com/items?itemName=Shan.code-settings-sync) [![Travis](https://img.shields.io/travis/rust-lang/rust.svg)](https://marketplace.visualstudio.com/items?itemName=Shan.code-settings-sync) [![Join Chat](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/code-settings-sync)
-
+<a href="https://join.slack.com/t/codesettingssync/shared_invite/enQtMzE3MjY5NTczNDMwLTYwMTIwNGExOGE2MTJkZWU0OTU5MmI3ZTc4N2JkZjhjMzY1OTk5OGExZjkwMDMzMDU4ZTBlYjk5MGQwZmMyNzk">
+<img src="https://shanalikhan.github.io/img/slack.PNG" alt="Drawing" style="width: 150px;"/>
+</a>
 
 
 **Type Sync in command Palette in order to view all commands.**
@@ -14,13 +19,12 @@
 
 ```
 1. Use your GitHub account token and Gist.
-2. Can create Anonymous Gist without using your GitHub account token.
-3. Easy to Upload and Download on one click.
-4. Show a summary page at the end with details about config and extensions effected.
-5. Auto Download Latest Settings on Startup.
-6. Auto upload Settings on file change.
-7. Share the Gist with other users and let them download your settings.
-8. Supports GitHub Enterprise
+2. Easy to Upload and Download on one click.
+3. Show a summary page at the end with details about config and extensions effected.
+4. Auto Download Latest Settings on Startup.
+5. Auto upload Settings on file change.
+6. Share the Gist with other users and let them download your settings.
+7. Supports GitHub Enterprise
 ```
 
 
@@ -32,7 +36,7 @@ All extensions and complete User Folder that Contains
 3. Launch File
 4. Snippets Folder
 5. VSCode Extensions Settings
-6. Workspaces
+6. Workspaces Folder
 ```
 
 ## Shortcuts
@@ -123,11 +127,6 @@ Here is the gif of the complete process when you execute the Download command (M
 
 > Type ">Sync" In Command Palette and select Reset Token and Gist Settings
 
-## Creating and Downloading Settings From Anonymous Gist
-
-Anonymous Gist is **Turned Off** by default. GitHub provides a way to create Anonymous Gist so you can create Anonymous Gist without adding your account information (token). But you can't change Anonymous Gist once created, its the limitation from the GitHub so extension will always create new Anonymous Gist upon uploading the settings, you can download the settings from any Anonymous Gist without adding your account information.
-
-To turn on the Anonymous Gist , set `sync.anonymousGist` to true
 
 ## Toggle Auto Download
 
@@ -223,6 +222,7 @@ The JSON will be created as:
     "gistDescription": "Visual Studio Code Settings Sync Gist",
     "version": 290,
     "token": "YOUR_GITHUB_TOKEN_HERE",
+    "downloadPublicGist": false,
     "supportedFileExtensions": [
         "json", "code-snippets"
     ]
@@ -264,10 +264,17 @@ If you are enjoying this extension. What about donating, Your donation will help
 # [Release Notes](https://shanalikhan.github.io/2016/05/14/Visual-studio-code-sync-settings-release-notes.html)
 
 # License
-MIT
+
+
+[![Version](https://img.shields.io/badge/license-MIT-green.svg)](https://github.com/shanalikhan/code-settings-sync/blob/master/LICENSE)
+
 
 [![Version](https://vsmarketplacebadge.apphb.com/version/Shan.code-settings-sync.svg)](https://marketplace.visualstudio.com/items?itemName=Shan.code-settings-sync)
 
 [![Installs](https://vsmarketplacebadge.apphb.com/installs/Shan.code-settings-sync.svg)](https://marketplace.visualstudio.com/items?itemName=Shan.code-settings-sync)
 
 [![Ratings](https://vsmarketplacebadge.apphb.com/rating/Shan.code-settings-sync.svg)](https://marketplace.visualstudio.com/items?itemName=Shan.code-settings-sync)
+
+<a href="https://join.slack.com/t/codesettingssync/shared_invite/enQtMzE3MjY5NTczNDMwLTYwMTIwNGExOGE2MTJkZWU0OTU5MmI3ZTc4N2JkZjhjMzY1OTk5OGExZjkwMDMzMDU4ZTBlYjk5MGQwZmMyNzk">
+<img src="https://shanalikhan.github.io/img/slack.PNG" alt="Drawing" style="width: 150px;"/>
+</a>

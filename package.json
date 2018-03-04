@@ -2,7 +2,7 @@
     "name": "code-settings-sync",
     "displayName": "Settings Sync",
     "description": "Synchronize Settings, Snippets, Themes, File Icons, Launch, Keybindings, Workspaces and Extensions Across Multiple Machines Using GitHub Gist.",
-    "version": "2.8.7",
+    "version": "2.9.0",
     "icon": "images/cloud.png",
     "publisher": "Shan",
     "author": {
@@ -32,9 +32,9 @@
             "href": "https://marketplace.visualstudio.com/items?itemName=Shan.code-settings-sync"
         },
         {
-            "url": "https://badges.gitter.im/Join%20Chat.svg",
-            "description": "Join Chat",
-            "href": "https://gitter.im/code-settings-sync"
+            "url": "https://img.shields.io/badge/Join%20Community-slack-green.svg",
+            "description": "Join Slack Community",
+            "href": "https://join.slack.com/t/codesettingssync/shared_invite/enQtMzE3MjY5NTczNDMwLTYwMTIwNGExOGE2MTJkZWU0OTU5MmI3ZTc4N2JkZjhjMzY1OTk5OGExZjkwMDMzMDU4ZTBlYjk5MGQwZmMyNzk"
         }
     ],
     "repository": {

@@ -38,7 +38,7 @@ export default class Commons {
                     if (message.toLowerCase() == 'bad credentials') {
                         msgBox = true;
                         message = "Sync : Invalid / Expired GitHub Token. Please generate new token with scopes mentioned in readme. Exception Logged in Console.";
-                        vscode.commands.executeCommand('vscode.open', vscode.Uri.parse('https://github.com/settings/tokens'));
+                        //vscode.commands.executeCommand('vscode.open', vscode.Uri.parse('https://github.com/settings/tokens'));
                     }
                     if (message.toLowerCase() == 'not found') {
                         msgBox = true;
