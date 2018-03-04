@@ -175,16 +175,16 @@ Other users can give your Gist Id to download the Gist, but they can't upload th
 For details regarding settings keys, click [here](https://shanalikhan.github.io/2016/07/31/Visual-Studio-code-sync-setting-edit-manually.html)
 
 ```json
-    "sync.gist": "",
-    "sync.lastUpload": "2016-12-27T16:34:19.308Z",
-    "sync.lastDownload": "2016-12-27T15:58:35.760Z",
+    "sync.gist": "0c929b1a6c51015cdc9e0fe2e369ea4c",
+    "sync.lastUpload": "2018-03-04T14:21:39.841Z",
     "sync.autoDownload": false,
     "sync.autoUpload": false,
+    "sync.lastDownload": "2018-03-04T14:21:39.841Z",
     "sync.forceDownload": true,
-    "sync.anonymousGist": false
     "sync.host": "",
     "sync.pathPrefix": "",
     "sync.quietSync": false,
+    "sync.askGistName": false,
     "sync.removeExtensions": true,
     "sync.syncExtensions": true
 ```
@@ -229,7 +229,7 @@ The JSON will be created as:
 }
 ```
 
-For details about customized sync, visit my post [here](https://shanalikhan.github.io/2017/02/19/Option-to-ignore-settings-folders-code-settings-sync.html)
+For details about customized sync, visit my post [here](https://shanalikhan.github.io/2016/07/31/Visual-Studio-code-sync-setting-edit-manually.html)
 
 
 # How To Contribute

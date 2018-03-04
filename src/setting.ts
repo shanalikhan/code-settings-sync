@@ -5,17 +5,18 @@ import { Environment } from './environmentPath';
 export class ExtensionConfig {
 
     public gist: string = null;
-    public lastUpload: Date = null;
-    public autoDownload: boolean = false;
-    public autoUpload = false;
-    public lastDownload: Date = null;
-    public forceDownload: boolean = false;
     public host: string = null;
     public pathPrefix: string = null;
     public quietSync: boolean = false;
     public askGistName: boolean = false;
     public removeExtensions: boolean = true;
     public syncExtensions: boolean = true;
+    public autoDownload: boolean = false;
+    public autoUpload = false;
+    public lastUpload: Date = null;
+    public lastDownload: Date = null;
+    public forceDownload: boolean = false;
+    
 }
 
 export class LocalConfig {
