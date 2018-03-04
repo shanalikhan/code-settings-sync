@@ -561,23 +561,24 @@ export async function activate(context: vscode.ExtensionContext) {
                 }
                 case items[1]: {
                     //share public gist
-                    await vscode.window.showInformationMessage("Sync : This will remove current GIST and upload settings on new public GIST. Do you want to continue ?", "Yes").then((resolve) => {
+                    await vscode.window.showInformationMessage("Sync : This will remove current GIST and upload settings on new public GIST. Do you want to continue ?", "Yes").then(async (resolve) => {
                         if (resolve == "Yes") {
                             localSetting.publicGist = true;
                             settingChanged = true;
                             setting.gist = "";
                             selectedItem = 1;
+                            customSettings.downloadPublicGist = false;
+                            let done: boolean = await common.SetCustomSettings(customSettings);
                         }
                     }, (reject) => {
                         return;
                     });
                     break;
                 }
-                case items[2]:{
+                case items[2]: {
                     //Download Settings from Public GIST
                     selectedItem = 2;
                     customSettings.downloadPublicGist = true;
-                    setting.gist="";
                     settingChanged = true;
                     let done: boolean = await common.SetCustomSettings(customSettings);
                     break;
@@ -672,10 +673,14 @@ export async function activate(context: vscode.ExtensionContext) {
                     break;
                 }
                 case items[8]: {
-                    vscode.commands.executeCommand('vscode.open', vscode.Uri.parse('https://github.com/shanalikhan/code-settings-sync/issues/new'));
+                    vscode.commands.executeCommand('vscode.open', vscode.Uri.parse('https://join.slack.com/t/codesettingssync/shared_invite/enQtMzE3MjY5NTczNDMwLTYwMTIwNGExOGE2MTJkZWU0OTU5MmI3ZTc4N2JkZjhjMzY1OTk5OGExZjkwMDMzMDU4ZTBlYjk5MGQwZmMyNzk'));
                     break;
                 }
                 case items[9]: {
+                    vscode.commands.executeCommand('vscode.open', vscode.Uri.parse('https://github.com/shanalikhan/code-settings-sync/issues/new'));
+                    break;
+                }
+                case items[10]: {
                     vscode.commands.executeCommand('vscode.open', vscode.Uri.parse('http://shanalikhan.github.io/2016/05/14/Visual-studio-code-sync-settings-release-notes.html'));
                     break;
                 }
@@ -734,7 +739,7 @@ export async function activate(context: vscode.ExtensionContext) {
                                 await vscode.commands.executeCommand('extension.updateSettings', "publicGIST");
                                 break;
                             }
-                            case 2:{
+                            case 2: {
                                 vscode.window.showInformationMessage("Sync : Settings Sync will not ask for GitHub Token from now on.");
                             }
                         }
