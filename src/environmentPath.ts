@@ -15,6 +15,7 @@ export class Environment {
 
     private context: vscode.ExtensionContext;
     public isInsiders = null;
+    public isOss = null;
     public homeDir = null;
     public USER_FOLDER = null;
 
@@ -51,8 +52,9 @@ export class Environment {
     constructor(context: vscode.ExtensionContext) {
         this.context = context;
         this.isInsiders = /insiders/.test(context.asAbsolutePath(""));
+        this.isOss = /oss/.test(context.asAbsolutePath(""));
         this.homeDir = process.env[(process.platform == 'win32') ? 'USERPROFILE' : 'HOME'];
-        this.ExtensionFolder = path.join(this.homeDir, this.isInsiders ? '.vscode-insiders' : '.vscode', 'extensions');
+        this.ExtensionFolder = path.join(this.homeDir, this.isInsiders ? '.vscode-insiders' : this.isOss ? '.vscode-oss' : '.vscode', 'extensions');
         var os = require("os");
         //console.log(os.type());
 
@@ -84,7 +86,7 @@ export class Environment {
             });
         }
 
-        const possibleCodePaths = [this.isInsiders ? '/Code - Insiders' : '/Code', '/Code - OSS'];
+        const possibleCodePaths = [this.isInsiders ? '/Code - Insiders' : this.isOss ? '/Code - OSS' : '/Code'];
         for (const _path of possibleCodePaths) {
             try {
                 fs.statSync(this.PATH + _path);
