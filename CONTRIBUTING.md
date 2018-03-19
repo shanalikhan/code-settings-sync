@@ -16,7 +16,13 @@ Join our public Slack:
 <img src="https://shanalikhan.github.io/img/slack.PNG" alt="Drawing" style="width: 50px;"/>
 </a>
 
-The #contributors channel is useful. If you want help or have questions about any aspect of feature development, ask there! I will respond.
+If you need any help or want someone to set up the workspace with you and get you stepping through code in your IDE, make some noise in #contributors. Don't be afraid to speak up!
+
+If you are looking forward to solve issues, you can select any issue you want but it would be great if you start with these issues, for these issues I will be specifically asking for help :
+
+https://github.com/shanalikhan/code-settings-sync/labels/good%20first%20issue
+
+https://github.com/shanalikhan/code-settings-sync/labels/PR-Welcome
 
 
 ## Setup Extension Locally
@@ -32,7 +38,7 @@ Git and Node should be enough to run this extension. Execute the commands above 
 
 ## Financial contributions
 
-We also welcome financial contributions in full transparency on our [open collective](https://opencollective.com/code-settings-sync).
+I also welcome financial contributions in full transparency on our [open collective](https://opencollective.com/code-settings-sync).
 
 
 ## Credits
