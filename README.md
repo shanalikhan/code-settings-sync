@@ -232,33 +232,30 @@ The JSON will be created as:
 For details about customized sync, visit my post [here](https://shanalikhan.github.io/2016/07/31/Visual-Studio-code-sync-setting-edit-manually.html)
 
 
-# How To Contribute
+## How To Contribute
 
-If you have any idea, you can open an issue on the GitHub repository so we can further discuss it or you can send me a pull request.
+You can contribute in different ways. Read the details [here](https://github.com/shanalikhan/code-settings-sync/blob/master/CONTRIBUTING.md)
 
-## Through Code
 
-Download source code and install dependencies
 
-```bash
-git clone https://github.com/shanalikhan/code-settings-sync.git
-cd code-settings-sync
-npm install
-code .
-```
-Make the respective code changes.
+## Credits
 
-Go to the debugger in VS Code, choose `Launch Extension` and click run. You can test your changes.
+### Contributors
 
-Submit a Pull Request.
+Thank you to all the people who have already contributed to Settings Sync!
+<a href="graphs/contributors"><img src="https://opencollective.com/code-settings-sync/contributors.svg?width=890" /></a>
 
-## Through Donation
+### Backers
 
-If you are enjoying this extension. What about donating, Your donation will help me to keep working and supporting this project.
+Thank you to all our backers! [[Become a backer](https://opencollective.com/code-settings-sync#backer)]
 
+<a href="https://opencollective.com/code-settings-sync#backers" target="_blank"><img src="https://opencollective.com/code-settings-sync/backers.svg?width=890"></a>
 [<img src="https://www.paypalobjects.com/en_US/i/btn/btn_donateCC_LG.gif">](https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=4W3EWHHBSYMM8&lc=IE&item_name=Code%20Settings%20Sync&item_number=visual%20studio%20code%20settings%20sync&currency_code=USD&bn=PP%2dDonationsBF%3abtn_donate_SM%2egif%3aNonHosted)
 
 
+### Sponsors
+
+Thank you to all our sponsors! (please ask your company to also support this open source project by [becoming a sponsor](https://opencollective.com/code-settings-sync))
 
 ## [Contributors](https://github.com/shanalikhan/code-settings-sync/graphs/contributors)
 # [Release Notes](https://shanalikhan.github.io/2016/05/14/Visual-studio-code-sync-settings-release-notes.html)
