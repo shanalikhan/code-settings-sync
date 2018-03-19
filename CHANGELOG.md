@@ -9,6 +9,16 @@
 * If you are looking to use Settings Sync to download settings only. (e.g Fetch Team Environment) - Bug has been fixed [#487](https://github.com/shanalikhan/code-settings-sync/issues/487)
 
 
+
+
+## Contributions
+
+### Financial
+
+I also welcome financial contributions in full transparency on our [open collective](https://opencollective.com/code-settings-sync).
+
+### Community
+
 You may join slack community and disscus the ideas over there and chat with me.
 
 <a href="https://join.slack.com/t/codesettingssync/shared_invite/enQtMzE3MjY5NTczNDMwLTYwMTIwNGExOGE2MTJkZWU0OTU5MmI3ZTc4N2JkZjhjMzY1OTk5OGExZjkwMDMzMDU4ZTBlYjk5MGQwZmMyNzk">
@@ -16,6 +26,6 @@ You may join slack community and disscus the ideas over there and chat with me.
 </a>
 
 I'm looking for contributors to work with me so we can make the extension smoother and more feature rich.
-Let me know if anyone is willing to contribute.
+Let me know if anyone is willing to [contribute](https://github.com/shanalikhan/code-settings-sync/blob/master/CONTRIBUTING.md).
 
 For Previous releases change log view the [post](http://shanalikhan.github.io/2016/05/14/Visual-studio-code-sync-settings-release-notes.html)
