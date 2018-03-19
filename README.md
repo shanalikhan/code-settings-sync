@@ -172,7 +172,7 @@ Other users can give your Gist Id to download the Gist, but they can't upload th
 ## Settings
 
 
-For details regarding settings keys, click [here](https://shanalikhan.github.io/2016/07/31/Visual-Studio-code-sync-setting-edit-manually.html)
+For details regarding settings keys, click [here](https://medium.com/@itsShanKhan/visual-studio-code-settings-sync-configurations-ed8dd6fd9753)
 
 ```json
     "sync.gist": "0c929b1a6c51015cdc9e0fe2e369ea4c",
@@ -229,7 +229,7 @@ The JSON will be created as:
 }
 ```
 
-For details about customized sync, visit my post [here](https://shanalikhan.github.io/2016/07/31/Visual-Studio-code-sync-setting-edit-manually.html)
+For settings details, visit my post [here](https://medium.com/@itsShanKhan/visual-studio-code-settings-sync-configurations-ed8dd6fd9753)
 
 
 ## How To Contribute
