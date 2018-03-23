@@ -100,7 +100,11 @@ export async function activate(context: vscode.ExtensionContext) {
             // var deletedList = PluginService.GetDeletedExtensions(uploadedExtensions);
             if (syncSetting.syncExtensions) {
                 uploadedExtensions = PluginService.CreateExtensionList();
-
+                if (customSettings.ignoreExtensions && customSettings.ignoreExtensions.length > 0) {
+                    uploadedExtensions = uploadedExtensions.filter(extension => {
+                        return !customSettings.ignoreExtensions.includes(extension.name)
+                    })
+                }
                 uploadedExtensions.sort(function (a, b) {
                     return a.name.localeCompare(b.name);
                 });

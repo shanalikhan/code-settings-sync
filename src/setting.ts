@@ -16,7 +16,7 @@ export class ExtensionConfig {
     public lastUpload: Date = null;
     public lastDownload: Date = null;
     public forceDownload: boolean = false;
-    
+
 }
 
 export class LocalConfig {
@@ -41,15 +41,16 @@ export class CloudSetting {
 }
 
 export class KeyValue<T,S>{
-    
+
     constructor(public Key : T , public Value : S){
-        
+
     }
 }
 
 export class CustomSettings {
     public ignoreUploadFiles: Array<string> = null;
     public ignoreUploadFolders: Array<string> = null;
+    public ignoreExtensions: Array<string> = null;
     public ignoreUploadSettings: Array<string> = null;
     public replaceCodeSettings: Object = null;
     public gistDescription: string = null;
@@ -61,6 +62,7 @@ export class CustomSettings {
 
         this.ignoreUploadFiles = new Array<string>();
         this.ignoreUploadFolders = new Array<string>();
+        this.ignoreExtensions = new Array<string>();
         this.replaceCodeSettings = new Object();
         this.ignoreUploadSettings = new Array<string>();
         this.supportedFileExtensions = new Array<string>();
