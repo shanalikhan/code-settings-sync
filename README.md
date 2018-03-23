@@ -4,7 +4,7 @@
 
 **Previously known as Visual Studio Code Settings Sync**
 
-[![Version](https://vsmarketplacebadge.apphb.com/version/Shan.code-settings-sync.svg)](https://marketplace.visualstudio.com/items?itemName=Shan.code-settings-sync) [![Travis](https://img.shields.io/travis/rust-lang/rust.svg)](https://marketplace.visualstudio.com/items?itemName=Shan.code-settings-sync) 
+[![Version](https://vsmarketplacebadge.apphb.com/version/Shan.code-settings-sync.svg)](https://marketplace.visualstudio.com/items?itemName=Shan.code-settings-sync) [![Travis](https://img.shields.io/travis/rust-lang/rust.svg)](https://marketplace.visualstudio.com/items?itemName=Shan.code-settings-sync)
 [![Greenkeeper badge](https://badges.greenkeeper.io/shanalikhan/code-settings-sync.svg)](https://greenkeeper.io/)
 
 
@@ -82,7 +82,7 @@ Enter the GitHub token in the window and click enter.
 ![github account access token](https://shanalikhan.github.io/img/upload1.png)
 
 **Upload your settings automatically and the extension gives you Gist ID in the system message.**
-Gist ID is needed to access the data you have uploaded with your token. Copy this Gist ID in order to download the settings to other machines. 
+Gist ID is needed to access the data you have uploaded with your token. Copy this Gist ID in order to download the settings to other machines.
 
 ![uploaded automatically](https://shanalikhan.github.io/img/upload2.png)
 
@@ -215,6 +215,9 @@ The JSON will be created as:
     ],
     "ignoreUploadFolders": [
         "workspaceStorage"
+    ],
+    "ignoreExtensions": [
+        "ignored_extension_name"
     ],
     "replaceCodeSettings": {
          "http.proxy": "http://my.proxy.address:8080"
