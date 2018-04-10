@@ -133,7 +133,7 @@ Here is the gif of the complete process when you execute the Download command (M
 Auto Download is **disabled by default**. It will sync all the setting by default when the editor starts.
 Please make sure you have valid github Token and Gist available to make it work properly.
 
-Select Command **"Sync : Advance Options > Toggle Auto-Download On Startup"** command to Turn ON / OFF the auto download.
+Select Command **"Sync : Advanced Options > Toggle Auto-Download On Startup"** command to Turn ON / OFF the auto download.
 
 ## Toggle Force Download
 
@@ -141,7 +141,7 @@ Force Download is **disabled by default**. By default, extension won't download 
 
 Please make sure you have valid github Token and Gist available to make it work properly.
 
-Select Command **"Sync : Advance Options > Toggle Force Download"** command to Turn ON / OFF the force download.
+Select Command **"Sync : Advanced Options > Toggle Force Download"** command to Turn ON / OFF the force download.
 
 ## Toggle Auto-Upload on change
 
@@ -149,7 +149,7 @@ Auto-upload is **disabled by default**. When the settings are changed and saved 
 
 Please make sure you have valid github Token and Gist available to make it work properly.
 
-Select Command **"Sync : Advance Options > Toggle Auto-Upload on Setting Change"** command to Turn ON / OFF the auto-upload.
+Select Command **"Sync : Advanced Options > Toggle Auto-Upload on Settings Change"** command to Turn ON / OFF the auto-upload.
 
 
 ## Toggle Summary
@@ -157,7 +157,7 @@ Select Command **"Sync : Advance Options > Toggle Auto-Upload on Setting Change"
 Summary is **enabled by default** which shows all files and extensions that are added or deleted on a single page.
 You may turn it off in order to make a upload and download process clean and quiet.
 
-Select Command **"Sync : Advance Options > Toggle Summary Page On Upload / Download"** command to Turn ON / OFF the auto download.
+Select Command **"Sync : Advanced Options > Show Summary Page On Upload / Download"** command to Turn ON / OFF the auto download.
 
 ## Create Public Gist To Share Settings
 
