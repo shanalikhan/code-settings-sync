@@ -51,8 +51,11 @@ export class Environment {
     constructor(context: vscode.ExtensionContext) {
         this.context = context;
         this.isInsiders = /insiders/.test(context.asAbsolutePath(""));
-        this.homeDir = process.env[(process.platform == 'win32') ? 'USERPROFILE' : 'HOME'];
-        this.ExtensionFolder = path.join(this.homeDir, this.isInsiders ? '.vscode-insiders' : '.vscode', 'extensions');
+	const isXdg = !this.isInsiders && process.platform === 'linux' && !!process.env.XDG_DATA_HOME
+	this.homeDir =  isXdg
+            ? process.env.XDG_DATA_HOME
+            : process.env[(process.platform == 'win32') ? 'USERPROFILE' : 'HOME'];
+        this.ExtensionFolder = path.join(this.homeDir, this.isInsiders ? '.vscode-insiders' : `${isXdg ? '' : '.'}vscode`, 'extensions');
         var os = require("os");
         //console.log(os.type());
 
@@ -67,7 +70,7 @@ export class Environment {
             }
             else if (process.platform == 'linux') {
                 var os = require("os");
-                this.PATH = os.homedir() + '/.config';
+                this.PATH = isXdg ? process.env.XDG_CONFIG_HOME : os.homedir() + '/.config';
                 this.OsType = OsType.Linux;
             } else {
                 this.PATH = '/var/local';
