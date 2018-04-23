@@ -451,9 +451,8 @@ export async function activate(context: vscode.ExtensionContext) {
                                     let config = vscode.workspace.getConfiguration();
                                     let keysDefined: Array<string> = Object.keys(customSettings.replaceCodeSettings);
                                     keysDefined.forEach((key: string, index: number) => {
-                                        let c: string = undefined;
                                         let value: string = customSettings.replaceCodeSettings[key];
-                                        value == "" ? c == undefined : c = value;
+                                        let c: any = value === "" ? undefined : value;
                                         config.update(key, c, true);
                                     });
                                 }

@@ -15,6 +15,7 @@ export class Environment {
 
     private context: vscode.ExtensionContext;
     public isInsiders = null;
+    public isOss = null;
     public homeDir = null;
     public USER_FOLDER = null;
 
@@ -51,11 +52,13 @@ export class Environment {
     constructor(context: vscode.ExtensionContext) {
         this.context = context;
         this.isInsiders = /insiders/.test(context.asAbsolutePath(""));
-	const isXdg = !this.isInsiders && process.platform === 'linux' && !!process.env.XDG_DATA_HOME
-	this.homeDir =  isXdg
-            ? process.env.XDG_DATA_HOME
-            : process.env[(process.platform == 'win32') ? 'USERPROFILE' : 'HOME'];
-        this.ExtensionFolder = path.join(this.homeDir, this.isInsiders ? '.vscode-insiders' : `${isXdg ? '' : '.'}vscode`, 'extensions');
+        this.isOss = /oss/.test(context.asAbsolutePath(""));
+        const isXdg = !this.isInsiders && !!this.isOss && process.platform === 'linux' && !!process.env.XDG_DATA_HOME
+        this.homeDir =  isXdg
+                ? process.env.XDG_DATA_HOME
+                : process.env[(process.platform == 'win32') ? 'USERPROFILE' : 'HOME'];
+        const configSuffix = `${isXdg ? '' : '.'}vscode${this.isInsiders ? '-insiders' : this.isOss ? '-oss' : ''}`
+        this.ExtensionFolder = path.join(this.homeDir, configSuffix, 'extensions');
         var os = require("os");
         //console.log(os.type());
 
@@ -70,7 +73,7 @@ export class Environment {
             }
             else if (process.platform == 'linux') {
                 var os = require("os");
-                this.PATH = isXdg ? process.env.XDG_CONFIG_HOME : os.homedir() + '/.config';
+                this.PATH = isXdg && !!process.env.XDG_CONFIG_HOME ? process.env.XDG_CONFIG_HOME : os.homedir() + '/.config';
                 this.OsType = OsType.Linux;
             } else {
                 this.PATH = '/var/local';
@@ -87,7 +90,7 @@ export class Environment {
             });
         }
 
-        const possibleCodePaths = [this.isInsiders ? '/Code - Insiders' : '/Code', '/Code - OSS'];
+        const possibleCodePaths = [this.isInsiders ? '/Code - Insiders' : this.isOss ? '/Code - OSS' : '/Code'];
         for (const _path of possibleCodePaths) {
             try {
                 fs.statSync(this.PATH + _path);
