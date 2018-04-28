@@ -2,5 +2,5 @@ npm i --no-optional
 npm dedupe
 npm up
 npm install -g vsce
-vsce login Shan
-printf $VSCE_TOKEN
+printf $VSCE_TOKEN | vsce login "Shan"
+vsce publish
