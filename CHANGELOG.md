@@ -1,21 +1,16 @@
-#### Version - 2.9.0
+#### Version - 2.9.1
 
-*Important* : Github is going to [disable anonymous Gist](https://blog.github.com/2018-02-18-deprecation-notice-removing-anonymous-gist-creation/) from March 19, 2018. Anonymous Gist support has been removed from Settings Sync.
+* Bug Fix for OSS Variant  [#510](https://github.com/shanalikhan/code-settings-sync/issues/510) - Thanks for PR [@JacobHenner](https://github.com/JacobHenner)
+* Readme Typo Fix [#531](https://github.com/shanalikhan/code-settings-sync/issues/531) - Thanks for PR [@x4m3](https://github.com/x4m3)
+* syncLocalSettings does not support replacing setting with "False" value [#516](https://github.com/shanalikhan/code-settings-sync/issues/516) - Thanks for PR [@leepowellcouk](https://github.com/leepowellcouk)
 
-* Settings Sync now support OSS Variant  [#77](https://github.com/shanalikhan/code-settings-sync/issues/77) - By @LC43
-* Settings Sync now support "code-snippets" files and other snippets extensions [#340](https://github.com/shanalikhan/code-settings-sync/issues/340)
-* Now you can configure settings sync not to delete extensions on download [#373](https://github.com/shanalikhan/code-settings-sync/issues/373)
-* Now you can exclude extensions list while uploading [#389](https://github.com/shanalikhan/code-settings-sync/issues/389)
-* If you are looking to use Settings Sync to download settings only. (e.g Fetch Team Environment) - Bug has been fixed [#487](https://github.com/shanalikhan/code-settings-sync/issues/487)
-
-
-
-
-## Contributions
+## [Contributions](https://github.com/shanalikhan/code-settings-sync/blob/master/CONTRIBUTING.md)
 
 ### Financial
 
-I also welcome financial contributions in full transparency on our [open collective](https://opencollective.com/code-settings-sync).
+[<img src="https://www.paypalobjects.com/en_US/i/btn/btn_donateCC_LG.gif">](https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=4W3EWHHBSYMM8&lc=IE&item_name=Code%20Settings%20Sync&item_number=visual%20studio%20code%20settings%20sync&currency_code=USD&bn=PP%2dDonationsBF%3abtn_donate_SM%2egif%3aNonHosted)
+
+I also welcome financial contributions in case of special feature requests on my [open collective](https://opencollective.com/code-settings-sync).
 
 ### Community
 

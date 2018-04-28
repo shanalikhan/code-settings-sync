@@ -7,7 +7,7 @@ import * as fs from 'fs';
 
 export class Environment {
 
-    public static CURRENT_VERSION: number = 290;
+    public static CURRENT_VERSION: number = 291;
     public static getVersion(): string {
         var txt2 = Environment.CURRENT_VERSION.toString().slice(0, 1) + "." + Environment.CURRENT_VERSION.toString().slice(1, 2) + "." + Environment.CURRENT_VERSION.toString().slice(2, 3);
         return txt2;
@@ -50,6 +50,7 @@ export class Environment {
     public APP_SUMMARY: string = null;
 
     constructor(context: vscode.ExtensionContext) {
+        var os = require("os");
         this.context = context;
         this.isInsiders = /insiders/.test(context.asAbsolutePath(""));
         this.isOss = /oss/.test(context.asAbsolutePath(""));
@@ -59,7 +60,7 @@ export class Environment {
                 : process.env[(process.platform == 'win32') ? 'USERPROFILE' : 'HOME'];
         const configSuffix = `${isXdg ? '' : '.'}vscode${this.isInsiders ? '-insiders' : this.isOss ? '-oss' : ''}`
         this.ExtensionFolder = path.join(this.homeDir, configSuffix, 'extensions');
-        var os = require("os");
+        
         //console.log(os.type());
 
         process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0"
@@ -72,7 +73,6 @@ export class Environment {
                 this.OsType = OsType.Mac;
             }
             else if (process.platform == 'linux') {
-                var os = require("os");
                 this.PATH = isXdg && !!process.env.XDG_CONFIG_HOME ? process.env.XDG_CONFIG_HOME : os.homedir() + '/.config';
                 this.OsType = OsType.Linux;
             } else {
