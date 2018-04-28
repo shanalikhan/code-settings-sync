@@ -1,3 +1,4 @@
+npm install node-pre-gyp
 npm i --no-optional
 npm dedupe
 npm up
