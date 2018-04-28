@@ -16,11 +16,7 @@ script:
  
 deploy:
   provider: script
-  script: 
-    - npm i --no-optional
-    - npm dedupe
-    - npm up
-    - vsce publish -p VSCE_TOKEN
+  script: bash scripts/deploy.sh
   on:
     branch: master
     
