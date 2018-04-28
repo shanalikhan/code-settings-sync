@@ -11,6 +11,8 @@ before_install:
 
 install:
   - vsce package
+script:
+  - vsce publish -p env.VSCE_TOKEN
   
 script: echo "npm test temporarily disabled"
 notifications:
