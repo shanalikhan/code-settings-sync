@@ -17,12 +17,14 @@ script:
 deploy:
   provider: script
   script: 
+    - npm i --no-optional
+    - npm dedupe
+    - npm up
     - vsce publish -p VSCE_TOKEN
   on:
     branch: master
     
     
- 
 notifications:
   slack:
     secure: R9xqGEFOQHI+6oaiGz7+4zOErZydinpg+7tQd0xaCy8qRswcVtPT+yX6RAgsEGS+RXaOoVz9N534XJIdLXyW/nN8vD898Dwq4nf+lUMiRuuPrvCLk2rh50FFDRi6aoeCv1qxeNswf2ahNnFILV4FE8t2r/+P2vYeB/pJ8DChFTlz3+mjXuawH9cW+hLR6DOC7307dLHGq6SuhIvfyuysu6ZU9tyKVRWW/BsQgmz+PtlfA1HGAVzg0Yc8KhGGuWdSZydOcSisUWX2f8+BL1HGPXbzlMqJinb7z7k8HJVjddH88Tfa2Jphs/rxoKr+enlqqeCNdCIlRQ8p093bkw9B2Rmo2/xYfc2w0JnzEK5q8EibsDapn2V7hcNCd2hO1MuXTus4L43ZBxoJZoQfiyYPIYRTgo4mCT4B4AKzOuvaNZ/sXYN6I7UTwY1iXzUW3ntdn49tWJmFdUuDNwj+im+X89xdRqUWVaJD9cfgG9070MIle2CFFMGL0OXLwJRnoj3ySOLuJVThL68qVoX5E4NZn4HDdMKtmf7h8P36BUG2zmuq6n48NEiLlWgLd8HWXZEIkVnBytnnQ/+5Bg5ZZsHCEpIjcPGPuUXa5WpJlZdcqDvaQJ7NRjckDYhGqHz7AqLxMWnwcOAPWrWOYnKymh38ncGgznfjR3JSy8ZBXMU6xDw=
