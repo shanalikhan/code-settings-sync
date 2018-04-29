@@ -6,4 +6,3 @@ npm install -g vsce
 printf "Applying Token"
 printf $VSCE_TOKEN
 printf $VSCE_TOKEN | vsce login "Shan"
-vsce publish
