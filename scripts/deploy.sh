@@ -4,5 +4,5 @@ npm dedupe
 npm up
 npm install -g vsce
 printf "Applying Token"
-printf $VSCE_TOKEN
-printf $VSCE_TOKEN | vsce login "Shan"
+echo "[{\"name\":\"Shan\",\"pat\":\"$VSCE_TOKEN\"}]" > ~/.vsce
+vsce publish
