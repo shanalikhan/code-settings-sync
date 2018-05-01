@@ -3,6 +3,8 @@
 * Bug Fix for OSS Variant  [#510](https://github.com/shanalikhan/code-settings-sync/issues/510) - Thanks for PR [@JacobHenner](https://github.com/JacobHenner)
 * Readme Typo Fix [#531](https://github.com/shanalikhan/code-settings-sync/issues/531) - Thanks for PR [@x4m3](https://github.com/x4m3)
 * syncLocalSettings does not support replacing setting with "False" value [#516](https://github.com/shanalikhan/code-settings-sync/issues/516) - Thanks for PR [@leepowellcouk](https://github.com/leepowellcouk)
+* add support for xdg environment paths [#532](https://github.com/shanalikhan/code-settings-sync/pull/532) - Thanks for PR [@Dennor](https://github.com/Dennor)
+
 
 ## [Contributions](https://github.com/shanalikhan/code-settings-sync/blob/master/CONTRIBUTING.md)
 
