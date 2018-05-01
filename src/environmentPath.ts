@@ -7,7 +7,7 @@ import * as fs from 'fs';
 
 export class Environment {
 
-    public static CURRENT_VERSION: number = 290;
+    public static CURRENT_VERSION: number = 291;
     public static getVersion(): string {
         var txt2 = Environment.CURRENT_VERSION.toString().slice(0, 1) + "." + Environment.CURRENT_VERSION.toString().slice(1, 2) + "." + Environment.CURRENT_VERSION.toString().slice(2, 3);
         return txt2;
@@ -15,6 +15,7 @@ export class Environment {
 
     private context: vscode.ExtensionContext;
     public isInsiders = null;
+    public isOss = null;
     public homeDir = null;
     public USER_FOLDER = null;
 
@@ -49,11 +50,17 @@ export class Environment {
     public APP_SUMMARY: string = null;
 
     constructor(context: vscode.ExtensionContext) {
+        var os = require("os");
         this.context = context;
         this.isInsiders = /insiders/.test(context.asAbsolutePath(""));
-        this.homeDir = process.env[(process.platform == 'win32') ? 'USERPROFILE' : 'HOME'];
-        this.ExtensionFolder = path.join(this.homeDir, this.isInsiders ? '.vscode-insiders' : '.vscode', 'extensions');
-        var os = require("os");
+        this.isOss = /oss/.test(context.asAbsolutePath(""));
+        const isXdg = !this.isInsiders && !!this.isOss && process.platform === 'linux' && !!process.env.XDG_DATA_HOME
+        this.homeDir =  isXdg
+                ? process.env.XDG_DATA_HOME
+                : process.env[(process.platform == 'win32') ? 'USERPROFILE' : 'HOME'];
+        const configSuffix = `${isXdg ? '' : '.'}vscode${this.isInsiders ? '-insiders' : this.isOss ? '-oss' : ''}`
+        this.ExtensionFolder = path.join(this.homeDir, configSuffix, 'extensions');
+        
         //console.log(os.type());
 
         process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0"
@@ -66,8 +73,7 @@ export class Environment {
                 this.OsType = OsType.Mac;
             }
             else if (process.platform == 'linux') {
-                var os = require("os");
-                this.PATH = os.homedir() + '/.config';
+                this.PATH = isXdg && !!process.env.XDG_CONFIG_HOME ? process.env.XDG_CONFIG_HOME : os.homedir() + '/.config';
                 this.OsType = OsType.Linux;
             } else {
                 this.PATH = '/var/local';
@@ -84,7 +90,7 @@ export class Environment {
             });
         }
 
-        const possibleCodePaths = [this.isInsiders ? '/Code - Insiders' : '/Code', '/Code - OSS'];
+        const possibleCodePaths = [this.isInsiders ? '/Code - Insiders' : this.isOss ? '/Code - OSS' : '/Code'];
         for (const _path of possibleCodePaths) {
             try {
                 fs.statSync(this.PATH + _path);
