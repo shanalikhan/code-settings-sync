@@ -179,7 +179,7 @@
         "@types/node": "^10.0.0"
     },
     "dependencies": {
-        "adm-zip": "^0.4.7",
+        "adm-zip": "0.4.7",
         "chokidar": "^2.0.2",
         "fs": "^0.0.2",
         "github": "^11.0.0",
