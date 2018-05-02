@@ -1,13 +1,13 @@
 "use strict";
-import * as vscode from 'vscode';
-import * as path from 'path';
-import { statSync } from 'fs';
 import { OsType } from './enums';
+import { statSync } from 'fs';
 import * as fs from 'fs';
+import * as path from 'path';
+import * as vscode from 'vscode';
 
 export class Environment {
 
-    public static CURRENT_VERSION: number = 291;
+    public static CURRENT_VERSION: number = 292;
     public static getVersion(): string {
         var txt2 = Environment.CURRENT_VERSION.toString().slice(0, 1) + "." + Environment.CURRENT_VERSION.toString().slice(1, 2) + "." + Environment.CURRENT_VERSION.toString().slice(2, 3);
         return txt2;

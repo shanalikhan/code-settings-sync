@@ -1,3 +1,8 @@
+#### Version - 2.9.2
+
+* Critical Bug Fix - Extension Download Fails [#540](https://github.com/shanalikhan/code-settings-sync/issues/540)
+
+
 #### Version - 2.9.1
 
 * Bug Fix for OSS Variant  [#510](https://github.com/shanalikhan/code-settings-sync/issues/510) - Thanks for PR [@JacobHenner](https://github.com/JacobHenner)
