@@ -518,7 +518,7 @@ export async function activate(context: vscode.ExtensionContext) {
     });
 
     var howSettings = vscode.commands.registerCommand('extension.HowSettings', async () => {
-        vscode.commands.executeCommand('vscode.open', vscode.Uri.parse('"http://shanalikhan.github.io/2015/12/15/Visual-Studio-Code-Sync-Settings.html'));
+        vscode.commands.executeCommand('vscode.open', vscode.Uri.parse('http://shanalikhan.github.io/2015/12/15/Visual-Studio-Code-Sync-Settings.html'));
     });
 
     var otherOptions = vscode.commands.registerCommand('extension.otherOptions', async () => {
