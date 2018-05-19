@@ -57,6 +57,7 @@ export async function activate(context: vscode.ExtensionContext) {
         let localConfig: LocalConfig = new LocalConfig();
         let allSettingFiles = new Array<File>();
         let uploadedExtensions = new Array<ExtensionInformation>();
+        let ignoredExtensions = new Array<ExtensionInformation>();
         let dateNow: Date = new Date();
         common.CloseWatch();
         let ignoreSettings = new Object();
@@ -86,7 +87,7 @@ export async function activate(context: vscode.ExtensionContext) {
 
             if (customSettings.downloadPublicGist) {
                 if (customSettings.token == null || customSettings.token == "") {
-                    vscode.window.showInformationMessage("Sync : Set GitHub Token or disable 'downloadPublicGist' from local Sync settings file.");;
+                    vscode.window.showInformationMessage("Sync : Set GitHub Token or disable 'downloadPublicGist' from local Sync settings file.");
                     return;
                 }
             }
@@ -100,7 +101,15 @@ export async function activate(context: vscode.ExtensionContext) {
             // var deletedList = PluginService.GetDeletedExtensions(uploadedExtensions);
             if (syncSetting.syncExtensions) {
                 uploadedExtensions = PluginService.CreateExtensionList();
-
+                if (customSettings.ignoreExtensions && customSettings.ignoreExtensions.length > 0) {
+                    uploadedExtensions = uploadedExtensions.filter(extension => {
+                        if (customSettings.ignoreExtensions.includes(extension.name)) {
+                            ignoredExtensions.push(extension);
+                            return false;
+                        }
+                        return true;
+                    })
+                }
                 uploadedExtensions.sort(function (a, b) {
                     return a.name.localeCompare(b.name);
                 });
@@ -249,7 +258,7 @@ export async function activate(context: vscode.ExtensionContext) {
                         }
 
                         if (!syncSetting.quietSync) {
-                            common.ShowSummmaryOutput(true, allSettingFiles, null, uploadedExtensions, localConfig);
+                            common.ShowSummmaryOutput(true, allSettingFiles, null, uploadedExtensions, ignoredExtensions, localConfig);
                             vscode.window.setStatusBarMessage("").dispose();
                         }
                         else {
@@ -363,9 +372,18 @@ export async function activate(context: vscode.ExtensionContext) {
                             if (file.gistName == en.FILE_EXTENSION_NAME) {
                                 if (syncSetting.syncExtensions) {
                                     var extDelStatus: Array<KeyValue<string, boolean>> = new Array<KeyValue<string, boolean>>();
+
+                                    if (customSettings.ignoreExtensions && customSettings.ignoreExtensions.length) {
+                                        const extList = ExtensionInformation.fromJSONList(content)
+                                        const newExtList = extList.filter(extension =>
+                                            !customSettings.ignoreExtensions.includes(extension.name)
+                                        )
+                                        content = JSON.stringify(newExtList)
+                                    }
+
                                     if (syncSetting.removeExtensions) {
                                         try {
-                                            deletedExtensions = await PluginService.DeleteExtensions(file.content, en.ExtensionFolder);
+                                            deletedExtensions = await PluginService.DeleteExtensions(content, en.ExtensionFolder);
                                         }
                                         catch (uncompletedExtensions) {
                                             vscode.window.showErrorMessage("Sync : Unable to remove some extensions.");
@@ -374,7 +392,7 @@ export async function activate(context: vscode.ExtensionContext) {
 
                                     }
                                     try {
-                                        addedExtensions = await PluginService.InstallExtensions(file.content, en.ExtensionFolder, function (message: string, dispose: boolean) {
+                                        addedExtensions = await PluginService.InstallExtensions(content, en.ExtensionFolder, function (message: string, dispose: boolean) {
                                             //TODO:
                                             if (dispose) {
                                                 vscode.window.setStatusBarMessage(message, 2000);
@@ -439,7 +457,7 @@ export async function activate(context: vscode.ExtensionContext) {
                         await common.SaveSettings(syncSetting).then(async function (added: boolean) {
                             if (added) {
                                 if (!syncSetting.quietSync) {
-                                    common.ShowSummmaryOutput(false, updatedFiles, deletedExtensions, addedExtensions, localSettings);
+                                    common.ShowSummmaryOutput(false, updatedFiles, deletedExtensions, addedExtensions, null, localSettings);
                                     vscode.window.setStatusBarMessage("").dispose();
                                 }
                                 else {
