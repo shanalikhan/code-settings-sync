@@ -53,7 +53,7 @@ export class Environment {
         var os = require("os");
         this.context = context;
         this.isInsiders = /insiders/.test(context.asAbsolutePath(""));
-        this.isOss = /oss/.test(context.asAbsolutePath(""));
+        this.isOss = /\boss\b/.test(context.asAbsolutePath(""));
         const isXdg = !this.isInsiders && !!this.isOss && process.platform === 'linux' && !!process.env.XDG_DATA_HOME
         this.homeDir =  isXdg
                 ? process.env.XDG_DATA_HOME
