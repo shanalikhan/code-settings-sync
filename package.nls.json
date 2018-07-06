@@ -1,0 +1,20 @@
+{
+  "ext.config.title": "Code Settings Sync Configuration Settings",
+  "ext.config.gist": "GitHub GIST ID for Settings Sync.",
+  "ext.config.lastUpload": "Settings Sync last upload date. Set it as empty if you want to manually hit download.",
+  "ext.config.lastDownload": "Settings Sync last download date. Set it as empty if you want to manually hit download.",
+  "ext.config.autoDownload": "Set it true to Auto Download the settings on code start. [Code Restart Required]",
+  "ext.config.autoUpload": "Set it true to Auto Upload on the settings change. [Code Restart Required]",
+  "ext.config.forceDownload": "Set it to true if you want to download the settings even when you have latest settings.",
+  "ext.config.host": "Set it to your GitHub Enterprise host if you want to use GHE.",
+  "ext.config.pathPrefix": "Set it to your GitHub Enterprise api prefix if you want to use GHE. Normally '/api/v3'. Only used when host is set.",
+  "ext.config.quietSync": "When set to true, will show the result in status bar instead of summary page.",
+  "ext.config.askGistName": "Ask gist name upon creating. Helps you to identify the gist if you have multiple gists.",
+  "ext.config.removeExtensions": "Set it to false if you dont want to remove extensions while downloading.",
+  "ext.config.syncExtensions": "Set it to false if you dont want to upload / download the extensions.",
+  "cmd.howSetting.title": "Sync : How To Configure",
+  "cmd.downloadSettings.title": "Sync : Download Settings",
+  "cmd.updateSettings.title": "Sync : Update / Upload Settings",
+  "cmd.resetSettings.title": "Sync : Reset Extension Settings",
+  "cmd.otherOptions.title": "Sync : Advanced Options"
+}

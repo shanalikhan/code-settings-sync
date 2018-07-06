@@ -1,0 +1,20 @@
+{
+  "ext.config.title": "代码同步配置",
+  "ext.config.gist": "设置同步使用的 GitHub GIST ID",
+  "ext.config.lastUpload": "最近上传时间. 如果你要手动下载，请将其设置为空",
+  "ext.config.lastDownload": "最近下载时间. 如果你要手动下载，请将其设置为空",
+  "ext.config.autoDownload": "设置为 true 将会在编辑器打开时自动下载配置. [需要重启]",
+  "ext.config.autoUpload": "设置为 true 将会在编辑器打开时自动上传配置. [需要重启]",
+  "ext.config.forceDownload": "设置为 true 将会下载远程配置即便本地有更新的配置.",
+  "ext.config.host": "如果你是 Github 企业用户, 设置 Github 企业版服务器.",
+  "ext.config.pathPrefix": "如果你是 Github 企业用户, 设置 Github 的 API 前缀. 通常是 '/api/v3'. 只在 host 字段设置后生效",
+  "ext.config.quietSync": "如果设置为 true, 会在状态栏显示输出信息而不是在摘要页面.",
+  "ext.config.askGistName": "在创建时询问 gist 的名称. 能够帮助你识别多个 gist.",
+  "ext.config.removeExtensions": "设置为 false 如果你想在下载时移除扩展.",
+  "ext.config.syncExtensions": "设置为 false 如果你不想上传/下载扩展.",
+  "cmd.howSetting.title": "Sync : 如何设置",
+  "cmd.downloadSettings.title": "Sync : 下载配置",
+  "cmd.updateSettings.title": "Sync : 更新/上传 设置",
+  "cmd.resetSettings.title": "Sync : 重置设置",
+  "cmd.otherOptions.title": "Sync : 高级选项"
+}
