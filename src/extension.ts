@@ -486,7 +486,7 @@ export async function activate(context: vscode.ExtensionContext) {
         await Init();
 
         async function Init() {
-            vscode.window.setStatusBarMessage("Sync : Resetting Your Settings.", 2000);
+            vscode.window.setStatusBarMessage(localize("cmd.resetSettings.info.resetting"), 2000);
 
             try {
                 var en: Environment = new Environment(context);
@@ -509,11 +509,11 @@ export async function activate(context: vscode.ExtensionContext) {
                 }
 
                 if (extSaved && customSaved) {
-                    vscode.window.showInformationMessage("Sync : Settings Cleared.");
+                    vscode.window.showInformationMessage(localize("cmd.resetSettings.info.settingClear"));
                 }
             }
             catch (err) {
-                Commons.LogException(err, "Sync : Unable to clear settings. Error Logged on console. Please open an issue.", true);
+                Commons.LogException(err, localize("cmd.resetSettings.err.fail"), true);
             }
         }
     });

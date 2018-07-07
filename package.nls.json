@@ -35,5 +35,8 @@
   "cmd.downloadSettings.error.removeExtFail": "Sync : Unable to remove some extensions.",
   "cmd.downloadSettings.error.readGistFail": "Sync : Unable to Read Gist.",
   "cmd.resetSettings.title": "Sync : Reset Extension Settings",
+  "cmd.resetSettings.info.resetting": "Sync : Resetting Your Settings.",
+  "cmd.resetSettings.info.settingClear": "Sync : Settings Cleared.",
+  "cmd.resetSettings.err.fail": "Sync : Unable to clear settings. Error Logged on console. Please open an issue.",
   "cmd.otherOptions.title": "Sync : Advanced Options"
 }

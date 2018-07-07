@@ -35,5 +35,8 @@
   "cmd.downloadSettings.error.removeExtFail": "Sync : 不能移除一些扩展",
   "cmd.downloadSettings.error.readGistFail": "Sync : 读取 Gist 失败",
   "cmd.resetSettings.title": "Sync : 重置设置",
+  "cmd.resetSettings.info.resetting": "Sync : 正在重置你的设置",
+  "cmd.resetSettings.info.settingClear": "Sync : 设置清除完毕",
+  "cmd.resetSettings.err.fail": "Sync : 清除设置失败. 错误已打印在控制台，请开启一个 issuse 告诉我",
   "cmd.otherOptions.title": "Sync : 高级选项"
 }
