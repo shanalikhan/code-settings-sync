@@ -18,7 +18,7 @@ export class Localize {
    * @param key
    * @param args
    */
-  public localize(key: string, args: any[] = []) {
+  public localize(key: string, ...args: any[]) {
     const languagePack = this.bundle;
     const message: string = languagePack[key] || key;
     return this.format(message, args);

@@ -200,9 +200,9 @@ export async function activate(context: vscode.ExtensionContext) {
                         if (myGi.userName != null) {
                             let userName: string = myGi.userName.trim();
                             if (gistOwnerName != userName) {
-                                Commons.LogException(null, localize('cmd.updateSettings.error.editGistFail', [gistObj.data.owner.login]), true, function () {
-                                    console.log(localize("cmd.updateSettings.info.currentUser", [userName]));
-                                    console.log(localize("cmd.updateSettings.info.gitOwnerUser", [gistOwnerName]));
+                                Commons.LogException(null, localize('cmd.updateSettings.error.editGistFail', gistObj.data.owner.login), true, function () {
+                                    console.log(localize("cmd.updateSettings.info.currentUser", userName));
+                                    console.log(localize("cmd.updateSettings.info.gitOwnerUser", gistOwnerName));
                                 });
                                 return;
                             }
@@ -230,7 +230,7 @@ export async function activate(context: vscode.ExtensionContext) {
                     });
                 }
                 else {
-                    vscode.window.showErrorMessage(localize("cmd.updateSettings.error.readGistFail", [syncSetting.gist]));
+                    vscode.window.showErrorMessage(localize("cmd.updateSettings.error.readGistFail", syncSetting.gist));
                     return;
                 }
             }, function (gistReadError: any) {
@@ -242,7 +242,7 @@ export async function activate(context: vscode.ExtensionContext) {
                 await common.SaveSettings(syncSetting).then(function (added: boolean) {
                     if (added) {
                         if (newGIST) {
-                            vscode.window.showInformationMessage(localize('cmd.updateSettings.info.uploadingDone', [syncSetting.gist]));
+                            vscode.window.showInformationMessage(localize('cmd.updateSettings.info.uploadingDone', syncSetting.gist));
                         }
 
                         if (localConfig.publicGist) {
