@@ -532,17 +532,17 @@ export async function activate(context: vscode.ExtensionContext) {
         var gistAvailable: boolean = setting.gist != null && setting.gist != "";
 
         let items: Array<string> = new Array<string>();
-        items.push("Sync : Edit Extension Local Settings");
-        items.push("Sync : Share Settings with Public GIST");
-        items.push("Sync : Download Settings from Public GIST");
-        items.push("Sync : Toggle Force Download");
-        items.push("Sync : Toggle Auto-Upload On Settings Change");
-        items.push("Sync : Toggle Auto-Download On Startup");
-        items.push("Sync : Toggle Show Summary Page On Upload / Download");
-        items.push("Sync : Preserve Setting To Stop Override After Download");
-        items.push("Sync : Join Community");
-        items.push("Sync : Open Issue");
-        items.push("Sync : Release Notes");
+        items.push(localize("cmd.otherOptions.editLocalSetting"));
+        items.push(localize("cmd.otherOptions.shareSetting"));
+        items.push(localize("cmd.otherOptions.downloadSetting"));
+        items.push(localize("cmd.otherOptions.toggleForceDownload"));
+        items.push(localize("cmd.otherOptions.toggleAutoUpload"));
+        items.push(localize("cmd.otherOptions.toggleAutoDownload"));
+        items.push(localize("cmd.otherOptions.toggleSummaryPage"));
+        items.push(localize("cmd.otherOptions.preserve"));
+        items.push(localize("cmd.otherOptions.joinCommunity"));
+        items.push(localize("cmd.otherOptions.openIssue"));
+        items.push(localize("cmd.otherOptions.releaseNotes"));
 
         var selectedItem: Number = 0;
         var settingChanged: boolean = false;
@@ -561,7 +561,7 @@ export async function activate(context: vscode.ExtensionContext) {
                 }
                 case items[1]: {
                     //share public gist
-                    await vscode.window.showInformationMessage("Sync : This will remove current GIST and upload settings on new public GIST. Do you want to continue ?", "Yes").then(async (resolve) => {
+                    await vscode.window.showInformationMessage(localize("cmd.otherOptions.shareSetting.beforeConfirm"), "Yes").then(async (resolve) => {
                         if (resolve == "Yes") {
                             localSetting.publicGist = true;
                             settingChanged = true;
@@ -649,8 +649,8 @@ export async function activate(context: vscode.ExtensionContext) {
                     //preserve
                     let options: vscode.InputBoxOptions = {
                         ignoreFocusOut: true,
-                        placeHolder: "Enter any Key from settings.json to preserve.",
-                        prompt: "Example : Write 'http.proxy' => store this computer proxy and overwrite it , if set empty it will remove proxy."
+                        placeHolder: localize("cmd.otherOptions.preserve.placeholder"),
+                        prompt: localize("cmd.otherOptions.preserve.prompt")
 
                     };
                     vscode.window.showInputBox(options).then(async (res) => {
@@ -662,10 +662,10 @@ export async function activate(context: vscode.ExtensionContext) {
                             let done: boolean = await common.SetCustomSettings(customSettings);
                             if (done) {
                                 if (val == "") {
-                                    vscode.window.showInformationMessage("Sync : Done. " + res + " value will be removed from settings.json after downloading.");
+                                    vscode.window.showInformationMessage(localize("cmd.otherOptions.preserve.info.done1", res));
                                 }
                                 else {
-                                    vscode.window.showInformationMessage("Sync : Done. Extension will keep " + res + " : " + val + " in setting.json after downloading.");
+                                    vscode.window.showInformationMessage(localize("cmd.otherOptions.preserve.info.done1", res, val));
                                 }
                             }
                         }
@@ -701,37 +701,37 @@ export async function activate(context: vscode.ExtensionContext) {
                         switch (selectedItem) {
                             case 5: {
                                 if (setting.autoDownload) {
-                                    vscode.window.showInformationMessage("Sync : Auto Download turned ON upon VSCode Startup.");
+                                    vscode.window.showInformationMessage(localize("cmd.otherOptions.toggleAutoDownload.on"));
                                 }
                                 else {
-                                    vscode.window.showInformationMessage("Sync : Auto Download turned OFF upon VSCode Startup.");
+                                    vscode.window.showInformationMessage(localize("cmd.otherOptions.toggleAutoDownload.off"));
                                 }
                                 break;
                             }
                             case 6: {
                                 if (!setting.quietSync) {
-                                    vscode.window.showInformationMessage("Sync : Summary will be shown upon download / upload.");
+                                    vscode.window.showInformationMessage(localize("cmd.otherOptions.quietSync.off"));
                                 }
                                 else {
-                                    vscode.window.showInformationMessage("Sync : Status bar will be updated upon download / upload.");
+                                    vscode.window.showInformationMessage(localize("cmd.otherOptions.quietSync.on"));
                                 }
                                 break;
                             }
                             case 3: {
                                 if (setting.forceDownload) {
-                                    vscode.window.showInformationMessage("Sync : Force Download Turned On.");
+                                    vscode.window.showInformationMessage(localize("cmd.otherOptions.toggleForceDownload.on"));
                                 }
                                 else {
-                                    vscode.window.showInformationMessage("Sync : Force Download Turned Off.");
+                                    vscode.window.showInformationMessage(localize("cmd.otherOptions.toggleForceDownload.off"));
                                 }
                                 break;
                             }
                             case 4: {
                                 if (setting.autoUpload) {
-                                    vscode.window.showInformationMessage("Sync : Auto upload on Setting Change Turned On. Will be affected after restart.");
+                                    vscode.window.showInformationMessage(localize("cmd.otherOptions.toggleAutoUpload.on"));
                                 }
                                 else {
-                                    vscode.window.showInformationMessage("Sync : Auto upload on Setting Change Turned Off.");
+                                    vscode.window.showInformationMessage(localize("cmd.otherOptions.toggleAutoUpload.off"));
                                 }
                                 break;
                             }
@@ -740,15 +740,15 @@ export async function activate(context: vscode.ExtensionContext) {
                                 break;
                             }
                             case 2: {
-                                vscode.window.showInformationMessage("Sync : Settings Sync will not ask for GitHub Token from now on.");
+                                vscode.window.showInformationMessage(localize("cmd.otherOptions.warning.tokenNotRequire"));
                             }
                         }
                     }
                     else {
-                        vscode.window.showErrorMessage("Unable to Toggle.");
+                        vscode.window.showErrorMessage(localize("cmd.otherOptions.error.toggleFail"));
                     }
                 }, function (err: any) {
-                    Commons.LogException(err, "Sync : Unable to toggle. Please open an issue.", true);
+                    Commons.LogException(err, localize("cmd.otherOptions.error.toggleFailWithException"), true);
                     return;
                 });
             }
