@@ -293,7 +293,7 @@ export async function activate(context: vscode.ExtensionContext) {
 
             myGi = new GitHubService(customSettings.token);
             vscode.window.setStatusBarMessage("").dispose();
-            vscode.window.setStatusBarMessage("Sync : Reading Settings Online.", 2000);
+            vscode.window.setStatusBarMessage(localize("cmd.downloadSettings.info.readdingOnline"), 2000);
 
             myGi.ReadGist(syncSetting.gist).then(async function (res: any) {
 
@@ -326,7 +326,7 @@ export async function activate(context: vscode.ExtensionContext) {
                         if (!syncSetting.forceDownload) {
                             if (upToDate) {
                                 vscode.window.setStatusBarMessage("").dispose();
-                                vscode.window.setStatusBarMessage("Sync : You already have latest version of saved settings.", 5000);
+                                vscode.window.setStatusBarMessage(localize("cmd.downloadSettings.info.gotLatestVersion"), 5000);
                                 return;
                             }
                         }
@@ -349,7 +349,7 @@ export async function activate(context: vscode.ExtensionContext) {
                             }
                         }
                         else {
-                            console.log(gistName + " key in response is empty.");
+                            console.log(localize('cmd.downloadSettings.warning.responseEmpty', gistName));
                         }
                     });
 
@@ -369,7 +369,7 @@ export async function activate(context: vscode.ExtensionContext) {
                                             deletedExtensions = await PluginService.DeleteExtensions(file.content, en.ExtensionFolder);
                                         }
                                         catch (uncompletedExtensions) {
-                                            vscode.window.showErrorMessage("Sync : Unable to remove some extensions.");
+                                            vscode.window.showErrorMessage(localize("cmd.downloadSettings.error.removeExtFail"));
                                             deletedExtensions = uncompletedExtensions;
                                         }
 
@@ -418,7 +418,7 @@ export async function activate(context: vscode.ExtensionContext) {
                     }
                 }
                 else {
-                    Commons.LogException(res, "Sync : Unable to Read Gist.", true);
+                    Commons.LogException(res, localize("cmd.downloadSettings.error.readGistFail"), true);
                 }
 
                 Promise.all(actionList)
