@@ -9,6 +9,7 @@ import Commons from './commons';
 import { GitHubService } from './service/githubService';
 import { ExtensionConfig, LocalConfig, CloudSetting, CustomSettings, KeyValue } from './setting';
 import { OsType, SettingType } from './enums';
+import localize from './localize';
 
 export async function activate(context: vscode.ExtensionContext) {
 
@@ -82,17 +83,17 @@ export async function activate(context: vscode.ExtensionContext) {
 
         async function startGitProcess(syncSetting: ExtensionConfig, customSettings: CustomSettings) {
 
-            vscode.window.setStatusBarMessage("Sync : Uploading / Updating Your Settings In GitHub.", 2000);
+            vscode.window.setStatusBarMessage(localize("cmd.updateSettings.info.uploading"), 2000);
 
             if (customSettings.downloadPublicGist) {
                 if (customSettings.token == null || customSettings.token == "") {
-                    vscode.window.showInformationMessage("Sync : Set GitHub Token or disable 'downloadPublicGist' from local Sync settings file.");;
+                    vscode.window.showInformationMessage(localize("cmd.updateSettings.warning.noToken"));
                     return;
                 }
             }
 
             syncSetting.lastUpload = dateNow;
-            vscode.window.setStatusBarMessage("Sync : Reading Settings and Extensions.", 2000);
+            vscode.window.setStatusBarMessage(localize('cmd.updateSettings.info.readding'), 2000);
 
 
 
@@ -179,10 +180,10 @@ export async function activate(context: vscode.ExtensionContext) {
                 await myGi.CreateEmptyGIST(localConfig.publicGist, customSettings.gistDescription).then(async function (gistID: string) {
                     if (gistID) {
                         syncSetting.gist = gistID;
-                        vscode.window.setStatusBarMessage("Sync : New gist created.", 2000);
+                        vscode.window.setStatusBarMessage(localize("cmd.updateSettings.info.newGistCreated"), 2000);
                     }
                     else {
-                        vscode.window.showInformationMessage("Sync : Unable to create Gist.");
+                        vscode.window.showInformationMessage(localize("cmd.updateSettings.error.newGistCreateFail"));
                         return;
                     }
                 }, function (error: any) {
@@ -199,9 +200,9 @@ export async function activate(context: vscode.ExtensionContext) {
                         if (myGi.userName != null) {
                             let userName: string = myGi.userName.trim();
                             if (gistOwnerName != userName) {
-                                Commons.LogException(null, "Sync : You cant edit GIST for user : " + gistObj.data.owner.login, true, function () {
-                                    console.log("Sync : Current User : " + "'" + userName + "'");
-                                    console.log("Sync : Gist Owner User : " + "'" + gistOwnerName + "'");
+                                Commons.LogException(null, localize('cmd.updateSettings.error.editGistFail', [gistObj.data.owner.login]), true, function () {
+                                    console.log(localize("cmd.updateSettings.info.currentUser", [userName]));
+                                    console.log(localize("cmd.updateSettings.info.gitOwnerUser", [gistOwnerName]));
                                 });
                                 return;
                             }
@@ -212,7 +213,7 @@ export async function activate(context: vscode.ExtensionContext) {
                         localConfig.publicGist = true;
                     }
 
-                    vscode.window.setStatusBarMessage("Sync : Uploading Files Data.", 3000);
+                    vscode.window.setStatusBarMessage(localize('cmd.updateSettings.info.uploadingFile'), 3000);
                     gistObj = myGi.UpdateGIST(gistObj, allSettingFiles);
 
                     await myGi.SaveGIST(gistObj.data).then(async function (saved: boolean) {
@@ -220,7 +221,7 @@ export async function activate(context: vscode.ExtensionContext) {
                             completed = true;
                         }
                         else {
-                            vscode.window.showErrorMessage("GIST NOT SAVED");
+                            vscode.window.showErrorMessage(localize("cmd.updateSettings.error.gistNotSave"));
                             return;
                         }
                     }, function (error: any) {
@@ -229,7 +230,7 @@ export async function activate(context: vscode.ExtensionContext) {
                     });
                 }
                 else {
-                    vscode.window.showErrorMessage("GIST ID: " + syncSetting.gist + " UNABLE TO READ.");
+                    vscode.window.showErrorMessage(localize("cmd.updateSettings.error.readGistFail", [syncSetting.gist]));
                     return;
                 }
             }, function (gistReadError: any) {
@@ -241,11 +242,11 @@ export async function activate(context: vscode.ExtensionContext) {
                 await common.SaveSettings(syncSetting).then(function (added: boolean) {
                     if (added) {
                         if (newGIST) {
-                            vscode.window.showInformationMessage("Sync : Upload Complete." + " GIST ID :  " + syncSetting.gist + " . Please copy and use this ID in other machines to download settings.");
+                            vscode.window.showInformationMessage(localize('cmd.updateSettings.info.uploadingDone', [syncSetting.gist]));
                         }
 
                         if (localConfig.publicGist) {
-                            vscode.window.showInformationMessage("Sync : Share the Id with other extension users to share the settings.");
+                            vscode.window.showInformationMessage(localize('cmd.updateSettings.info.shareGist'));
                         }
 
                         if (!syncSetting.quietSync) {
@@ -254,7 +255,7 @@ export async function activate(context: vscode.ExtensionContext) {
                         }
                         else {
                             vscode.window.setStatusBarMessage("").dispose();
-                            vscode.window.setStatusBarMessage("Sync : Uploaded Successfully.", 5000);
+                            vscode.window.setStatusBarMessage(localize('cmd.updateSettings.info.uploadingSuccess'), 5000);
                         }
                         if (syncSetting.autoUpload) {
                             common.StartWatch();
