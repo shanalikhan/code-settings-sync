@@ -200,9 +200,9 @@ export async function activate(context: vscode.ExtensionContext) {
                         if (myGi.userName != null) {
                             let userName: string = myGi.userName.trim();
                             if (gistOwnerName != userName) {
-                                Commons.LogException(null, localize('cmd.updateSettings.error.editGistFail', gistObj.data.owner.login), true, function () {
-                                    console.log(localize("cmd.updateSettings.info.currentUser", userName));
-                                    console.log(localize("cmd.updateSettings.info.gitOwnerUser", gistOwnerName));
+                                Commons.LogException(null, "Sync : You cant edit GIST for user : " + gistObj.data.owner.login, true, function () {
+                                    console.log("Sync : Current User : " + "'" + userName + "'");
+                                    console.log("Sync : Gist Owner User : " + "'" + gistOwnerName + "'");
                                 });
                                 return;
                             }
@@ -349,7 +349,7 @@ export async function activate(context: vscode.ExtensionContext) {
                             }
                         }
                         else {
-                            console.log(localize('cmd.downloadSettings.warning.responseEmpty', gistName));
+                            console.log(gistName + " key in response is empty.");
                         }
                     });
 
@@ -418,7 +418,7 @@ export async function activate(context: vscode.ExtensionContext) {
                     }
                 }
                 else {
-                    Commons.LogException(res, localize("cmd.downloadSettings.error.readGistFail"), true);
+                    Commons.LogException(res, "Sync : Unable to Read Gist.", true);
                 }
 
                 Promise.all(actionList)
@@ -513,7 +513,7 @@ export async function activate(context: vscode.ExtensionContext) {
                 }
             }
             catch (err) {
-                Commons.LogException(err, localize("cmd.resetSettings.err.fail"), true);
+                Commons.LogException(err, "Sync : Unable to clear settings. Error Logged on console. Please open an issue.", true);
             }
         }
     });
@@ -748,7 +748,7 @@ export async function activate(context: vscode.ExtensionContext) {
                         vscode.window.showErrorMessage(localize("cmd.otherOptions.error.toggleFail"));
                     }
                 }, function (err: any) {
-                    Commons.LogException(err, localize("cmd.otherOptions.error.toggleFailWithException"), true);
+                    Commons.LogException(err, "Sync : Unable to toggle. Please open an issue.", true);
                     return;
                 });
             }

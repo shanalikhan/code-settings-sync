@@ -6,13 +6,14 @@ import { ExtensionConfig, LocalConfig, CustomSettings } from './setting';
 import { PluginService, ExtensionInformation } from './service/pluginService';
 import * as fs from 'fs';
 import * as path from 'path';
+import localize from './localize';
 
 const chokidar = require('chokidar');
 const lockfile = require('proper-lockfile');
 
 export default class Commons {
 
-    public ERROR_MESSAGE: string = "Sync : Error Logged In Console (Help menu > Toggle Developer Tools).";
+    public ERROR_MESSAGE: string = localize("common.error.message");
     private static configWatcher = null;
     private static extensionWatcher = null;
     private static outputChannel: vscode.OutputChannel = null;
@@ -26,23 +27,23 @@ export default class Commons {
         if (error) {
             console.error(error);
             if (error.code == 500) {
-                message = "Sync : Internet Not Connected or Unable to Connect to GitHub. Exception Logged in Console";
+                message = localize("common.error.connection");
                 msgBox = false;
             }
             else if (error.code == 4) {
-                message = "Sync : Unable to Save Settings. Please make sure you have valid JSON settings.json file. ( e.g : No trailing commas )";
+                message = localize("common.error.canNotSave");
             }
             else if (error.message) {
                 try {
                     message = JSON.parse(error.message).message;
                     if (message.toLowerCase() == 'bad credentials') {
                         msgBox = true;
-                        message = "Sync : Invalid / Expired GitHub Token. Please generate new token with scopes mentioned in readme. Exception Logged in Console.";
+                        message = localize("common.error.invalidToken");
                         //vscode.commands.executeCommand('vscode.open', vscode.Uri.parse('https://github.com/settings/tokens'));
                     }
                     if (message.toLowerCase() == 'not found') {
                         msgBox = true;
-                        message = "Sync : Invalid Gist Id Entered. Verify your gist : https://gist.github.com/<your_userName>/<gist_id>."
+                        message = localize("common.error.invalidGistId")
                     }
                 } catch (error) {
                     //message = error.message;
@@ -162,7 +163,7 @@ export default class Commons {
             }
             else {
                 vscode.window.setStatusBarMessage("").dispose();
-                vscode.window.setStatusBarMessage("Sync : Updating In Progress ... Please Wait.", 3000);
+                vscode.window.setStatusBarMessage(localize("common.info.updating"), 3000);
             }
         });
     }
@@ -171,7 +172,7 @@ export default class Commons {
 
         return new Promise<boolean>(async (resolve, reject) => {
             vscode.window.setStatusBarMessage("").dispose();
-            vscode.window.setStatusBarMessage("Sync : Auto Upload Initiating In 5 Seconds.", 5000);
+            vscode.window.setStatusBarMessage(localize("common.info.initAutoUpload"), 5000);
 
             setTimeout(function () {
                 vscode.commands.executeCommand('extension.updateSettings', "forceUpdate", path).then((res) => {
@@ -206,7 +207,7 @@ export default class Commons {
                     vscode.commands.executeCommand('vscode.open', vscode.Uri.parse('https://github.com/settings/tokens'))
                     let tokTemp: string = await me.GetTokenAndSave(cusSettings);
                     if (!tokTemp) {
-                        vscode.window.showErrorMessage("Sync : Token Not Saved.");
+                        vscode.window.showErrorMessage(localize("common.error.tokenNotSave"));
                         reject(false);
                     }
                     cusSettings.token = tokTemp;
@@ -218,7 +219,7 @@ export default class Commons {
                 if (askGist) {
                     let gistTemp: string = await me.GetGistAndSave(extSettings);
                     if (!gistTemp) {
-                        vscode.window.showErrorMessage("Sync : Gist Not Saved.");
+                        vscode.window.showErrorMessage(localize("common.error.gistNotSave"));
                         reject(false);
                     }
                     extSettings.gist = gistTemp;
@@ -293,14 +294,16 @@ export default class Commons {
             //vscode.workspace.getConfiguration().update("sync.version", undefined, true);
 
             if (firstTime) {
-                vscode.window.showInformationMessage("Sync : Settings Created. Thank You for Installing !");
-                vscode.window.showInformationMessage("Sync : Need Help regarding configuring this extension ?", "Open Extension Page").then(function (val: string) {
-                    if (val == "Open Extension Page") {
+                const openExtensionPage = localize("common.action.openExtPage");
+                const openExtensionTutorial = localize("common.action.openExtTutorial");
+                vscode.window.showInformationMessage(localize("common.info.installed"));
+                vscode.window.showInformationMessage(localize("common.info.needHelp"), openExtensionPage).then(function (val: string) {
+                    if (val == openExtensionPage) {
                         vscode.commands.executeCommand('vscode.open', vscode.Uri.parse('https://marketplace.visualstudio.com/items?itemName=Shan.code-settings-sync'))
                     }
                 });
-                vscode.window.showInformationMessage("Sync : You can exclude any file / folder for upload and settings for download.", "Open Tutorial").then(function (val: string) {
-                    if (val == "Open Tutorial") {
+                vscode.window.showInformationMessage(localize("common.info.excludeFile"), openExtensionTutorial).then(function (val: string) {
+                    if (val == openExtensionTutorial) {
                         vscode.commands.executeCommand('vscode.open', vscode.Uri.parse('http://shanalikhan.github.io/2017/02/19/Option-to-ignore-settings-folders-code-settings-sync.html'))
                     }
                 });
@@ -312,20 +315,26 @@ export default class Commons {
                     if (token != "") {
                         customSettings.token = String(token);
                         this.context.globalState.update("synctoken", "");
-                        vscode.window.showInformationMessage("Sync : Now You can set your GitHub token manually in `syncLocalSettings.json`");
+                        vscode.window.showInformationMessage(localize("common.info.setToken"));
                     }
                 }
-                vscode.window.showInformationMessage("Sync : Updated to v" + Environment.getVersion(), "Release Notes", "Write Review", "Support This Project", "Join Community").then(function (val: string) {
-                    if (val == "Release Notes") {
+
+                const releaseNotes = localize("common.action.releaseNotes");
+                const writeReview = localize("common.action.writeReview");
+                const support = localize("common.action.support");
+                const joinCommunity = localize("common.action.joinCommunity");
+
+                vscode.window.showInformationMessage(localize("common.info.updateTo", Environment.getVersion()), releaseNotes, writeReview, support, joinCommunity).then(function (val: string) {
+                    if (val == releaseNotes) {
                         vscode.commands.executeCommand('vscode.open', vscode.Uri.parse('http://shanalikhan.github.io/2016/05/14/Visual-studio-code-sync-settings-release-notes.html'));
                     }
-                    if (val == "Write Review") {
+                    if (val == writeReview) {
                         vscode.commands.executeCommand('vscode.open', vscode.Uri.parse('https://marketplace.visualstudio.com/items?itemName=Shan.code-settings-sync#review-details'));
                     }
-                    if (val == "Support This Project") {
+                    if (val == support) {
                         vscode.commands.executeCommand('vscode.open', vscode.Uri.parse('https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=4W3EWHHBSYMM8&lc=IE&item_name=Code%20Settings%20Sync&item_number=visual%20studio%20code%20settings%20sync&currency_code=USD&bn=PP-DonationsBF:btn_donate_SM.gif:NonHosted'));
                     }
-                    if(val=="Join Community"){
+                    if(val==joinCommunity){
                         vscode.commands.executeCommand('vscode.open', vscode.Uri.parse('https://join.slack.com/t/codesettingssync/shared_invite/enQtMzE3MjY5NTczNDMwLTYwMTIwNGExOGE2MTJkZWU0OTU5MmI3ZTc4N2JkZjhjMzY1OTk5OGExZjkwMDMzMDU4ZTBlYjk5MGQwZmMyNzk'));
                     }
                 });
@@ -389,10 +398,12 @@ export default class Commons {
     }
 
     public DonateMessage(): void {
-        vscode.window.showInformationMessage("Sync : Do you like this extension ? How about writing a review or send me some donation ;) ", "Donate Now", "Write Review").then((res) => {
-            if (res == "Donate Now") {
+        const donateNow = localize("common.action.donate");
+        const writeReview = localize("common.action.writeReview");
+        vscode.window.showInformationMessage(localize("common.info.donate"), donateNow, writeReview).then((res) => {
+            if (res == donateNow) {
                 vscode.commands.executeCommand('vscode.open', vscode.Uri.parse('https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=4W3EWHHBSYMM8&lc=IE&item_name=Code%20Settings%20Sync&item_number=visual%20studio%20code%20settings%20sync&currency_code=USD&bn=PP-DonationsBF:btn_donate_SM.gif:NonHosted'));
-            } else if (res == "Write Review") {
+            } else if (res == writeReview) {
                 vscode.commands.executeCommand('vscode.open', vscode.Uri.parse('https://marketplace.visualstudio.com/items?itemName=Shan.code-settings-sync#review-details'));
             }
         });
@@ -424,7 +435,7 @@ export default class Commons {
                             sett.token = token;
                             await me.SetCustomSettings(sett).then(function (saved: boolean) {
                                 if (saved) {
-                                    vscode.window.setStatusBarMessage("Sync : Token Saved", 1000);
+                                    vscode.window.setStatusBarMessage(localize("common.info.tokenSaved"), 1000);
                                 }
                                 resolve(token);
                             }, function (err: any) {
@@ -448,7 +459,7 @@ export default class Commons {
                             sett.gist = gist.trim();
                             await me.SaveSettings(sett).then(function (saved: boolean) {
                                 if (saved) {
-                                    vscode.window.setStatusBarMessage("Sync : Gist Saved", 1000);
+                                    vscode.window.setStatusBarMessage(localize("common.info.gistSaved"), 1000);
                                 }
                                 resolve(gist);
                             }, function (err: any) {
@@ -465,18 +476,18 @@ export default class Commons {
 
         if (token) {
             let options: vscode.InputBoxOptions = {
-                placeHolder: "Enter GitHub Personal Access Token",
+                placeHolder: localize("common.placeholder.enterGithubAccessToken"),
                 password: false,
-                prompt: "Link opened! You can manually add token also (User Folder / syncLocalSettings.json). Press [Enter] or press / type 'esc' to cancel.",
+                prompt: localize("common.prompt.enterGithubAccessToken"),
                 ignoreFocusOut: true
             };
             return options;
         }
         else {
             let options: vscode.InputBoxOptions = {
-                placeHolder: "Enter Gist Id",
+                placeHolder: localize("common.placeholder.enterGistId"),
                 password: false,
-                prompt: "Enter Gist Id from previously uploaded settings. You can also set manually in code settings (sync.gist). Press [Enter] or press / type 'esc' to cancel.",
+                prompt: localize("common.prompt.enterGistId"),
                 ignoreFocusOut: true
             };
             return options;
@@ -527,9 +538,9 @@ export default class Commons {
     public async AskGistName(): Promise<string> {
         return new Promise<string>((resolve, reject) => {
             vscode.window.showInputBox({
-                prompt: "Allows you to identify the settings if you have multiple gist."
+                prompt: localize("common.prompt.multipleGist")
                 , ignoreFocusOut: true
-                , placeHolder: "Gist Name [ e.g : Personal Settings ]"
+                , placeHolder: localize("common.placeholder.multipleGist")
             }).then((value) => {
                 resolve(value);
             });
