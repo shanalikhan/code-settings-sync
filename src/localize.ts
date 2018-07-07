@@ -81,8 +81,19 @@ export class Localize {
   }
 }
 
-const instance = new Localize(
-  JSON.parse((process.env as any).VSCODE_NLS_CONFIG)
-);
+let config: IConfig = {
+  locale: "en"
+};
+
+try {
+  config = Object.assign(
+    config,
+    JSON.parse((process.env as any).VSCODE_NLS_CONFIG)
+  );
+} catch (err) {
+  //
+}
+
+const instance = new Localize(config);
 
 export default instance.localize.bind(instance);
