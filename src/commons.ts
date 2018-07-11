@@ -537,7 +537,7 @@ export default class Commons {
 
     }
 
-    public ShowSummmaryOutput(upload: boolean, files: Array<File>, removedExtensions: Array<ExtensionInformation>, addedExtensions: Array<ExtensionInformation>, syncSettings: LocalConfig) {
+    public ShowSummmaryOutput(upload: boolean, files: Array<File>, removedExtensions: Array<ExtensionInformation>, addedExtensions: Array<ExtensionInformation>, ignoredExtensions: Array<ExtensionInformation>, syncSettings: LocalConfig) {
         if (Commons.outputChannel === null) {
             Commons.outputChannel = vscode.window.createOutputChannel("Code Settings Sync");
         }
@@ -572,22 +572,31 @@ export default class Commons {
             });
 
         outputChannel.appendLine(``);
-        outputChannel.appendLine(`  Extensions Removed:`);
+        outputChannel.appendLine(`Extensions Ignored:`);
 
-        if (!syncSettings.extConfig.removeExtensions) {
-            outputChannel.appendLine(' Feature Disabled.');
+        if (!ignoredExtensions || ignoredExtensions.length === 0) {
+            outputChannel.appendLine(`  No extensions ignored.`);
         }
         else {
-            if (removedExtensions) {
-                if (removedExtensions.length === 0) {
-                    outputChannel.appendLine("  No extensions removed.");
-                }
-                else {
+            ignoredExtensions.forEach(extn => {
+                outputChannel.appendLine(`  ${extn.name} v${extn.version}`);
+            });
+        }
 
-                    removedExtensions.forEach(extn => {
-                        outputChannel.appendLine(`  ${extn.name} v${extn.version}`);
-                    });
-                }
+        outputChannel.appendLine(``);
+        outputChannel.appendLine(`Extensions Removed:`);
+
+        if (!syncSettings.extConfig.removeExtensions) {
+            outputChannel.appendLine(`  Feature Disabled.`);
+        }
+        else {
+            if (!removedExtensions || removedExtensions.length === 0) {
+                outputChannel.appendLine(`  No extensions removed.`);
+            }
+            else {
+                removedExtensions.forEach(extn => {
+                    outputChannel.appendLine(`  ${extn.name} v${extn.version}`);
+                });
             }
         }
 
@@ -596,7 +605,7 @@ export default class Commons {
             outputChannel.appendLine(`Extensions Added:`)
 
             if (addedExtensions.length === 0) {
-                outputChannel.appendLine("  No extensions installed.");
+                outputChannel.appendLine(`  No extensions installed.`);
             }
 
             addedExtensions.forEach(extn => {
