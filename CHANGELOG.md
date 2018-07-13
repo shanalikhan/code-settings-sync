@@ -1,3 +1,12 @@
+#### Version - 3.0.0
+
+* Bug Fix for OSS Variant  [#549](https://github.com/shanalikhan/code-settings-sync/issues/549) - Thanks for PR [@rudfoss](https://github.com/rudfoss)
+* Support i18n for extension - Currently Supports English and Chinese [#581](https://github.com/shanalikhan/code-settings-sync/issues/581) - Thanks for PR [@axetroy](https://github.com/axetroy)
+* Added Functionality to ignore extension in settings sync [#523](https://github.com/shanalikhan/code-settings-sync/pull/523) - Thanks for PR [@leepowellcouk](https://github.com/leepowellcouk)
+* Setting to disable opening of github page [#576](https://github.com/shanalikhan/code-settings-sync/pull/576)
+
+
+
 #### Version - 2.9.2
 
 * Critical Bug Fix - Extension Download Fails [#540](https://github.com/shanalikhan/code-settings-sync/issues/540)
