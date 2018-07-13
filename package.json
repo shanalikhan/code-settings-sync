@@ -15,7 +15,8 @@
         "color": "#3B4859",
         "theme": "dark"
     },
-    "badges": [{
+    "badges": [
+        {
             "url": "https://vsmarketplacebadge.apphb.com/version/Shan.code-settings-sync.svg",
             "description": "Latest Version",
             "href": "https://marketplace.visualstudio.com/items?itemName=Shan.code-settings-sync"
@@ -68,7 +69,8 @@
     ],
     "main": "./out/src/extension",
     "contributes": {
-        "commands": [{
+        "commands": [
+            {
                 "command": "extension.HowSettings",
                 "title": "%cmd.howSetting.title%"
             },
@@ -89,7 +91,8 @@
                 "title": "%cmd.otherOptions.title%"
             }
         ],
-        "keybindings": [{
+        "keybindings": [
+            {
                 "key": "alt+shift+u",
                 "command": "extension.updateSettings"
             },
@@ -176,7 +179,7 @@
         "@types/node": "^10.0.3"
     },
     "dependencies": {
-        "adm-zip": "0.4.10",
+        "adm-zip": "0.4.7",
         "chokidar": "^2.0.2",
         "fs": "^0.0.2",
         "github": "^11.0.0",
