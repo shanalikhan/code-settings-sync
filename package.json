@@ -72,23 +72,23 @@
         "commands": [
             {
                 "command": "extension.HowSettings",
-                "title": "Sync : How To Configure"
+                "title": "%cmd.howSetting.title%"
             },
             {
                 "command": "extension.downloadSettings",
-                "title": "Sync : Download Settings"
+                "title": "%cmd.downloadSettings.title%"
             },
             {
                 "command": "extension.updateSettings",
-                "title": "Sync : Update / Upload Settings"
+                "title": "%cmd.updateSettings.title%"
             },
             {
                 "command": "extension.resetSettings",
-                "title": "Sync : Reset Extension Settings"
+                "title": "%cmd.resetSettings.title%"
             },
             {
                 "command": "extension.otherOptions",
-                "title": "Sync : Advanced Options"
+                "title": "%cmd.otherOptions.title%"
             }
         ],
         "keybindings": [
@@ -106,65 +106,65 @@
                 "sync.gist": {
                     "type": "string",
                     "default": "",
-                    "description": "GitHub GIST ID for Settings Sync."
+                    "description": "%ext.config.gist%"
                 },
                 "sync.lastUpload": {
                     "type": "string",
                     "default": "",
-                    "description": "Settings Sync last upload date. Set it as empty if you want to manually hit download."
+                    "description": "%ext.config.lastUpload%"
                 },
                 "sync.lastDownload": {
                     "type": "string",
                     "default": "",
-                    "description": "Settings Sync last download date. Set it as empty if you want to manually hit download."
+                    "description": "%ext.config.lastDownload%"
                 },
                 "sync.autoDownload": {
                     "type": "boolean",
                     "default": false,
-                    "description": "Set it true to Auto Download the settings on code start. [Code Restart Required]"
+                    "description": "%ext.config.autoDownload%"
                 },
                 "sync.autoUpload": {
                     "type": "boolean",
                     "default": false,
-                    "description": "Set it true to Auto Upload on the settings change. [Code Restart Required]"
+                    "description": "%ext.config.autoUpload%"
                 },
                 "sync.forceDownload": {
                     "type": "boolean",
                     "default": false,
-                    "description": "Set it to true if you want to download the settings even when you have latest settings."
+                    "description": "%ext.config.forceDownload%"
                 },
                 "sync.host": {
                     "type": "string",
                     "default": "",
-                    "description": "Set it to your GitHub Enterprise host if you want to use GHE."
+                    "description": "%ext.config.host%"
                 },
                 "sync.pathPrefix": {
                     "type": "string",
                     "default": "",
-                    "description": "Set it to your GitHub Enterprise api prefix if you want to use GHE. Normally '/api/v3'. Only used when host is set."
+                    "description": "%ext.config.pathPrefix%"
                 },
                 "sync.quietSync": {
                     "type": "boolean",
                     "default": false,
-                    "description": "When set to true, will show the result in status bar instead of summary page."
+                    "description": "%ext.config.quietSync%"
                 },
                 "sync.askGistName": {
                     "type": "boolean",
                     "default": false,
-                    "description": "Ask gist name upon creating. Helps you to identify the gist if you have multiple gists."
+                    "description": "%ext.config.askGistName%"
                 },
                 "sync.removeExtensions": {
                     "type": "boolean",
                     "default": true,
-                    "description": "Set it to false if you dont want to remove extensions while downloading."
+                    "description": "%ext.config.removeExtensions%"
                 },
                 "sync.syncExtensions": {
                     "type": "boolean",
                     "default": true,
-                    "description": "Set it to false if you dont want to upload / download the extensions."
+                    "description": "%ext.config.syncExtensions%"
                 }
             },
-            "title": "Code Settings Sync Configuration Settings"
+            "title": "%ext.config.title%"
         }
     },
     "scripts": {
