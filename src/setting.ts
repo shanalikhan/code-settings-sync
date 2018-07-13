@@ -40,9 +40,9 @@ export class CloudSetting {
     }
 }
 
-export class KeyValue<T,S>{
+export class KeyValue<T, S>{
 
-    constructor(public Key : T , public Value : S){
+    constructor(public Key: T, public Value: S) {
 
     }
 }
@@ -57,7 +57,8 @@ export class CustomSettings {
     public version: number = 0;
     public token: string = null;
     public downloadPublicGist = null;
-    public supportedFileExtensions : Array<string> = null;
+    public supportedFileExtensions: Array<string> = null;
+    public openTokenLink: boolean = false;
     constructor() {
 
         this.ignoreUploadFiles = new Array<string>();
@@ -79,5 +80,6 @@ export class CustomSettings {
         this.supportedFileExtensions.push("code-snippets");
         this.token = "";
         this.downloadPublicGist = false;
+        this.openTokenLink = false;
     }
 }

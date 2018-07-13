@@ -1,12 +1,13 @@
 "use strict";
-import * as vscode from 'vscode';
-import { Environment } from './environmentPath';
-import { File, FileService } from './service/fileService';
-import { ExtensionConfig, LocalConfig, CustomSettings } from './setting';
-import { PluginService, ExtensionInformation } from './service/pluginService';
 import * as fs from 'fs';
 import * as path from 'path';
+import * as vscode from 'vscode';
+
+import { Environment } from './environmentPath';
 import localize from './localize';
+import { File, FileService } from './service/fileService';
+import { ExtensionInformation } from './service/pluginService';
+import { CustomSettings, ExtensionConfig, LocalConfig } from './setting';
 
 const chokidar = require('chokidar');
 const lockfile = require('proper-lockfile');
@@ -204,7 +205,9 @@ export default class Commons {
                 }
 
                 if (askToken) {
-                    vscode.commands.executeCommand('vscode.open', vscode.Uri.parse('https://github.com/settings/tokens'))
+                    if (cusSettings.openTokenLink) {
+                        vscode.commands.executeCommand('vscode.open', vscode.Uri.parse('https://github.com/settings/tokens'));
+                    }
                     let tokTemp: string = await me.GetTokenAndSave(cusSettings);
                     if (!tokTemp) {
                         vscode.window.showErrorMessage(localize("common.error.tokenNotSave"));
@@ -334,7 +337,7 @@ export default class Commons {
                     if (val == support) {
                         vscode.commands.executeCommand('vscode.open', vscode.Uri.parse('https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=4W3EWHHBSYMM8&lc=IE&item_name=Code%20Settings%20Sync&item_number=visual%20studio%20code%20settings%20sync&currency_code=USD&bn=PP-DonationsBF:btn_donate_SM.gif:NonHosted'));
                     }
-                    if(val==joinCommunity){
+                    if (val == joinCommunity) {
                         vscode.commands.executeCommand('vscode.open', vscode.Uri.parse('https://join.slack.com/t/codesettingssync/shared_invite/enQtMzE3MjY5NTczNDMwLTYwMTIwNGExOGE2MTJkZWU0OTU5MmI3ZTc4N2JkZjhjMzY1OTk5OGExZjkwMDMzMDU4ZTBlYjk5MGQwZmMyNzk'));
                     }
                 });
