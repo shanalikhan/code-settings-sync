@@ -25,7 +25,7 @@
   "cmd.updateSettings.error.newGistCreateFail": "Sync : Unable to create Gist.",
   "cmd.updateSettings.error.readGistFail": "Sync :  GIST ID: {0} UNABLE TO READ.",
   "cmd.updateSettings.error.gistNotSave": "Sync : GIST NOT SAVED",
-  "cmd.downloadSettings.title": "Sync : Download Settings",  
+  "cmd.downloadSettings.title": "Sync : Download Settings",
   "cmd.downloadSettings.info.readdingOnline": "Sync : Reading Settings Online.",
   "cmd.downloadSettings.info.gotLatestVersion": "Sync : You already have latest version of saved settings.",
   "cmd.downloadSettings.error.removeExtFail": "Sync : Unable to remove some extensions.",
@@ -88,5 +88,5 @@
   "common.placeholder.multipleGist": "Gist Name [ e.g : Personal Settings ]",
   "common.prompt.multipleGist": "Allows you to identify the settings if you have multiple gist.",
   "common.prompt.enterGistId": "Enter Gist Id from previously uploaded settings. You can also set manually in code settings (sync.gist). Press [Enter] or press / type 'esc' to cancel.",
-  "common.prompt.enterGithubAccessToken": "Link opened! You can manually add token also (User Folder / syncLocalSettings.json). Press [Enter] or press / type 'esc' to cancel."
+  "common.prompt.enterGithubAccessToken": "You can manually add token also (User Folder / syncLocalSettings.json). Press [Enter] or press / type 'esc' to cancel."
 }
