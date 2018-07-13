@@ -1,13 +1,13 @@
 "use strict";
-import { OsType } from './enums';
-import { statSync } from 'fs';
 import * as fs from 'fs';
 import * as path from 'path';
 import * as vscode from 'vscode';
 
+import { OsType } from './enums';
+
 export class Environment {
 
-    public static CURRENT_VERSION: number = 292;
+    public static CURRENT_VERSION: number = 300;
     public static getVersion(): string {
         var txt2 = Environment.CURRENT_VERSION.toString().slice(0, 1) + "." + Environment.CURRENT_VERSION.toString().slice(1, 2) + "." + Environment.CURRENT_VERSION.toString().slice(2, 3);
         return txt2;
@@ -55,12 +55,12 @@ export class Environment {
         this.isInsiders = /insiders/.test(context.asAbsolutePath(""));
         this.isOss = /\boss\b/.test(context.asAbsolutePath(""));
         const isXdg = !this.isInsiders && !!this.isOss && process.platform === 'linux' && !!process.env.XDG_DATA_HOME
-        this.homeDir =  isXdg
-                ? process.env.XDG_DATA_HOME
-                : process.env[(process.platform == 'win32') ? 'USERPROFILE' : 'HOME'];
+        this.homeDir = isXdg
+            ? process.env.XDG_DATA_HOME
+            : process.env[(process.platform == 'win32') ? 'USERPROFILE' : 'HOME'];
         const configSuffix = `${isXdg ? '' : '.'}vscode${this.isInsiders ? '-insiders' : this.isOss ? '-oss' : ''}`
         this.ExtensionFolder = path.join(this.homeDir, configSuffix, 'extensions');
-        
+
         //console.log(os.type());
 
         process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0"
@@ -81,11 +81,11 @@ export class Environment {
             }
         }
 
-        if(this.OsType == OsType.Linux){
-            let myExt = "chmod +x " + this.ExtensionFolder+"/Shan.code-settings-sync-"+ Environment.getVersion()+"/node_modules/opn/xdg-open";
+        if (this.OsType == OsType.Linux) {
+            let myExt = "chmod +x " + this.ExtensionFolder + "/Shan.code-settings-sync-" + Environment.getVersion() + "/node_modules/opn/xdg-open";
             var exec = require('child_process').exec;
-            exec(myExt, function(error, stdout, stderr) {
-               //debugger;
+            exec(myExt, function (error, stdout, stderr) {
+                //debugger;
                 // command output is in stdout
             });
         }
@@ -96,8 +96,8 @@ export class Environment {
                 fs.statSync(this.PATH + _path);
                 this.PATH = this.PATH + _path;
                 break;
-            } catch(e) {
-                console.error("Error :"+ _path);
+            } catch (e) {
+                console.error("Error :" + _path);
                 console.error(e);
             }
         }

@@ -58,7 +58,7 @@ export class CustomSettings {
     public token: string = null;
     public downloadPublicGist = null;
     public supportedFileExtensions: Array<string> = null;
-    public openTokenLink: boolean = false;
+    public openTokenLink: boolean = true;
     constructor() {
 
         this.ignoreUploadFiles = new Array<string>();
@@ -80,6 +80,6 @@ export class CustomSettings {
         this.supportedFileExtensions.push("code-snippets");
         this.token = "";
         this.downloadPublicGist = false;
-        this.openTokenLink = false;
+        this.openTokenLink = true;
     }
 }
