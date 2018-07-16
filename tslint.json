@@ -1,0 +1,9 @@
+{
+  "extends": ["tslint:recommended", "tslint-plugin-prettier"],
+  "rules": {
+    "prettier": [true, { "singleQuote": false }]
+  },
+  "linterOptions": {
+    "exclude": []
+  }
+}
