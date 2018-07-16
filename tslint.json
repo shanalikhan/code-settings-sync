@@ -2,7 +2,11 @@
   "extends": ["tslint:recommended", "tslint-plugin-prettier"],
   "rules": {
     "prettier": [true, { "singleQuote": false }],
-    "max-classes-per-file": false
+    "max-classes-per-file": false,
+    "object-literal-sort-keys": false,
+    "trailing-comma": false,
+    "arrow-parens": false,
+    "no-console": false
   },
   "linterOptions": {
     "exclude": []
