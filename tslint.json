@@ -1,7 +1,8 @@
 {
   "extends": ["tslint:recommended", "tslint-plugin-prettier"],
   "rules": {
-    "prettier": [true, { "singleQuote": false }]
+    "prettier": [true, { "singleQuote": false }],
+    "max-classes-per-file": false
   },
   "linterOptions": {
     "exclude": []
