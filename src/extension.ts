@@ -464,7 +464,7 @@ export async function activate(context: vscode.ExtensionContext) {
                                 }
                                 else {
                                     vscode.window.setStatusBarMessage("").dispose();
-                                    vscode.window.setStatusBarMessage("Sync : Download Complete.", 5000);
+                                    vscode.window.setStatusBarMessage(localize("cmd.downloadSettings.info.downloaded"), 5000);
                                 }
                                 if (Object.keys(customSettings.replaceCodeSettings).length > 0) {
 
@@ -481,7 +481,7 @@ export async function activate(context: vscode.ExtensionContext) {
                                 }
                             }
                             else {
-                                vscode.window.showErrorMessage("Sync : Unable to save extension settings file.")
+                                vscode.window.showErrorMessage(localize("cmd.downloadSettings.error.unableSave"))
                             }
                         }, function (errSave: any) {
                             Commons.LogException(errSave, common.ERROR_MESSAGE, true);
