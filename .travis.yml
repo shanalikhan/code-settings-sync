@@ -12,7 +12,7 @@ before_install:
 install:
   - vsce package
 script:
-  - echo "npm test temporarily disabled"
+  - npm run tslint-check
  
 deploy:
   provider: script
