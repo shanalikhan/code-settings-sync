@@ -1,39 +1,52 @@
 "use strict";
+
+import * as adm_zip from "adm-zip";
+import * as fs from "fs";
 import * as http from "http";
 import * as https from "https";
-import * as vscode from "vscode";
+import * as HttpsProxyAgent from "https-proxy-agent";
+import * as _temp from "temp";
 import * as url from "url";
-import * as fs from "fs";
+import * as vscode from "vscode";
 
-const adm_zip = require("adm-zip");
-const temp = require("temp").track();
-const HttpsProxyAgent = require("https-proxy-agent");
-var proxy =
-  vscode.workspace.getConfiguration("http")["proxy"] ||
-  process.env["http_proxy"];
-var agent = null;
+interface IHeaders {
+  [key: string]: string;
+}
+
+interface IEnv {
+  [key: string]: string | undefined;
+  http_proxy: string;
+  HTTP_PROXY: string;
+}
+
+const temp = _temp.track();
+const HTTP_PROXY: string =
+  (process.env as IEnv).http_proxy || (process.env as IEnv).HTTP_PROXY;
+
+const proxy =
+  vscode.workspace.getConfiguration("http").get("proxy") || HTTP_PROXY;
+let agent = null;
 if (proxy) {
-  if (proxy != "") {
+  if (proxy !== "") {
     agent = new HttpsProxyAgent(proxy);
   }
 }
 
 export class Util {
-  public static HttpPostJson(path: string, obj: Object, headers: Object) {
-    return new Promise<string>(function(resolve, reject) {
-      var item = url.parse(path);
-
-      var postData = JSON.stringify(obj);
-      var newHeader = {
+  public static HttpPostJson(path: string, obj: any, headers: IHeaders) {
+    return new Promise<string>((resolve, reject) => {
+      const item = url.parse(path);
+      const postData = JSON.stringify(obj);
+      const newHeader = {
+        "Content-Length": Buffer.byteLength(postData),
         "Content-Type": "application/json",
-        "Content-Length": Buffer.byteLength(postData)
+        ...headers
       };
-      Object.assign(newHeader, headers);
-      var options: https.RequestOptions = {
+      const options: https.RequestOptions = {
         host: item.hostname,
         path: item.path,
-        method: "POST",
-        headers: newHeader
+        headers: newHeader,
+        method: "POST"
       };
       if (item.port) {
         options.port = +item.port;
@@ -43,42 +56,34 @@ export class Util {
       }
 
       if (item.protocol.startsWith("https:")) {
-        var req = https.request(options, function(res) {
+        const req = https.request(options, res => {
           if (res.statusCode !== 200) {
-            //reject();
-            //return;
+            // reject();
+            // return;
           }
 
-          var result = "";
+          let result = "";
           res.setEncoding("utf8");
-          res.on("data", function(chunk) {
+          res.on("data", (chunk: Buffer | string) => {
             result += chunk;
           });
-          res.on("end", function() {
-            resolve(result);
-          });
+          res.on("end", () => resolve(result));
 
-          res.on("error", function(e) {
-            reject(e);
-          });
+          res.on("error", (err: Error) => reject(err));
         });
 
         req.write(postData);
         req.end();
       } else {
-        var req = http.request(options, function(res) {
-          var result = "";
+        const req = http.request(options, res => {
+          let result = "";
           res.setEncoding("utf8");
-          res.on("data", function(chunk) {
+          res.on("data", (chunk: Buffer | string) => {
             result += chunk;
           });
-          res.on("end", function() {
-            resolve(result);
-          });
+          res.on("end", () => resolve(result));
 
-          res.on("error", function(e) {
-            reject(e);
-          });
+          res.on("error", (err: Error) => reject(err));
         });
         req.write(postData);
         req.end();
@@ -86,10 +91,10 @@ export class Util {
     });
   }
   public static HttpGetFile(path: string): Promise<string> {
-    var tempFile = temp.path();
-    var file = fs.createWriteStream(tempFile);
-    var item = url.parse(path);
-    var options: https.RequestOptions = {
+    const tempFile = temp.path();
+    const file = fs.createWriteStream(tempFile);
+    const item = url.parse(path);
+    const options: https.RequestOptions = {
       host: item.hostname,
       path: item.path
     };
@@ -99,10 +104,10 @@ export class Util {
     if (agent != null) {
       options.agent = agent;
     }
-    return new Promise<string>(function(resolve, reject) {
+    return new Promise<string>((resolve, reject) => {
       if (path.startsWith("https:")) {
         https
-          .get(options, function(res) {
+          .get(options, res => {
             res.pipe(file);
             file.on("finish", () => {
               file.close();
@@ -130,9 +135,9 @@ export class Util {
   }
 
   public static WriteToFile(content: Buffer): Promise<string> {
-    var tempFile = temp.path();
-    return new Promise<string>(function(resolve, reject) {
-      fs.writeFile(tempFile, content, function(err) {
+    const tempFile: string = temp.path();
+    return new Promise<string>((resolve, reject) => {
+      fs.writeFile(tempFile, content, err => {
         if (err) {
           reject(err);
         }
@@ -142,11 +147,11 @@ export class Util {
   }
 
   public static Extract(filePath: string) {
-    var dirName = temp.path();
-    var zip = new adm_zip(filePath);
+    const dirName = temp.path();
+    const zip = new adm_zip(filePath);
 
-    return new Promise<string>(function(resolve, reject) {
-      temp.mkdir(dirName, function(err, dirPath) {
+    return new Promise<string>((resolve, reject) => {
+      temp.mkdir(dirName, (err: Error, dirPath: string) => {
         try {
           zip.extractAllTo(dirName, /*overwrite*/ true);
           resolve(dirName);
