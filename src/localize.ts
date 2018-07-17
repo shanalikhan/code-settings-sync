@@ -12,13 +12,13 @@ interface ILanguagePack {
 export class Localize {
   // get language pack when the instance be created
   private bundle = this.resolveLanguagePack();
-  constructor(private config: IConfig = {}) {}
+  constructor(private options: IConfig = {}) {}
   /**
    * translate the key
    * @param key
    * @param args
    */
-  public localize(key: string, ...args: any[]) {
+  public localize(key: string, ...args: any[]): string {
     const languagePack = this.bundle;
     const message: string = languagePack[key] || key;
     return this.format(message, args);
@@ -48,7 +48,7 @@ export class Localize {
     // TODO: it should read the extension root path from context
     const rootPath = path.join(__dirname, "..", "..");
     const file = path.join(rootPath, "package");
-    const options = this.config;
+    const options = this.options;
 
     if (!options.locale) {
       resolvedLanguage = ".nls.json";
