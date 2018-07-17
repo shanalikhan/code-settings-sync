@@ -184,10 +184,10 @@
         "vscode": "^1.1.6"
     },
     "dependencies": {
+        "@octokit/rest": "^15.9.4",
         "adm-zip": "0.4.7",
         "chokidar": "^2.0.2",
         "fs": "^0.0.2",
-        "github": "^11.0.0",
         "https-proxy-agent": "^2.1.1",
         "ncp": "^2.0.0",
         "proper-lockfile": "^2.0.1",
