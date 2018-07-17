@@ -1,29 +1,24 @@
 "use strict";
 
+import * as fs from "fs";
+import * as ncpPackage from "ncp";
+import * as path from "path";
+import * as rmdir from "rimraf";
 import * as vscode from "vscode";
 import * as util from "../util";
-import * as path from "path";
-import { FileService } from "./fileService";
-import { KeyValue } from "../setting";
-const fs = require("fs");
-const ncp = require("ncp").ncp;
+const ncp = ncpPackage.ncp;
 
-var apiPath =
+const apiPath =
   "https://marketplace.visualstudio.com/_apis/public/gallery/extensionquery";
-
-const rmdir = require("rimraf");
 
 const extensionDir = ".vscode";
 
 export class ExtensionInformation {
-  metadata: ExtensionMetadata;
-  name: string;
-  version: string;
-  publisher: string;
-
   public static fromJSON(text: string) {
-    var obj = JSON.parse(text);
-    var meta = new ExtensionMetadata(
+    // TODO: JSON.parse may throw error
+    // Throw custom error should be more friendly
+    const obj = JSON.parse(text);
+    const meta = new ExtensionMetadata(
       obj.meta.galleryApiUrl,
       obj.meta.id,
       obj.meta.downloadUrl,
@@ -31,7 +26,7 @@ export class ExtensionInformation {
       obj.meta.publisherDisplayName,
       obj.meta.date
     );
-    var item = new ExtensionInformation();
+    const item = new ExtensionInformation();
     item.metadata = meta;
     item.name = obj.name;
     item.publisher = obj.publisher;
@@ -40,11 +35,13 @@ export class ExtensionInformation {
   }
 
   public static fromJSONList(text: string) {
-    var extList = new Array<ExtensionInformation>();
+    const extList: ExtensionInformation[] = [];
     try {
-      var list = JSON.parse(text);
+      // TODO: JSON.parse may throw error
+      // Throw custom error should be more friendly
+      const list = JSON.parse(text);
       list.forEach(obj => {
-        var meta = new ExtensionMetadata(
+        const meta = new ExtensionMetadata(
           obj.metadata.galleryApiUrl,
           obj.metadata.id,
           obj.metadata.downloadUrl,
@@ -52,13 +49,13 @@ export class ExtensionInformation {
           obj.metadata.publisherDisplayName,
           obj.metadata.date
         );
-        var item = new ExtensionInformation();
+        const item = new ExtensionInformation();
         item.metadata = meta;
         item.name = obj.name;
         item.publisher = obj.publisher;
         item.version = obj.version;
 
-        if (item.name != "code-settings-sync") {
+        if (item.name !== "code-settings-sync") {
           extList.push(item);
         }
       });
@@ -68,97 +65,38 @@ export class ExtensionInformation {
 
     return extList;
   }
+
+  public metadata: ExtensionMetadata;
+  public name: string;
+  public version: string;
+  public publisher: string;
 }
 
 export class ExtensionMetadata {
-  galleryApiUrl: string;
-  id: string;
-  downloadUrl: string;
-  publisherId: string;
-  publisherDisplayName: string;
-  date: string;
-
   constructor(
-    galleryApiUrl: string,
-    id: string,
-    downloadUrl: string,
-    publisherId: string,
-    publisherDisplayName: string,
-    date: string
-  ) {
-    this.galleryApiUrl = galleryApiUrl;
-    this.id = id;
-    this.downloadUrl = downloadUrl;
-    this.publisherId = publisherId;
-    this.publisherDisplayName = publisherDisplayName;
-    this.date = date;
-  }
+    public galleryApiUrl: string,
+    public id: string,
+    public downloadUrl: string,
+    public publisherId: string,
+    public publisherDisplayName: string,
+    public date: string
+  ) {}
 }
 
 export class PluginService {
-  private static CopyExtension(destination: string, source: string) {
-    return new Promise(function(resolve, reject) {
-      ncp(source, destination, function(err) {
-        if (err) {
-          reject(err);
-        }
-        resolve();
-      });
-    });
-  }
-  private static WritePackageJson(dirName: string, packageJson: string) {
-    return new Promise(function(resolve, reject) {
-      fs.writeFile(
-        dirName + "/extension/package.json",
-        packageJson,
-        "utf-8",
-        function(error, text) {
-          if (error) {
-            reject(error);
-          }
-          resolve();
-        }
-      );
-    });
-  }
-  private static GetPackageJson(dirName: string, item: ExtensionInformation) {
-    return new Promise(function(resolve, reject) {
-      fs.readFile(dirName + "/extension/package.json", "utf-8", function(
-        error,
-        text
-      ) {
-        if (error) {
-          reject(error);
-        }
-        var config = JSON.parse(text);
-        if (config.name !== item.name) {
-          reject("name not equal");
-        }
-        if (config.publisher !== item.publisher) {
-          reject("publisher not equal");
-        }
-        if (config.version !== item.version) {
-          reject("version not equal");
-        }
-        resolve(config);
-      });
-    });
-  }
-
   public static GetMissingExtensions(remoteExt: string) {
-    var hashset = {};
-    var remoteList = ExtensionInformation.fromJSONList(remoteExt);
-    var localList = this.CreateExtensionList();
-    for (var i = 0; i < localList.length; i++) {
-      var ext = localList[i];
+    const hashset = {};
+    const remoteList = ExtensionInformation.fromJSONList(remoteExt);
+    const localList = this.CreateExtensionList();
+    const missingList: ExtensionInformation[] = [];
+
+    for (const ext of localList) {
       if (hashset[ext.name] == null) {
         hashset[ext.name] = ext;
       }
     }
 
-    var missingList = new Array<ExtensionInformation>();
-    for (var i = 0; i < remoteList.length; i++) {
-      var ext = remoteList[i];
+    for (const ext of remoteList) {
       if (hashset[ext.name] == null) {
         missingList.push(ext);
       }
@@ -166,9 +104,9 @@ export class PluginService {
     return missingList;
   }
 
-  public static GetDeletedExtensions(remoteList: Array<ExtensionInformation>) {
-    var localList = this.CreateExtensionList();
-    var deletedList = new Array<ExtensionInformation>();
+  public static GetDeletedExtensions(remoteList: ExtensionInformation[]) {
+    const localList = this.CreateExtensionList();
+    const deletedList: ExtensionInformation[] = [];
 
     // for (var i = 0; i < remoteList.length; i++) {
 
@@ -188,14 +126,11 @@ export class PluginService {
 
     // }
 
-    for (var i = 0; i < localList.length; i++) {
-      var ext = localList[i];
-      var found: boolean = false;
-      if (ext.name != "code-settings-sync") {
-        for (var j = 0; j < remoteList.length; j++) {
-          var localExt = remoteList[j];
-
-          if (ext.name == localExt.name) {
+    for (const ext of localList) {
+      let found: boolean = false;
+      if (ext.name !== "code-settings-sync") {
+        for (const localExt of remoteList) {
+          if (ext.name === localExt.name) {
             found = true;
             break;
           }
@@ -209,20 +144,19 @@ export class PluginService {
   }
 
   public static CreateExtensionList() {
-    var list = new Array<ExtensionInformation>();
+    const list: ExtensionInformation[] = [];
 
-    for (var i = 0; i < vscode.extensions.all.length; i++) {
-      var ext = vscode.extensions.all[i];
+    for (const ext of vscode.extensions.all) {
       if (
         ext.extensionPath.includes(extensionDir) && // skip if not install from gallery
-        ext.packageJSON.isBuiltin == false
+        ext.packageJSON.isBuiltin === false
       ) {
-        var meta = ext.packageJSON.__metadata || {
+        const meta = ext.packageJSON.__metadata || {
           id: ext.packageJSON.uuid,
           publisherId: ext.id,
           publisherDisplayName: ext.packageJSON.publisher
         };
-        var data = new ExtensionMetadata(
+        const data = new ExtensionMetadata(
           meta.galleryApiUrl,
           meta.id,
           meta.downloadUrl,
@@ -230,7 +164,7 @@ export class PluginService {
           meta.publisherDisplayName,
           meta.date
         );
-        var info = new ExtensionInformation();
+        const info = new ExtensionInformation();
         info.metadata = data;
         info.name = ext.packageJSON.name;
         info.publisher = ext.packageJSON.publisher;
@@ -246,12 +180,12 @@ export class PluginService {
     item: ExtensionInformation,
     ExtensionFolder: string
   ): Promise<boolean> {
-    var destination = path.join(
+    const destination = path.join(
       ExtensionFolder,
       item.publisher + "." + item.name + "-" + item.version
     );
     return new Promise<boolean>((resolve, reject) => {
-      rmdir(destination, function(error) {
+      rmdir(destination, error => {
         if (error) {
           console.log("Sync : " + "Error in uninstalling Extension.");
           console.log(error);
@@ -265,25 +199,18 @@ export class PluginService {
   public static async DeleteExtensions(
     extensionsJson: string,
     extensionFolder: string
-  ): Promise<Array<ExtensionInformation>> {
-    return await new Promise<Array<ExtensionInformation>>(async (res, rej) => {
-      var remoteList = ExtensionInformation.fromJSONList(extensionsJson);
-      var deletedList = PluginService.GetDeletedExtensions(remoteList);
-      let deletedExt: Array<ExtensionInformation> = new Array<
-        ExtensionInformation
-      >();
-      if (deletedList.length == 0) {
+  ): Promise<ExtensionInformation[]> {
+    return await new Promise<ExtensionInformation[]>(async (res, rej) => {
+      const remoteList = ExtensionInformation.fromJSONList(extensionsJson);
+      const deletedList = PluginService.GetDeletedExtensions(remoteList);
+      const deletedExt: ExtensionInformation[] = [];
+
+      if (deletedList.length === 0) {
         res(deletedExt);
       }
-      for (
-        var deletedItemIndex = 0;
-        deletedItemIndex < deletedList.length;
-        deletedItemIndex++
-      ) {
-        var selectedExtension = deletedList[deletedItemIndex];
-        let extStatus: ExtensionInformation;
+      for (const selectedExtension of deletedList) {
         try {
-          let status: boolean = await PluginService.DeleteExtension(
+          await PluginService.DeleteExtension(
             selectedExtension,
             extensionFolder
           );
@@ -306,24 +233,22 @@ export class PluginService {
   public static async InstallExtensions(
     extensions: string,
     extFolder: string,
-    notificationCallBack: Function
-  ): Promise<Array<ExtensionInformation>> {
-    return new Promise<Array<ExtensionInformation>>(async (res, rej) => {
-      var missingList = PluginService.GetMissingExtensions(extensions);
-      if (missingList.length == 0) {
+    notificationCallBack: (...data: any[]) => void
+  ): Promise<ExtensionInformation[]> {
+    return new Promise<ExtensionInformation[]>(async (res, rej) => {
+      const missingList = PluginService.GetMissingExtensions(extensions);
+      if (missingList.length === 0) {
         notificationCallBack("Sync : No Extensions needs to be installed.");
-        res(new Array<ExtensionInformation>());
+        res([]);
       }
-      let actionList: Array<Promise<void>> = new Array<Promise<void>>();
-      let addedExtensions: Array<ExtensionInformation> = new Array<
-        ExtensionInformation
-      >();
-      var totalInstalled: number = 0;
+      const actionList: Array<Promise<void>> = [];
+      const addedExtensions: ExtensionInformation[] = [];
+      let totalInstalled: number = 0;
       await missingList.forEach(async (element, index) => {
-        (function(ext: ExtensionInformation, folder: string) {
+        ((ext: ExtensionInformation, folder: string) => {
           actionList.push(
             PluginService.InstallExtension(element, extFolder).then(
-              function() {
+              () => {
                 totalInstalled = totalInstalled + 1;
                 notificationCallBack(
                   "Sync : Extension " +
@@ -335,7 +260,7 @@ export class PluginService {
                 );
                 addedExtensions.push(element);
               },
-              function(err: any) {
+              (err: any) => {
                 console.error(err);
                 notificationCallBack(
                   "Sync : " + element.name + " Download Failed.",
@@ -347,12 +272,8 @@ export class PluginService {
         })(element, extFolder);
       });
       Promise.all(actionList).then(
-        function() {
-          res(addedExtensions);
-        },
-        function() {
-          rej(addedExtensions);
-        }
+        () => res(addedExtensions),
+        () => rej(addedExtensions)
       );
     });
   }
@@ -361,12 +282,12 @@ export class PluginService {
     item: ExtensionInformation,
     ExtensionFolder: string
   ) {
-    var header = {
+    const header = {
       Accept: "application/json;api-version=3.0-preview.1"
     };
-    var extractPath = null;
+    let extractPath: string = null;
 
-    var data = {
+    const data = {
       filters: [
         {
           criteria: [
@@ -381,46 +302,47 @@ export class PluginService {
     };
 
     return await util.Util.HttpPostJson(apiPath, data, header)
-      .then(function(res) {
+      .then(res => {
         try {
-          var targetVersion = null;
-          var content = JSON.parse(res);
+          let targetVersion = null;
+          const content = JSON.parse(res);
 
           // Find correct version
-          for (var i = 0; i < content.results.length; i++) {
-            var result = content.results[i];
-            for (var k = 0; k < result.extensions.length; k++) {
-              var extension = result.extensions[k];
-              for (var j = 0; j < extension.versions.length; j++) {
-                var version = extension.versions[j];
+          for (const result of content.results) {
+            for (const extension of result.extensions) {
+              for (const version of extension.versions) {
                 if (version.version === item.version) {
                   targetVersion = version;
                   break;
                 }
               }
-              if (targetVersion != null) {
+              if (targetVersion !== null) {
                 break;
               }
             }
-            if (targetVersion != null) {
+            if (targetVersion !== null) {
               break;
             }
           }
 
-          if (targetVersion == null || !targetVersion.assetUri) {
+          if (
+            targetVersion === null ||
+            !targetVersion ||
+            !targetVersion.assetUri
+          ) {
             // unable to find one
-            throw "NA";
+            throw new Error("NA");
           }
 
           // Proceed to install
-          var downloadUrl =
+          const downloadUrl =
             targetVersion.assetUri +
             "/Microsoft.VisualStudio.Services.VSIXPackage?install=true";
           console.log("Installing from Url :" + downloadUrl);
 
           return downloadUrl;
         } catch (error) {
-          if (error == "NA") {
+          if (error === "NA" || error.message === "NA") {
             console.error(
               "Sync : Extension : '" +
                 item.name +
@@ -434,34 +356,34 @@ export class PluginService {
           // console.log(res);
         }
       })
-      .then(function(url) {
+      .then(url => {
         return util.Util.HttpGetFile(url);
       })
-      .then(function(filePath) {
+      .then(filePath => {
         return util.Util.Extract(filePath);
       })
-      .then(function(dir) {
+      .then(dir => {
         extractPath = dir;
         return PluginService.GetPackageJson(dir, item);
       })
-      .then(function(packageJson) {
+      .then(packageJson => {
         Object.assign(packageJson, {
           __metadata: item.metadata
         });
 
-        var text = JSON.stringify(packageJson, null, " ");
+        const text = JSON.stringify(packageJson, null, " ");
         return PluginService.WritePackageJson(extractPath, text);
       })
-      .then(function() {
+      .then(() => {
         // Move the folder to correct path
-        var destination = path.join(
+        const destination = path.join(
           ExtensionFolder,
           item.publisher + "." + item.name + "-" + item.version
         );
-        var source = path.join(extractPath, "extension");
+        const source = path.join(extractPath, "extension");
         return PluginService.CopyExtension(destination, source);
       })
-      .catch(function(error) {
+      .catch(error => {
         console.error(
           "Sync : Extension : '" +
             item.name +
@@ -472,5 +394,56 @@ export class PluginService {
         );
         throw error;
       });
+  }
+
+  private static CopyExtension(destination: string, source: string) {
+    return new Promise((resolve, reject) => {
+      ncp(source, destination, err => {
+        if (err) {
+          reject(err);
+        }
+        resolve();
+      });
+    });
+  }
+  private static WritePackageJson(dirName: string, packageJson: string) {
+    return new Promise((resolve, reject) => {
+      fs.writeFile(
+        dirName + "/extension/package.json",
+        packageJson,
+        "utf-8",
+        err => {
+          if (err) {
+            reject(err);
+          } else {
+            resolve();
+          }
+        }
+      );
+    });
+  }
+  private static GetPackageJson(dirName: string, item: ExtensionInformation) {
+    return new Promise((resolve, reject) => {
+      fs.readFile(
+        dirName + "/extension/package.json",
+        "utf-8",
+        (error, text) => {
+          if (error) {
+            reject(error);
+          }
+          const config = JSON.parse(text);
+          if (config.name !== item.name) {
+            reject("name not equal");
+          }
+          if (config.publisher !== item.publisher) {
+            reject("publisher not equal");
+          }
+          if (config.version !== item.version) {
+            reject("version not equal");
+          }
+          resolve(config);
+        }
+      );
+    });
   }
 }
