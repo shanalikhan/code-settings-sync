@@ -13,6 +13,7 @@ install:
   - vsce package
 script:
   - npm run tslint-check
+  - npm run compile
  
 deploy:
   provider: script
