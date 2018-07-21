@@ -97,55 +97,42 @@ export class FileService {
     fullDepth: number,
     fileExtensions: string[]
   ): Promise<File[]> {
-    return new Promise<File[]>((resolve, reject) => {
-      fs.readdir(directory, async (err: any, data: string[]) => {
-        if (err) {
-          console.error(err);
-          resolve(null);
-        }
+    const fileList = await fs.readdir(directory);
 
-        const files: File[] = [];
-        for (const d of data) {
-          const fullPath: string = directory.concat(d);
-          const isDir: boolean = await FileService.IsDirectory(fullPath);
-          if (isDir) {
-            if (depth < fullDepth) {
-              const filews: File[] = await FileService.ListFiles(
-                fullPath + "/",
-                depth + 1,
-                fullDepth,
-                fileExtensions
-              );
-              filews.forEach(element => files.push(element));
-            }
-          } else {
-            const hasExtension: boolean =
-              fullPath.lastIndexOf(".") > 0 ? true : false;
-            let allowedFile: boolean = false;
-            if (hasExtension) {
-              let extension: string = fullPath.substr(
-                fullPath.lastIndexOf(".") + 1,
-                fullPath.length
-              );
-              extension = extension.toLowerCase();
-              allowedFile =
-                fileExtensions.filter(m => m === extension).length > 0
-                  ? true
-                  : false;
-            } else {
-              allowedFile =
-                fileExtensions.filter(m => m === "").length > 0 ? true : false;
-            }
-
-            if (allowedFile) {
-              const file: File = await FileService.GetFile(fullPath, d);
-              files.push(file);
-            }
+    const files: File[] = [];
+    for (const fileName of fileList) {
+      const fullPath: string = directory.concat(fileName);
+      if (await FileService.IsDirectory(fullPath)) {
+        if (depth < fullDepth) {
+          for (const element of await FileService.ListFiles(
+            fullPath + "/",
+            depth + 1,
+            fullDepth,
+            fileExtensions
+          )) {
+            files.push(element);
           }
         }
-        resolve(files);
-      });
-    });
+      } else {
+        const hasExtension: boolean = fullPath.lastIndexOf(".") > 0;
+        let allowedFile: boolean = false;
+        if (hasExtension) {
+          const extension: string = fullPath
+            .substr(fullPath.lastIndexOf(".") + 1, fullPath.length)
+            .toLowerCase();
+          allowedFile = fileExtensions.filter(m => m === extension).length > 0;
+        } else {
+          allowedFile = fileExtensions.filter(m => m === "").length > 0;
+        }
+
+        if (allowedFile) {
+          const file: File = await FileService.GetFile(fullPath, fileName);
+          files.push(file);
+        }
+      }
+    }
+
+    return files;
   }
 
   public static async CreateDirTree(

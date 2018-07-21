@@ -7,6 +7,7 @@ import * as https from "https";
 import * as HttpsProxyAgent from "https-proxy-agent";
 import * as _temp from "temp";
 import * as url from "url";
+import { promisify } from "util";
 import * as vscode from "vscode";
 
 interface IHeaders {
@@ -140,19 +141,22 @@ export class Util {
     return tempFile;
   }
 
-  public static Extract(filePath: string) {
+  public static async Extract(filePath: string) {
     const dirName = temp.path();
     const zip = new adm_zip(filePath);
 
-    return new Promise<string>((resolve, reject) => {
-      temp.mkdir(dirName, (err: Error, dirPath: string) => {
-        try {
-          zip.extractAllTo(dirName, /*overwrite*/ true);
-          resolve(dirName);
-        } catch (e) {
-          reject(e);
-        }
-      });
+    await promisify(temp.mkdir)(dirName);
+
+    zip.extractAllTo(dirName, /*overwrite*/ true);
+
+    return dirName;
+  }
+
+  public static async Sleep(ms: number) {
+    return new Promise((resolve, reject) => {
+      setTimeout(() => {
+        resolve();
+      }, ms);
     });
   }
 }
