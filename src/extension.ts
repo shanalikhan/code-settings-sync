@@ -23,12 +23,12 @@ export async function activate(context: vscode.ExtensionContext) {
 
   // if lock not exist
   if (!(await FileService.FileExists(globalEnv.FILE_SYNC_LOCK))) {
-    fs.closeSync(fs.openSync(globalEnv.FILE_SYNC_LOCK, "w"));
+    await fs.close(await fs.open(globalEnv.FILE_SYNC_LOCK, "w"));
   }
 
   // if is locked;
-  if (lockfile.checkSync(globalEnv.FILE_SYNC_LOCK)) {
-    lockfile.unlockSync(globalEnv.FILE_SYNC_LOCK);
+  if (await lockfile.check(globalEnv.FILE_SYNC_LOCK)) {
+    await lockfile.unlock(globalEnv.FILE_SYNC_LOCK);
   }
 
   await globalCommonService.StartMigrationProcess();
