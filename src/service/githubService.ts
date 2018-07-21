@@ -1,6 +1,7 @@
 "use strict";
 
 import * as GitHubApi from "@octokit/rest";
+import * as HttpsProxyAgent from "https-proxy-agent";
 import * as vscode from "vscode";
 import { File } from "./fileService";
 
@@ -33,6 +34,7 @@ const githubApiConfig: GitHubApi.Options = {
 
 if (proxyURL) {
   githubApiConfig.proxy = proxyURL;
+  githubApiConfig.agent = new HttpsProxyAgent(proxyURL);
 }
 
 const github = new GitHubApi(githubApiConfig);
