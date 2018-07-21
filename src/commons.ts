@@ -194,11 +194,11 @@ export default class Commons {
 
             console.log("Sync : Initiating Auto-upload For File : " + path);
             this.InitiateAutoUpload(path).then(
-              resolve => {
-                uploadStopped = resolve;
+              isDone => {
+                uploadStopped = isDone;
                 lockfile.unlockSync(this.en.FILE_SYNC_LOCK);
               },
-              reject => {
+              () => {
                 lockfile.unlockSync(this.en.FILE_SYNC_LOCK);
                 uploadStopped = true;
               }

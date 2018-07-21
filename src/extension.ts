@@ -16,6 +16,7 @@ import {
   ExtensionConfig,
   LocalConfig
 } from "./setting";
+import { Util } from "./util";
 
 export async function activate(context: vscode.ExtensionContext) {
   const globalEnv: Environment = new Environment(context);
@@ -27,8 +28,8 @@ export async function activate(context: vscode.ExtensionContext) {
   }
 
   // if is locked;
-  if (await lockfile.check(globalEnv.FILE_SYNC_LOCK)) {
-    await lockfile.unlock(globalEnv.FILE_SYNC_LOCK);
+  if (await Util.promisify(lockfile.check)(globalEnv.FILE_SYNC_LOCK)) {
+    await Util.promisify(lockfile.unlock)(globalEnv.FILE_SYNC_LOCK);
   }
 
   await globalCommonService.StartMigrationProcess();

@@ -159,4 +159,19 @@ export class Util {
       }, ms);
     });
   }
+  public static promisify(
+    fn: (...args: any[]) => any
+  ): (...whatever: any[]) => Promise<any> {
+    return function(...argv) {
+      return new Promise((resolve, reject) => {
+        fn.call(this, ...argv, (err, data) => {
+          if (err) {
+            reject(err);
+          } else {
+            resolve(data);
+          }
+        });
+      });
+    };
+  }
 }
