@@ -1,7 +1,7 @@
 "use strict";
 
 import { exec } from "child_process";
-import * as fs from "fs";
+import * as fs from "fs-extra";
 import * as os from "os";
 import * as path from "path";
 import * as vscode from "vscode";
@@ -54,10 +54,7 @@ export class Environment {
   public APP_SUMMARY_NAME: string = "syncSummary.txt";
   public APP_SUMMARY: string = null;
 
-  private context: vscode.ExtensionContext;
-
-  constructor(context: vscode.ExtensionContext) {
-    this.context = context;
+  constructor(private context: vscode.ExtensionContext) {
     this.isInsiders = /insiders/.test(context.asAbsolutePath(""));
     this.isOss = /\boss\b/.test(context.asAbsolutePath(""));
     const isXdg =

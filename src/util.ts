@@ -1,7 +1,7 @@
 "use strict";
 
 import * as adm_zip from "adm-zip";
-import * as fs from "fs";
+import * as fs from "fs-extra";
 import * as http from "http";
 import * as https from "https";
 import * as HttpsProxyAgent from "https-proxy-agent";
@@ -134,16 +134,10 @@ export class Util {
     });
   }
 
-  public static WriteToFile(content: Buffer): Promise<string> {
+  public static async WriteToFile(content: Buffer): Promise<string> {
     const tempFile: string = temp.path();
-    return new Promise<string>((resolve, reject) => {
-      fs.writeFile(tempFile, content, err => {
-        if (err) {
-          reject(err);
-        }
-        resolve(tempFile);
-      });
-    });
+    await fs.writeFile(tempFile, content);
+    return tempFile;
   }
 
   public static Extract(filePath: string) {
