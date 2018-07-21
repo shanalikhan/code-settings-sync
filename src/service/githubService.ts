@@ -25,12 +25,17 @@ if (!host || host === "") {
   pathPrefix = "";
 }
 
-const github = new GitHubApi({
-  proxy: proxyURL,
+const githubApiConfig: GitHubApi.Options = {
   host,
   pathPrefix,
   rejectUnauthorized: false
-});
+};
+
+if (proxyURL) {
+  githubApiConfig.proxy = proxyURL;
+}
+
+const github = new GitHubApi(githubApiConfig);
 
 export class GitHubService {
   public userName: string = null;
@@ -71,21 +76,21 @@ export class GitHubService {
           token: TOKEN
         });
       } catch (err) {
-        //
         console.error(err);
       }
 
-      github.users.get({}, (err, res) => {
-        if (err) {
-          console.log(err);
-        } else {
+      github.users
+        .get({})
+        .then(res => {
           this.userName = res.data.login;
           this.name = res.data.name;
           console.log(
             "Sync : Connected with user : " + "'" + this.userName + "'"
           );
-        }
-      });
+        })
+        .catch(err => {
+          console.error(err);
+        });
     }
   }
 
