@@ -1,6 +1,6 @@
 "use strict";
 
-import * as fs from "fs";
+import * as fs from "fs-extra";
 import * as lockfile from "proper-lockfile";
 import * as vscode from "vscode";
 import Commons from "./commons";

@@ -1,6 +1,6 @@
 "use strict";
 
-import * as fs from "fs";
+import * as fs from "fs-extra";
 import * as ncpPackage from "ncp";
 import * as path from "path";
 import * as rmdir from "rimraf";
@@ -406,44 +406,34 @@ export class PluginService {
       });
     });
   }
-  private static WritePackageJson(dirName: string, packageJson: string) {
-    return new Promise((resolve, reject) => {
-      fs.writeFile(
-        dirName + "/extension/package.json",
-        packageJson,
-        "utf-8",
-        err => {
-          if (err) {
-            reject(err);
-          } else {
-            resolve();
-          }
-        }
-      );
-    });
+  private static async WritePackageJson(dirName: string, packageJson: string) {
+    await fs.writeFile(
+      dirName + "/extension/package.json",
+      packageJson,
+      "utf-8"
+    );
   }
-  private static GetPackageJson(dirName: string, item: ExtensionInformation) {
-    return new Promise((resolve, reject) => {
-      fs.readFile(
-        dirName + "/extension/package.json",
-        "utf-8",
-        (error, text) => {
-          if (error) {
-            reject(error);
-          }
-          const config = JSON.parse(text);
-          if (config.name !== item.name) {
-            reject("name not equal");
-          }
-          if (config.publisher !== item.publisher) {
-            reject("publisher not equal");
-          }
-          if (config.version !== item.version) {
-            reject("version not equal");
-          }
-          resolve(config);
-        }
-      );
-    });
+  private static async GetPackageJson(
+    dirName: string,
+    item: ExtensionInformation
+  ) {
+    const text = await fs.readFile(
+      dirName + "/extension/package.json",
+      "utf-8"
+    );
+
+    const config = JSON.parse(text);
+
+    if (config.name !== item.name) {
+      throw new Error("name not equal");
+    }
+    if (config.publisher !== item.publisher) {
+      throw new Error("publisher not equal");
+    }
+    if (config.version !== item.version) {
+      throw new Error("version not equal");
+    }
+
+    return config;
   }
 }
