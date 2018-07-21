@@ -1,12 +1,9 @@
 "use strict";
 
 import * as fs from "fs-extra";
-import * as ncpPackage from "ncp";
 import * as path from "path";
-import * as rmdir from "rimraf";
 import * as vscode from "vscode";
 import * as util from "../util";
-const ncp = ncpPackage.ncp;
 
 const apiPath =
   "https://marketplace.visualstudio.com/_apis/public/gallery/extensionquery";
@@ -184,50 +181,44 @@ export class PluginService {
       ExtensionFolder,
       item.publisher + "." + item.name + "-" + item.version
     );
-    return new Promise<boolean>((resolve, reject) => {
-      rmdir(destination, error => {
-        if (error) {
-          console.log("Sync : " + "Error in uninstalling Extension.");
-          console.log(error);
-          reject(false);
-        }
-        resolve(true);
-      });
-    });
+
+    try {
+      await fs.remove(destination);
+      return true;
+    } catch (err) {
+      console.log("Sync : " + "Error in uninstalling Extension.");
+      console.log(err);
+      throw err;
+    }
   }
 
   public static async DeleteExtensions(
     extensionsJson: string,
     extensionFolder: string
   ): Promise<ExtensionInformation[]> {
-    return await new Promise<ExtensionInformation[]>(async (res, rej) => {
-      const remoteList = ExtensionInformation.fromJSONList(extensionsJson);
-      const deletedList = PluginService.GetDeletedExtensions(remoteList);
-      const deletedExt: ExtensionInformation[] = [];
+    const remoteList = ExtensionInformation.fromJSONList(extensionsJson);
+    const deletedList = PluginService.GetDeletedExtensions(remoteList);
+    const deletedExt: ExtensionInformation[] = [];
 
-      if (deletedList.length === 0) {
-        res(deletedExt);
+    if (deletedList.length === 0) {
+      return deletedExt;
+    }
+    for (const selectedExtension of deletedList) {
+      try {
+        await PluginService.DeleteExtension(selectedExtension, extensionFolder);
+        deletedExt.push(selectedExtension);
+      } catch (err) {
+        console.error(
+          "Sync : Unable to delete extension " +
+            selectedExtension.name +
+            " " +
+            selectedExtension.version
+        );
+        console.error(err);
+        throw deletedExt;
       }
-      for (const selectedExtension of deletedList) {
-        try {
-          await PluginService.DeleteExtension(
-            selectedExtension,
-            extensionFolder
-          );
-          deletedExt.push(selectedExtension);
-        } catch (err) {
-          console.error(
-            "Sync : Unable to delete extension " +
-              selectedExtension.name +
-              " " +
-              selectedExtension.version
-          );
-          console.error(err);
-          rej(deletedExt);
-        }
-      }
-      res(deletedExt);
-    });
+    }
+    return deletedExt;
   }
 
   public static async InstallExtensions(
@@ -235,47 +226,49 @@ export class PluginService {
     extFolder: string,
     notificationCallBack: (...data: any[]) => void
   ): Promise<ExtensionInformation[]> {
-    return new Promise<ExtensionInformation[]>(async (res, rej) => {
-      const missingList = PluginService.GetMissingExtensions(extensions);
-      if (missingList.length === 0) {
-        notificationCallBack("Sync : No Extensions needs to be installed.");
-        res([]);
-      }
-      const actionList: Array<Promise<void>> = [];
-      const addedExtensions: ExtensionInformation[] = [];
-      let totalInstalled: number = 0;
-      await missingList.forEach(async (element, index) => {
-        ((ext: ExtensionInformation, folder: string) => {
-          actionList.push(
-            PluginService.InstallExtension(element, extFolder).then(
-              () => {
-                totalInstalled = totalInstalled + 1;
-                notificationCallBack(
-                  "Sync : Extension " +
-                    totalInstalled +
-                    " of " +
-                    missingList.length.toString() +
-                    " installed.",
-                  false
-                );
-                addedExtensions.push(element);
-              },
-              (err: any) => {
-                console.error(err);
-                notificationCallBack(
-                  "Sync : " + element.name + " Download Failed.",
-                  true
-                );
-              }
-            )
-          );
-        })(element, extFolder);
-      });
-      Promise.all(actionList).then(
-        () => res(addedExtensions),
-        () => rej(addedExtensions)
+    const actionList: Array<Promise<void>> = [];
+    const addedExtensions: ExtensionInformation[] = [];
+    const missingList = PluginService.GetMissingExtensions(extensions);
+    if (missingList.length === 0) {
+      notificationCallBack("Sync : No Extensions needs to be installed.");
+      return [];
+    }
+
+    let totalInstalled: number = 0;
+
+    for (const element of missingList) {
+      actionList.push(
+        PluginService.InstallExtension(element, extFolder).then(
+          () => {
+            totalInstalled = totalInstalled + 1;
+            notificationCallBack(
+              "Sync : Extension " +
+                totalInstalled +
+                " of " +
+                missingList.length.toString() +
+                " installed.",
+              false
+            );
+            addedExtensions.push(element);
+          },
+          (err: any) => {
+            console.error(err);
+            notificationCallBack(
+              "Sync : " + element.name + " Download Failed.",
+              true
+            );
+          }
+        )
       );
-    });
+    }
+
+    try {
+      await Promise.all(actionList);
+      return addedExtensions;
+    } catch (err) {
+      // always return extension list
+      return addedExtensions;
+    }
   }
 
   public static async InstallExtension(
@@ -301,22 +294,20 @@ export class PluginService {
       flags: 133
     };
 
-    return await util.Util.HttpPostJson(apiPath, data, header)
-      .then(res => {
-        try {
-          let targetVersion = null;
-          const content = JSON.parse(res);
+    try {
+      const res = await util.Util.HttpPostJson(apiPath, data, header);
+      let downloadUrl: string;
 
-          // Find correct version
-          for (const result of content.results) {
-            for (const extension of result.extensions) {
-              for (const version of extension.versions) {
-                if (version.version === item.version) {
-                  targetVersion = version;
-                  break;
-                }
-              }
-              if (targetVersion !== null) {
+      try {
+        let targetVersion = null;
+        const content = JSON.parse(res);
+
+        // Find correct version
+        for (const result of content.results) {
+          for (const extension of result.extensions) {
+            for (const version of extension.versions) {
+              if (version.version === item.version) {
+                targetVersion = version;
                 break;
               }
             }
@@ -324,87 +315,73 @@ export class PluginService {
               break;
             }
           }
-
-          if (
-            targetVersion === null ||
-            !targetVersion ||
-            !targetVersion.assetUri
-          ) {
-            // unable to find one
-            throw new Error("NA");
+          if (targetVersion !== null) {
+            break;
           }
-
-          // Proceed to install
-          const downloadUrl =
-            targetVersion.assetUri +
-            "/Microsoft.VisualStudio.Services.VSIXPackage?install=true";
-          console.log("Installing from Url :" + downloadUrl);
-
-          return downloadUrl;
-        } catch (error) {
-          if (error === "NA" || error.message === "NA") {
-            console.error(
-              "Sync : Extension : '" +
-                item.name +
-                "' - Version : '" +
-                item.version +
-                "' Not Found in marketplace. Remove the extension and upload the settings to fix this."
-            );
-          }
-          console.error(error);
-          // console.log("Response :");
-          // console.log(res);
         }
-      })
-      .then(url => {
-        return util.Util.HttpGetFile(url);
-      })
-      .then(filePath => {
-        return util.Util.Extract(filePath);
-      })
-      .then(dir => {
-        extractPath = dir;
-        return PluginService.GetPackageJson(dir, item);
-      })
-      .then(packageJson => {
-        Object.assign(packageJson, {
-          __metadata: item.metadata
-        });
 
-        const text = JSON.stringify(packageJson, null, " ");
-        return PluginService.WritePackageJson(extractPath, text);
-      })
-      .then(() => {
-        // Move the folder to correct path
-        const destination = path.join(
-          ExtensionFolder,
-          item.publisher + "." + item.name + "-" + item.version
-        );
-        const source = path.join(extractPath, "extension");
-        return PluginService.CopyExtension(destination, source);
-      })
-      .catch(error => {
-        console.error(
-          "Sync : Extension : '" +
-            item.name +
-            "' - Version : '" +
-            item.version +
-            "' " +
-            error
-        );
+        if (
+          targetVersion === null ||
+          !targetVersion ||
+          !targetVersion.assetUri
+        ) {
+          // unable to find one
+          throw new Error("NA");
+        }
+
+        // Proceed to install
+        downloadUrl =
+          targetVersion.assetUri +
+          "/Microsoft.VisualStudio.Services.VSIXPackage?install=true";
+        console.log("Installing from Url :" + downloadUrl);
+      } catch (error) {
+        if (error === "NA" || error.message === "NA") {
+          console.error(
+            "Sync : Extension : '" +
+              item.name +
+              "' - Version : '" +
+              item.version +
+              "' Not Found in marketplace. Remove the extension and upload the settings to fix this."
+          );
+        }
+        console.error(error);
         throw error;
+      }
+
+      const filePath = await util.Util.HttpGetFile(downloadUrl);
+
+      const dir = await util.Util.Extract(filePath);
+
+      extractPath = dir;
+      const packageJson = await PluginService.GetPackageJson(dir, item);
+
+      Object.assign(packageJson, {
+        __metadata: item.metadata
       });
+
+      const text = JSON.stringify(packageJson, null, " ");
+      await PluginService.WritePackageJson(extractPath, text);
+
+      // Move the folder to correct path
+      const destination = path.join(
+        ExtensionFolder,
+        item.publisher + "." + item.name + "-" + item.version
+      );
+      const source = path.join(extractPath, "extension");
+      await PluginService.CopyExtension(destination, source);
+    } catch (err) {
+      console.error(
+        `Sync : Extension : '${item.name}' - Version : '${item.version}'` + err
+      );
+      throw err;
+    }
   }
 
-  private static CopyExtension(destination: string, source: string) {
-    return new Promise((resolve, reject) => {
-      ncp(source, destination, err => {
-        if (err) {
-          reject(err);
-        }
-        resolve();
-      });
-    });
+  private static async CopyExtension(
+    destination: string,
+    source: string
+  ): Promise<void> {
+    await fs.copy(source, destination, { overwrite: true });
   }
   private static async WritePackageJson(dirName: string, packageJson: string) {
     await fs.writeFile(

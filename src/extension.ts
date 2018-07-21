@@ -670,57 +670,54 @@ export async function activate(context: vscode.ExtensionContext) {
     async () => {
       let extSettings: ExtensionConfig = null;
       let localSettings: CustomSettings = null;
-      await Init();
 
-      async function Init() {
-        vscode.window.setStatusBarMessage(
-          localize("cmd.resetSettings.info.resetting"),
-          2000
+      vscode.window.setStatusBarMessage(
+        localize("cmd.resetSettings.info.resetting"),
+        2000
+      );
+
+      try {
+        const en: Environment = new Environment(context);
+        const common: Commons = new Commons(en, context);
+
+        extSettings = new ExtensionConfig();
+        localSettings = new CustomSettings();
+
+        const extSaved: boolean = await common.SaveSettings(extSettings);
+        const customSaved: boolean = await common.SetCustomSettings(
+          localSettings
+        );
+        const lockExist: boolean = await FileService.FileExists(
+          en.FILE_SYNC_LOCK
         );
 
-        try {
-          const en: Environment = new Environment(context);
-          const common: Commons = new Commons(en, context);
+        if (!lockExist) {
+          fs.closeSync(fs.openSync(en.FILE_SYNC_LOCK, "w"));
+        }
 
-          extSettings = new ExtensionConfig();
-          localSettings = new CustomSettings();
+        const locked: boolean = lockfile.checkSync(en.FILE_SYNC_LOCK);
+        if (locked) {
+          lockfile.unlockSync(en.FILE_SYNC_LOCK);
+        }
 
-          const extSaved: boolean = await common.SaveSettings(extSettings);
-          const customSaved: boolean = await common.SetCustomSettings(
-            localSettings
-          );
-          const lockExist: boolean = await FileService.FileExists(
-            en.FILE_SYNC_LOCK
-          );
-
-          if (!lockExist) {
-            fs.closeSync(fs.openSync(en.FILE_SYNC_LOCK, "w"));
-          }
-
-          const locked: boolean = lockfile.checkSync(en.FILE_SYNC_LOCK);
-          if (locked) {
-            lockfile.unlockSync(en.FILE_SYNC_LOCK);
-          }
-
-          if (extSaved && customSaved) {
-            vscode.window.showInformationMessage(
-              localize("cmd.resetSettings.info.settingClear")
-            );
-          }
-        } catch (err) {
-          Commons.LogException(
-            err,
-            "Sync : Unable to clear settings. Error Logged on console. Please open an issue.",
-            true
+        if (extSaved && customSaved) {
+          vscode.window.showInformationMessage(
+            localize("cmd.resetSettings.info.settingClear")
           );
         }
+      } catch (err) {
+        Commons.LogException(
+          err,
+          "Sync : Unable to clear settings. Error Logged on console. Please open an issue.",
+          true
+        );
       }
     }
   );
 
   const howSettings = vscode.commands.registerCommand(
     "extension.HowSettings",
-    async () => {
+    () => {
       vscode.commands.executeCommand(
         "vscode.open",
         vscode.Uri.parse(
@@ -759,289 +756,247 @@ export async function activate(context: vscode.ExtensionContext) {
       let selectedItem: number = 0;
       let settingChanged: boolean = false;
 
-      vscode.window
-        .showQuickPick(items)
-        .then(
-          async (resolve: string) => {
-            switch (resolve) {
-              case items[0]: {
-                // extension local settings
-                const file: vscode.Uri = vscode.Uri.file(
-                  en.FILE_CUSTOMIZEDSETTINGS
-                );
-                fs.openSync(file.fsPath, "r");
-                await vscode.workspace
-                  .openTextDocument(file)
-                  .then((a: vscode.TextDocument) => {
-                    vscode.window.showTextDocument(
-                      a,
-                      vscode.ViewColumn.One,
-                      true
-                    );
-                  });
-                break;
-              }
-              case items[1]: {
-                // share public gist
-                await vscode.window
-                  .showInformationMessage(
-                    localize("cmd.otherOptions.shareSetting.beforeConfirm"),
-                    "Yes"
-                  )
-                  .then(
-                    async data => {
-                      if (data === "Yes") {
-                        localSetting.publicGist = true;
-                        settingChanged = true;
-                        setting.gist = "";
-                        selectedItem = 1;
-                        customSettings.downloadPublicGist = false;
-                        const done: boolean = await common.SetCustomSettings(
-                          customSettings
-                        );
-                      }
-                    },
-                    reject => {
-                      return;
-                    }
-                  );
-                break;
-              }
-              case items[2]: {
-                // Download Settings from Public GIST
-                selectedItem = 2;
-                customSettings.downloadPublicGist = true;
-                settingChanged = true;
-                const done: boolean = await common.SetCustomSettings(
-                  customSettings
-                );
-                break;
-              }
-              case items[3]: {
-                // toggle force download
-                selectedItem = 3;
-                settingChanged = true;
-                if (setting.forceDownload) {
-                  setting.forceDownload = false;
-                } else {
-                  setting.forceDownload = true;
-                }
-                break;
-              }
-              case items[4]: {
-                // toggle auto upload
-                selectedItem = 4;
-                settingChanged = true;
-                if (setting.autoUpload) {
-                  setting.autoUpload = false;
-                } else {
-                  setting.autoUpload = true;
-                }
-                break;
-              }
-              case items[5]: {
-                // auto downlaod on startup
-                selectedItem = 5;
-                settingChanged = true;
-                if (!setting) {
-                  vscode.commands.executeCommand("extension.HowSettings");
-                  return;
-                }
-                if (!gistAvailable) {
-                  vscode.commands.executeCommand("extension.HowSettings");
-                  return;
-                }
-                if (setting.autoDownload) {
-                  setting.autoDownload = false;
-                } else {
-                  setting.autoDownload = true;
-                }
-                break;
-              }
-              case items[6]: {
-                // page summary toggle
-                selectedItem = 6;
-                settingChanged = true;
+      const item = await vscode.window.showQuickPick(items);
 
-                if (!tokenAvailable || !gistAvailable) {
-                  vscode.commands.executeCommand("extension.HowSettings");
-                  return;
-                }
-                if (setting.quietSync) {
-                  setting.quietSync = false;
-                } else {
-                  setting.quietSync = true;
-                }
-                break;
-              }
+      // TODO: optimization switch block, use object property select instead of it
 
-              case items[7]: {
-                // preserve
-                const options: vscode.InputBoxOptions = {
-                  ignoreFocusOut: true,
-                  placeHolder: localize(
-                    "cmd.otherOptions.preserve.placeholder"
-                  ),
-                  prompt: localize("cmd.otherOptions.preserve.prompt")
-                };
-                vscode.window.showInputBox(options).then(async res => {
-                  if (res) {
-                    const settingKey: string = res;
-                    const a = vscode.workspace.getConfiguration();
-                    const val: string = a.get<string>(settingKey);
-                    customSettings.replaceCodeSettings[res] = val;
-                    const done: boolean = await common.SetCustomSettings(
-                      customSettings
-                    );
-                    if (done) {
-                      if (val === "") {
-                        vscode.window.showInformationMessage(
-                          localize("cmd.otherOptions.preserve.info.done1", res)
-                        );
-                      } else {
-                        vscode.window.showInformationMessage(
-                          localize(
-                            "cmd.otherOptions.preserve.info.done1",
-                            res,
-                            val
-                          )
-                        );
-                      }
-                    }
-                  }
-                });
-                break;
-              }
-              case items[8]: {
-                vscode.commands.executeCommand(
-                  "vscode.open",
-                  vscode.Uri.parse(
-                    "https://join.slack.com/t/codesettingssync/shared_invite/enQtMzE3MjY5NTczNDMwLTYwMTIwNGExOGE2MTJkZWU0OTU5MmI3ZTc4N2JkZjhjMzY1OTk5OGExZjkwMDMzMDU4ZTBlYjk5MGQwZmMyNzk"
-                  )
-                );
-                break;
-              }
-              case items[9]: {
-                vscode.commands.executeCommand(
-                  "vscode.open",
-                  vscode.Uri.parse(
-                    "https://github.com/shanalikhan/code-settings-sync/issues/new"
-                  )
-                );
-                break;
-              }
-              case items[10]: {
-                vscode.commands.executeCommand(
-                  "vscode.open",
-                  vscode.Uri.parse(
-                    "http://shanalikhan.github.io/2016/05/14/Visual-studio-code-sync-settings-release-notes.html"
-                  )
-                );
-                break;
-              }
-              default: {
-                break;
-              }
-            }
-          },
-          reject => {
-            Commons.LogException(reject, "Error", true);
-            return;
+      try {
+        switch (item) {
+          case items[0]: {
+            // extension local settings
+            const file: vscode.Uri = vscode.Uri.file(
+              en.FILE_CUSTOMIZEDSETTINGS
+            );
+            fs.openSync(file.fsPath, "r");
+            const document = await vscode.workspace.openTextDocument(file);
+            await vscode.window.showTextDocument(
+              document,
+              vscode.ViewColumn.One,
+              true
+            );
+            break;
           }
-        )
-        .then(
-          async (resolve: any) => {
-            if (settingChanged) {
-              if (selectedItem === 1) {
-                common.CloseWatch();
-              }
-              await common.SaveSettings(setting).then(
-                async (added: boolean) => {
-                  if (added) {
-                    switch (selectedItem) {
-                      case 5: {
-                        if (setting.autoDownload) {
-                          vscode.window.showInformationMessage(
-                            localize("cmd.otherOptions.toggleAutoDownload.on")
-                          );
-                        } else {
-                          vscode.window.showInformationMessage(
-                            localize("cmd.otherOptions.toggleAutoDownload.off")
-                          );
-                        }
-                        break;
-                      }
-                      case 6: {
-                        if (!setting.quietSync) {
-                          vscode.window.showInformationMessage(
-                            localize("cmd.otherOptions.quietSync.off")
-                          );
-                        } else {
-                          vscode.window.showInformationMessage(
-                            localize("cmd.otherOptions.quietSync.on")
-                          );
-                        }
-                        break;
-                      }
-                      case 3: {
-                        if (setting.forceDownload) {
-                          vscode.window.showInformationMessage(
-                            localize("cmd.otherOptions.toggleForceDownload.on")
-                          );
-                        } else {
-                          vscode.window.showInformationMessage(
-                            localize("cmd.otherOptions.toggleForceDownload.off")
-                          );
-                        }
-                        break;
-                      }
-                      case 4: {
-                        if (setting.autoUpload) {
-                          vscode.window.showInformationMessage(
-                            localize("cmd.otherOptions.toggleAutoUpload.on")
-                          );
-                        } else {
-                          vscode.window.showInformationMessage(
-                            localize("cmd.otherOptions.toggleAutoUpload.off")
-                          );
-                        }
-                        break;
-                      }
-                      case 1: {
-                        await vscode.commands.executeCommand(
-                          "extension.updateSettings",
-                          "publicGIST"
-                        );
-                        break;
-                      }
-                      case 2: {
-                        vscode.window.showInformationMessage(
-                          localize("cmd.otherOptions.warning.tokenNotRequire")
-                        );
-                      }
-                    }
-                  } else {
-                    vscode.window.showErrorMessage(
-                      localize("cmd.otherOptions.error.toggleFail")
-                    );
-                  }
-                },
-                (err: any) => {
-                  Commons.LogException(
-                    err,
-                    "Sync : Unable to toggle. Please open an issue.",
-                    true
-                  );
-                  return;
-                }
+          case items[1]: {
+            // share public gist
+            const answer = await vscode.window.showInformationMessage(
+              localize("cmd.otherOptions.shareSetting.beforeConfirm"),
+              "Yes"
+            );
+
+            if (answer === "Yes") {
+              localSetting.publicGist = true;
+              settingChanged = true;
+              setting.gist = "";
+              selectedItem = 1;
+              customSettings.downloadPublicGist = false;
+              await common.SetCustomSettings(customSettings);
+            }
+
+            break;
+          }
+          case items[2]: {
+            // Download Settings from Public GIST
+            selectedItem = 2;
+            customSettings.downloadPublicGist = true;
+            settingChanged = true;
+            await common.SetCustomSettings(customSettings);
+            break;
+          }
+          case items[3]: {
+            // toggle force download
+            selectedItem = 3;
+            settingChanged = true;
+            setting.forceDownload = !setting.forceDownload;
+            break;
+          }
+          case items[4]: {
+            // toggle auto upload
+            selectedItem = 4;
+            settingChanged = true;
+            setting.autoUpload = !setting.autoUpload;
+            break;
+          }
+          case items[5]: {
+            // auto download on startup
+            selectedItem = 5;
+            settingChanged = true;
+            if (!setting) {
+              vscode.commands.executeCommand("extension.HowSettings");
+              return;
+            }
+            if (!gistAvailable) {
+              vscode.commands.executeCommand("extension.HowSettings");
+              return;
+            }
+
+            setting.autoDownload = !setting.autoDownload;
+            break;
+          }
+          case items[6]: {
+            // page summary toggle
+            selectedItem = 6;
+            settingChanged = true;
+
+            if (!tokenAvailable || !gistAvailable) {
+              vscode.commands.executeCommand("extension.HowSettings");
+              return;
+            }
+            setting.quietSync = !setting.quietSync;
+            break;
+          }
+
+          case items[7]: {
+            // preserve
+            const options: vscode.InputBoxOptions = {
+              ignoreFocusOut: true,
+              placeHolder: localize("cmd.otherOptions.preserve.placeholder"),
+              prompt: localize("cmd.otherOptions.preserve.prompt")
+            };
+            const input = await vscode.window.showInputBox(options);
+
+            if (input) {
+              const settingKey: string = input;
+              const a = vscode.workspace.getConfiguration();
+              const val: string = a.get<string>(settingKey);
+              customSettings.replaceCodeSettings[input] = val;
+              const done: boolean = await common.SetCustomSettings(
+                customSettings
               );
+              if (done) {
+                if (val === "") {
+                  vscode.window.showInformationMessage(
+                    localize("cmd.otherOptions.preserve.info.done1", input)
+                  );
+                } else {
+                  vscode.window.showInformationMessage(
+                    localize("cmd.otherOptions.preserve.info.done1", input, val)
+                  );
+                }
+              }
             }
-          },
-          (reject: any) => {
-            Commons.LogException(reject, "Error", true);
-            return;
+
+            break;
           }
-        );
+          case items[8]: {
+            vscode.commands.executeCommand(
+              "vscode.open",
+              vscode.Uri.parse(
+                "https://join.slack.com/t/codesettingssync/shared_invite/enQtMzE3MjY5NTczNDMwLTYwMTIwNGExOGE2MTJkZWU0OTU5MmI3ZTc4N2JkZjhjMzY1OTk5OGExZjkwMDMzMDU4ZTBlYjk5MGQwZmMyNzk"
+              )
+            );
+            break;
+          }
+          case items[9]: {
+            vscode.commands.executeCommand(
+              "vscode.open",
+              vscode.Uri.parse(
+                "https://github.com/shanalikhan/code-settings-sync/issues/new"
+              )
+            );
+            break;
+          }
+          case items[10]: {
+            vscode.commands.executeCommand(
+              "vscode.open",
+              vscode.Uri.parse(
+                "http://shanalikhan.github.io/2016/05/14/Visual-studio-code-sync-settings-release-notes.html"
+              )
+            );
+            break;
+          }
+          default: {
+            break;
+          }
+        }
+
+        if (settingChanged) {
+          if (selectedItem === 1) {
+            common.CloseWatch();
+          }
+          await common
+            .SaveSettings(setting)
+            .then(async (added: boolean) => {
+              if (added) {
+                switch (selectedItem) {
+                  case 5: {
+                    if (setting.autoDownload) {
+                      vscode.window.showInformationMessage(
+                        localize("cmd.otherOptions.toggleAutoDownload.on")
+                      );
+                    } else {
+                      vscode.window.showInformationMessage(
+                        localize("cmd.otherOptions.toggleAutoDownload.off")
+                      );
+                    }
+                    break;
+                  }
+                  case 6: {
+                    if (!setting.quietSync) {
+                      vscode.window.showInformationMessage(
+                        localize("cmd.otherOptions.quietSync.off")
+                      );
+                    } else {
+                      vscode.window.showInformationMessage(
+                        localize("cmd.otherOptions.quietSync.on")
+                      );
+                    }
+                    break;
+                  }
+                  case 3: {
+                    if (setting.forceDownload) {
+                      vscode.window.showInformationMessage(
+                        localize("cmd.otherOptions.toggleForceDownload.on")
+                      );
+                    } else {
+                      vscode.window.showInformationMessage(
+                        localize("cmd.otherOptions.toggleForceDownload.off")
+                      );
+                    }
+                    break;
+                  }
+                  case 4: {
+                    if (setting.autoUpload) {
+                      vscode.window.showInformationMessage(
+                        localize("cmd.otherOptions.toggleAutoUpload.on")
+                      );
+                    } else {
+                      vscode.window.showInformationMessage(
+                        localize("cmd.otherOptions.toggleAutoUpload.off")
+                      );
+                    }
+                    break;
+                  }
+                  case 1: {
+                    await vscode.commands.executeCommand(
+                      "extension.updateSettings",
+                      "publicGIST"
+                    );
+                    break;
+                  }
+                  case 2: {
+                    vscode.window.showInformationMessage(
+                      localize("cmd.otherOptions.warning.tokenNotRequire")
+                    );
+                  }
+                }
+              } else {
+                vscode.window.showErrorMessage(
+                  localize("cmd.otherOptions.error.toggleFail")
+                );
+              }
+            })
+            .catch(err => {
+              Commons.LogException(
+                err,
+                "Sync : Unable to toggle. Please open an issue.",
+                true
+              );
+            });
+        }
+      } catch (err) {
+        Commons.LogException(err, "Error", true);
+        return;
+      }
     }
   );
 

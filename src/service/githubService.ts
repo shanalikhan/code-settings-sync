@@ -27,7 +27,6 @@ if (!host || host === "") {
 
 const github = new GitHubApi({
   proxy: proxyURL,
-  // version: "3.0.0", // can not support
   host,
   pathPrefix,
   rejectUnauthorized: false
@@ -100,7 +99,7 @@ export class GitHubService {
     return GIST_JSON_B;
   }
 
-  public CreateEmptyGIST(
+  public async CreateEmptyGIST(
     publicGist: boolean,
     gistDescription: string
   ): Promise<string> {
@@ -113,22 +112,19 @@ export class GitHubService {
       this.GIST_JSON_EMPTY.description = gistDescription;
     }
 
-    return new Promise<string>((resolve, reject) => {
-      github.gists.create(this.GIST_JSON_EMPTY, (err, res) => {
-        if (err) {
-          console.error(err);
-          reject(err);
-        } else {
-          if (res.data.id) {
-            resolve(res.data.id);
-          } else {
-            console.error("ID is null");
-            console.log("Sync : " + "Response from GitHub is: ");
-            console.log(res);
-          }
-        }
-      });
-    });
+    try {
+      const res = await github.gists.create(this.GIST_JSON_EMPTY);
+      if (res.data && res.data.id) {
+        return res.data.id;
+      } else {
+        console.error("ID is null");
+        console.log("Sync : " + "Response from GitHub is: ");
+        console.log(res);
+      }
+    } catch (err) {
+      console.error(err);
+      throw err;
+    }
   }
 
   public async CreateAnonymousGist(
@@ -147,45 +143,35 @@ export class GitHubService {
 
     const gist: any = this.AddFile(files, this.GIST_JSON_EMPTY);
 
-    return new Promise<string>((resolve, reject) => {
-      github.gists.create(gist, (err, res) => {
-        if (err) {
-          console.error(err);
-          reject(err);
-        }
-        if (res.data.id) {
-          resolve(res.data.id);
-        } else {
-          console.error("ID is null");
-          console.log("Sync : " + "Response from GitHub is: ");
-          console.log(res);
-        }
-      });
-    });
+    try {
+      const res = await github.gists.create(gist);
+      if (res.data && res.data.id) {
+        return res.data.id;
+      } else {
+        console.error("ID is null");
+        console.log("Sync : " + "Response from GitHub is: ");
+        console.log(res);
+      }
+    } catch (err) {
+      console.error(err);
+      throw err;
+    }
   }
 
   public async ReadGist(GIST: string): Promise<any> {
-    return new Promise<any>(async (resolve, reject) => {
-      await github.gists.get({ gist_id: GIST, id: GIST }, (err, res) => {
-        if (err) {
-          console.error(err);
-          reject(err);
-        }
-        resolve(res);
-      });
-    });
+    return await github.gists.get({ gist_id: GIST, id: GIST });
   }
 
   public UpdateGIST(gistObject: any, files: File[]): any {
     const allFiles: string[] = Object.keys(gistObject.data.files);
     for (const fileName of allFiles) {
       let exists = false;
-      // TODO: use for insteadof forEach to improve performance
-      files.forEach(settingFile => {
+
+      for (const settingFile of files) {
         if (settingFile.gistName === fileName) {
           exists = true;
         }
-      });
+      }
 
       if (!exists && !fileName.startsWith("keybindings")) {
         gistObject.data.files[fileName] = null;
@@ -197,15 +183,7 @@ export class GitHubService {
   }
 
   public async SaveGIST(gistObject: any): Promise<boolean> {
-    // TODO : turn diagnostic mode on for console.
-    return new Promise<boolean>((resolve, reject) => {
-      github.gists.edit(gistObject, err => {
-        if (err) {
-          console.error(err);
-          reject(false);
-        }
-        resolve(true);
-      });
-    });
+    await github.gists.edit(gistObject);
+    return true;
   }
 }
