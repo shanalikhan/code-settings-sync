@@ -172,10 +172,11 @@
         "compile": "tsc -p ./",
         "watch": "tsc -watch -p ./",
         "postinstall": "node ./node_modules/vscode/bin/install",
-        "tslint-check": "tslint -c ./tslint.json ./src/**/*.ts",
+        "tslint-check": "tslint -c ./tslint.json ./src/**/*.ts ./src/*.ts",
         "format": "prettier --write './src/**/*.ts'"
     },
     "devDependencies": {
+        "@types/fs-extra": "^5.0.4",
         "@types/node": "^10.0.3",
         "prettier": "^1.13.7",
         "tslint": "^5.10.0",
@@ -187,7 +188,7 @@
         "@octokit/rest": "^15.9.4",
         "adm-zip": "0.4.7",
         "chokidar": "^2.0.2",
-        "fs": "^0.0.2",
+        "fs-extra": "^7.0.0",
         "https-proxy-agent": "^2.1.1",
         "ncp": "^2.0.0",
         "proper-lockfile": "^2.0.1",
