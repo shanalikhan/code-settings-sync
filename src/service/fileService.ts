@@ -24,7 +24,7 @@ export class FileService {
 
   public static async IsDirectory(filepath: string): Promise<boolean> {
     try {
-      const stat = await fs.lstatSync(filepath);
+      const stat = await fs.lstat(filepath);
       return stat.isDirectory();
     } catch (err) {
       return false;
