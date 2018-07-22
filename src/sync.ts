@@ -334,7 +334,7 @@ export class Sync {
               }
 
               if (!syncSetting.quietSync) {
-                common.ShowSummmaryOutput(
+                common.ShowSummaryOutput(
                   true,
                   allSettingFiles,
                   null,
@@ -597,7 +597,7 @@ export class Sync {
                 async (added: boolean) => {
                   if (added) {
                     if (!syncSetting.quietSync) {
-                      common.ShowSummmaryOutput(
+                      common.ShowSummaryOutput(
                         false,
                         updatedFiles,
                         deletedExtensions,
