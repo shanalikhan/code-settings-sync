@@ -63,8 +63,8 @@ export class Sync {
    */
   public async upload(): Promise<void> {
     const args = arguments;
-    const en: Environment = new Environment(this.context);
-    const common: Commons = new Commons(en, this.context);
+    const env: Environment = new Environment(this.context);
+    const common: Commons = new Commons(env, this.context);
     let myGi: GitHubService = null;
     let localConfig: LocalConfig = new LocalConfig();
     const allSettingFiles: File[] = [];
@@ -134,8 +134,8 @@ export class Sync {
           });
         }
         uploadedExtensions.sort((a, b) => a.name.localeCompare(b.name));
-        const extensionFileName = en.FILE_EXTENSION_NAME;
-        const extensionFilePath = en.FILE_EXTENSION;
+        const extensionFileName = env.FILE_EXTENSION_NAME;
+        const extensionFilePath = env.FILE_EXTENSION;
         const extensionFileContent = JSON.stringify(
           uploadedExtensions,
           undefined,
@@ -152,27 +152,27 @@ export class Sync {
 
       let contentFiles: File[] = [];
       contentFiles = await FileService.ListFiles(
-        en.USER_FOLDER,
+        env.USER_FOLDER,
         0,
         2,
         customSettings.supportedFileExtensions
       );
 
       const customExist: boolean = await FileService.FileExists(
-        en.FILE_CUSTOMIZEDSETTINGS
+        env.FILE_CUSTOMIZEDSETTINGS
       );
       if (customExist) {
         customSettings = await common.GetCustomSettings();
         contentFiles = contentFiles.filter(
           contentFile =>
-            contentFile.fileName !== en.FILE_CUSTOMIZEDSETTINGS_NAME
+            contentFile.fileName !== env.FILE_CUSTOMIZEDSETTINGS_NAME
         );
 
         if (customSettings.ignoreUploadFiles.length > 0) {
           contentFiles = contentFiles.filter(contentFile => {
             const isMatch: boolean =
               customSettings.ignoreUploadFiles.indexOf(contentFile.fileName) ===
-                -1 && contentFile.fileName !== en.FILE_CUSTOMIZEDSETTINGS_NAME;
+                -1 && contentFile.fileName !== env.FILE_CUSTOMIZEDSETTINGS_NAME;
             return isMatch;
           });
         }
@@ -195,15 +195,15 @@ export class Sync {
 
       contentFiles.forEach(snippetFile => {
         if (
-          snippetFile.fileName !== en.APP_SUMMARY_NAME &&
-          snippetFile.fileName !== en.FILE_KEYBINDING_MAC
+          snippetFile.fileName !== env.APP_SUMMARY_NAME &&
+          snippetFile.fileName !== env.FILE_KEYBINDING_MAC
         ) {
           if (snippetFile.content !== "") {
-            if (snippetFile.fileName === en.FILE_KEYBINDING_NAME) {
+            if (snippetFile.fileName === env.FILE_KEYBINDING_NAME) {
               snippetFile.gistName =
-                en.OsType === OsType.Mac
-                  ? en.FILE_KEYBINDING_MAC
-                  : en.FILE_KEYBINDING_DEFAULT;
+                env.OsType === OsType.Mac
+                  ? env.FILE_KEYBINDING_MAC
+                  : env.FILE_KEYBINDING_DEFAULT;
             }
             allSettingFiles.push(snippetFile);
           }
@@ -212,7 +212,7 @@ export class Sync {
 
       const extProp: CloudSetting = new CloudSetting();
       extProp.lastUpload = dateNow;
-      const fileName: string = en.FILE_CLOUDSETTINGS_NAME;
+      const fileName: string = env.FILE_CLOUDSETTINGS_NAME;
       const fileContent: string = JSON.stringify(extProp);
       const file: File = new File(fileName, fileContent, "", fileName);
       allSettingFiles.push(file);
@@ -623,8 +623,8 @@ export class Sync {
     );
 
     try {
-      const en: Environment = new Environment(this.context);
-      const common: Commons = new Commons(en, this.context);
+      const env: Environment = new Environment(this.context);
+      const common: Commons = new Commons(env, this.context);
 
       extSettings = new ExtensionConfig();
       localSettings = new CustomSettings();
@@ -634,16 +634,16 @@ export class Sync {
         localSettings
       );
       const lockExist: boolean = await FileService.FileExists(
-        en.FILE_SYNC_LOCK
+        env.FILE_SYNC_LOCK
       );
 
       if (!lockExist) {
-        fs.closeSync(fs.openSync(en.FILE_SYNC_LOCK, "w"));
+        fs.closeSync(fs.openSync(env.FILE_SYNC_LOCK, "w"));
       }
 
       // check is sync locking
-      if (await lockfile.check(en.FILE_SYNC_LOCK)) {
-        await lockfile.unlock(en.FILE_SYNC_LOCK);
+      if (await lockfile.check(env.FILE_SYNC_LOCK)) {
+        await lockfile.unlock(env.FILE_SYNC_LOCK);
       }
 
       if (extSaved && customSaved) {
@@ -668,8 +668,8 @@ export class Sync {
     );
   }
   public async advance() {
-    const en: Environment = new Environment(this.context);
-    const common: Commons = new Commons(en, this.context);
+    const env: Environment = new Environment(this.context);
+    const common: Commons = new Commons(env, this.context);
     const setting: ExtensionConfig = await common.GetSettings();
     const customSettings: CustomSettings = await common.GetCustomSettings();
     const localSetting: LocalConfig = new LocalConfig();
@@ -701,7 +701,7 @@ export class Sync {
       switch (item) {
         case items[0]: {
           // extension local settings
-          const file: vscode.Uri = vscode.Uri.file(en.FILE_CUSTOMIZEDSETTINGS);
+          const file: vscode.Uri = vscode.Uri.file(env.FILE_CUSTOMIZEDSETTINGS);
           fs.openSync(file.fsPath, "r");
           const document = await vscode.workspace.openTextDocument(file);
           await vscode.window.showTextDocument(
