@@ -367,20 +367,16 @@ export class Sync {
    * Download setting from github gist
    */
   public async download(): Promise<void> {
-    const en: Environment = new Environment(this.context);
-    const common: Commons = new Commons(en, this.context);
-    let myGi: GitHubService = null;
+    const env = new Environment(this.context);
+    const common = new Commons(env, this.context);
     let localSettings: LocalConfig = new LocalConfig();
-    const ignoreSettings = new Object();
     common.CloseWatch();
 
     try {
       localSettings = await common.InitalizeSettings(true, true);
-      // ignoreSettings = await common.GetIgnoredSettings(localSettings.customConfig.ignoreUploadSettings);
       await StartDownload(localSettings.extConfig, localSettings.customConfig);
-      // await common.SetIgnoredSettings(ignoreSettings);
-    } catch (error) {
-      Commons.LogException(error, common.ERROR_MESSAGE, true);
+    } catch (err) {
+      Commons.LogException(err, common.ERROR_MESSAGE, true);
       return;
     }
 
@@ -388,269 +384,230 @@ export class Sync {
       syncSetting: ExtensionConfig,
       customSettings: CustomSettings
     ) {
-      myGi = new GitHubService(customSettings.token);
+      const github = new GitHubService(customSettings.token);
       vscode.window.setStatusBarMessage("").dispose();
       vscode.window.setStatusBarMessage(
         localize("cmd.downloadSettings.info.readdingOnline"),
         2000
       );
 
-      myGi.ReadGist(syncSetting.gist).then(
-        async (res: any) => {
-          let addedExtensions: ExtensionInformation[] = [];
-          let deletedExtensions: ExtensionInformation[] = [];
-          const updatedFiles: File[] = [];
-          const actionList: Array<Promise<void | boolean>> = [];
+      const res = await github.ReadGist(syncSetting.gist);
 
-          if (res) {
-            if (res.data.public === true) {
-              localSettings.publicGist = true;
+      if (!res) {
+        Commons.LogException(res, "Sync : Unable to Read Gist.", true);
+        return;
+      }
+
+      let addedExtensions: ExtensionInformation[] = [];
+      let deletedExtensions: ExtensionInformation[] = [];
+      const updatedFiles: File[] = [];
+      const actionList: Array<Promise<void | boolean>> = [];
+
+      if (res.data.public === true) {
+        localSettings.publicGist = true;
+      }
+      const keys = Object.keys(res.data.files);
+      if (keys.indexOf(env.FILE_CLOUDSETTINGS_NAME) > -1) {
+        const cloudSettGist: object = JSON.parse(
+          res.data.files[env.FILE_CLOUDSETTINGS_NAME].content
+        );
+        const cloudSett: CloudSetting = Object.assign(
+          new CloudSetting(),
+          cloudSettGist
+        );
+
+        const lastUploadStr: string = syncSetting.lastUpload
+          ? syncSetting.lastUpload.toString()
+          : "";
+        const lastDownloadStr: string = syncSetting.lastDownload
+          ? syncSetting.lastDownload.toString()
+          : "";
+
+        let upToDate: boolean = false;
+        if (lastDownloadStr !== "") {
+          upToDate =
+            new Date(lastDownloadStr).getTime() ===
+            new Date(cloudSett.lastUpload).getTime();
+        }
+
+        if (lastUploadStr !== "") {
+          upToDate =
+            upToDate ||
+            new Date(lastUploadStr).getTime() ===
+              new Date(cloudSett.lastUpload).getTime();
+        }
+
+        if (!syncSetting.forceDownload) {
+          if (upToDate) {
+            vscode.window.setStatusBarMessage("").dispose();
+            vscode.window.setStatusBarMessage(
+              localize("cmd.downloadSettings.info.gotLatestVersion"),
+              5000
+            );
+            return;
+          }
+        }
+        syncSetting.lastDownload = cloudSett.lastUpload;
+      }
+
+      keys.forEach(gistName => {
+        if (res.data.files[gistName]) {
+          if (res.data.files[gistName].content) {
+            if (gistName.indexOf(".") > -1) {
+              if (
+                env.OsType === OsType.Mac &&
+                gistName === env.FILE_KEYBINDING_DEFAULT
+              ) {
+                return;
+              }
+              if (
+                env.OsType !== OsType.Mac &&
+                gistName === env.FILE_KEYBINDING_MAC
+              ) {
+                return;
+              }
+              const f: File = new File(
+                gistName,
+                res.data.files[gistName].content,
+                null,
+                gistName
+              );
+              updatedFiles.push(f);
             }
-            const keys = Object.keys(res.data.files);
-            if (keys.indexOf(en.FILE_CLOUDSETTINGS_NAME) > -1) {
-              const cloudSettGist: object = JSON.parse(
-                res.data.files[en.FILE_CLOUDSETTINGS_NAME].content
-              );
-              const cloudSett: CloudSetting = Object.assign(
-                new CloudSetting(),
-                cloudSettGist
-              );
+          }
+        } else {
+          console.log(gistName + " key in response is empty.");
+        }
+      });
 
-              const lastUploadStr: string = syncSetting.lastUpload
-                ? syncSetting.lastUpload.toString()
-                : "";
-              const lastDownloadStr: string = syncSetting.lastDownload
-                ? syncSetting.lastDownload.toString()
-                : "";
+      for (const file of updatedFiles) {
+        let writeFile: boolean = false;
+        let content: string = file.content;
 
-              let upToDate: boolean = false;
-              if (lastDownloadStr !== "") {
-                upToDate =
-                  new Date(lastDownloadStr).getTime() ===
-                  new Date(cloudSett.lastUpload).getTime();
+        if (content !== "") {
+          if (file.gistName === env.FILE_EXTENSION_NAME) {
+            if (syncSetting.syncExtensions) {
+              if (
+                customSettings.ignoreExtensions &&
+                customSettings.ignoreExtensions.length
+              ) {
+                const extList = ExtensionInformation.fromJSONList(content);
+                const newExtList = extList.filter(
+                  extension =>
+                    !customSettings.ignoreExtensions.includes(extension.name)
+                );
+                content = JSON.stringify(newExtList);
               }
 
-              if (lastUploadStr !== "") {
-                upToDate =
-                  upToDate ||
-                  new Date(lastUploadStr).getTime() ===
-                    new Date(cloudSett.lastUpload).getTime();
-              }
-
-              if (!syncSetting.forceDownload) {
-                if (upToDate) {
-                  vscode.window.setStatusBarMessage("").dispose();
-                  vscode.window.setStatusBarMessage(
-                    localize("cmd.downloadSettings.info.gotLatestVersion"),
-                    5000
+              if (syncSetting.removeExtensions) {
+                try {
+                  deletedExtensions = await PluginService.DeleteExtensions(
+                    content,
+                    env.ExtensionFolder
                   );
-                  return;
+                } catch (uncompletedExtensions) {
+                  vscode.window.showErrorMessage(
+                    localize("cmd.downloadSettings.error.removeExtFail")
+                  );
+                  deletedExtensions = uncompletedExtensions;
                 }
               }
-              syncSetting.lastDownload = cloudSett.lastUpload;
-            }
-
-            keys.forEach(gistName => {
-              if (res.data.files[gistName]) {
-                if (res.data.files[gistName].content) {
-                  if (gistName.indexOf(".") > -1) {
-                    if (
-                      en.OsType === OsType.Mac &&
-                      gistName === en.FILE_KEYBINDING_DEFAULT
-                    ) {
-                      return;
-                    }
-                    if (
-                      en.OsType !== OsType.Mac &&
-                      gistName === en.FILE_KEYBINDING_MAC
-                    ) {
-                      return;
-                    }
-                    const f: File = new File(
-                      gistName,
-                      res.data.files[gistName].content,
-                      null,
-                      gistName
-                    );
-                    updatedFiles.push(f);
-                  }
-                }
-              } else {
-                console.log(gistName + " key in response is empty.");
-              }
-            });
-
-            for (const file of updatedFiles) {
-              let writeFile: boolean = false;
-              let content: string = file.content;
-
-              if (content !== "") {
-                if (file.gistName === en.FILE_EXTENSION_NAME) {
-                  if (syncSetting.syncExtensions) {
-                    if (
-                      customSettings.ignoreExtensions &&
-                      customSettings.ignoreExtensions.length
-                    ) {
-                      const extList = ExtensionInformation.fromJSONList(
-                        content
-                      );
-                      const newExtList = extList.filter(
-                        extension =>
-                          !customSettings.ignoreExtensions.includes(
-                            extension.name
-                          )
-                      );
-                      content = JSON.stringify(newExtList);
-                    }
-
-                    if (syncSetting.removeExtensions) {
-                      try {
-                        deletedExtensions = await PluginService.DeleteExtensions(
-                          content,
-                          en.ExtensionFolder
-                        );
-                      } catch (uncompletedExtensions) {
-                        vscode.window.showErrorMessage(
-                          localize("cmd.downloadSettings.error.removeExtFail")
-                        );
-                        deletedExtensions = uncompletedExtensions;
-                      }
-                    }
-                    try {
-                      addedExtensions = await PluginService.InstallExtensions(
-                        content,
-                        en.ExtensionFolder,
-                        (message: string, dispose: boolean) => {
-                          // TODO:
-                          if (dispose) {
-                            vscode.window.setStatusBarMessage(message, 2000);
-                          } else {
-                            vscode.window.setStatusBarMessage(message, 5000);
-                          }
-                        }
-                      );
-                    } catch (extensions) {
-                      addedExtensions = extensions;
+              try {
+                addedExtensions = await PluginService.InstallExtensions(
+                  content,
+                  env.ExtensionFolder,
+                  (message: string, dispose: boolean) => {
+                    // TODO:
+                    if (dispose) {
+                      vscode.window.setStatusBarMessage(message, 2000);
+                    } else {
+                      vscode.window.setStatusBarMessage(message, 5000);
                     }
                   }
-                } else {
-                  writeFile = true;
-                  if (
-                    file.gistName === en.FILE_KEYBINDING_DEFAULT ||
-                    file.gistName === en.FILE_KEYBINDING_MAC
-                  ) {
-                    let test: string = "";
-                    en.OsType === OsType.Mac
-                      ? (test = en.FILE_KEYBINDING_MAC)
-                      : (test = en.FILE_KEYBINDING_DEFAULT);
-                    if (file.gistName !== test) {
-                      writeFile = false;
-                    }
-                  }
-                  if (writeFile) {
-                    if (file.gistName === en.FILE_KEYBINDING_MAC) {
-                      file.fileName = en.FILE_KEYBINDING_DEFAULT;
-                    }
-                    const filePath: string = await FileService.CreateDirTree(
-                      en.USER_FOLDER,
-                      file.fileName
-                    );
-                    await actionList.push(
-                      FileService.WriteFile(filePath, content).then(
-                        (added: boolean) => {
-                          // TODO : add Name attribute in File and show information message here with name , when required.
-                        },
-                        (error: any) => {
-                          Commons.LogException(
-                            error,
-                            common.ERROR_MESSAGE,
-                            true
-                          );
-                          return;
-                        }
-                      )
-                    );
-                  }
-                }
+                );
+              } catch (extensions) {
+                addedExtensions = extensions;
               }
             }
           } else {
-            Commons.LogException(res, "Sync : Unable to Read Gist.", true);
-          }
-
-          Promise.all(actionList)
-            .then(async () => {
-              // if (!syncSetting.showSummary) {
-              //     if (missingList.length == 0) {
-              //         //vscode.window.showInformationMessage("No extension need to be installed");
-              //     }
-              //     else {
-              //         //extension message when summary is turned off
-              //         vscode.window.showInformationMessage("Sync : " + missingList.length + " extensions installed Successfully, Restart Required.");
-              //     }
-              //     if (deletedExtensions.length > 0) {
-              //         vscode.window.showInformationMessage("Sync : " + deletedExtensions.length + " extensions deleted Successfully, Restart Required.");
-              //     }
-              // }
-
-              await common.SaveSettings(syncSetting).then(
-                async (added: boolean) => {
-                  if (added) {
-                    if (!syncSetting.quietSync) {
-                      common.ShowSummaryOutput(
-                        false,
-                        updatedFiles,
-                        deletedExtensions,
-                        addedExtensions,
-                        null,
-                        localSettings
-                      );
-                      vscode.window.setStatusBarMessage("").dispose();
-                    } else {
-                      vscode.window.setStatusBarMessage("").dispose();
-                      vscode.window.setStatusBarMessage(
-                        localize("cmd.downloadSettings.info.downloaded"),
-                        5000
-                      );
-                    }
-                    if (
-                      Object.keys(customSettings.replaceCodeSettings).length > 0
-                    ) {
-                      const config = vscode.workspace.getConfiguration();
-                      const keysDefined: string[] = Object.keys(
-                        customSettings.replaceCodeSettings
-                      );
-                      keysDefined.forEach((key: string, index: number) => {
-                        const value: string =
-                          customSettings.replaceCodeSettings[key];
-                        const c: any = value === "" ? undefined : value;
-                        config.update(key, c, true);
-                      });
-                    }
-                    if (syncSetting.autoUpload) {
-                      common.StartWatch();
-                    }
-                  } else {
-                    vscode.window.showErrorMessage(
-                      localize("cmd.downloadSettings.error.unableSave")
-                    );
-                  }
-                },
-                (errSave: any) => {
-                  Commons.LogException(errSave, common.ERROR_MESSAGE, true);
-                  return;
-                }
+            writeFile = true;
+            if (
+              file.gistName === env.FILE_KEYBINDING_DEFAULT ||
+              file.gistName === env.FILE_KEYBINDING_MAC
+            ) {
+              let test: string = "";
+              env.OsType === OsType.Mac
+                ? (test = env.FILE_KEYBINDING_MAC)
+                : (test = env.FILE_KEYBINDING_DEFAULT);
+              if (file.gistName !== test) {
+                writeFile = false;
+              }
+            }
+            if (writeFile) {
+              if (file.gistName === env.FILE_KEYBINDING_MAC) {
+                file.fileName = env.FILE_KEYBINDING_DEFAULT;
+              }
+              const filePath: string = await FileService.CreateDirTree(
+                env.USER_FOLDER,
+                file.fileName
               );
-            })
-            .catch(e => {
-              Commons.LogException(e, common.ERROR_MESSAGE, true);
-            });
-        },
-        (err: any) => {
-          Commons.LogException(err, common.ERROR_MESSAGE, true);
-          return;
+              await actionList.push(
+                FileService.WriteFile(filePath, content).then(
+                  (added: boolean) => {
+                    // TODO : add Name attribute in File and show information message here with name , when required.
+                  },
+                  (error: any) => {
+                    Commons.LogException(error, common.ERROR_MESSAGE, true);
+                    return;
+                  }
+                )
+              );
+            }
+          }
         }
-      );
+      }
+
+      await Promise.all(actionList);
+
+      await common.SaveSettings(syncSetting).then(async (added: boolean) => {
+        if (added) {
+          if (!syncSetting.quietSync) {
+            common.ShowSummaryOutput(
+              false,
+              updatedFiles,
+              deletedExtensions,
+              addedExtensions,
+              null,
+              localSettings
+            );
+            vscode.window.setStatusBarMessage("").dispose();
+          } else {
+            vscode.window.setStatusBarMessage("").dispose();
+            vscode.window.setStatusBarMessage(
+              localize("cmd.downloadSettings.info.downloaded"),
+              5000
+            );
+          }
+          if (Object.keys(customSettings.replaceCodeSettings).length > 0) {
+            const config = vscode.workspace.getConfiguration();
+            const keysDefined: string[] = Object.keys(
+              customSettings.replaceCodeSettings
+            );
+            keysDefined.forEach((key: string, index: number) => {
+              const value: string = customSettings.replaceCodeSettings[key];
+              const c: any = value === "" ? undefined : value;
+              config.update(key, c, true);
+            });
+          }
+          if (syncSetting.autoUpload) {
+            common.StartWatch();
+          }
+        } else {
+          vscode.window.showErrorMessage(
+            localize("cmd.downloadSettings.error.unableSave")
+          );
+        }
+      });
     }
   }
   /**
