@@ -63,16 +63,15 @@ export class Sync {
    */
   public async upload(): Promise<void> {
     const args = arguments;
-    const env: Environment = new Environment(this.context);
-    const common: Commons = new Commons(env, this.context);
-    let myGi: GitHubService = null;
+    const env = new Environment(this.context);
+    const common = new Commons(env, this.context);
+    let github: GitHubService = null;
     let localConfig: LocalConfig = new LocalConfig();
     const allSettingFiles: File[] = [];
     let uploadedExtensions: ExtensionInformation[] = [];
     const ignoredExtensions: ExtensionInformation[] = [];
-    const dateNow: Date = new Date();
+    const dateNow = new Date();
     common.CloseWatch();
-    const ignoreSettings = new Object();
 
     try {
       localConfig = await common.InitalizeSettings(true, false);
@@ -83,7 +82,7 @@ export class Sync {
         }
       }
 
-      myGi = new GitHubService(localConfig.customConfig.token);
+      github = new GitHubService(localConfig.customConfig.token);
       // ignoreSettings = await common.GetIgnoredSettings(localConfig.customConfig.ignoreUploadSettings);
       await startGitProcess(localConfig.extConfig, localConfig.customConfig);
       // await common.SetIgnoredSettings(ignoreSettings);
@@ -177,23 +176,21 @@ export class Sync {
           });
         }
         if (customSettings.ignoreUploadFolders.length > 0) {
-          contentFiles = contentFiles.filter(
-            (contentFile: File, index: number) => {
-              const matchedFolders = customSettings.ignoreUploadFolders.filter(
-                folder => {
-                  return contentFile.filePath.indexOf(folder) === -1;
-                }
-              );
-              return matchedFolders.length > 0;
-            }
-          );
+          contentFiles = contentFiles.filter((contentFile: File) => {
+            const matchedFolders = customSettings.ignoreUploadFolders.filter(
+              folder => {
+                return contentFile.filePath.indexOf(folder) === -1;
+              }
+            );
+            return matchedFolders.length > 0;
+          });
         }
       } else {
         Commons.LogException(null, common.ERROR_MESSAGE, true);
         return;
       }
 
-      contentFiles.forEach(snippetFile => {
+      for (const snippetFile of contentFiles) {
         if (
           snippetFile.fileName !== env.APP_SUMMARY_NAME &&
           snippetFile.fileName !== env.FILE_KEYBINDING_MAC
@@ -208,7 +205,7 @@ export class Sync {
             allSettingFiles.push(snippetFile);
           }
         }
-      });
+      }
 
       const extProp: CloudSetting = new CloudSetting();
       extProp.lastUpload = dateNow;
@@ -225,81 +222,35 @@ export class Sync {
           customSettings.gistDescription = await common.AskGistName();
         }
         newGIST = true;
-        await myGi
+        await github
           .CreateEmptyGIST(
             localConfig.publicGist,
             customSettings.gistDescription
           )
-          .then(
-            (gistID: string) => {
-              if (gistID) {
-                syncSetting.gist = gistID;
-                vscode.window.setStatusBarMessage(
-                  localize("cmd.updateSettings.info.newGistCreated"),
-                  2000
-                );
-              } else {
-                vscode.window.showInformationMessage(
-                  localize("cmd.updateSettings.error.newGistCreateFail")
-                );
-                return;
-              }
-            },
-            (error: any) => {
-              Commons.LogException(error, common.ERROR_MESSAGE, true);
+          .then((gistID: string) => {
+            if (gistID) {
+              syncSetting.gist = gistID;
+              vscode.window.setStatusBarMessage(
+                localize("cmd.updateSettings.info.newGistCreated"),
+                2000
+              );
+            } else {
+              vscode.window.showInformationMessage(
+                localize("cmd.updateSettings.error.newGistCreateFail")
+              );
               return;
             }
-          );
+          })
+          .catch(err => {
+            Commons.LogException(err, common.ERROR_MESSAGE, true);
+            return;
+          });
       }
 
-      await myGi
+      await github
         .ReadGist(syncSetting.gist)
         .then((gistObj: any) => {
-          if (gistObj) {
-            if (gistObj.data.owner !== null) {
-              const gistOwnerName: string = gistObj.data.owner.login.trim();
-              if (myGi.userName != null) {
-                const userName: string = myGi.userName.trim();
-                if (gistOwnerName !== userName) {
-                  Commons.LogException(
-                    null,
-                    "Sync : You cant edit GIST for user : " +
-                      gistObj.data.owner.login,
-                    true,
-                    () => {
-                      console.log(
-                        "Sync : Current User : " + "'" + userName + "'"
-                      );
-                      console.log(
-                        "Sync : Gist Owner User : " + "'" + gistOwnerName + "'"
-                      );
-                    }
-                  );
-                  return;
-                }
-              }
-            }
-            if (gistObj.public === true) {
-              localConfig.publicGist = true;
-            }
-
-            vscode.window.setStatusBarMessage(
-              localize("cmd.updateSettings.info.uploadingFile"),
-              3000
-            );
-            gistObj = myGi.UpdateGIST(gistObj, allSettingFiles);
-
-            return myGi.SaveGIST(gistObj.data).then((saved: boolean) => {
-              if (saved) {
-                completed = true;
-              } else {
-                vscode.window.showErrorMessage(
-                  localize("cmd.updateSettings.error.gistNotSave")
-                );
-                return;
-              }
-            });
-          } else {
+          if (!gistObj) {
             vscode.window.showErrorMessage(
               localize(
                 "cmd.updateSettings.error.readGistFail",
@@ -308,6 +259,51 @@ export class Sync {
             );
             return;
           }
+
+          if (gistObj.data.owner !== null) {
+            const gistOwnerName: string = gistObj.data.owner.login.trim();
+            if (github.userName != null) {
+              const userName: string = github.userName.trim();
+              if (gistOwnerName !== userName) {
+                Commons.LogException(
+                  null,
+                  "Sync : You cant edit GIST for user : " +
+                    gistObj.data.owner.login,
+                  true,
+                  () => {
+                    console.log(
+                      "Sync : Current User : " + "'" + userName + "'"
+                    );
+                    console.log(
+                      "Sync : Gist Owner User : " + "'" + gistOwnerName + "'"
+                    );
+                  }
+                );
+                return;
+              }
+            }
+          }
+
+          if (gistObj.public === true) {
+            localConfig.publicGist = true;
+          }
+
+          vscode.window.setStatusBarMessage(
+            localize("cmd.updateSettings.info.uploadingFile"),
+            3000
+          );
+          gistObj = github.UpdateGIST(gistObj, allSettingFiles);
+
+          return github.SaveGIST(gistObj.data).then((saved: boolean) => {
+            if (saved) {
+              completed = true;
+            } else {
+              vscode.window.showErrorMessage(
+                localize("cmd.updateSettings.error.gistNotSave")
+              );
+              return;
+            }
+          });
         })
         .catch(err => {
           Commons.LogException(err, common.ERROR_MESSAGE, true);
@@ -315,8 +311,9 @@ export class Sync {
         });
 
       if (completed) {
-        await common.SaveSettings(syncSetting).then(
-          (added: boolean) => {
+        await common
+          .SaveSettings(syncSetting)
+          .then((added: boolean) => {
             if (added) {
               if (newGIST) {
                 vscode.window.showInformationMessage(
@@ -354,12 +351,10 @@ export class Sync {
                 common.StartWatch();
               }
             }
-          },
-          (err: any) => {
+          })
+          .catch(err => {
             Commons.LogException(err, common.ERROR_MESSAGE, true);
-            return;
-          }
-        );
+          });
       }
     }
   }
