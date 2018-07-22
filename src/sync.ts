@@ -1,10 +1,10 @@
 import * as fs from "fs-extra";
-import * as lockfile from "lockfile";
 import * as vscode from "vscode";
 import Commons from "./commons";
 import { OsType } from "./enums";
 import { Environment } from "./environmentPath";
 import localize from "./localize";
+import * as lockfile from "./lockfile";
 import { File, FileService } from "./service/fileService";
 import { GitHubService } from "./service/githubService";
 import { ExtensionInformation, PluginService } from "./service/pluginService";
@@ -14,7 +14,6 @@ import {
   ExtensionConfig,
   LocalConfig
 } from "./setting";
-import { Util } from "./util";
 
 export class Sync {
   constructor(private context: vscode.ExtensionContext) {}
@@ -31,8 +30,8 @@ export class Sync {
     }
 
     // if is locked;
-    if (await Util.promisify(lockfile.check)(env.FILE_SYNC_LOCK)) {
-      await Util.promisify(lockfile.unlock)(env.FILE_SYNC_LOCK);
+    if (await lockfile.check(env.FILE_SYNC_LOCK)) {
+      await lockfile.unlock(env.FILE_SYNC_LOCK);
     }
 
     await globalCommonService.StartMigrationProcess();
@@ -686,8 +685,8 @@ export class Sync {
       }
 
       // check is sync locking
-      if (await Util.promisify(lockfile.check)(en.FILE_SYNC_LOCK)) {
-        await Util.promisify(lockfile.unlock)(en.FILE_SYNC_LOCK);
+      if (await lockfile.check(en.FILE_SYNC_LOCK)) {
+        await lockfile.unlock(en.FILE_SYNC_LOCK);
       }
 
       if (extSaved && customSaved) {

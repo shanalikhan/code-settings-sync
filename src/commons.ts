@@ -1,10 +1,10 @@
 "use strict";
 import * as chokidar from "chokidar";
 import * as fs from "fs-extra";
-import * as lockfile from "lockfile";
 import * as vscode from "vscode";
 import { Environment } from "./environmentPath";
 import localize from "./localize";
+import * as lockfile from "./lockfile";
 import { File, FileService } from "./service/fileService";
 import { ExtensionInformation } from "./service/pluginService";
 import { CustomSettings, ExtensionConfig, LocalConfig } from "./setting";
@@ -94,8 +94,8 @@ export default class Commons {
     }
 
     // check is sync locking
-    if (await Util.promisify(lockfile.check)(this.en.FILE_SYNC_LOCK)) {
-      await Util.promisify(lockfile.unlock)(this.en.FILE_SYNC_LOCK);
+    if (await lockfile.check(this.en.FILE_SYNC_LOCK)) {
+      await lockfile.unlock(this.en.FILE_SYNC_LOCK);
     }
 
     let uploadStopped: boolean = true;
@@ -141,7 +141,7 @@ export default class Commons {
 
     Commons.configWatcher.on("change", async (path: string) => {
       // check sync is locking
-      if (await Util.promisify(lockfile.check)(this.en.FILE_SYNC_LOCK)) {
+      if (await lockfile.check(this.en.FILE_SYNC_LOCK)) {
         uploadStopped = false;
       }
 
@@ -155,7 +155,7 @@ export default class Commons {
       }
 
       uploadStopped = false;
-      await Util.promisify(lockfile.lock)(this.en.FILE_SYNC_LOCK);
+      await lockfile.lock(this.en.FILE_SYNC_LOCK);
       const settings: ExtensionConfig = this.GetSettings();
       const customSettings: CustomSettings = await this.GetCustomSettings();
       if (customSettings == null) {
@@ -204,16 +204,16 @@ export default class Commons {
           this.InitiateAutoUpload(path)
             .then(isDone => {
               uploadStopped = isDone;
-              return Util.promisify(lockfile.unlock)(this.en.FILE_SYNC_LOCK);
+              return lockfile.unlock(this.en.FILE_SYNC_LOCK);
             })
             .catch(() => {
               uploadStopped = true;
-              return Util.promisify(lockfile.unlock)(this.en.FILE_SYNC_LOCK);
+              return lockfile.unlock(this.en.FILE_SYNC_LOCK);
             });
         }
       } else {
         uploadStopped = true;
-        await Util.promisify(lockfile.unlock)(this.en.FILE_SYNC_LOCK);
+        await lockfile.unlock(this.en.FILE_SYNC_LOCK);
       }
     });
   }
