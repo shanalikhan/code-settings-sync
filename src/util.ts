@@ -152,13 +152,18 @@ export class Util {
     return dirName;
   }
 
-  public static async Sleep(ms: number) {
+  public static async Sleep(ms: number): Promise<number> {
     return new Promise((resolve, reject) => {
       setTimeout(() => {
-        resolve();
+        resolve(ms);
       }, ms);
-    });
+    }) as Promise<number>;
   }
+  /**
+   * promisify the function
+   * it will be remove when vscode use node@^8.0
+   * @param fn
+   */
   public static promisify(
     fn: (...args: any[]) => any
   ): (...whatever: any[]) => Promise<any> {
