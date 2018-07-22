@@ -15,14 +15,20 @@ export default {
   unlock
 };
 
-export function check(filepath: string, options?: IOptions): Promise<boolean> {
+export function check(
+  filepath: string,
+  options: IOptions = {}
+): Promise<boolean> {
   return Util.promisify(lockfile.check)(filepath, options);
 }
 
-export function lock(filepath: string, options?: IOptions): Promise<boolean> {
+export function lock(
+  filepath: string,
+  options: IOptions = {}
+): Promise<boolean> {
   return Util.promisify(lockfile.lock)(filepath, options);
 }
 
-export function unlock(filepath: string, options?: IOptions): Promise<boolean> {
-  return Util.promisify(lockfile.unlock)(filepath, options);
+export function unlock(filepath: string): Promise<boolean> {
+  return Util.promisify(lockfile.unlock)(filepath);
 }
