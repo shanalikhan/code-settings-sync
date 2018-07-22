@@ -637,7 +637,7 @@ export default class Commons {
     });
   }
 
-  public ShowSummmaryOutput(
+  public ShowSummaryOutput(
     upload: boolean,
     files: File[],
     removedExtensions: ExtensionInformation[],
