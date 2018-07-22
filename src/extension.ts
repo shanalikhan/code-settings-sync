@@ -1,7 +1,7 @@
 "use strict";
 
 import * as fs from "fs-extra";
-import * as lockfile from "proper-lockfile";
+import * as lockfile from "lockfile";
 import * as vscode from "vscode";
 import Commons from "./commons";
 import { OsType } from "./enums";
@@ -696,9 +696,9 @@ export async function activate(context: vscode.ExtensionContext) {
           fs.closeSync(fs.openSync(en.FILE_SYNC_LOCK, "w"));
         }
 
-        const locked: boolean = lockfile.checkSync(en.FILE_SYNC_LOCK);
-        if (locked) {
-          lockfile.unlockSync(en.FILE_SYNC_LOCK);
+        // check is sync locking
+        if (await Util.promisify(lockfile.check)(en.FILE_SYNC_LOCK)) {
+          await Util.promisify(lockfile.unlock)(en.FILE_SYNC_LOCK);
         }
 
         if (extSaved && customSaved) {
