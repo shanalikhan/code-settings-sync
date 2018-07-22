@@ -548,13 +548,13 @@ export default class Commons {
 
   public GetSettings(): ExtensionConfig {
     const settings = new ExtensionConfig();
-    const keys = Object.keys(settings);
 
-    keys.forEach(key => {
+    for (const key of Object.keys(settings)) {
       if (key !== "token") {
-        settings[key] = vscode.workspace.getConfiguration("sync")[key];
+        settings[key] = vscode.workspace.getConfiguration("sync").get(key);
       }
-    });
+    }
+
     settings.gist = settings.gist.trim();
     return settings;
   }
