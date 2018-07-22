@@ -1,7 +1,7 @@
 "use strict";
 import * as chokidar from "chokidar";
 import * as fs from "fs-extra";
-import * as lockfile from "proper-lockfile";
+import * as lockfile from "lockfile";
 import * as vscode from "vscode";
 import { Environment } from "./environmentPath";
 import localize from "./localize";
@@ -93,10 +93,11 @@ export default class Commons {
       fs.closeSync(fs.openSync(this.en.FILE_SYNC_LOCK, "w"));
     }
 
-    const locked: boolean = lockfile.checkSync(this.en.FILE_SYNC_LOCK);
-    if (locked) {
-      lockfile.unlockSync(this.en.FILE_SYNC_LOCK);
+    // check is sync locking
+    if (await Util.promisify(lockfile.check)(this.en.FILE_SYNC_LOCK)) {
+      await Util.promisify(lockfile.unlock)(this.en.FILE_SYNC_LOCK);
     }
+
     let uploadStopped: boolean = true;
     Commons.extensionWatcher = chokidar.watch(this.en.ExtensionFolder, {
       depth: 0,
@@ -139,81 +140,80 @@ export default class Commons {
     // });
 
     Commons.configWatcher.on("change", async (path: string) => {
-      const isLocked: boolean = lockfile.checkSync(this.en.FILE_SYNC_LOCK);
-      if (isLocked) {
+      // check sync is locking
+      if (await Util.promisify(lockfile.check)(this.en.FILE_SYNC_LOCK)) {
         uploadStopped = false;
       }
 
-      if (uploadStopped) {
-        uploadStopped = false;
-        lockfile.lockSync(this.en.FILE_SYNC_LOCK);
-        const settings: ExtensionConfig = this.GetSettings();
-        const customSettings: CustomSettings = await this.GetCustomSettings();
-        if (customSettings == null) {
-          return;
-        }
-
-        let requiredFileChanged: boolean = false;
-        if (
-          customSettings.ignoreUploadFolders.indexOf("workspaceStorage") === -1
-        ) {
-          requiredFileChanged =
-            path.indexOf(this.en.FILE_SYNC_LOCK_NAME) === -1 &&
-            path.indexOf(".DS_Store") === -1 &&
-            path.indexOf(this.en.APP_SUMMARY_NAME) === -1 &&
-            path.indexOf(this.en.FILE_CUSTOMIZEDSETTINGS_NAME) === -1;
-        } else {
-          requiredFileChanged =
-            path.indexOf(this.en.FILE_SYNC_LOCK_NAME) === -1 &&
-            path.indexOf("workspaceStorage") === -1 &&
-            path.indexOf(".DS_Store") === -1 &&
-            path.indexOf(this.en.APP_SUMMARY_NAME) === -1 &&
-            path.indexOf(this.en.FILE_CUSTOMIZEDSETTINGS_NAME) === -1;
-        }
-
-        console.log("Sync : File Change Detected On : " + path);
-
-        if (requiredFileChanged) {
-          if (settings.autoUpload) {
-            if (
-              customSettings.ignoreUploadFolders.indexOf("workspaceStorage") >
-              -1
-            ) {
-              const fileType: string = path.substring(
-                path.lastIndexOf("."),
-                path.length
-              );
-              if (fileType.indexOf("json") === -1) {
-                console.log(
-                  "Sync : Cannot Initiate Auto-upload on This File (Not JSON)."
-                );
-                uploadStopped = true;
-                return;
-              }
-            }
-
-            console.log("Sync : Initiating Auto-upload For File : " + path);
-            this.InitiateAutoUpload(path).then(
-              isDone => {
-                uploadStopped = isDone;
-                lockfile.unlockSync(this.en.FILE_SYNC_LOCK);
-              },
-              () => {
-                lockfile.unlockSync(this.en.FILE_SYNC_LOCK);
-                uploadStopped = true;
-              }
-            );
-          }
-        } else {
-          uploadStopped = true;
-          lockfile.unlockSync(this.en.FILE_SYNC_LOCK);
-        }
-      } else {
+      if (!uploadStopped) {
         vscode.window.setStatusBarMessage("").dispose();
         vscode.window.setStatusBarMessage(
           localize("common.info.updating"),
           3000
         );
+        return false;
+      }
+
+      uploadStopped = false;
+      await Util.promisify(lockfile.lock)(this.en.FILE_SYNC_LOCK);
+      const settings: ExtensionConfig = this.GetSettings();
+      const customSettings: CustomSettings = await this.GetCustomSettings();
+      if (customSettings == null) {
+        return;
+      }
+
+      let requiredFileChanged: boolean = false;
+      if (
+        customSettings.ignoreUploadFolders.indexOf("workspaceStorage") === -1
+      ) {
+        requiredFileChanged =
+          path.indexOf(this.en.FILE_SYNC_LOCK_NAME) === -1 &&
+          path.indexOf(".DS_Store") === -1 &&
+          path.indexOf(this.en.APP_SUMMARY_NAME) === -1 &&
+          path.indexOf(this.en.FILE_CUSTOMIZEDSETTINGS_NAME) === -1;
+      } else {
+        requiredFileChanged =
+          path.indexOf(this.en.FILE_SYNC_LOCK_NAME) === -1 &&
+          path.indexOf("workspaceStorage") === -1 &&
+          path.indexOf(".DS_Store") === -1 &&
+          path.indexOf(this.en.APP_SUMMARY_NAME) === -1 &&
+          path.indexOf(this.en.FILE_CUSTOMIZEDSETTINGS_NAME) === -1;
+      }
+
+      console.log("Sync : File Change Detected On : " + path);
+
+      if (requiredFileChanged) {
+        if (settings.autoUpload) {
+          if (
+            customSettings.ignoreUploadFolders.indexOf("workspaceStorage") > -1
+          ) {
+            const fileType: string = path.substring(
+              path.lastIndexOf("."),
+              path.length
+            );
+            if (fileType.indexOf("json") === -1) {
+              console.log(
+                "Sync : Cannot Initiate Auto-upload on This File (Not JSON)."
+              );
+              uploadStopped = true;
+              return;
+            }
+          }
+
+          console.log("Sync : Initiating Auto-upload For File : " + path);
+          this.InitiateAutoUpload(path)
+            .then(isDone => {
+              uploadStopped = isDone;
+              return Util.promisify(lockfile.unlock)(this.en.FILE_SYNC_LOCK);
+            })
+            .catch(() => {
+              uploadStopped = true;
+              return Util.promisify(lockfile.unlock)(this.en.FILE_SYNC_LOCK);
+            });
+        }
+      } else {
+        uploadStopped = true;
+        await Util.promisify(lockfile.unlock)(this.en.FILE_SYNC_LOCK);
       }
     });
   }
