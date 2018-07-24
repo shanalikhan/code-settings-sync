@@ -10,8 +10,7 @@ interface ILanguagePack {
 }
 
 export class Localize {
-  // get language pack when the instance be created
-  private bundle = this.resolveLanguagePack();
+  private bundle: ILanguagePack;
   constructor(private options: IConfig = {}) {}
   /**
    * translate the key
@@ -22,6 +21,9 @@ export class Localize {
     const languagePack = this.bundle;
     const message: string = languagePack[key] || key;
     return this.format(message, args);
+  }
+  public async init() {
+    this.bundle = await this.resolveLanguagePack();
   }
   /**
    * format the message
@@ -43,7 +45,7 @@ export class Localize {
   /**
    * Get language pack
    */
-  private resolveLanguagePack(): ILanguagePack {
+  private async resolveLanguagePack(): Promise<ILanguagePack> {
     let resolvedLanguage: string = "";
     // TODO: it should read the extension root path from context
     const rootPath = path.join(__dirname, "..", "..");
@@ -56,7 +58,7 @@ export class Localize {
       let locale: string | null = options.locale;
       while (locale) {
         const candidate = ".nls." + locale + ".json";
-        if (fs.existsSync(file + candidate)) {
+        if (await fs.pathExists(file + candidate)) {
           resolvedLanguage = candidate;
           break;
         } else {
@@ -96,4 +98,8 @@ try {
 
 const instance = new Localize(config);
 
+const init = instance.init.bind(instance);
+
 export default instance.localize.bind(instance);
+
+export { init };

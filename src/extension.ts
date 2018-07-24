@@ -1,9 +1,12 @@
 "use strict";
 
 import * as vscode from "vscode";
+import { init as initLocalize } from "./localize";
 import { Sync } from "./sync";
 
 export async function activate(context: vscode.ExtensionContext) {
+  await initLocalize();
+
   const sync = new Sync(context);
 
   sync.bootstrap();
