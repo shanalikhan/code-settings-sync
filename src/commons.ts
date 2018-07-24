@@ -353,8 +353,6 @@ export default class Commons {
   }
 
   public async StartMigrationProcess(): Promise<boolean> {
-    const settingKeys = Object.keys(new ExtensionConfig());
-    const settings: ExtensionConfig = await this.GetSettings();
     const fileExist: boolean = await FileService.FileExists(
       this.en.FILE_CUSTOMIZEDSETTINGS
     );
@@ -602,14 +600,16 @@ export default class Commons {
     const ignoreSettings: object = {};
     const config = vscode.workspace.getConfiguration();
     const keysUpdated: Array<Thenable<void>> = [];
-    settings.forEach((key: string, index: number) => {
+
+    for (const key of settings) {
       let keyValue: object = null;
       keyValue = config.get<null>(key, null);
       if (keyValue !== null) {
         ignoreSettings[key] = keyValue;
         keysUpdated.push(config.update(key, undefined, true));
       }
-    });
+    }
+
     await Promise.all(keysUpdated);
 
     return ignoreSettings;

@@ -153,7 +153,7 @@ export class Util {
   }
 
   public static async Sleep(ms: number): Promise<number> {
-    return new Promise((resolve, reject) => {
+    return new Promise(resolve => {
       setTimeout(() => {
         resolve(ms);
       }, ms);
