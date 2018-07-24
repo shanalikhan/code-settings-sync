@@ -46,6 +46,7 @@ export class Localize {
    * Get language pack
    */
   private async resolveLanguagePack(): Promise<ILanguagePack> {
+    const defaultResvoleLanguage = ".nls.json";
     let resolvedLanguage: string = "";
     // TODO: it should read the extension root path from context
     const rootPath = path.join(__dirname, "..", "..");
@@ -53,7 +54,7 @@ export class Localize {
     const options = this.options;
 
     if (!options.locale) {
-      resolvedLanguage = ".nls.json";
+      resolvedLanguage = defaultResvoleLanguage;
     } else {
       let locale: string | null = options.locale;
       while (locale) {
@@ -73,13 +74,25 @@ export class Localize {
       }
     }
 
-    const languageFilePath = path.join(file + resolvedLanguage);
+    let defaultLanguageBundle = {};
 
-    if (!fs.existsSync(languageFilePath)) {
-      return {};
+    // if not use default language
+    // then merger the Language pack
+    // just in case the resolveLanguage bundle missing the translation and fallback with default language
+    if (resolvedLanguage !== defaultResvoleLanguage) {
+      defaultLanguageBundle = require(path.join(file + defaultResvoleLanguage));
     }
 
-    return require(languageFilePath);
+    const languageFilePath = path.join(file + resolvedLanguage);
+
+    const isExistResolvedLanguage = await fs.pathExists(languageFilePath);
+
+    const ResolvedLanguageBundle = isExistResolvedLanguage
+      ? require(languageFilePath)
+      : {};
+
+    // merger with default language bundle
+    return { ...defaultLanguageBundle, ...ResolvedLanguageBundle };
   }
 }
 
