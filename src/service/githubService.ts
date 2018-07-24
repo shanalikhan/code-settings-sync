@@ -71,11 +71,11 @@ export class GitHubService {
   };
 
   constructor(private TOKEN: string) {
-    if (TOKEN !== null && TOKEN !== "") {
+    if (this.TOKEN !== null && this.TOKEN !== "") {
       try {
         github.authenticate({
           type: "oauth",
-          token: TOKEN
+          token: this.TOKEN
         });
       } catch (err) {
         console.error(err);

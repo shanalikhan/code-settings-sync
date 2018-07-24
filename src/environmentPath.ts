@@ -55,8 +55,8 @@ export class Environment {
   public APP_SUMMARY: string = null;
 
   constructor(private context: vscode.ExtensionContext) {
-    this.isInsiders = /insiders/.test(context.asAbsolutePath(""));
-    this.isOss = /\boss\b/.test(context.asAbsolutePath(""));
+    this.isInsiders = /insiders/.test(this.context.asAbsolutePath(""));
+    this.isOss = /\boss\b/.test(this.context.asAbsolutePath(""));
     const isXdg =
       !this.isInsiders &&
       !!this.isOss &&
@@ -97,7 +97,7 @@ export class Environment {
         "/Shan.code-settings-sync-" +
         Environment.getVersion() +
         "/node_modules/opn/xdg-open";
-      exec(myExt, (error, stdout, stderr) => {
+      exec(myExt, () => {
         // command output is in stdout
       });
     }

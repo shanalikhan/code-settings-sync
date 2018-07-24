@@ -546,16 +546,16 @@ export class Sync {
                 env.USER_FOLDER,
                 file.fileName
               );
+              // TODO: we don't need await here
               await actionList.push(
-                FileService.WriteFile(filePath, content).then(
-                  (added: boolean) => {
+                FileService.WriteFile(filePath, content)
+                  .then(() => {
                     // TODO : add Name attribute in File and show information message here with name , when required.
-                  },
-                  (error: any) => {
-                    Commons.LogException(error, common.ERROR_MESSAGE, true);
+                  })
+                  .catch(err => {
+                    Commons.LogException(err, common.ERROR_MESSAGE, true);
                     return;
-                  }
-                )
+                  })
               );
             }
           }
@@ -588,11 +588,11 @@ export class Sync {
             const keysDefined: string[] = Object.keys(
               customSettings.replaceCodeSettings
             );
-            keysDefined.forEach((key: string, index: number) => {
+            for (const key of keysDefined) {
               const value: string = customSettings.replaceCodeSettings[key];
               const c: any = value === "" ? undefined : value;
               config.update(key, c, true);
-            });
+            }
           }
           if (syncSetting.autoUpload) {
             common.StartWatch();
