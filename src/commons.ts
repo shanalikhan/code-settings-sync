@@ -94,8 +94,8 @@ export default class Commons {
     }
 
     // check is sync locking
-    if (await lockfile.check(this.en.FILE_SYNC_LOCK)) {
-      await lockfile.unlock(this.en.FILE_SYNC_LOCK);
+    if (await lockfile.Check(this.en.FILE_SYNC_LOCK)) {
+      await lockfile.Unlock(this.en.FILE_SYNC_LOCK);
     }
 
     let uploadStopped: boolean = true;
@@ -141,7 +141,7 @@ export default class Commons {
 
     Commons.configWatcher.on("change", async (path: string) => {
       // check sync is locking
-      if (await lockfile.check(this.en.FILE_SYNC_LOCK)) {
+      if (await lockfile.Check(this.en.FILE_SYNC_LOCK)) {
         uploadStopped = false;
       }
 
@@ -155,7 +155,7 @@ export default class Commons {
       }
 
       uploadStopped = false;
-      await lockfile.lock(this.en.FILE_SYNC_LOCK);
+      await lockfile.Lock(this.en.FILE_SYNC_LOCK);
       const settings: ExtensionConfig = this.GetSettings();
       const customSettings: CustomSettings = await this.GetCustomSettings();
       if (customSettings == null) {
@@ -204,16 +204,16 @@ export default class Commons {
           this.InitiateAutoUpload(path)
             .then(isDone => {
               uploadStopped = isDone;
-              return lockfile.unlock(this.en.FILE_SYNC_LOCK);
+              return lockfile.Unlock(this.en.FILE_SYNC_LOCK);
             })
             .catch(() => {
               uploadStopped = true;
-              return lockfile.unlock(this.en.FILE_SYNC_LOCK);
+              return lockfile.Unlock(this.en.FILE_SYNC_LOCK);
             });
         }
       } else {
         uploadStopped = true;
-        await lockfile.unlock(this.en.FILE_SYNC_LOCK);
+        await lockfile.Unlock(this.en.FILE_SYNC_LOCK);
       }
     });
   }
