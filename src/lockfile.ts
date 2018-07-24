@@ -10,25 +10,25 @@ interface IOptions {
 }
 
 export default {
-  check,
-  lock,
-  unlock
+  Check,
+  Lock,
+  Unlock
 };
 
-export function check(
+export function Check(
   filepath: string,
   options: IOptions = {}
 ): Promise<boolean> {
   return Util.promisify(lockfile.check)(filepath, options);
 }
 
-export function lock(
+export function Lock(
   filepath: string,
   options: IOptions = {}
 ): Promise<boolean> {
   return Util.promisify(lockfile.lock)(filepath, options);
 }
 
-export function unlock(filepath: string): Promise<boolean> {
+export function Unlock(filepath: string): Promise<boolean> {
   return Util.promisify(lockfile.unlock)(filepath);
 }

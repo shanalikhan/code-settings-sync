@@ -30,8 +30,8 @@ export class Sync {
     }
 
     // if is locked;
-    if (await lockfile.check(env.FILE_SYNC_LOCK)) {
-      await lockfile.unlock(env.FILE_SYNC_LOCK);
+    if (await lockfile.Check(env.FILE_SYNC_LOCK)) {
+      await lockfile.Unlock(env.FILE_SYNC_LOCK);
     }
 
     await globalCommonService.StartMigrationProcess();
@@ -637,8 +637,8 @@ export class Sync {
       }
 
       // check is sync locking
-      if (await lockfile.check(env.FILE_SYNC_LOCK)) {
-        await lockfile.unlock(env.FILE_SYNC_LOCK);
+      if (await lockfile.Check(env.FILE_SYNC_LOCK)) {
+        await lockfile.Unlock(env.FILE_SYNC_LOCK);
       }
 
       if (extSaved && customSaved) {
