@@ -546,8 +546,8 @@ export class Sync {
                 env.USER_FOLDER,
                 file.fileName
               );
-              // TODO: we don't need await here
-              await actionList.push(
+
+              actionList.push(
                 FileService.WriteFile(filePath, content)
                   .then(() => {
                     // TODO : add Name attribute in File and show information message here with name , when required.
