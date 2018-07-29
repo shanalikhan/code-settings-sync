@@ -49,7 +49,7 @@ export class ExtensionInformation {
             });
         }
         catch (err) {
-            console.error("Sync : Unable to Parse extensions list",err);
+            console.error("Sync : Unable to Parse extensions list", err);
         }
 
         return extList;
@@ -74,7 +74,21 @@ export class ExtensionMetadata {
     }
 }
 
+
 export class PluginService {
+
+    public static async InstallExtensionByCLI(name: string) : Promise<boolean> {
+        var exec = require('child_process').exec;
+        let myExt: string = process.argv0;
+        myExt = '"' + process.argv0.substr(0, process.argv0.lastIndexOf("Code")) + 'bin\\code"';
+        myExt = myExt + " --install-extension " + name;
+        const { stdout, stderr } = await exec(myExt);
+        if (stderr) {
+            console.error(`error: ${stderr}`);
+            return false;
+        }
+        return true;
+    }
 
     private static CopyExtension(destination: string, source: string) {
         return new Promise(
