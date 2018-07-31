@@ -1,12 +1,13 @@
-# Settings Sync
+# Settings Sync [![Tweet](https://img.shields.io/twitter/url/http/shields.io.svg?style=social)](https://twitter.com/intent/tweet?text=Synchronize%20your%20%40VisualStudio%20%40code%20Settings%20Across%20Multiple%20Machines%20using%20%40github%20GIST%20by%20%40itsShanKhan&url=https://github.com/shanalikhan/code-settings-sync&via=code&hashtags=code,vscode,SettingsSync,developers)
+
 
 
 
 **Previously known as Visual Studio Code Settings Sync**
 
-[![Version](https://vsmarketplacebadge.apphb.com/version/Shan.code-settings-sync.svg)](https://marketplace.visualstudio.com/items?itemName=Shan.code-settings-sync) [![Travis](https://img.shields.io/travis/rust-lang/rust.svg)](https://marketplace.visualstudio.com/items?itemName=Shan.code-settings-sync) 
+[![Version](https://vsmarketplacebadge.apphb.com/version/Shan.code-settings-sync.svg)](https://marketplace.visualstudio.com/items?itemName=Shan.code-settings-sync) [![Travis](https://img.shields.io/travis/rust-lang/rust.svg)](https://marketplace.visualstudio.com/items?itemName=Shan.code-settings-sync)
 [![Greenkeeper badge](https://badges.greenkeeper.io/shanalikhan/code-settings-sync.svg)](https://greenkeeper.io/)
-
+[![Follow](https://img.shields.io/twitter/follow/itsShanKhan.svg?style=social&label=Follow)](https://twitter.com/intent/follow?screen_name=itsShanKhan)
 
 <a href="https://join.slack.com/t/codesettingssync/shared_invite/enQtMzE3MjY5NTczNDMwLTYwMTIwNGExOGE2MTJkZWU0OTU5MmI3ZTc4N2JkZjhjMzY1OTk5OGExZjkwMDMzMDU4ZTBlYjk5MGQwZmMyNzk">
 <img src="https://shanalikhan.github.io/img/slack.PNG" alt="Drawing" style="width: 150px;"/>
@@ -82,7 +83,7 @@ Enter the GitHub token in the window and click enter.
 ![github account access token](https://shanalikhan.github.io/img/upload1.png)
 
 **Upload your settings automatically and the extension gives you Gist ID in the system message.**
-Gist ID is needed to access the data you have uploaded with your token. Copy this Gist ID in order to download the settings to other machines. 
+Gist ID is needed to access the data you have uploaded with your token. Copy this Gist ID in order to download the settings to other machines.
 
 ![uploaded automatically](https://shanalikhan.github.io/img/upload2.png)
 
@@ -133,7 +134,7 @@ Here is the gif of the complete process when you execute the Download command (M
 Auto Download is **disabled by default**. It will sync all the setting by default when the editor starts.
 Please make sure you have valid github Token and Gist available to make it work properly.
 
-Select Command **"Sync : Advance Options > Toggle Auto-Download On Startup"** command to Turn ON / OFF the auto download.
+Select Command **"Sync : Advanced Options > Toggle Auto-Download On Startup"** command to Turn ON / OFF the auto download.
 
 ## Toggle Force Download
 
@@ -141,7 +142,7 @@ Force Download is **disabled by default**. By default, extension won't download 
 
 Please make sure you have valid github Token and Gist available to make it work properly.
 
-Select Command **"Sync : Advance Options > Toggle Force Download"** command to Turn ON / OFF the force download.
+Select Command **"Sync : Advanced Options > Toggle Force Download"** command to Turn ON / OFF the force download.
 
 ## Toggle Auto-Upload on change
 
@@ -149,7 +150,7 @@ Auto-upload is **disabled by default**. When the settings are changed and saved 
 
 Please make sure you have valid github Token and Gist available to make it work properly.
 
-Select Command **"Sync : Advance Options > Toggle Auto-Upload on Setting Change"** command to Turn ON / OFF the auto-upload.
+Select Command **"Sync : Advanced Options > Toggle Auto-Upload on Settings Change"** command to Turn ON / OFF the auto-upload.
 
 
 ## Toggle Summary
@@ -157,7 +158,7 @@ Select Command **"Sync : Advance Options > Toggle Auto-Upload on Setting Change"
 Summary is **enabled by default** which shows all files and extensions that are added or deleted on a single page.
 You may turn it off in order to make a upload and download process clean and quiet.
 
-Select Command **"Sync : Advance Options > Toggle Summary Page On Upload / Download"** command to Turn ON / OFF the auto download.
+Select Command **"Sync : Advanced Options > Show Summary Page On Upload / Download"** command to Turn ON / OFF the auto download.
 
 ## Create Public Gist To Share Settings
 
@@ -172,7 +173,7 @@ Other users can give your Gist Id to download the Gist, but they can't upload th
 ## Settings
 
 
-For details regarding settings keys, click [here](https://shanalikhan.github.io/2016/07/31/Visual-Studio-code-sync-setting-edit-manually.html)
+For details regarding settings keys, click [here](https://medium.com/@itsShanKhan/visual-studio-code-settings-sync-configurations-ed8dd6fd9753)
 
 ```json
     "sync.gist": "0c929b1a6c51015cdc9e0fe2e369ea4c",
@@ -216,6 +217,9 @@ The JSON will be created as:
     "ignoreUploadFolders": [
         "workspaceStorage"
     ],
+    "ignoreExtensions": [
+        "ignored_extension_name"
+    ],
     "replaceCodeSettings": {
          "http.proxy": "http://my.proxy.address:8080"
     },
@@ -229,36 +233,33 @@ The JSON will be created as:
 }
 ```
 
-For details about customized sync, visit my post [here](https://shanalikhan.github.io/2016/07/31/Visual-Studio-code-sync-setting-edit-manually.html)
+For settings details, visit my post [here](https://medium.com/@itsShanKhan/visual-studio-code-settings-sync-configurations-ed8dd6fd9753)
 
 
-# How To Contribute
+## How To Contribute
 
-If you have any idea, you can open an issue on the GitHub repository so we can further discuss it or you can send me a pull request.
+You can contribute in different ways. Read the details [here](https://github.com/shanalikhan/code-settings-sync/blob/master/CONTRIBUTING.md)
 
-## Through Code
 
-Download source code and install dependencies
 
-```bash
-git clone https://github.com/shanalikhan/code-settings-sync.git
-cd code-settings-sync
-npm install
-code .
-```
-Make the respective code changes.
+## Credits
 
-Go to the debugger in VS Code, choose `Launch Extension` and click run. You can test your changes.
+### Contributors
 
-Submit a Pull Request.
+Thank you to all the people who have already contributed to Settings Sync!
+<a href="graphs/contributors"><img src="https://opencollective.com/code-settings-sync/contributors.svg?width=890" /></a>
 
-## Through Donation
+### Backers
 
-If you are enjoying this extension. What about donating, Your donation will help me to keep working and supporting this project.
+Thank you to all our backers! [[Become a backer](https://opencollective.com/code-settings-sync#backer)]
 
+<a href="https://opencollective.com/code-settings-sync#backers" target="_blank"><img src="https://opencollective.com/code-settings-sync/backers.svg?width=890"></a>
 [<img src="https://www.paypalobjects.com/en_US/i/btn/btn_donateCC_LG.gif">](https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=4W3EWHHBSYMM8&lc=IE&item_name=Code%20Settings%20Sync&item_number=visual%20studio%20code%20settings%20sync&currency_code=USD&bn=PP%2dDonationsBF%3abtn_donate_SM%2egif%3aNonHosted)
 
 
+### Sponsors
+
+Thank you to all our sponsors! (please ask your company to also support this open source project by [becoming a sponsor](https://opencollective.com/code-settings-sync))
 
 ## [Contributors](https://github.com/shanalikhan/code-settings-sync/graphs/contributors)
 # [Release Notes](https://shanalikhan.github.io/2016/05/14/Visual-studio-code-sync-settings-release-notes.html)
