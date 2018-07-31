@@ -120,7 +120,7 @@ export class PluginService {
             });
     }
 
-    public static GetMissingExtensions(remoteExt: string) {
+    public static GetMissingExtensions(remoteExt: string, ignoredExtensions: Array<string>) {
         var hashset = {};
         var remoteList = ExtensionInformation.fromJSONList(remoteExt);
         var localList = this.CreateExtensionList();
@@ -134,14 +134,14 @@ export class PluginService {
         var missingList = new Array<ExtensionInformation>();
         for (var i = 0; i < remoteList.length; i++) {
             var ext = remoteList[i];
-            if (hashset[ext.name] == null) {
+            if (hashset[ext.name] == null && ignoredExtensions.includes(ext.name) === false) {
                 missingList.push(ext);
             }
         }
         return missingList;
     }
 
-    public static GetDeletedExtensions(remoteList: Array<ExtensionInformation>) {
+    public static GetDeletedExtensions(remoteList: Array<ExtensionInformation>, ignoredExtensions: Array<string>) {
 
         var localList = this.CreateExtensionList();
         var deletedList = new Array<ExtensionInformation>();
@@ -173,7 +173,7 @@ export class PluginService {
                 for (var j = 0; j < remoteList.length; j++) {
                     var localExt = remoteList[j];
 
-                    if (ext.name == localExt.name) {
+                    if (ext.name == localExt.name || ignoredExtensions.includes(ext.name)) {
                         found = true;
                         break;
                     }
@@ -226,10 +226,10 @@ export class PluginService {
         });
     }
 
-    public static async DeleteExtensions(extensionsJson: string, extensionFolder: string): Promise<Array<ExtensionInformation>> {
+    public static async DeleteExtensions(extensionsJson: string, extensionFolder: string, ignoredExtensions: Array<string>): Promise<Array<ExtensionInformation>> {
         return await new Promise<Array<ExtensionInformation>>(async (res, rej) => {
             var remoteList = ExtensionInformation.fromJSONList(extensionsJson);
-            var deletedList = PluginService.GetDeletedExtensions(remoteList);
+            var deletedList = PluginService.GetDeletedExtensions(remoteList, ignoredExtensions);
             let deletedExt: Array<ExtensionInformation> = new Array<ExtensionInformation>();
             if (deletedList.length == 0) {
                 res(deletedExt);
@@ -252,9 +252,9 @@ export class PluginService {
         });
     }
 
-    public static async InstallExtensions(extensions: string, extFolder: string, notificationCallBack: Function): Promise<Array<ExtensionInformation>> {
+    public static async InstallExtensions(extensions: string, extFolder: string, ignoredExtensions: Array<string>, notificationCallBack: Function): Promise<Array<ExtensionInformation>> {
         return new Promise<Array<ExtensionInformation>>(async (res, rej) => {
-            var missingList = PluginService.GetMissingExtensions(extensions);
+            var missingList = PluginService.GetMissingExtensions(extensions, ignoredExtensions);
             if (missingList.length == 0) {
                 notificationCallBack("Sync : No Extensions needs to be installed.");
                 res(new Array<ExtensionInformation>());

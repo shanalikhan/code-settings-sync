@@ -309,6 +309,7 @@ export async function activate(context: vscode.ExtensionContext) {
 
                 var addedExtensions: Array<ExtensionInformation> = new Array<ExtensionInformation>();
                 var deletedExtensions: Array<ExtensionInformation> = new Array<ExtensionInformation>();
+                var ignoredExtensions: Array<string> = customSettings.ignoreExtensions || new Array<string>();
                 var updatedFiles: Array<File> = new Array<File>();
                 var actionList = new Array<Promise<void | boolean>>();
 
@@ -375,17 +376,9 @@ export async function activate(context: vscode.ExtensionContext) {
                                 if (syncSetting.syncExtensions) {
                                     var extDelStatus: Array<KeyValue<string, boolean>> = new Array<KeyValue<string, boolean>>();
 
-                                    if (customSettings.ignoreExtensions && customSettings.ignoreExtensions.length) {
-                                        const extList = ExtensionInformation.fromJSONList(content)
-                                        const newExtList = extList.filter(extension =>
-                                            !customSettings.ignoreExtensions.includes(extension.name)
-                                        )
-                                        content = JSON.stringify(newExtList)
-                                    }
-
                                     if (syncSetting.removeExtensions) {
                                         try {
-                                            deletedExtensions = await PluginService.DeleteExtensions(content, en.ExtensionFolder);
+                                            deletedExtensions = await PluginService.DeleteExtensions(content, en.ExtensionFolder, ignoredExtensions);
                                         }
                                         catch (uncompletedExtensions) {
                                             vscode.window.showErrorMessage(localize("cmd.downloadSettings.error.removeExtFail"));
@@ -394,7 +387,7 @@ export async function activate(context: vscode.ExtensionContext) {
 
                                     }
                                     try {
-                                        addedExtensions = await PluginService.InstallExtensions(content, en.ExtensionFolder, function (message: string, dispose: boolean) {
+                                        addedExtensions = await PluginService.InstallExtensions(content, en.ExtensionFolder, ignoredExtensions, function (message: string, dispose: boolean) {
                                             //TODO:
                                             if (dispose) {
                                                 vscode.window.setStatusBarMessage(message, 2000);
