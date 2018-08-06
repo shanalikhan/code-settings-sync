@@ -307,7 +307,7 @@ export default class Commons {
                 });
                 vscode.window.showInformationMessage(localize("common.info.excludeFile"), openExtensionTutorial).then(function (val: string) {
                     if (val == openExtensionTutorial) {
-                        vscode.commands.executeCommand('vscode.open', vscode.Uri.parse('http://shanalikhan.github.io/2017/02/19/Option-to-ignore-settings-folders-code-settings-sync.html'))
+                        vscode.commands.executeCommand('vscode.open', vscode.Uri.parse('http://shanalikhan.github.io/2015/12/15/Visual-Studio-Code-Sync-Settings.html'))
                     }
                 });
             }
