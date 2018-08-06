@@ -10,7 +10,7 @@
 [![Follow](https://img.shields.io/twitter/follow/itsShanKhan.svg?style=social&label=Follow)](https://twitter.com/intent/follow?screen_name=itsShanKhan)
 
 <a href="https://join.slack.com/t/codesettingssync/shared_invite/enQtMzE3MjY5NTczNDMwLTYwMTIwNGExOGE2MTJkZWU0OTU5MmI3ZTc4N2JkZjhjMzY1OTk5OGExZjkwMDMzMDU4ZTBlYjk5MGQwZmMyNzk">
-<img src="./images/slack.png" alt="Drawing" style="width: 150px;"/>
+<img src="https://i.imgur.com/1QWdtcX.png" alt="Drawing" style="width: 150px;"/>
 </a>
 
 
