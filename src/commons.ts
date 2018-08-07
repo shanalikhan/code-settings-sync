@@ -396,7 +396,7 @@ export default class Commons {
             vscode.commands.executeCommand(
               "vscode.open",
               vscode.Uri.parse(
-                "http://shanalikhan.github.io/2017/02/19/Option-to-ignore-settings-folders-code-settings-sync.html"
+                "https://shanalikhan.github.io/2016/07/31/Visual-Studio-code-sync-setting-edit-manually.html"
               )
             );
           }
