@@ -1,212 +1,196 @@
 "use strict";
 
-import * as envir from '../environmentPath';
-import {File, FileService} from './fileService';
-import * as vscode from 'vscode';
-import { Environment } from '../environmentPath';
+import * as GitHubApi from "@octokit/rest";
+import * as HttpsProxyAgent from "https-proxy-agent";
+import * as vscode from "vscode";
+import { File } from "./fileService";
 
-var proxyURL: string = vscode.workspace.getConfiguration("http")["proxy"] || process.env["http_proxy"];
-var host: string = vscode.workspace.getConfiguration("sync")["host"];
-var pathPrefix: string = vscode.workspace.getConfiguration("sync")["pathPrefix"];
-if (!host || host === "") {
-    host = "api.github.com";
-    pathPrefix = "";
+interface IEnv {
+  [key: string]: string | undefined;
+  http_proxy: string;
+  HTTP_PROXY: string;
 }
-var GitHubApi = require("github");
-var github = new GitHubApi({
-    proxy: proxyURL,
-    version: "3.0.0",
-    host: host,
-    pathPrefix: pathPrefix,
-    rejectUnauthorized: false
-});
+
+const proxyURL: string =
+  vscode.workspace.getConfiguration("http").get("proxy") ||
+  (process.env as IEnv).http_proxy ||
+  (process.env as IEnv).HTTP_PROXY;
+
+let host: string = vscode.workspace.getConfiguration("sync").get("host");
+let pathPrefix: string = vscode.workspace
+  .getConfiguration("sync")
+  .get("pathPrefix");
+
+if (!host || host === "") {
+  host = "api.github.com";
+  pathPrefix = "";
+}
+
+const githubApiConfig: GitHubApi.Options = {
+  host,
+  pathPrefix,
+  rejectUnauthorized: false
+};
+
+if (proxyURL) {
+  githubApiConfig.proxy = proxyURL;
+  githubApiConfig.agent = new HttpsProxyAgent(proxyURL);
+}
+
+const github = new GitHubApi(githubApiConfig);
 
 export class GitHubService {
-
-    private GIST_JSON_EMPTY: any = {
-        "description": "Visual Studio Code Sync Settings Gist",
-        "public": false,
-        "files": {
-            "settings.json": {
-                "content": "// Empty"
-            },
-            "launch.json": {
-                "content": "// Empty"
-            },
-            "keybindings.json": {
-                "content": "// Empty"
-            },
-            "extensions.json": {
-                "content": "// Empty"
-            },
-            "locale.json": {
-                "content": "// Empty"
-            },
-            "keybindingsMac.json": {
-                "content": "// Empty"
-            },
-            "cloudSettings": {
-                "content": "// Empty"
-            }
-        }
-    };
-    public userName: string = null;
-    public name: string = null;
-
-    private GIST_JSON: any = null;
-
-    constructor(private TOKEN: string) {
-        if (TOKEN != null && TOKEN != '') {
-            try {
-                var self: GitHubService = this;
-                github.authenticate({
-                    type: "oauth",
-                    token: TOKEN
-                });
-            } catch (error) {
-
-            }
-
-            github.users.get({}, function (err, res) {
-                if (err) {
-                    console.log(err);
-                }
-                else {
-                    self.userName = res.data.login;
-                    self.name = res.data.name;
-                    console.log("Sync : Connected with user : " + "'" + self.userName + "'");
-                }
-            });
-        }
+  public userName: string = null;
+  public name: string = null;
+  private GIST_JSON_EMPTY: any = {
+    description: "Visual Studio Code Sync Settings Gist",
+    public: false,
+    files: {
+      "settings.json": {
+        content: "// Empty"
+      },
+      "launch.json": {
+        content: "// Empty"
+      },
+      "keybindings.json": {
+        content: "// Empty"
+      },
+      "extensions.json": {
+        content: "// Empty"
+      },
+      "locale.json": {
+        content: "// Empty"
+      },
+      "keybindingsMac.json": {
+        content: "// Empty"
+      },
+      cloudSettings: {
+        content: "// Empty"
+      }
     }
+  };
 
-    public AddFile(list: Array<File>, GIST_JSON_b: any) {
-        for (var i = 0; i < list.length; i++) {
-            var file = list[i];
-            if (file.content != '') {
-                GIST_JSON_b.files[file.gistName] = {};
-                GIST_JSON_b.files[file.gistName].content = file.content;
-            }
-        }
-        return GIST_JSON_b;
-    }
+  constructor(private TOKEN: string) {
+    if (this.TOKEN !== null && this.TOKEN !== "") {
+      try {
+        github.authenticate({
+          type: "oauth",
+          token: this.TOKEN
+        });
+      } catch (err) {
+        console.error(err);
+      }
 
-    public CreateEmptyGIST(publicGist: boolean, gistDesciption: string): Promise<string> {
-        var me = this;
-        if (publicGist) {
-            me.GIST_JSON_EMPTY.public = true;
-        }
-        else {
-            me.GIST_JSON_EMPTY.public = false;
-        }
-        if (gistDesciption != null && gistDesciption != "") {
-            me.GIST_JSON_EMPTY.description = gistDesciption;
-        }
-
-        return new Promise<string>((resolve, reject) => {
-            github.getGistsApi().create(me.GIST_JSON_EMPTY
-                , function (err, res) {
-                    if (err) {
-                        console.error(err);
-                        reject(err);
-                    }
-                    else {
-                        if (res.data.id) {
-                            resolve(res.data.id);
-                        } else {
-                            console.error("ID is null");
-                            console.log("Sync : " + "Response from GitHub is: ");
-                            console.log(res);
-                        }
-                    }
-                });
+      github.users
+        .get({})
+        .then(res => {
+          this.userName = res.data.login;
+          this.name = res.data.name;
+          console.log(
+            "Sync : Connected with user : " + "'" + this.userName + "'"
+          );
+        })
+        .catch(err => {
+          console.error(err);
         });
     }
+  }
 
-    public async CreateAnonymousGist(publicGist: boolean, files: Array<File>, gistDesciption: string): Promise<any> {
-        var me = this;
-        if (publicGist) {
-            me.GIST_JSON_EMPTY.public = true;
-        }
-        else {
-            me.GIST_JSON_EMPTY.public = false;
-        }
-        if (gistDesciption != null && gistDesciption != "") {
-            me.GIST_JSON_EMPTY.description = gistDesciption;
-        }
+  public AddFile(list: File[], GIST_JSON_B: any) {
+    for (const file of list) {
+      if (file.content !== "") {
+        GIST_JSON_B.files[file.gistName] = {};
+        GIST_JSON_B.files[file.gistName].content = file.content;
+      }
+    }
+    return GIST_JSON_B;
+  }
 
-        let gist: any = me.AddFile(files, me.GIST_JSON_EMPTY);
-
-        return new Promise<string>((resolve, reject) => {
-            github.getGistsApi().create(gist
-                , function (err, res) {
-                    if (err) {
-                        console.error(err);
-                        reject(err);
-                    }
-                    if (res.data.id) {
-                        resolve(res.data.id);
-                    } else {
-                        console.error("ID is null");
-                        console.log("Sync : " + "Response from GitHub is: ");
-                        console.log(res);
-                    }
-
-                });
-        });
+  public async CreateEmptyGIST(
+    publicGist: boolean,
+    gistDescription: string
+  ): Promise<string> {
+    if (publicGist) {
+      this.GIST_JSON_EMPTY.public = true;
+    } else {
+      this.GIST_JSON_EMPTY.public = false;
+    }
+    if (gistDescription !== null && gistDescription !== "") {
+      this.GIST_JSON_EMPTY.description = gistDescription;
     }
 
+    try {
+      const res = await github.gists.create(this.GIST_JSON_EMPTY);
+      if (res.data && res.data.id) {
+        return res.data.id;
+      } else {
+        console.error("ID is null");
+        console.log("Sync : " + "Response from GitHub is: ");
+        console.log(res);
+      }
+    } catch (err) {
+      console.error(err);
+      throw err;
+    }
+  }
 
-    public async ReadGist(GIST: string): Promise<any> {
-        var me = this;
-        return new Promise<any>(async (resolve, reject) => {
-            await github.getGistsApi().get({ id: GIST }, async function (er, res) {
-                if (er) {
-                    console.error(er);
-                    reject(er);
-                }
-                resolve(res);
-            });
-        });
+  public async CreateAnonymousGist(
+    publicGist: boolean,
+    files: File[],
+    gistDescription: string
+  ): Promise<any> {
+    if (publicGist) {
+      this.GIST_JSON_EMPTY.public = true;
+    } else {
+      this.GIST_JSON_EMPTY.public = false;
+    }
+    if (gistDescription !== null && gistDescription !== "") {
+      this.GIST_JSON_EMPTY.description = gistDescription;
     }
 
-    public UpdateGIST(gistObject: any, files: Array<File>): any {
+    const gist: any = this.AddFile(files, this.GIST_JSON_EMPTY);
 
-        var me = this;
-        var allFiles: string[] = Object.keys(gistObject.data.files);
-        for (var fileIndex = 0; fileIndex < allFiles.length; fileIndex++) {
-            var fileName = allFiles[fileIndex];
+    try {
+      const res = await github.gists.create(gist);
+      if (res.data && res.data.id) {
+        return res.data.id;
+      } else {
+        console.error("ID is null");
+        console.log("Sync : " + "Response from GitHub is: ");
+        console.log(res);
+      }
+    } catch (err) {
+      console.error(err);
+      throw err;
+    }
+  }
 
-            var exists = false;
+  public async ReadGist(GIST: string): Promise<any> {
+    return await github.gists.get({ gist_id: GIST, id: GIST });
+  }
 
-            files.forEach((settingFile) => {
-                if (settingFile.gistName == fileName) {
-                    exists = true;
-                }
-            });
+  public UpdateGIST(gistObject: any, files: File[]): any {
+    const allFiles: string[] = Object.keys(gistObject.data.files);
+    for (const fileName of allFiles) {
+      let exists = false;
 
-            if (!exists && !fileName.startsWith("keybindings")) {
-                gistObject.data.files[fileName] = null;
-            }
-
+      for (const settingFile of files) {
+        if (settingFile.gistName === fileName) {
+          exists = true;
         }
+      }
 
-        gistObject.data = me.AddFile(files, gistObject.data);
-        return gistObject;
+      if (!exists && !fileName.startsWith("keybindings")) {
+        gistObject.data.files[fileName] = null;
+      }
     }
 
-    public async SaveGIST(gistObject: any): Promise<boolean> {
-        var me = this;
+    gistObject.data = this.AddFile(files, gistObject.data);
+    return gistObject;
+  }
 
-        //TODO : turn diagnostic mode on for console.
-        return new Promise<boolean>(async (resolve, reject) => {
-            await github.getGistsApi().edit(gistObject, function (ere, ress) {
-                if (ere) {
-                    console.error(ere);
-                    reject(false);
-                }
-                resolve(true);
-            });
-        });
-    }
+  public async SaveGIST(gistObject: any): Promise<boolean> {
+    await github.gists.edit(gistObject);
+    return true;
+  }
 }
