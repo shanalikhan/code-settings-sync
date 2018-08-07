@@ -307,7 +307,7 @@ export default class Commons {
                 });
                 vscode.window.showInformationMessage(localize("common.info.excludeFile"), openExtensionTutorial).then(function (val: string) {
                     if (val == openExtensionTutorial) {
-                        vscode.commands.executeCommand('vscode.open', vscode.Uri.parse('http://shanalikhan.github.io/2015/12/15/Visual-Studio-Code-Sync-Settings.html'))
+                        vscode.commands.executeCommand('vscode.open', vscode.Uri.parse('https://shanalikhan.github.io/2016/07/31/Visual-Studio-code-sync-setting-edit-manually.html'))
                     }
                 });
             }
