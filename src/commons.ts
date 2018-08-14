@@ -663,13 +663,7 @@ export default class Commons {
 
     outputChannel.appendLine(`Files ${upload ? "Upload" : "Download"}ed:`);
     files.filter(item => item.fileName.indexOf(".") > 0).forEach(item => {
-      if (item.fileName !== item.gistName) {
-        if (upload) {
-          outputChannel.appendLine(`  ${item.fileName} > ${item.gistName}`);
-        } else {
-          outputChannel.appendLine(`  ${item.gistName} > ${item.fileName}`);
-        }
-      }
+      outputChannel.appendLine(`  ${item.fileName} > ${item.gistName}`);
     });
 
     outputChannel.appendLine(``);

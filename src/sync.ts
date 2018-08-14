@@ -162,7 +162,6 @@ export class Sync {
         env.FILE_CUSTOMIZEDSETTINGS
       );
       if (customExist) {
-        customSettings = await common.GetCustomSettings();
         contentFiles = contentFiles.filter(
           contentFile =>
             contentFile.fileName !== env.FILE_CUSTOMIZEDSETTINGS_NAME

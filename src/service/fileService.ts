@@ -145,7 +145,8 @@ export class FileService {
     if (fileName.indexOf("|") > -1) {
       const paths: string[] = fileName.split("|");
 
-      for (const element of paths) {
+      for (let i = 0; i < paths.length - 1; i++) {
+        const element = paths[i];
         fullPath += element + "/";
         await FileService.CreateDirectory(fullPath);
       }
