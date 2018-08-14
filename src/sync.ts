@@ -1,5 +1,6 @@
 import * as fs from "fs-extra";
 import * as vscode from "vscode";
+
 import Commons from "./commons";
 import { OsType } from "./enums";
 import { Environment } from "./environmentPath";
@@ -110,7 +111,7 @@ export class Sync {
         }
       }
 
-      syncSetting.lastUpload = dateNow;
+      customSettings.lastUpload = dateNow;
       vscode.window.setStatusBarMessage(
         localize("cmd.updateSettings.info.readding"),
         2000
@@ -216,145 +217,126 @@ export class Sync {
 
       let completed: boolean = false;
       let newGIST: boolean = false;
-
-      if (syncSetting.gist == null || syncSetting.gist === "") {
-        if (syncSetting.askGistName) {
-          customSettings.gistDescription = await common.AskGistName();
-        }
-        newGIST = true;
-        await github
-          .CreateEmptyGIST(
+      try {
+        if (syncSetting.gist == null || syncSetting.gist === "") {
+          if (syncSetting.askGistName) {
+            customSettings.gistDescription = await common.AskGistName();
+          }
+          newGIST = true;
+          const gistID = await github.CreateEmptyGIST(
             localConfig.publicGist,
             customSettings.gistDescription
-          )
-          .then((gistID: string) => {
-            if (gistID) {
-              syncSetting.gist = gistID;
-              vscode.window.setStatusBarMessage(
-                localize("cmd.updateSettings.info.newGistCreated"),
-                2000
-              );
-            } else {
-              vscode.window.showInformationMessage(
-                localize("cmd.updateSettings.error.newGistCreateFail")
-              );
-              return;
-            }
-          })
-          .catch(err => {
-            Commons.LogException(err, common.ERROR_MESSAGE, true);
-            return;
-          });
-      }
-
-      await github
-        .ReadGist(syncSetting.gist)
-        .then((gistObj: any) => {
-          if (!gistObj) {
-            vscode.window.showErrorMessage(
-              localize(
-                "cmd.updateSettings.error.readGistFail",
-                syncSetting.gist
-              )
+          );
+          if (gistID) {
+            syncSetting.gist = gistID;
+            vscode.window.setStatusBarMessage(
+              localize("cmd.updateSettings.info.newGistCreated"),
+              2000
+            );
+          } else {
+            vscode.window.showInformationMessage(
+              localize("cmd.updateSettings.error.newGistCreateFail")
             );
             return;
           }
-
-          if (gistObj.data.owner !== null) {
-            const gistOwnerName: string = gistObj.data.owner.login.trim();
-            if (github.userName != null) {
-              const userName: string = github.userName.trim();
-              if (gistOwnerName !== userName) {
-                Commons.LogException(
-                  null,
-                  "Sync : You cant edit GIST for user : " +
-                    gistObj.data.owner.login,
-                  true,
-                  () => {
-                    console.log(
-                      "Sync : Current User : " + "'" + userName + "'"
-                    );
-                    console.log(
-                      "Sync : Gist Owner User : " + "'" + gistOwnerName + "'"
-                    );
-                  }
-                );
-                return;
-              }
-            }
-          }
-
-          if (gistObj.public === true) {
-            localConfig.publicGist = true;
-          }
-
-          vscode.window.setStatusBarMessage(
-            localize("cmd.updateSettings.info.uploadingFile"),
-            3000
+        }
+        let gistObj = await github.ReadGist(syncSetting.gist);
+        if (!gistObj) {
+          vscode.window.showErrorMessage(
+            localize("cmd.updateSettings.error.readGistFail", syncSetting.gist)
           );
-          gistObj = github.UpdateGIST(gistObj, allSettingFiles);
+          return;
+        }
 
-          return github.SaveGIST(gistObj.data).then((saved: boolean) => {
-            if (saved) {
-              completed = true;
-            } else {
-              vscode.window.showErrorMessage(
-                localize("cmd.updateSettings.error.gistNotSave")
+        if (gistObj.data.owner !== null) {
+          const gistOwnerName: string = gistObj.data.owner.login.trim();
+          if (github.userName != null) {
+            const userName: string = github.userName.trim();
+            if (gistOwnerName !== userName) {
+              Commons.LogException(
+                null,
+                "Sync : You cant edit GIST for user : " +
+                  gistObj.data.owner.login,
+                true,
+                () => {
+                  console.log("Sync : Current User : " + "'" + userName + "'");
+                  console.log(
+                    "Sync : Gist Owner User : " + "'" + gistOwnerName + "'"
+                  );
+                }
               );
               return;
             }
-          });
-        })
-        .catch(err => {
-          Commons.LogException(err, common.ERROR_MESSAGE, true);
+          }
+        }
+
+        if (gistObj.public === true) {
+          localConfig.publicGist = true;
+        }
+
+        vscode.window.setStatusBarMessage(
+          localize("cmd.updateSettings.info.uploadingFile"),
+          3000
+        );
+        gistObj = github.UpdateGIST(gistObj, allSettingFiles);
+        completed = await github.SaveGIST(gistObj.data);
+        if (!completed) {
+          vscode.window.showErrorMessage(
+            localize("cmd.updateSettings.error.gistNotSave")
+          );
           return;
-        });
+        }
+      } catch (err) {
+        Commons.LogException(err, common.ERROR_MESSAGE, true);
+        return;
+      }
 
       if (completed) {
-        await common
-          .SaveSettings(syncSetting)
-          .then((added: boolean) => {
-            if (added) {
-              if (newGIST) {
-                vscode.window.showInformationMessage(
-                  localize(
-                    "cmd.updateSettings.info.uploadingDone",
-                    syncSetting.gist
-                  )
-                );
-              }
-
-              if (localConfig.publicGist) {
-                vscode.window.showInformationMessage(
-                  localize("cmd.updateSettings.info.shareGist")
-                );
-              }
-
-              if (!syncSetting.quietSync) {
-                common.ShowSummaryOutput(
-                  true,
-                  allSettingFiles,
-                  null,
-                  uploadedExtensions,
-                  ignoredExtensions,
-                  localConfig
-                );
-                vscode.window.setStatusBarMessage("").dispose();
-              } else {
-                vscode.window.setStatusBarMessage("").dispose();
-                vscode.window.setStatusBarMessage(
-                  localize("cmd.updateSettings.info.uploadingSuccess"),
-                  5000
-                );
-              }
-              if (syncSetting.autoUpload) {
-                common.StartWatch();
-              }
+        try {
+          const settingsUpdated = await common.SaveSettings(syncSetting);
+          const customSettingsUpdated = await common.SetCustomSettings(
+            customSettings
+          );
+          if (settingsUpdated && customSettingsUpdated) {
+            if (newGIST) {
+              vscode.window.showInformationMessage(
+                localize(
+                  "cmd.updateSettings.info.uploadingDone",
+                  syncSetting.gist
+                )
+              );
             }
-          })
-          .catch(err => {
-            Commons.LogException(err, common.ERROR_MESSAGE, true);
-          });
+
+            if (localConfig.publicGist) {
+              vscode.window.showInformationMessage(
+                localize("cmd.updateSettings.info.shareGist")
+              );
+            }
+
+            if (!syncSetting.quietSync) {
+              common.ShowSummaryOutput(
+                true,
+                allSettingFiles,
+                null,
+                uploadedExtensions,
+                ignoredExtensions,
+                localConfig
+              );
+              vscode.window.setStatusBarMessage("").dispose();
+            } else {
+              vscode.window.setStatusBarMessage("").dispose();
+              vscode.window.setStatusBarMessage(
+                localize("cmd.updateSettings.info.uploadingSuccess"),
+                5000
+              );
+            }
+            if (syncSetting.autoUpload) {
+              common.StartWatch();
+            }
+          }
+        } catch (err) {
+          Commons.LogException(err, common.ERROR_MESSAGE, true);
+        }
       }
     }
   }
@@ -411,11 +393,11 @@ export class Sync {
           cloudSettGist
         );
 
-        const lastUploadStr: string = syncSetting.lastUpload
-          ? syncSetting.lastUpload.toString()
+        const lastUploadStr: string = customSettings.lastUpload
+          ? customSettings.lastUpload.toString()
           : "";
-        const lastDownloadStr: string = syncSetting.lastDownload
-          ? syncSetting.lastDownload.toString()
+        const lastDownloadStr: string = customSettings.lastDownload
+          ? customSettings.lastDownload.toString()
           : "";
 
         let upToDate: boolean = false;
@@ -442,7 +424,7 @@ export class Sync {
             return;
           }
         }
-        syncSetting.lastDownload = cloudSett.lastUpload;
+        customSettings.lastDownload = cloudSett.lastUpload;
       }
 
       keys.forEach(gistName => {
@@ -508,11 +490,22 @@ export class Sync {
                 }
               }
               try {
+                // TODO: Remove Older installation way in next version.
+                let useCli = true;
+                if (customSettings.useCliBaseInstallation) {
+                  const autoUpdate: boolean = vscode.workspace
+                    .getConfiguration("extensions")
+                    .get("autoUpdate");
+                  useCli = autoUpdate;
+                } else {
+                  useCli = false;
+                }
+
                 addedExtensions = await PluginService.InstallExtensions(
                   content,
                   env.ExtensionFolder,
+                  useCli,
                   (message: string, dispose: boolean) => {
-                    // TODO:
                     if (dispose) {
                       vscode.window.setStatusBarMessage(message, 2000);
                     } else {
@@ -563,46 +556,47 @@ export class Sync {
       }
 
       await Promise.all(actionList);
-
-      await common.SaveSettings(syncSetting).then(async (added: boolean) => {
-        if (added) {
-          if (!syncSetting.quietSync) {
-            common.ShowSummaryOutput(
-              false,
-              updatedFiles,
-              deletedExtensions,
-              addedExtensions,
-              null,
-              localSettings
-            );
-            vscode.window.setStatusBarMessage("").dispose();
-          } else {
-            vscode.window.setStatusBarMessage("").dispose();
-            vscode.window.setStatusBarMessage(
-              localize("cmd.downloadSettings.info.downloaded"),
-              5000
-            );
-          }
-          if (Object.keys(customSettings.replaceCodeSettings).length > 0) {
-            const config = vscode.workspace.getConfiguration();
-            const keysDefined: string[] = Object.keys(
-              customSettings.replaceCodeSettings
-            );
-            for (const key of keysDefined) {
-              const value: string = customSettings.replaceCodeSettings[key];
-              const c: any = value === "" ? undefined : value;
-              config.update(key, c, true);
-            }
-          }
-          if (syncSetting.autoUpload) {
-            common.StartWatch();
-          }
+      const settingsUpdated = await common.SaveSettings(syncSetting);
+      const customSettingsUpdated = await common.SetCustomSettings(
+        customSettings
+      );
+      if (settingsUpdated && customSettingsUpdated) {
+        if (!syncSetting.quietSync) {
+          common.ShowSummaryOutput(
+            false,
+            updatedFiles,
+            deletedExtensions,
+            addedExtensions,
+            null,
+            localSettings
+          );
+          vscode.window.setStatusBarMessage("").dispose();
         } else {
-          vscode.window.showErrorMessage(
-            localize("cmd.downloadSettings.error.unableSave")
+          vscode.window.setStatusBarMessage("").dispose();
+          vscode.window.setStatusBarMessage(
+            localize("cmd.downloadSettings.info.downloaded"),
+            5000
           );
         }
-      });
+        if (Object.keys(customSettings.replaceCodeSettings).length > 0) {
+          const config = vscode.workspace.getConfiguration();
+          const keysDefined: string[] = Object.keys(
+            customSettings.replaceCodeSettings
+          );
+          for (const key of keysDefined) {
+            const value: string = customSettings.replaceCodeSettings[key];
+            const c: any = value === "" ? undefined : value;
+            config.update(key, c, true);
+          }
+        }
+        if (syncSetting.autoUpload) {
+          common.StartWatch();
+        }
+      } else {
+        vscode.window.showErrorMessage(
+          localize("cmd.downloadSettings.error.unableSave")
+        );
+      }
     }
   }
   /**

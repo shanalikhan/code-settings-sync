@@ -1,7 +1,16 @@
 {
-  "extends": ["tslint:recommended", "tslint-plugin-prettier"],
+  "extends": [
+    "tslint:recommended",
+    "tslint-plugin-prettier"
+  ],
   "rules": {
-    "prettier": [true, { "singleQuote": false }],
+    "prefer-for-of": false,
+    "prettier": [
+      true,
+      {
+        "singleQuote": false
+      }
+    ],
     "max-classes-per-file": false,
     "object-literal-sort-keys": false,
     "trailing-comma": false,

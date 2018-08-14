@@ -103,16 +103,6 @@
                     "default": "",
                     "description": "%ext.config.gist%"
                 },
-                "sync.lastUpload": {
-                    "type": "string",
-                    "default": "",
-                    "description": "%ext.config.lastUpload%"
-                },
-                "sync.lastDownload": {
-                    "type": "string",
-                    "default": "",
-                    "description": "%ext.config.lastDownload%"
-                },
                 "sync.autoDownload": {
                     "type": "boolean",
                     "default": false,
@@ -127,16 +117,6 @@
                     "type": "boolean",
                     "default": false,
                     "description": "%ext.config.forceDownload%"
-                },
-                "sync.host": {
-                    "type": "string",
-                    "default": "",
-                    "description": "%ext.config.host%"
-                },
-                "sync.pathPrefix": {
-                    "type": "string",
-                    "default": "",
-                    "description": "%ext.config.pathPrefix%"
                 },
                 "sync.quietSync": {
                     "type": "boolean",

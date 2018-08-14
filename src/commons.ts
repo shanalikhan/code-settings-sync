@@ -475,25 +475,10 @@ export default class Commons {
 
     const keys = Object.keys(setting);
     keys.forEach(async keyName => {
-      if (
-        (keyName === "lastDownload" || keyName === "lastUpload") &&
-        setting[keyName]
-      ) {
-        try {
-          const zz = new Date(setting[keyName]);
-          setting[keyName] = zz;
-        } catch (e) {
-          setting[keyName] = new Date();
-        }
-      }
       if (setting[keyName] == null) {
         setting[keyName] = "";
       }
-      if (keyName.toLowerCase() === "token") {
-        allKeysUpdated.push(
-          this.context.globalState.update("synctoken", setting[keyName])
-        );
-      } else {
+      if (keyName.toLowerCase() !== "token") {
         allKeysUpdated.push(config.update(keyName, setting[keyName], true));
       }
     });

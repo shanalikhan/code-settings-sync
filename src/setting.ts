@@ -3,16 +3,12 @@ import { Environment } from "./environmentPath";
 
 export class ExtensionConfig {
   public gist: string = null;
-  public host: string = null;
-  public pathPrefix: string = null;
   public quietSync: boolean = false;
   public askGistName: boolean = false;
   public removeExtensions: boolean = true;
   public syncExtensions: boolean = true;
   public autoDownload: boolean = false;
   public autoUpload = false;
-  public lastUpload: Date = null;
-  public lastDownload: Date = null;
   public forceDownload: boolean = false;
 }
 
@@ -52,4 +48,9 @@ export class CustomSettings {
   public downloadPublicGist: boolean = false;
   public supportedFileExtensions: string[] = ["json", "code-snippets"];
   public openTokenLink: boolean = true;
+  public useCliBaseInstallation: boolean = true;
+  public lastUpload: Date = null;
+  public lastDownload: Date = null;
+  public host: string = null;
+  public pathPrefix: string = null;
 }

@@ -1,9 +1,9 @@
 "use strict";
+import * as fs from 'fs-extra';
+import * as path from 'path';
+import * as vscode from 'vscode';
 
-import * as fs from "fs-extra";
-import * as path from "path";
-import * as vscode from "vscode";
-import * as util from "../util";
+import * as util from '../util';
 
 const apiPath =
   "https://marketplace.visualstudio.com/_apis/public/gallery/extensionquery";
@@ -77,7 +77,7 @@ export class ExtensionMetadata {
     public publisherId: string,
     public publisherDisplayName: string,
     public date: string
-  ) {}
+  ) { }
 }
 
 export class PluginService {
@@ -210,9 +210,9 @@ export class PluginService {
       } catch (err) {
         console.error(
           "Sync : Unable to delete extension " +
-            selectedExtension.name +
-            " " +
-            selectedExtension.version
+          selectedExtension.name +
+          " " +
+          selectedExtension.version
         );
         console.error(err);
         throw deletedExt;
@@ -224,18 +224,90 @@ export class PluginService {
   public static async InstallExtensions(
     extensions: string,
     extFolder: string,
+    useCli: boolean,
     notificationCallBack: (...data: any[]) => void
   ): Promise<ExtensionInformation[]> {
-    const actionList: Array<Promise<void>> = [];
-    const addedExtensions: ExtensionInformation[] = [];
+    let actionList: Array<Promise<void>> = [];
+    let addedExtensions: ExtensionInformation[] = [];
     const missingList = PluginService.GetMissingExtensions(extensions);
     if (missingList.length === 0) {
       notificationCallBack("Sync : No Extensions needs to be installed.");
       return [];
     }
 
-    let totalInstalled: number = 0;
+    if (useCli) {
+      addedExtensions = await PluginService.ProcessInstallationCLI(missingList,
+        notificationCallBack);
+      return addedExtensions;
+    } else {
+      actionList = await this.ProcessInstallation(
+        extFolder,
+        notificationCallBack,
+        missingList
+      );
+      try {
+        await Promise.all(actionList);
+        return addedExtensions;
+      } catch (err) {
+        // always return extension list
+        return addedExtensions;
+      }
+    }
+  }
 
+  public static async ProcessInstallationCLI(
+    missingList: ExtensionInformation[],
+    notificationCallBack: (...data: any[]) => void
+  ): Promise<ExtensionInformation[]> {
+    const addedExtensions: ExtensionInformation[] = [];
+    const exec = require("child_process").exec;
+    for (let i = 0; i < missingList.length; i++) {
+      const missExt = missingList[i];
+      const name = missExt.publisher + "." + missExt.name;
+      let myExt: string = process.argv0;
+      myExt =
+        '"' +
+        process.argv0.substr(0, process.argv0.lastIndexOf("Code")) +
+        'bin\\code"';
+      myExt = myExt + " --install-extension " + name;
+      console.log(myExt);
+      try {
+        const installed = await new Promise<boolean>((res) => {
+          exec(myExt, (err, stdout, stderr) => {
+            if (err || stderr) {
+              console.log(err || stderr);
+              res(false);
+            }
+            console.log(stdout);
+            res(true);
+          });
+        });
+        if (installed) {
+          notificationCallBack(
+            "Sync : Extension " +
+            (i + 1) +
+            " of " +
+            missingList.length.toString() +
+            " installed.",
+            false
+          );
+          addedExtensions.push(missExt);
+        }
+      } catch (err) {
+        console.log(err);
+      }
+    }
+    return addedExtensions;
+  }
+
+  public static async ProcessInstallation(
+    extFolder: string,
+    notificationCallBack: (...data: any[]) => void,
+    missingList: ExtensionInformation[]
+  ) {
+    const actionList: Array<Promise<void>> = [];
+    const addedExtensions: ExtensionInformation[] = [];
+    let totalInstalled: number = 0;
     for (const element of missingList) {
       actionList.push(
         PluginService.InstallExtension(element, extFolder).then(
@@ -243,10 +315,10 @@ export class PluginService {
             totalInstalled = totalInstalled + 1;
             notificationCallBack(
               "Sync : Extension " +
-                totalInstalled +
-                " of " +
-                missingList.length.toString() +
-                " installed.",
+              totalInstalled +
+              " of " +
+              missingList.length.toString() +
+              " installed.",
               false
             );
             addedExtensions.push(element);
@@ -261,14 +333,7 @@ export class PluginService {
         )
       );
     }
-
-    try {
-      await Promise.all(actionList);
-      return addedExtensions;
-    } catch (err) {
-      // always return extension list
-      return addedExtensions;
-    }
+    return actionList;
   }
 
   public static async InstallExtension(
@@ -338,10 +403,10 @@ export class PluginService {
         if (error === "NA" || error.message === "NA") {
           console.error(
             "Sync : Extension : '" +
-              item.name +
-              "' - Version : '" +
-              item.version +
-              "' Not Found in marketplace. Remove the extension and upload the settings to fix this."
+            item.name +
+            "' - Version : '" +
+            item.version +
+            "' Not Found in marketplace. Remove the extension and upload the settings to fix this."
           );
         }
         console.error(error);
