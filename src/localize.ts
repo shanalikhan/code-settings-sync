@@ -1,4 +1,4 @@
-import * as fs from "fs";
+import * as fs from "fs-extra";
 import * as path from "path";
 
 interface IConfig {
@@ -10,18 +10,20 @@ interface ILanguagePack {
 }
 
 export class Localize {
-  // get language pack when the instance be created
-  private bundle = this.resolveLanguagePack();
-  constructor(private config: IConfig = {}) {}
+  private bundle: ILanguagePack;
+  constructor(private options: IConfig = {}) {}
   /**
    * translate the key
    * @param key
    * @param args
    */
-  public localize(key: string, ...args: any[]) {
+  public localize(key: string, ...args: any[]): string {
     const languagePack = this.bundle;
     const message: string = languagePack[key] || key;
     return this.format(message, args);
+  }
+  public async init() {
+    this.bundle = await this.resolveLanguagePack();
   }
   /**
    * format the message
@@ -43,20 +45,21 @@ export class Localize {
   /**
    * Get language pack
    */
-  private resolveLanguagePack(): ILanguagePack {
+  private async resolveLanguagePack(): Promise<ILanguagePack> {
+    const defaultResvoleLanguage = ".nls.json";
     let resolvedLanguage: string = "";
     // TODO: it should read the extension root path from context
     const rootPath = path.join(__dirname, "..", "..");
     const file = path.join(rootPath, "package");
-    const options = this.config;
+    const options = this.options;
 
     if (!options.locale) {
-      resolvedLanguage = ".nls.json";
+      resolvedLanguage = defaultResvoleLanguage;
     } else {
       let locale: string | null = options.locale;
       while (locale) {
         const candidate = ".nls." + locale + ".json";
-        if (fs.existsSync(file + candidate)) {
+        if (await fs.pathExists(file + candidate)) {
           resolvedLanguage = candidate;
           break;
         } else {
@@ -71,13 +74,25 @@ export class Localize {
       }
     }
 
-    const languageFilePath = path.join(file + resolvedLanguage);
+    let defaultLanguageBundle = {};
 
-    if (!fs.existsSync(languageFilePath)) {
-      return {};
+    // if not use default language
+    // then merger the Language pack
+    // just in case the resolveLanguage bundle missing the translation and fallback with default language
+    if (resolvedLanguage !== defaultResvoleLanguage) {
+      defaultLanguageBundle = require(path.join(file + defaultResvoleLanguage));
     }
 
-    return require(languageFilePath);
+    const languageFilePath = path.join(file + resolvedLanguage);
+
+    const isExistResolvedLanguage = await fs.pathExists(languageFilePath);
+
+    const ResolvedLanguageBundle = isExistResolvedLanguage
+      ? require(languageFilePath)
+      : {};
+
+    // merger with default language bundle
+    return { ...defaultLanguageBundle, ...ResolvedLanguageBundle };
   }
 }
 
@@ -96,4 +111,8 @@ try {
 
 const instance = new Localize(config);
 
+const init = instance.init.bind(instance);
+
 export default instance.localize.bind(instance);
+
+export { init };

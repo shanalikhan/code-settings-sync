@@ -60,12 +60,7 @@
         "multi-root ready"
     ],
     "activationEvents": [
-        "*",
-        "onCommand:extension.updateSettings",
-        "onCommand:extension.downloadSettings",
-        "onCommand:extension.resetSettings",
-        "onCommand:extension.HowSettings",
-        "onCommand:extension.otherOptions"
+        "*"
     ],
     "main": "./out/src/extension",
     "contributes": {
@@ -108,16 +103,6 @@
                     "default": "",
                     "description": "%ext.config.gist%"
                 },
-                "sync.lastUpload": {
-                    "type": "string",
-                    "default": "",
-                    "description": "%ext.config.lastUpload%"
-                },
-                "sync.lastDownload": {
-                    "type": "string",
-                    "default": "",
-                    "description": "%ext.config.lastDownload%"
-                },
                 "sync.autoDownload": {
                     "type": "boolean",
                     "default": false,
@@ -132,16 +117,6 @@
                     "type": "boolean",
                     "default": false,
                     "description": "%ext.config.forceDownload%"
-                },
-                "sync.host": {
-                    "type": "string",
-                    "default": "",
-                    "description": "%ext.config.host%"
-                },
-                "sync.pathPrefix": {
-                    "type": "string",
-                    "default": "",
-                    "description": "%ext.config.pathPrefix%"
                 },
                 "sync.quietSync": {
                     "type": "boolean",
@@ -168,25 +143,29 @@
         }
     },
     "scripts": {
-        "vscode:prepublish": "npm run compile",
+        "vscode:prepublish": "npm run tslint-check && npm run compile",
         "compile": "tsc -p ./",
         "watch": "tsc -watch -p ./",
-        "postinstall": "node ./node_modules/vscode/bin/install"
+        "postinstall": "node ./node_modules/vscode/bin/install",
+        "tslint-check": "tslint -c ./tslint.json ./src/**/*.ts ./src/*.ts",
+        "format": "prettier --write './src/**/*.ts'"
     },
     "devDependencies": {
-        "typescript": "^2.8.3",
-        "vscode": "^1.1.6",
-        "@types/node": "^10.0.3"
+        "@types/fs-extra": "^5.0.4",
+        "@types/node": "^10.7.0",
+        "prettier": "^1.14.2",
+        "tslint": "^5.11.0",
+        "tslint-plugin-prettier": "^1.3.0",
+        "typescript": "^3.0.1",
+        "vscode": "^1.1.21"
     },
     "dependencies": {
-        "adm-zip": "0.4.7",
+        "@octokit/rest": "^15.9.4",
+        "adm-zip": "^0.4.11",
         "chokidar": "^2.0.2",
-        "fs": "^0.0.2",
-        "github": "^11.0.0",
+        "fs-extra": "^7.0.0",
         "https-proxy-agent": "^2.1.1",
-        "ncp": "^2.0.0",
-        "proper-lockfile": "^2.0.1",
-        "rimraf": "^2.6.2",
+        "lockfile": "^1.0.4",
         "temp": "^0.8.3"
     }
 }
