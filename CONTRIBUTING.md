@@ -36,6 +36,10 @@ code .
 
 Git and Node should be enough to run this extension. Execute the commands above and you will be able to run the extension in Code.
 
+**PR Base Branch Guideline:**
+PR usually dont merge into `master` branch but in the version name branch like `v3.1.0`.
+You will always see the next version branch if which current work is being done by me and other contributors. You need to set base branch and create PR for that branch.
+
 ## Financial contributions
 
 You can contribute me financially by two ways:
