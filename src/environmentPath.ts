@@ -54,7 +54,7 @@ export class Environment {
         this.context = context;
         this.isInsiders = /insiders/.test(context.asAbsolutePath(""));
         this.isOss = /\boss\b/.test(context.asAbsolutePath(""));
-        const isXdg = !this.isInsiders && !!this.isOss && process.platform === 'linux' && !!process.env.XDG_DATA_HOME
+        const isXdg = process.platform === 'linux' && !!process.env.XDG_DATA_HOME;
         this.homeDir = isXdg
             ? process.env.XDG_DATA_HOME
             : process.env[(process.platform == 'win32') ? 'USERPROFILE' : 'HOME'];
