@@ -382,6 +382,7 @@ export class Sync {
 
       let addedExtensions: ExtensionInformation[] = [];
       let deletedExtensions: ExtensionInformation[] = [];
+      let ignoredExtensions: Array<string> = customSettings.ignoreExtensions || new Array<string>();
       const updatedFiles: File[] = [];
       const actionList: Array<Promise<void | boolean>> = [];
 
@@ -469,23 +470,12 @@ export class Sync {
         if (content !== "") {
           if (file.gistName === env.FILE_EXTENSION_NAME) {
             if (syncSetting.syncExtensions) {
-              if (
-                customSettings.ignoreExtensions &&
-                customSettings.ignoreExtensions.length
-              ) {
-                const extList = ExtensionInformation.fromJSONList(content);
-                const newExtList = extList.filter(
-                  extension =>
-                    !customSettings.ignoreExtensions.includes(extension.name)
-                );
-                content = JSON.stringify(newExtList);
-              }
-
               if (syncSetting.removeExtensions) {
                 try {
                   deletedExtensions = await PluginService.DeleteExtensions(
                     content,
-                    env.ExtensionFolder
+                    env.ExtensionFolder,
+                    ignoredExtensions
                   );
                 } catch (uncompletedExtensions) {
                   vscode.window.showErrorMessage(
@@ -510,6 +500,7 @@ export class Sync {
                   content,
                   env.ExtensionFolder,
                   useCli,
+                  ignoredExtensions,
                   (message: string, dispose: boolean) => {
                     if (dispose) {
                       vscode.window.setStatusBarMessage(message, 2000);
