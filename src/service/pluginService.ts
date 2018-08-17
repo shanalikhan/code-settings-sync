@@ -1,9 +1,9 @@
 "use strict";
-import * as fs from 'fs-extra';
-import * as path from 'path';
-import * as vscode from 'vscode';
+import * as fs from "fs-extra";
+import * as path from "path";
+import * as vscode from "vscode";
 
-import * as util from '../util';
+import * as util from "../util";
 
 const apiPath =
   "https://marketplace.visualstudio.com/_apis/public/gallery/extensionquery";
@@ -77,11 +77,14 @@ export class ExtensionMetadata {
     public publisherId: string,
     public publisherDisplayName: string,
     public date: string
-  ) { }
+  ) {}
 }
 
 export class PluginService {
-  public static GetMissingExtensions(remoteExt: string, ignoredExtensions: Array<string>) {
+  public static GetMissingExtensions(
+    remoteExt: string,
+    ignoredExtensions: string[]
+  ) {
     const hashset = {};
     const remoteList = ExtensionInformation.fromJSONList(remoteExt);
     const localList = this.CreateExtensionList();
@@ -94,14 +97,20 @@ export class PluginService {
     }
 
     for (const ext of remoteList) {
-      if (hashset[ext.name] == null && ignoredExtensions.includes(ext.name) === false) {
+      if (
+        hashset[ext.name] == null &&
+        ignoredExtensions.includes(ext.name) === false
+      ) {
         missingList.push(ext);
       }
     }
     return missingList;
   }
 
-  public static GetDeletedExtensions(remoteList: ExtensionInformation[], ignoredExtensions: Array<string>) {
+  public static GetDeletedExtensions(
+    remoteList: ExtensionInformation[],
+    ignoredExtensions: string[]
+  ) {
     const localList = this.CreateExtensionList();
     const deletedList: ExtensionInformation[] = [];
 
@@ -127,7 +136,10 @@ export class PluginService {
       let found: boolean = false;
       if (ext.name !== "code-settings-sync") {
         for (const localExt of remoteList) {
-          if (ext.name == localExt.name || ignoredExtensions.includes(ext.name)) {
+          if (
+            ext.name === localExt.name ||
+            ignoredExtensions.includes(ext.name)
+          ) {
             found = true;
             break;
           }
@@ -195,10 +207,13 @@ export class PluginService {
   public static async DeleteExtensions(
     extensionsJson: string,
     extensionFolder: string,
-    ignoredExtensions: Array<string>
+    ignoredExtensions: string[]
   ): Promise<ExtensionInformation[]> {
     const remoteList = ExtensionInformation.fromJSONList(extensionsJson);
-    const deletedList = PluginService.GetDeletedExtensions(remoteList, ignoredExtensions);
+    const deletedList = PluginService.GetDeletedExtensions(
+      remoteList,
+      ignoredExtensions
+    );
     const deletedExt: ExtensionInformation[] = [];
 
     if (deletedList.length === 0) {
@@ -211,9 +226,9 @@ export class PluginService {
       } catch (err) {
         console.error(
           "Sync : Unable to delete extension " +
-          selectedExtension.name +
-          " " +
-          selectedExtension.version
+            selectedExtension.name +
+            " " +
+            selectedExtension.version
         );
         console.error(err);
         throw deletedExt;
@@ -226,20 +241,25 @@ export class PluginService {
     extensions: string,
     extFolder: string,
     useCli: boolean,
-    ignoredExtensions: Array<string>,
+    ignoredExtensions: string[],
     notificationCallBack: (...data: any[]) => void
   ): Promise<ExtensionInformation[]> {
     let actionList: Array<Promise<void>> = [];
     let addedExtensions: ExtensionInformation[] = [];
-    const missingList = PluginService.GetMissingExtensions(extensions, ignoredExtensions);
+    const missingList = PluginService.GetMissingExtensions(
+      extensions,
+      ignoredExtensions
+    );
     if (missingList.length === 0) {
       notificationCallBack("Sync : No Extensions needs to be installed.");
       return [];
     }
 
     if (useCli) {
-      addedExtensions = await PluginService.ProcessInstallationCLI(missingList,
-        notificationCallBack);
+      addedExtensions = await PluginService.ProcessInstallationCLI(
+        missingList,
+        notificationCallBack
+      );
       return addedExtensions;
     } else {
       actionList = await this.ProcessInstallation(
@@ -274,7 +294,7 @@ export class PluginService {
       myExt = myExt + " --install-extension " + name;
       console.log(myExt);
       try {
-        const installed = await new Promise<boolean>((res) => {
+        const installed = await new Promise<boolean>(res => {
           exec(myExt, (err, stdout, stderr) => {
             if (err || stderr) {
               console.log(err || stderr);
@@ -287,10 +307,10 @@ export class PluginService {
         if (installed) {
           notificationCallBack(
             "Sync : Extension " +
-            (i + 1) +
-            " of " +
-            missingList.length.toString() +
-            " installed.",
+              (i + 1) +
+              " of " +
+              missingList.length.toString() +
+              " installed.",
             false
           );
           addedExtensions.push(missExt);
@@ -318,10 +338,10 @@ export class PluginService {
             totalInstalled = totalInstalled + 1;
             notificationCallBack(
               "Sync : Extension " +
-              totalInstalled +
-              " of " +
-              missingList.length.toString() +
-              " installed.",
+                totalInstalled +
+                " of " +
+                missingList.length.toString() +
+                " installed.",
               false
             );
             addedExtensions.push(element);
@@ -406,10 +426,10 @@ export class PluginService {
         if (error === "NA" || error.message === "NA") {
           console.error(
             "Sync : Extension : '" +
-            item.name +
-            "' - Version : '" +
-            item.version +
-            "' Not Found in marketplace. Remove the extension and upload the settings to fix this."
+              item.name +
+              "' - Version : '" +
+              item.version +
+              "' Not Found in marketplace. Remove the extension and upload the settings to fix this."
           );
         }
         console.error(error);

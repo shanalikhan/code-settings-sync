@@ -382,7 +382,8 @@ export class Sync {
 
       let addedExtensions: ExtensionInformation[] = [];
       let deletedExtensions: ExtensionInformation[] = [];
-      let ignoredExtensions: Array<string> = customSettings.ignoreExtensions || new Array<string>();
+      const ignoredExtensions: string[] =
+        customSettings.ignoreExtensions || new Array<string>();
       const updatedFiles: File[] = [];
       const actionList: Array<Promise<void | boolean>> = [];
 
@@ -465,7 +466,7 @@ export class Sync {
 
       for (const file of updatedFiles) {
         let writeFile: boolean = false;
-        let content: string = file.content;
+        const content: string = file.content;
 
         if (content !== "") {
           if (file.gistName === env.FILE_EXTENSION_NAME) {
