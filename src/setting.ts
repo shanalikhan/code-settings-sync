@@ -51,6 +51,5 @@ export class CustomSettings {
   public useCliBaseInstallation: boolean = true;
   public lastUpload: Date = null;
   public lastDownload: Date = null;
-  public host: string = null;
-  public pathPrefix: string = null;
+  public githubEnterpriseUrl: string = null;
 }

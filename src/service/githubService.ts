@@ -11,38 +11,11 @@ interface IEnv {
   HTTP_PROXY: string;
 }
 
-const proxyURL: string =
-  vscode.workspace.getConfiguration("http").get("proxy") ||
-  (process.env as IEnv).http_proxy ||
-  (process.env as IEnv).HTTP_PROXY;
-
-let host: string = vscode.workspace.getConfiguration("sync").get("host");
-let pathPrefix: string = vscode.workspace
-  .getConfiguration("sync")
-  .get("pathPrefix");
-
-if (!host || host === "") {
-  host = "api.github.com";
-  pathPrefix = "";
-}
-
-const githubApiConfig: GitHubApi.Options = {
-  host,
-  pathPrefix,
-  rejectUnauthorized: false
-};
-
-if (proxyURL) {
-  githubApiConfig.proxy = proxyURL;
-  githubApiConfig.agent = new HttpsProxyAgent(proxyURL);
-}
-
-const github = new GitHubApi(githubApiConfig);
-
 export class GitHubService {
   public userName: string = null;
   public name: string = null;
-  private GIST_JSON_EMPTY: any = {
+  private github: GitHubApi = null;
+  private GIST_JSON_EMPTY: GitHubApi.GistsCreateParams = {
     description: "Visual Studio Code Sync Settings Gist",
     public: false,
     files: {
@@ -70,18 +43,37 @@ export class GitHubService {
     }
   };
 
-  constructor(private TOKEN: string) {
-    if (this.TOKEN !== null && this.TOKEN !== "") {
+  constructor(userToken: string, basePath: string) {
+    const githubApiConfig: GitHubApi.Options = {
+      headers: {
+        rejectUnauthorized: false
+      }
+    };
+
+    const proxyURL: string =
+      vscode.workspace.getConfiguration("http").get("proxy") ||
+      (process.env as IEnv).http_proxy ||
+      (process.env as IEnv).HTTP_PROXY;
+    if (basePath) {
+      githubApiConfig.baseUrl = basePath;
+    }
+
+    if (proxyURL) {
+      githubApiConfig.agent = new HttpsProxyAgent(proxyURL);
+    }
+    this.github = new GitHubApi(githubApiConfig);
+
+    if (userToken !== null && userToken !== "") {
       try {
-        github.authenticate({
+        this.github.authenticate({
           type: "oauth",
-          token: this.TOKEN
+          token: userToken
         });
       } catch (err) {
         console.error(err);
       }
 
-      github.users
+      this.github.users
         .get({})
         .then(res => {
           this.userName = res.data.login;
@@ -120,40 +112,9 @@ export class GitHubService {
     }
 
     try {
-      const res = await github.gists.create(this.GIST_JSON_EMPTY);
+      const res = await this.github.gists.create(this.GIST_JSON_EMPTY);
       if (res.data && res.data.id) {
-        return res.data.id;
-      } else {
-        console.error("ID is null");
-        console.log("Sync : " + "Response from GitHub is: ");
-        console.log(res);
-      }
-    } catch (err) {
-      console.error(err);
-      throw err;
-    }
-  }
-
-  public async CreateAnonymousGist(
-    publicGist: boolean,
-    files: File[],
-    gistDescription: string
-  ): Promise<any> {
-    if (publicGist) {
-      this.GIST_JSON_EMPTY.public = true;
-    } else {
-      this.GIST_JSON_EMPTY.public = false;
-    }
-    if (gistDescription !== null && gistDescription !== "") {
-      this.GIST_JSON_EMPTY.description = gistDescription;
-    }
-
-    const gist: any = this.AddFile(files, this.GIST_JSON_EMPTY);
-
-    try {
-      const res = await github.gists.create(gist);
-      if (res.data && res.data.id) {
-        return res.data.id;
+        return res.data.id.toString();
       } else {
         console.error("ID is null");
         console.log("Sync : " + "Response from GitHub is: ");
@@ -166,7 +127,7 @@ export class GitHubService {
   }
 
   public async ReadGist(GIST: string): Promise<any> {
-    return await github.gists.get({ gist_id: GIST, id: GIST });
+    return await this.github.gists.get({ gist_id: GIST });
   }
 
   public UpdateGIST(gistObject: any, files: File[]): any {
@@ -190,7 +151,7 @@ export class GitHubService {
   }
 
   public async SaveGIST(gistObject: any): Promise<boolean> {
-    await github.gists.edit(gistObject);
+    await this.github.gists.edit(gistObject);
     return true;
   }
 }

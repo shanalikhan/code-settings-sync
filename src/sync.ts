@@ -83,7 +83,10 @@ export class Sync {
         }
       }
 
-      github = new GitHubService(localConfig.customConfig.token);
+      github = new GitHubService(
+        localConfig.customConfig.token,
+        localConfig.customConfig.githubEnterpriseUrl
+      );
       // ignoreSettings = await common.GetIgnoredSettings(localConfig.customConfig.ignoreUploadSettings);
       await startGitProcess(localConfig.extConfig, localConfig.customConfig);
       // await common.SetIgnoredSettings(ignoreSettings);
@@ -360,7 +363,10 @@ export class Sync {
       syncSetting: ExtensionConfig,
       customSettings: CustomSettings
     ) {
-      const github = new GitHubService(customSettings.token);
+      const github = new GitHubService(
+        customSettings.token,
+        customSettings.githubEnterpriseUrl
+      );
       vscode.window.setStatusBarMessage("").dispose();
       vscode.window.setStatusBarMessage(
         localize("cmd.downloadSettings.info.readdingOnline"),
