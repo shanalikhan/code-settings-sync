@@ -221,7 +221,7 @@ export class Sync {
       let newGIST: boolean = false;
       try {
         if (syncSetting.gist == null || syncSetting.gist === "") {
-          if (syncSetting.askGistName) {
+          if (customSettings.askGistName) {
             customSettings.gistDescription = await common.AskGistName();
           }
           newGIST = true;
@@ -517,7 +517,8 @@ export class Sync {
                   content,
                   env.ExtensionFolder,
                   useCli,
-                  ignoredExtensions, env.OsType,
+                  ignoredExtensions,
+                  env.OsType,
                   (message: string, dispose: boolean) => {
                     if (!syncSetting.quietSync) {
                       outputChannel.appendLine(message);
