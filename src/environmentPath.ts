@@ -8,7 +8,7 @@ import * as vscode from "vscode";
 import { OsType } from "./enums";
 
 export class Environment {
-  public static CURRENT_VERSION: number = 300;
+  public static CURRENT_VERSION: number = 310;
   public static getVersion(): string {
     return (
       Environment.CURRENT_VERSION.toString().slice(0, 1) +

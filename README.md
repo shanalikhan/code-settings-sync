@@ -22,7 +22,7 @@
 1. Use your GitHub account token and Gist.
 2. Easy to Upload and Download on one click.
 3. Show a summary page at the end with details about config and extensions effected.
-4. Auto Download Latest Settings on Startup.
+4. Auto download Latest Settings on Startup.
 5. Auto upload Settings on file change.
 6. Share the Gist with other users and let them download your settings.
 7. Supports GitHub Enterprise
@@ -36,7 +36,7 @@ All extensions and complete User Folder that Contains
 2. Keybinding File
 3. Launch File
 4. Snippets Folder
-5. VSCode Extensions Settings
+5. VSCode Extensions & Extensions Configurations
 6. Workspaces Folder
 ```
 
@@ -45,9 +45,6 @@ All extensions and complete User Folder that Contains
 1. Upload Key : Shift + Alt + U
 2. Download Key : Shift + Alt + D
 ```
-
-
-
 
 ## Steps To Get a Personal Access Token from GitHub
 
@@ -172,46 +169,61 @@ Other users can give your Gist Id to download the Gist, but they can't upload th
 
 ## Settings
 
+There are two types of settings in Settings Sync.
+I will recommend you to read the configurations details [here](https://medium.com/@itsShanKhan/visual-studio-code-settings-sync-configurations-ed8dd6fd9753).
 
-For details regarding settings keys, click [here](https://medium.com/@itsShanKhan/visual-studio-code-settings-sync-configurations-ed8dd6fd9753)
+### Gist Settings
+
+Gist Settings are stored in `settings.json` file of Code.
+You can customize the settings in gist settings like:
+
+```
+1. Configure Gist Id (Environment)
+2. Configure auto upload / download for Github Gist 
+3. Configure extension sync behaviour
+4. Configure force download
+5. Configure quiet sync
+```
 
 ```json
     "sync.gist": "0c929b1a6c51015cdc9e0fe2e369ea4c",
-    "sync.lastUpload": "2018-03-04T14:21:39.841Z",
     "sync.autoDownload": false,
     "sync.autoUpload": false,
-    "sync.lastDownload": "2018-03-04T14:21:39.841Z",
-    "sync.forceDownload": true,
-    "sync.host": "",
-    "sync.pathPrefix": "",
+    "sync.forceDownload": false,
     "sync.quietSync": false,
     "sync.askGistName": false,
     "sync.removeExtensions": true,
     "sync.syncExtensions": true
 ```
 
-## Customized Sync
+### Global Settings
 
-Extension will create the `syncLocalSettings.json` inside `User` folder upon code start. <br>
-On Windows, this is `%APPDATA%\Code\User\syncLocalSettings.json`. <br>
-Mac, `$HOME/Library/Application Support/Code/User/syncLocalSettings.json`. <br>
-Linux, `~/.config/Code/User/syncLocalSettings.json`. <br>
+Global settings are present in `syncLocalSettings.json` inside `User` folder. These settings will be shared across multiple Gist Environments.
+
+On Windows, this is `%APPDATA%\Code\User\syncLocalSettings.json`.
+
+Mac, `$HOME/Library/Application Support/Code/User/syncLocalSettings.json`.
+
+Linux, `~/.config/Code/User/syncLocalSettings.json`.
 
 You can customize the sync:
 
 ```
 1. Options by which files / folders and settings to exclude from upload.
-2. The Gist Description when creating new Gist.
+2. Configure default Gist Environment name.
 3. Replace the code settings after downloading.
 4. Change the Gist description while creating new one in github.
+5. Configure Github Enterprise Url
 ```
-
-The JSON will be created as:
 
 ```json
 {
-    "ignoreUploadFiles": [ "projects.json", "projects_cache_vscode.json",
-        "projects_cache_git.json", "projects_cache_svn.json", "gpm_projects.json",
+    "ignoreUploadFiles": [
+        "projects.json",
+        "projects_cache_vscode.json",
+        "projects_cache_git.json",
+        "projects_cache_svn.json",
+        "gpm_projects.json",
         "gpm-recentItems.json"
     ],
     "ignoreUploadFolders": [
@@ -221,19 +233,25 @@ The JSON will be created as:
         "ignored_extension_name"
     ],
     "replaceCodeSettings": {
-         "http.proxy": "http://my.proxy.address:8080"
+        "http.proxy": "http://my.proxy.address:8080"
     },
     "gistDescription": "Visual Studio Code Settings Sync Gist",
-    "version": 290,
+    "version": 310,
     "token": "YOUR_GITHUB_TOKEN_HERE",
     "downloadPublicGist": false,
     "supportedFileExtensions": [
-        "json", "code-snippets"
-    ]
+        "json",
+        "code-snippets"
+    ],
+    "openTokenLink": true,
+    "useCliBaseInstallation": true,
+    "lastUpload": null,
+    "lastDownload": null,
+    "githubEnterpriseUrl": null
 }
 ```
 
-For settings details, visit my post [here](https://medium.com/@itsShanKhan/visual-studio-code-settings-sync-configurations-ed8dd6fd9753)
+I will recommend you to read the configurations details [here](https://medium.com/@itsShanKhan/visual-studio-code-settings-sync-configurations-ed8dd6fd9753).
 
 
 ## How To Contribute
