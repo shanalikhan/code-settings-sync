@@ -3,6 +3,7 @@ import * as fs from "fs-extra";
 import * as path from "path";
 import * as vscode from "vscode";
 
+import { OsType } from "../enums";
 import * as util from "../util";
 
 const apiPath =
@@ -242,6 +243,7 @@ export class PluginService {
     extFolder: string,
     useCli: boolean,
     ignoredExtensions: string[],
+    osType: OsType,
     notificationCallBack: (...data: any[]) => void
   ): Promise<ExtensionInformation[]> {
     let actionList: Array<Promise<void>> = [];
@@ -258,6 +260,7 @@ export class PluginService {
     if (useCli) {
       addedExtensions = await PluginService.ProcessInstallationCLI(
         missingList,
+        osType,
         notificationCallBack
       );
       return addedExtensions;
@@ -279,40 +282,55 @@ export class PluginService {
 
   public static async ProcessInstallationCLI(
     missingList: ExtensionInformation[],
+    osType: OsType,
     notificationCallBack: (...data: any[]) => void
   ): Promise<ExtensionInformation[]> {
     const addedExtensions: ExtensionInformation[] = [];
     const exec = require("child_process").exec;
+    notificationCallBack("TOTAL EXTENSIONS : " + missingList.length);
+    notificationCallBack("");
+    notificationCallBack("");
+    let myExt: string = process.argv0;
+    let codeLastFolder = "Code";
+    if (osType === OsType.Linux) {
+      codeLastFolder = "code";
+    }
+    if (osType === OsType.Mac) {
+      codeLastFolder = "Resources";
+    }
     for (let i = 0; i < missingList.length; i++) {
       const missExt = missingList[i];
       const name = missExt.publisher + "." + missExt.name;
-      let myExt: string = process.argv0;
+
       myExt =
         '"' +
-        process.argv0.substr(0, process.argv0.lastIndexOf("Code")) +
+        process.argv0.substr(0, process.argv0.lastIndexOf(codeLastFolder)) +
         'bin\\code"';
       myExt = myExt + " --install-extension " + name;
-      console.log(myExt);
+      notificationCallBack(myExt);
       try {
         const installed = await new Promise<boolean>(res => {
           exec(myExt, (err, stdout, stderr) => {
             if (err || stderr) {
-              console.log(err || stderr);
+              notificationCallBack(err || stderr);
               res(false);
             }
-            console.log(stdout);
+            notificationCallBack(stdout);
             res(true);
           });
         });
         if (installed) {
+          notificationCallBack("");
           notificationCallBack(
-            "Sync : Extension " +
+            "EXTENSION : " +
               (i + 1) +
-              " of " +
+              " / " +
               missingList.length.toString() +
-              " installed.",
-            false
+              " INSTALLED.",
+            true
           );
+          notificationCallBack("");
+          notificationCallBack("");
           addedExtensions.push(missExt);
         }
       } catch (err) {

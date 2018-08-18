@@ -418,7 +418,10 @@ export default class Commons {
       const writeReview = localize("common.action.writeReview");
       const support = localize("common.action.support");
       const joinCommunity = localize("common.action.joinCommunity");
-
+      // TODO : Remove this, v3.1 Specific only.
+      vscode.window.showInformationMessage(
+        "Some Settings are updated. You can remove unnecessary sync settings from code. Read Sync guide for details."
+      );
       vscode.window
         .showInformationMessage(
           localize("common.info.updateTo", Environment.getVersion()),

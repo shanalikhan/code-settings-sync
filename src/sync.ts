@@ -485,6 +485,22 @@ export class Sync {
                   deletedExtensions = uncompletedExtensions;
                 }
               }
+              let outputChannel = null;
+              if (!syncSetting.quietSync) {
+                outputChannel = vscode.window.createOutputChannel(
+                  "Code Settings Sync"
+                );
+                outputChannel.clear();
+                outputChannel.appendLine(
+                  `CODE SETTINGS SYNC - COMMAND LINE EXTENSION DOWNLOAD SUMMARY`
+                );
+                outputChannel.appendLine(
+                  `Version: ${Environment.getVersion()}`
+                );
+                outputChannel.appendLine(`--------------------`);
+                outputChannel.show();
+              }
+
               try {
                 // TODO: Remove Older installation way in next version.
                 let useCli = true;
@@ -501,17 +517,31 @@ export class Sync {
                   content,
                   env.ExtensionFolder,
                   useCli,
-                  ignoredExtensions,
+                  ignoredExtensions, env.OsType,
                   (message: string, dispose: boolean) => {
-                    if (dispose) {
-                      vscode.window.setStatusBarMessage(message, 2000);
+                    if (!syncSetting.quietSync) {
+                      outputChannel.appendLine(message);
                     } else {
-                      vscode.window.setStatusBarMessage(message, 5000);
+                      console.log(message);
+                      if (dispose) {
+                        vscode.window.setStatusBarMessage(
+                          "Sync : " + message,
+                          3000
+                        );
+                      }
                     }
                   }
                 );
+                if (!syncSetting.quietSync) {
+                  outputChannel.clear();
+                  outputChannel.dispose();
+                }
               } catch (extensions) {
                 addedExtensions = extensions;
+                if (!syncSetting.quietSync) {
+                  outputChannel.clear();
+                  outputChannel.dispose();
+                }
               }
             }
           } else {
