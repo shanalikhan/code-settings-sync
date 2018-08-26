@@ -10,7 +10,7 @@
   "ext.config.pathPrefix": "如果你是 Github 企业用户, 设置 Github 的 API 前缀. 通常是 '/api/v3'. 只在 host 字段设置后生效",
   "ext.config.quietSync": "如果设置为 true, 开启静默模式. 上传和下载的概要信息显示在状态栏而非输出面板",
   "ext.config.askGistName": "在创建时询问 gist 的名称. 能够帮助你识别多个 gist.",
-  "ext.config.removeExtensions": "设置为 false 如果你想在下载时移除扩展.",
+  "ext.config.removeExtensions": "设置为 false 如果你不想在下载时移除扩展.",
   "ext.config.syncExtensions": "设置为 false 如果你不想上传/下载扩展.",
   "cmd.howSetting.title": "Sync : 如何配置",
   "cmd.updateSettings.title": "Sync : 上传设置",
