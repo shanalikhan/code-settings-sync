@@ -1,6 +1,7 @@
 ---
-name: Discussion
-about: Open Ticket for discussion regarding project.
+name: "❓ Support Question"
+about: " \U0001F6D1 If you have a question \U0001F4AC, please check out our support
+  channels! "
 
 ---
 
