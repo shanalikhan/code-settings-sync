@@ -296,21 +296,18 @@ export class PluginService {
       codeLastFolder = "code";
     }
     if (osType === OsType.Mac) {
-      codeLastFolder = "Resources";
+      codeLastFolder = "Resources/app";
     }
+    myExt =
+      '"' + myExt.substr(0, myExt.lastIndexOf(codeLastFolder)) + 'bin//code"';
     for (let i = 0; i < missingList.length; i++) {
       const missExt = missingList[i];
       const name = missExt.publisher + "." + missExt.name;
-
-      myExt =
-        '"' +
-        process.argv0.substr(0, process.argv0.lastIndexOf(codeLastFolder)) +
-        'bin\\code"';
-      myExt = myExt + " --install-extension " + name;
-      notificationCallBack(myExt);
+      const extensionCli = myExt + " --install-extension " + name;
+      notificationCallBack(extensionCli);
       try {
         const installed = await new Promise<boolean>(res => {
-          exec(myExt, (err, stdout, stderr) => {
+          exec(extensionCli, (err, stdout, stderr) => {
             if (err || stderr) {
               notificationCallBack(err || stderr);
               res(false);

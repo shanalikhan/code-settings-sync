@@ -485,7 +485,7 @@ export class Sync {
                   deletedExtensions = uncompletedExtensions;
                 }
               }
-              let outputChannel = null;
+              let outputChannel: vscode.OutputChannel = null;
               if (!syncSetting.quietSync) {
                 outputChannel = vscode.window.createOutputChannel(
                   "Code Settings Sync"
