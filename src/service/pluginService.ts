@@ -291,6 +291,7 @@ export class PluginService {
     notificationCallBack("");
     notificationCallBack("");
     let myExt: string = process.argv0;
+    console.log(myExt);
     let codeLastFolder = "Code";
     if (osType === OsType.Linux) {
       codeLastFolder = "code";
