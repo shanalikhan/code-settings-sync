@@ -152,12 +152,9 @@ export class FileService {
       }
 
       result = fullPath + paths[paths.length - 1];
-      console.log(result);
-
       return result;
     } else {
       result = fullPath + fileName;
-      console.log(result);
 
       return result;
     }
