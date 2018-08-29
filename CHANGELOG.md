@@ -1,3 +1,8 @@
+#### Version - 3.1.1
+* Fixed : Extension Download fails for Code Insiders and mac Users [#618](https://github.com/shanalikhan/code-settings-sync/issues/618)
+* Fixed : Upload issues for mac [#622](https://github.com/shanalikhan/code-settings-sync/issues/622)
+
+
 #### Version - 3.1.0
 * Option to Install Extensions Using CLI [#434](https://github.com/shanalikhan/code-settings-sync/issues/434)
     - Code Team hasn't provided API to install extension, but as CLI is available Settings Sync will start using code cli to download extensions. Live Status will be displayed while downloading.

@@ -244,6 +244,7 @@ export class PluginService {
     useCli: boolean,
     ignoredExtensions: string[],
     osType: OsType,
+    insiders: boolean,
     notificationCallBack: (...data: any[]) => void
   ): Promise<ExtensionInformation[]> {
     let actionList: Array<Promise<void>> = [];
@@ -261,6 +262,7 @@ export class PluginService {
       addedExtensions = await PluginService.ProcessInstallationCLI(
         missingList,
         osType,
+        insiders,
         notificationCallBack
       );
       return addedExtensions;
@@ -283,6 +285,7 @@ export class PluginService {
   public static async ProcessInstallationCLI(
     missingList: ExtensionInformation[],
     osType: OsType,
+    isInsiders: boolean,
     notificationCallBack: (...data: any[]) => void
   ): Promise<ExtensionInformation[]> {
     const addedExtensions: ExtensionInformation[] = [];
@@ -293,14 +296,33 @@ export class PluginService {
     let myExt: string = process.argv0;
     console.log(myExt);
     let codeLastFolder = "Code";
+    let codeCliPath = "bin/code";
+    if (isInsiders) {
+      codeLastFolder += " - Insiders";
+      codeCliPath = "bin/code-insiders";
+    }
     if (osType === OsType.Linux) {
-      codeLastFolder = "code";
+      if (isInsiders) {
+        codeLastFolder += "-insiders";
+        codeCliPath = "bin/code-insiders";
+      } else {
+        codeLastFolder = "code";
+        codeCliPath = "bin/code";
+      }
     }
     if (osType === OsType.Mac) {
-      codeLastFolder = "Resources/app";
+      codeLastFolder = "Frameworks";
+      if (isInsiders) {
+        codeCliPath = "Resources/app/bin/code-insiders";
+      } else {
+        codeCliPath = "Resources/app/bin/code";
+      }
     }
     myExt =
-      '"' + myExt.substr(0, myExt.lastIndexOf(codeLastFolder)) + 'bin//code"';
+      '"' +
+      myExt.substr(0, myExt.lastIndexOf(codeLastFolder)) +
+      codeCliPath +
+      '"';
     for (let i = 0; i < missingList.length; i++) {
       const missExt = missingList[i];
       const name = missExt.publisher + "." + missExt.name;

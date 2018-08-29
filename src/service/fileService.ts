@@ -43,7 +43,7 @@ export class FileService {
 
     const content = await FileService.ReadFile(filePath);
 
-    if (!content) {
+    if (content === null) {
       return null;
     }
 
