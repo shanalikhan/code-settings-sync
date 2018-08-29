@@ -244,7 +244,7 @@ export class PluginService {
     useCli: boolean,
     ignoredExtensions: string[],
     osType: OsType,
-    insiders : boolean,
+    insiders: boolean,
     notificationCallBack: (...data: any[]) => void
   ): Promise<ExtensionInformation[]> {
     let actionList: Array<Promise<void>> = [];
@@ -297,21 +297,32 @@ export class PluginService {
     console.log(myExt);
     let codeLastFolder = "Code";
     let codeCliPath = "bin/code";
-    if(isInsiders){
-        codeLastFolder+=" - Insiders";
+    if (isInsiders) {
+      codeLastFolder += " - Insiders";
+      codeCliPath = "bin/code-insiders";
     }
     if (osType === OsType.Linux) {
+      if (isInsiders) {
+        codeLastFolder += "-insiders";
+        codeCliPath = "bin/code-insiders";
+      } else {
         codeLastFolder = "code";
-        if(isInsiders){
-          codeLastFolder+="-insiders";
-          codeCliPath="bin/code-insiders";
+        codeCliPath = "bin/code";
       }
     }
     if (osType === OsType.Mac) {
-      codeLastFolder = "Resources/app";
+      codeLastFolder = "Frameworks";
+      if (isInsiders) {
+        codeCliPath = "Resources/app/bin/code-insiders";
+      } else {
+        codeCliPath = "Resources/app/bin/code";
+      }
     }
     myExt =
-      '"' + myExt.substr(0, myExt.lastIndexOf(codeLastFolder)) + codeCliPath+'"';
+      '"' +
+      myExt.substr(0, myExt.lastIndexOf(codeLastFolder)) +
+      codeCliPath +
+      '"';
     for (let i = 0; i < missingList.length; i++) {
       const missExt = missingList[i];
       const name = missExt.publisher + "." + missExt.name;
