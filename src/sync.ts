@@ -519,6 +519,7 @@ export class Sync {
                   useCli,
                   ignoredExtensions,
                   env.OsType,
+                  env.isInsiders,
                   (message: string, dispose: boolean) => {
                     if (!syncSetting.quietSync) {
                       outputChannel.appendLine(message);
