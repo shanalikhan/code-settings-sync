@@ -295,22 +295,25 @@ export class PluginService {
     notificationCallBack("");
     let myExt: string = process.argv0;
     console.log(myExt);
-    let codeLastFolder = "Code";
-    let codeCliPath = "bin/code";
-    if (isInsiders) {
-      codeLastFolder += " - Insiders";
-      codeCliPath = "bin/code-insiders";
-    }
-    if (osType === OsType.Linux) {
+    let codeLastFolder = "";
+    let codeCliPath = "";
+    if (osType === OsType.Windows) {
       if (isInsiders) {
-        codeLastFolder += "-insiders";
+        codeLastFolder = "Code - Insiders";
+        codeCliPath = "bin/code-insiders";
+      } else {
+        codeLastFolder = "Code";
+        codeCliPath = "bin/code";
+      }
+    } else if (osType === OsType.Linux) {
+      if (isInsiders) {
+        codeLastFolder = "code-insiders";
         codeCliPath = "bin/code-insiders";
       } else {
         codeLastFolder = "code";
         codeCliPath = "bin/code";
       }
-    }
-    if (osType === OsType.Mac) {
+    } else if (osType === OsType.Mac) {
       codeLastFolder = "Frameworks";
       if (isInsiders) {
         codeCliPath = "Resources/app/bin/code-insiders";
@@ -331,7 +334,7 @@ export class PluginService {
       try {
         const installed = await new Promise<boolean>(res => {
           exec(extensionCli, (err, stdout, stderr) => {
-            if (err || stderr) {
+            if (!stdout && (err || stderr)) {
               notificationCallBack(err || stderr);
               res(false);
             }
