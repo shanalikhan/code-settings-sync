@@ -315,11 +315,7 @@ export class PluginService {
       }
     } else if (osType === OsType.Mac) {
       codeLastFolder = "Frameworks";
-      if (isInsiders) {
-        codeCliPath = "Resources/app/bin/code-insiders";
-      } else {
-        codeCliPath = "Resources/app/bin/code";
-      }
+      codeCliPath = "Resources/app/bin/code";
     }
     myExt =
       '"' +

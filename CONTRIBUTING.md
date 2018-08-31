@@ -10,7 +10,7 @@ I encourage you to create new pages or make helpful edits to all parts of the wi
 
 ## Slack
 
-Join our public Slack: 
+Join our public Slack:
 
 <a href="https://join.slack.com/t/codesettingssync/shared_invite/enQtMzE3MjY5NTczNDMwLTYwMTIwNGExOGE2MTJkZWU0OTU5MmI3ZTc4N2JkZjhjMzY1OTk5OGExZjkwMDMzMDU4ZTBlYjk5MGQwZmMyNzk">
 <img src="https://shanalikhan.github.io/img/slack.PNG" alt="Drawing" style="width: 50px;"/>
@@ -33,6 +33,8 @@ cd code-settings-sync
 npm install
 code .
 ```
+
+Checkout the lastest version branch available and Hit `F5` to run Settings Sync in debug mode.
 
 Git and Node should be enough to run this extension. Execute the commands above and you will be able to run the extension in Code.
 
