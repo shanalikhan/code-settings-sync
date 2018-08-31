@@ -1,3 +1,6 @@
+#### Version - 3.1.2
+* Extension CLI Download Improvements.
+
 #### Version - 3.1.1
 * Fixed : Extension Download fails for Code Insiders and mac Users [#618](https://github.com/shanalikhan/code-settings-sync/issues/618)
 * Fixed : Upload issues for mac [#622](https://github.com/shanalikhan/code-settings-sync/issues/622)
