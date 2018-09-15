@@ -43,11 +43,11 @@ PR usually dont merge into `master` branch but in the version name branch like `
 You will always see the next version branch if which current work is being done by me and other contributors. You need to set base branch and create PR for that branch.
 
 
-## Bounty Programs
+## Bounty Programs - Fix and Earn !
 
 There might be several issue present on the [IssueHunt](https://issuehunt.io/repos/47984369) from which you can earn money by fixing those issues. Feel free to start!
 
-[![issuehunt-image](https://github.com/BoostIO/issuehunt-materials/blob/master/issuehunt-badge@1x.png?raw=true)](https://issuehunt.io/repos/47984369)
+
 
 ## Financial contributions
 
@@ -58,6 +58,8 @@ You can contribute me financially by two ways:
 [<img src="https://www.paypalobjects.com/en_US/i/btn/btn_donateCC_LG.gif">](https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=4W3EWHHBSYMM8&lc=IE&item_name=Code%20Settings%20Sync&item_number=visual%20studio%20code%20settings%20sync&currency_code=USD&bn=PP%2dDonationsBF%3abtn_donate_SM%2egif%3aNonHosted)
 
 2. If you looking forward to add some special features for your company, for this I also welcome financial contributions in full transparency on my [open collective](https://opencollective.com/code-settings-sync).
+
+[![issuehunt-image](https://github.com/BoostIO/issuehunt-materials/blob/master/issuehunt-badge@1x.png?raw=true)](https://issuehunt.io/repos/47984369)
 
 
 ## Credits
