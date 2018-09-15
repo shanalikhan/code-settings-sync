@@ -42,6 +42,13 @@ Git and Node should be enough to run this extension. Execute the commands above 
 PR usually dont merge into `master` branch but in the version name branch like `v3.1.0`.
 You will always see the next version branch if which current work is being done by me and other contributors. You need to set base branch and create PR for that branch.
 
+
+## Bounty Programs
+
+There might be several issue present on the [IssueHunt](https://issuehunt.io/repos/47984369) from which you can earn money by fixing those issues. Feel free to start!
+
+[![issuehunt-image](https://github.com/BoostIO/issuehunt-materials/blob/master/issuehunt-badge@1x.png?raw=true)](https://issuehunt.io/repos/47984369)
+
 ## Financial contributions
 
 You can contribute me financially by two ways:
