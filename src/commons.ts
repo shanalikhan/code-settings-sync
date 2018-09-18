@@ -418,53 +418,52 @@ export default class Commons {
       const writeReview = localize("common.action.writeReview");
       const support = localize("common.action.support");
       const joinCommunity = localize("common.action.joinCommunity");
-      // TODO : Remove this, v3.1 Specific only.
-      vscode.window.showInformationMessage(
-        "Some Settings are updated. You can remove unnecessary sync settings from code. Read Sync guide for details."
-      );
-      vscode.window
-        .showInformationMessage(
-          localize("common.info.updateTo", Environment.getVersion()),
-          releaseNotes,
-          writeReview,
-          support,
-          joinCommunity
-        )
-        .then((val: string) => {
-          if (val === releaseNotes) {
-            vscode.commands.executeCommand(
-              "vscode.open",
-              vscode.Uri.parse(
-                "http://shanalikhan.github.io/2016/05/14/Visual-studio-code-sync-settings-release-notes.html"
-              )
-            );
-          }
-          if (val === writeReview) {
-            vscode.commands.executeCommand(
-              "vscode.open",
-              vscode.Uri.parse(
-                "https://marketplace.visualstudio.com/items?itemName=Shan.code-settings-sync#review-details"
-              )
-            );
-          }
-          if (val === support) {
-            vscode.commands.executeCommand(
-              "vscode.open",
-              vscode.Uri.parse(
-                "https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=4W3EWHHBSYMM8&lc=IE&item_name=Code%20Settings%20Sync&item_number=visual%20studio%20code%20settings%20sync&currency_code=USD&bn=PP-DonationsBF:btn_donate_SM.gif:NonHosted"
-              )
-            );
-          }
-          if (val === joinCommunity) {
-            vscode.commands.executeCommand(
-              "vscode.open",
-              vscode.Uri.parse(
-                "https://join.slack.com/t/codesettingssync/shared_invite/enQtMzE3MjY5NTczNDMwLTYwMTIwNGExOGE2MTJkZWU0OTU5MmI3ZTc4N2JkZjhjMzY1OTk5OGExZjkwMDMzMDU4ZTBlYjk5MGQwZmMyNzk"
-              )
-            );
-          }
-        });
+      if (!customSettings.disableUpdateMessage) {
+        vscode.window
+          .showInformationMessage(
+            localize("common.info.updateTo", Environment.getVersion()),
+            releaseNotes,
+            writeReview,
+            support,
+            joinCommunity
+          )
+          .then((val: string) => {
+            if (val === releaseNotes) {
+              vscode.commands.executeCommand(
+                "vscode.open",
+                vscode.Uri.parse(
+                  "http://shanalikhan.github.io/2016/05/14/Visual-studio-code-sync-settings-release-notes.html"
+                )
+              );
+            }
+            if (val === writeReview) {
+              vscode.commands.executeCommand(
+                "vscode.open",
+                vscode.Uri.parse(
+                  "https://marketplace.visualstudio.com/items?itemName=Shan.code-settings-sync#review-details"
+                )
+              );
+            }
+            if (val === support) {
+              vscode.commands.executeCommand(
+                "vscode.open",
+                vscode.Uri.parse(
+                  "https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=4W3EWHHBSYMM8&lc=IE&item_name=Code%20Settings%20Sync&item_number=visual%20studio%20code%20settings%20sync&currency_code=USD&bn=PP-DonationsBF:btn_donate_SM.gif:NonHosted"
+                )
+              );
+            }
+            if (val === joinCommunity) {
+              vscode.commands.executeCommand(
+                "vscode.open",
+                vscode.Uri.parse(
+                  "https://join.slack.com/t/codesettingssync/shared_invite/enQtMzE3MjY5NTczNDMwLTYwMTIwNGExOGE2MTJkZWU0OTU5MmI3ZTc4N2JkZjhjMzY1OTk5OGExZjkwMDMzMDU4ZTBlYjk5MGQwZmMyNzk"
+                )
+              );
+            }
+          });
+      }
     }
+
     if (fileChanged) {
       customSettings.version = Environment.CURRENT_VERSION;
       await this.SetCustomSettings(customSettings);

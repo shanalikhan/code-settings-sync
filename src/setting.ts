@@ -47,7 +47,7 @@ export class CustomSettings {
   public downloadPublicGist: boolean = false;
   public supportedFileExtensions: string[] = ["json", "code-snippets"];
   public openTokenLink: boolean = true;
-  public useCliBaseInstallation: boolean = true;
+  public disableUpdateMessage: boolean = false;
   public lastUpload: Date = null;
   public lastDownload: Date = null;
   public githubEnterpriseUrl: string = null;
