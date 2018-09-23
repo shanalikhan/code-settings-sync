@@ -59,7 +59,6 @@ export class Environment {
     this.isOss = /\boss\b/.test(this.context.asAbsolutePath(""));
     const isXdg =
       !this.isInsiders &&
-      !!this.isOss &&
       process.platform === "linux" &&
       !!process.env.XDG_DATA_HOME;
     this.homeDir = isXdg
