@@ -810,7 +810,7 @@ export class Sync {
               );
             } else {
               vscode.window.showInformationMessage(
-                localize("cmd.otherOptions.preserve.info.done1", input, val)
+                localize("cmd.otherOptions.preserve.info.done2", input, val)
               );
             }
           }
