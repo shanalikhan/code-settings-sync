@@ -730,6 +730,7 @@ export class Sync {
       "cmd.otherOptions.toggleAutoDownload",
       "cmd.otherOptions.toggleSummaryPage",
       "cmd.otherOptions.preserve",
+      "cmd.otherOptions.customizedSync",
       "cmd.otherOptions.joinCommunity",
       "cmd.otherOptions.openIssue",
       "cmd.otherOptions.releaseNotes"
@@ -848,6 +849,29 @@ export class Sync {
         }
       },
       8: async () => {
+        // add customized sync file
+        const options: vscode.InputBoxOptions = {
+          ignoreFocusOut: true,
+          placeHolder: localize("cmd.otherOptions.customizedSync.placeholder"),
+          prompt: localize("cmd.otherOptions.customizedSync.prompt")
+        };
+        const input = await vscode.window.showInputBox(options);
+
+        if (input) {
+          const fileName: string = FileService.ExtractFileName(input);
+          if (fileName === "") {
+            return;
+          }
+          customSettings.customFiles[fileName] = input;
+          const done: boolean = await common.SetCustomSettings(customSettings);
+          if (done) {
+            vscode.window.showInformationMessage(
+              localize("cmd.otherOptions.customizedSync.done", fileName)
+            );
+          }
+        }
+      },
+      9: async () => {
         vscode.commands.executeCommand(
           "vscode.open",
           vscode.Uri.parse(
@@ -855,7 +879,7 @@ export class Sync {
           )
         );
       },
-      9: async () => {
+      10: async () => {
         vscode.commands.executeCommand(
           "vscode.open",
           vscode.Uri.parse(
@@ -863,7 +887,7 @@ export class Sync {
           )
         );
       },
-      10: async () => {
+      11: async () => {
         vscode.commands.executeCommand(
           "vscode.open",
           vscode.Uri.parse(
