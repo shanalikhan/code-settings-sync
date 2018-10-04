@@ -52,4 +52,5 @@ export class CustomSettings {
   public lastDownload: Date = null;
   public githubEnterpriseUrl: string = null;
   public askGistName: boolean = false;
+  public customFiles: { [key: string]: string } = {};
 }

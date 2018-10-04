@@ -188,6 +188,18 @@ export class Sync {
             return matchedFolders.length > 0;
           });
         }
+        const customFileKeys: string[] = Object.keys(
+          customSettings.customFiles
+        );
+        if (customFileKeys.length > 0) {
+          for (const key of customFileKeys) {
+            const val = customSettings.customFiles[key];
+            const customFile: File = await FileService.GetCustomFile(val, key);
+            if (customFile !== null) {
+              allSettingFiles.push(customFile);
+            }
+          }
+        }
       } else {
         Commons.LogException(null, common.ERROR_MESSAGE, true);
         return;
