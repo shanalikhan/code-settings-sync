@@ -218,4 +218,20 @@ export class FileService {
     const file: File = new File(fileName, content, filePath, gistName);
     return file;
   }
+
+  public static async CreateCustomDirTree(filePath: string): Promise<string> {
+    const dir = path.dirname(filePath);
+    const fileExists = await FileService.FileExists(dir);
+
+    if (!fileExists) {
+      // mkdir recursively
+      await fs.mkdirs(dir);
+    }
+
+    return filePath;
+  }
+
+  public static ExtractFileName(fullPath: string): string {
+    return path.basename(fullPath);
+  }
 }

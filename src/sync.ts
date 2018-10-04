@@ -449,7 +449,21 @@ export class Sync {
       keys.forEach(gistName => {
         if (res.data.files[gistName]) {
           if (res.data.files[gistName].content) {
-            if (gistName.indexOf(".") > -1) {
+            const prefix = FileService.CUSTOMIZED_SYNC_PREFIX;
+            if (gistName.indexOf(prefix) > -1) {
+              const fileName = gistName.split(prefix).join(""); // |customized_sync|.htmlhintrc => .htmlhintrc
+              if (!(fileName in customSettings.customFiles)) {
+                // syncLocalSettings.json > customFiles doesn't have key
+                return;
+              }
+              const f: File = new File(
+                fileName,
+                res.data.files[gistName].content,
+                customSettings.customFiles[fileName],
+                gistName
+              );
+              updatedFiles.push(f);
+            } else if (gistName.indexOf(".") > -1) {
               if (
                 env.OsType === OsType.Mac &&
                 gistName === env.FILE_KEYBINDING_DEFAULT
@@ -571,10 +585,15 @@ export class Sync {
               if (file.gistName === env.FILE_KEYBINDING_MAC) {
                 file.fileName = env.FILE_KEYBINDING_DEFAULT;
               }
-              const filePath: string = await FileService.CreateDirTree(
-                env.USER_FOLDER,
-                file.fileName
-              );
+              let filePath: string = "";
+              if (file.filePath !== null) {
+                filePath = await FileService.CreateCustomDirTree(file.filePath);
+              } else {
+                filePath = await FileService.CreateDirTree(
+                  env.USER_FOLDER,
+                  file.fileName
+                );
+              }
 
               actionList.push(
                 FileService.WriteFile(filePath, content)
