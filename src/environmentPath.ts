@@ -27,6 +27,7 @@ export class Environment {
   public ExtensionFolder: string = null;
   public PATH: string = null;
   public OsType: OsType = null;
+  public HostName: string = null;
 
   public FILE_SETTING: string = null;
   public FILE_LAUNCH: string = null;
@@ -73,6 +74,7 @@ export class Environment {
     process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
     this.PATH = process.env.APPDATA;
     this.OsType = OsType.Windows;
+    this.HostName = os.hostname();
 
     if (!this.PATH) {
       if (process.platform === "darwin") {
