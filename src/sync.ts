@@ -16,7 +16,7 @@ import {
   LocalConfig
 } from "./setting";
 
-const OS_SUPPORTED = ["windows", "linux", "mac", "darwin"];
+import PragmaUtil from "./pragmaUtil";
 
 export class Sync {
   constructor(private context: vscode.ExtensionContext) {}
@@ -212,23 +212,11 @@ export class Sync {
         }
 
         if (snippetFile.fileName === env.FILE_SETTING_NAME) {
-          snippetFile.content = removeIgnoredSettings(snippetFile.content);
+          snippetFile.content = PragmaUtil.processBeforeUpload(
+            snippetFile.content,
+            vscode.window
+          );
         }
-      }
-
-      function removeIgnoredSettings(settingsContent: string): string {
-        let result: string = settingsContent;
-        const ignoreSettings: RegExpMatchArray = settingsContent.match(
-          /\/\/\s\@sync\signore\n.+,?/g // should be space or hypen?
-        );
-
-        if (ignoreSettings !== null) {
-          for (const line of ignoreSettings) {
-            result = result.replace(line, ""); // remove line?
-          }
-        }
-
-        return result;
       }
 
       const extProp: CloudSetting = new CloudSetting();
@@ -378,87 +366,6 @@ export class Sync {
     } catch (err) {
       Commons.LogException(err, common.ERROR_MESSAGE, true);
       return;
-    }
-
-    function GetOsEnum(osName: string) {
-      switch (osName.toLocaleLowerCase()) {
-        case "windows":
-          return OsType.Windows;
-        case "linux":
-          return OsType.Linux;
-        case "mac": // should we define unique names for each OS?
-        case "darwin":
-          return OsType.Mac;
-      }
-    }
-
-    function ProcessPragmaSettings(settingsContent: string): string {
-      let result: string = settingsContent;
-      const pragmaSettings: RegExpMatchArray = settingsContent.match(
-        /\/\/\s\@sync\s(os=(\w+)\s?)?(host=(\w+)\s?)?\n(.+),?/g // should support multiple spaces and line-breaks?
-      );
-
-      if (pragmaSettings !== null) {
-        for (const line of pragmaSettings) {
-          // line e.g.: // @sync os=windows host=Laptop\n"window.menuBarVisibility": "none",
-          if (line.indexOf("os=") === -1 && line.indexOf("host=") === -1) {
-            continue;
-          }
-
-          // check OS pragma
-          try {
-            const osMatch: RegExpMatchArray = line.match(/os=(\w+)/);
-            if (osMatch !== null) {
-              const osFromPragma = osMatch[1];
-              if (
-                osFromPragma &&
-                OS_SUPPORTED.includes(osFromPragma) &&
-                GetOsEnum(osFromPragma) !== env.OsType
-              ) {
-                // should remove or comment the line?
-                // result = result.replace(line, "");
-                // handle multiple line breaks ?
-                const commentedLine = line.replace(/\n(.+)/, settingLine => {
-                  return `\n\t// ${settingLine.trim()}`;
-                });
-
-                result = result.replace(line, commentedLine);
-              }
-            }
-
-            // check OS pragma
-            const hostMatch: RegExpMatchArray = line.match(/host=(\w+)/);
-            if (hostMatch !== null) {
-              const hostFromPragma = hostMatch[1];
-              if (
-                hostFromPragma &&
-                hostFromPragma.toLowerCase() !==
-                  env.HostName.toLocaleLowerCase() // should be case sensitive?
-              ) {
-                const commentedLine = line.replace(/\n(.+)/, settingLine => {
-                  return `\n\t// ${settingLine.trim()}`;
-                });
-
-                result = result.replace(line, commentedLine);
-              }
-            }
-          } catch (e) {
-            continue;
-          }
-        }
-      }
-
-      const ignoreSettings: RegExpMatchArray = settingsContent.match(
-        /\/\/\s\@sync\signore\n.+,?/g // should be space or hypen?
-      );
-
-      if (ignoreSettings !== null) {
-        for (const line of ignoreSettings) {
-          result = result.replace(line, ""); // remove line?
-        }
-      }
-
-      return result;
     }
 
     async function StartDownload(
@@ -672,7 +579,11 @@ export class Sync {
               );
 
               if (file.gistName === env.FILE_SETTING_NAME) {
-                content = ProcessPragmaSettings(content);
+                content = PragmaUtil.processBeforeWrite(
+                  content,
+                  env.OsType,
+                  localSettings.customConfig.hostName
+                );
               }
 
               actionList.push(
