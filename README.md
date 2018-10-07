@@ -26,6 +26,7 @@
 5. Auto upload Settings on file change.
 6. Share the Gist with other users and let them download your settings.
 7. Supports GitHub Enterprise
+8. Support pragmas with @sync keywords: host, os and env are supported.
 ```
 
 
@@ -247,7 +248,8 @@ You can customize the sync:
     "useCliBaseInstallation": true,
     "lastUpload": null,
     "lastDownload": null,
-    "githubEnterpriseUrl": null
+    "githubEnterpriseUrl": null,
+    "hostName": null
 }
 ```
 
