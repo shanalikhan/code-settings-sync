@@ -731,6 +731,7 @@ export class Sync {
       "cmd.otherOptions.toggleSummaryPage",
       "cmd.otherOptions.preserve",
       "cmd.otherOptions.customizedSync",
+      "cmd.otherOptions.downloadCustomFile",
       "cmd.otherOptions.joinCommunity",
       "cmd.otherOptions.openIssue",
       "cmd.otherOptions.releaseNotes"
@@ -872,6 +873,50 @@ export class Sync {
         }
       },
       9: async () => {
+        // Import customized sync file to workspace
+        const customFiles = await this.getCustomFilesFromGist(
+          customSettings,
+          setting
+        );
+        if (customFiles.length < 1) {
+          return;
+        }
+        const options: vscode.QuickPickOptions = {
+          ignoreFocusOut: true,
+          placeHolder: localize(
+            "cmd.otherOptions.downloadCustomFile.placeholder"
+          )
+        };
+        const fileName = await vscode.window.showQuickPick(
+          customFiles.map(file => {
+            return file.fileName;
+          }),
+          options
+        );
+        // if not pick anyone, do nothing
+        if (!fileName) {
+          return;
+        }
+        const selected = customFiles.find(f => {
+          return f.fileName === fileName;
+        });
+        if (selected && vscode.workspace.rootPath) {
+          const downloadPath = FileService.ConcatPath(
+            vscode.workspace.rootPath,
+            selected.fileName
+          );
+          const done = await FileService.WriteFile(
+            downloadPath,
+            selected.content
+          );
+          if (done) {
+            vscode.window.showInformationMessage(
+              localize("cmd.otherOptions.downloadCustomFile.done", downloadPath)
+            );
+          }
+        }
+      },
+      10: async () => {
         vscode.commands.executeCommand(
           "vscode.open",
           vscode.Uri.parse(
@@ -879,7 +924,7 @@ export class Sync {
           )
         );
       },
-      10: async () => {
+      11: async () => {
         vscode.commands.executeCommand(
           "vscode.open",
           vscode.Uri.parse(
@@ -887,7 +932,7 @@ export class Sync {
           )
         );
       },
-      11: async () => {
+      12: async () => {
         vscode.commands.executeCommand(
           "vscode.open",
           vscode.Uri.parse(
@@ -974,5 +1019,42 @@ export class Sync {
       Commons.LogException(err, "Error", true);
       return;
     }
+  }
+
+  private async getCustomFilesFromGist(
+    customSettings: CustomSettings,
+    syncSetting: ExtensionConfig
+  ): Promise<File[]> {
+    const github = new GitHubService(
+      customSettings.token,
+      customSettings.githubEnterpriseUrl
+    );
+    const res = await github.ReadGist(syncSetting.gist);
+    if (!res) {
+      Commons.LogException(res, "Sync : Unable to Read Gist.", true);
+      return [];
+    }
+    const keys = Object.keys(res.data.files);
+    const customFiles: File[] = [];
+    keys.forEach(gistName => {
+      if (res.data.files[gistName]) {
+        if (res.data.files[gistName].content) {
+          const prefix = FileService.CUSTOMIZED_SYNC_PREFIX;
+          if (gistName.indexOf(prefix) > -1) {
+            const fileName = gistName.split(prefix).join(""); // |customized_sync|.htmlhintrc => .htmlhintrc
+            const f: File = new File(
+              fileName,
+              res.data.files[gistName].content,
+              fileName in customSettings.customFiles
+                ? customSettings.customFiles[fileName]
+                : null,
+              gistName
+            );
+            customFiles.push(f);
+          }
+        }
+      }
+    });
+    return customFiles;
   }
 }

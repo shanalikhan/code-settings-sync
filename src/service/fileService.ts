@@ -234,4 +234,8 @@ export class FileService {
   public static ExtractFileName(fullPath: string): string {
     return path.basename(fullPath);
   }
+
+  public static ConcatPath(...filePaths: string[]): string {
+    return filePaths.join(path.sep);
+  }
 }
