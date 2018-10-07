@@ -56,7 +56,7 @@
   "cmd.otherOptions.preserve.info.done2": "Sync : 終了します. ダウンロード後に {0} : {1} で settings.json に保持します.",
   "cmd.otherOptions.customizedSync": "Sync: カスタム同期",
   "cmd.otherOptions.customizedSync.placeholder": "追加でアップロードするファイルの絶対パスを入力してください.",
-  "cmd.otherOptions.customizedSync.prompt": "(ex. /path/to/.eslint) はアップロードされ, 指定したパスにダウンロードされます.",
+  "cmd.otherOptions.customizedSync.prompt": "(ex. /path/to/.eslintrc) はアップロードされ, 指定したパスにダウンロードされます.",
   "cmd.otherOptions.customizedSync.done": "Sync : {0} を登録しました.",
   "cmd.otherOptions.joinCommunity": "Sync : コミュニティに参加する",
   "cmd.otherOptions.openIssue": "Sync : Issue を作成する",
