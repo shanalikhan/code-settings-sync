@@ -42,9 +42,8 @@ export default class PragmaUtil {
     );
 
     if (pragmaSettingsBlocks !== null) {
-      for (let block of pragmaSettingsBlocks) {
+      for (const block of pragmaSettingsBlocks) {
         // line e.g.: // @sync os=windows host=Laptop\n"window.menuBarVisibility": "none",
-
         try {
           // check OS pragma
           const osMatch: RegExpMatchArray = block.match(/os=(\w+)/);
@@ -78,10 +77,14 @@ export default class PragmaUtil {
           const envMatch: RegExpMatchArray = block.match(/env=(\S+)/);
           if (envMatch !== null) {
             const envFromPragma = envMatch[1];
-            if (!process.env[envFromPragma.toUpperCase()]) {
+            if (process.env[envFromPragma.toUpperCase()] === undefined) {
               result = result.replace(block, this.commentLineAfterBreak(block));
+              continue;
             }
           }
+
+          // if os, host and evn matched the current machine make sure to uncomment the setting
+          result = result.replace(block, this.uncommentLineAfterBreak(block));
         } catch (e) {
           continue;
         }
@@ -163,12 +166,14 @@ export default class PragmaUtil {
           if (envMatch !== null) {
             const envFromPragma = envMatch[1] || envMatch[2] || envMatch[3];
             if (envFromPragma !== "" && /\s/.test(envFromPragma)) {
-              result = result.replace(
-                block,
-                block.replace(envFromPragma, envFromPragma.trimLeft())
-              );
+              newBlock = block.replace(envFromPragma, envFromPragma.trimLeft());
+              result = result.replace(block, newBlock);
+              block = newBlock;
             }
           }
+
+          // uncomment line before upload
+          result = result.replace(block, this.uncommentLineAfterBreak(block));
         } catch (e) {
           console.log("Sync: Proccess before upload error.", e.message);
           continue;
@@ -216,6 +221,19 @@ export default class PragmaUtil {
       !settingLine[1].startsWith("//")
     ) {
       return block.replace(settingLine[1], l => "// " + l);
+    }
+
+    return block;
+  }
+
+  public static uncommentLineAfterBreak(block: string): string {
+    const settingLine = block.match(/\n[ \t]*(.+)/);
+    if (
+      settingLine !== null &&
+      settingLine[1] &&
+      settingLine[1].startsWith("//")
+    ) {
+      return block.replace(settingLine[1], l => l.replace("//", ""));
     }
 
     return block;
