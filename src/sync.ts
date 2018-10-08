@@ -212,10 +212,15 @@ export class Sync {
         }
 
         if (snippetFile.fileName === env.FILE_SETTING_NAME) {
-          snippetFile.content = PragmaUtil.processBeforeUpload(
-            snippetFile.content,
-            vscode.window
-          );
+          try {
+            snippetFile.content = PragmaUtil.processBeforeUpload(
+              snippetFile.content
+            );
+          } catch (e) {
+            Commons.LogException(null, e.message, true);
+            console.error(e);
+            return;
+          }
         }
       }
 
