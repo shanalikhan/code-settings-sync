@@ -24,9 +24,25 @@ describe('Process before upload', function () {
     expect(PragmaUtil.commentLineAfterBreak(line)).to.match(/\/\/\s"mac"/)
   })
 
+  it('should uncomment line after linebreak', () => {
+    const line = '// @sync host=mac1 os=_mac_\n\t//"mac": 3,'
+    expect(PragmaUtil.uncommentLineAfterBreak(line)).to.match(/\t"mac"/)
+  })
+
   it('should get eight @sync pragma valid lines', () => {
     const processed = PragmaUtil.processBeforeUpload(test_settings)
     expect(PragmaUtil.matchPragmaSettings(processed).length).to.be.equals(8)
+  })
+
+  it('should uncomment all lines', () => {
+    const commentedSettings = `
+      // @sync os=linux
+      // "window": 1,
+      // @sync os=mac
+      // "mac": 1
+    `
+
+    expect(PragmaUtil.processBeforeUpload(commentedSettings)).to.match(/\s+"window"/).and.to.match(/\s+"mac"/)
   })
 
   it('should not comment os=linux settings lines', () => {

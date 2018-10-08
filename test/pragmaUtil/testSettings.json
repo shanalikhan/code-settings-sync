@@ -7,7 +7,7 @@
     "test2": 2,
 
     // @sync os=  linux host=  trim env= TEST_ENV 
-    "test3": 3,
+    //"test2": 3,
 
     // @sync os=linux
     "not_commented": 2,
@@ -16,7 +16,7 @@
     "mac": 3,
 
     // @sync host=mac2 os=mac env=TEST_ENV
-    "mac2": 3,
+    //"mac2": 3,
 
     // @sync os=mac
     "mactest": "",
