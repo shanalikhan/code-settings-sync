@@ -1,18 +1,6 @@
 import { OsType } from "./enums";
+import { osTypeFromString, SUPPORTED_OS } from "./environmentPath";
 import localize from "./localize";
-
-const SUPPORTED_OS = ["windows", "linux", "mac"];
-
-export function GetOsEnum(osName: string): OsType {
-  switch (osName.toLowerCase()) {
-    case "windows":
-      return OsType.Windows;
-    case "linux":
-      return OsType.Linux;
-    case "mac":
-      return OsType.Mac;
-  }
-}
 
 /**
  * Comment/Uncomment lines if matches OS name or Hostname.
@@ -42,27 +30,36 @@ export default class PragmaUtil {
     );
 
     if (pragmaSettingsBlocks !== null) {
+      let osMatch: RegExpMatchArray;
+      let osFromPragma: string;
+
+      let hostMatch: RegExpMatchArray;
+      let hostFromPragma: string;
+
+      let envMatch: RegExpMatchArray;
+      let envFromPragma: string;
+
       for (const block of pragmaSettingsBlocks) {
         // line e.g.: // @sync os=windows host=Laptop\n"window.menuBarVisibility": "none",
         try {
           // check OS pragma
-          const osMatch: RegExpMatchArray = block.match(/os=(\w+)/);
+          osMatch = block.match(/os=(\w+)/);
           if (osMatch !== null) {
-            const osFromPragma = osMatch[1].toLowerCase();
+            osFromPragma = osMatch[1].toLowerCase();
 
             if (!SUPPORTED_OS.includes(osFromPragma)) {
               continue;
             }
-            if (GetOsEnum(osFromPragma) !== osType) {
+            if (osTypeFromString(osFromPragma) !== osType) {
               result = result.replace(block, this.commentLineAfterBreak(block));
               continue; // no need to lookup the host name
             }
           }
 
           // check host pragma
-          const hostMatch: RegExpMatchArray = block.match(/host=(\S+)/);
+          hostMatch = block.match(/host=(\S+)/);
           if (hostMatch !== null) {
-            const hostFromPragma = hostMatch[1];
+            hostFromPragma = hostMatch[1];
             if (
               hostName === null ||
               hostName === "" ||
@@ -74,9 +71,9 @@ export default class PragmaUtil {
           }
 
           // check env pragma
-          const envMatch: RegExpMatchArray = block.match(/env=(\S+)/);
+          envMatch = block.match(/env=(\S+)/);
           if (envMatch !== null) {
-            const envFromPragma = envMatch[1];
+            envFromPragma = envMatch[1];
             if (process.env[envFromPragma.toUpperCase()] === undefined) {
               result = result.replace(block, this.commentLineAfterBreak(block));
               continue;
@@ -86,12 +83,26 @@ export default class PragmaUtil {
           // if os, host and evn matched the current machine make sure to uncomment the setting
           result = result.replace(block, this.uncommentLineAfterBreak(block));
         } catch (e) {
+          console.error("Sync: Error processing pragmas ", e.message);
           continue;
         }
       }
     }
 
     result = this.removeIgnoreBlocks(result);
+
+    // check is a valid JSON
+
+    try {
+      // remove comments and trailing comma
+      const uncommented = this.removeAllComments(result).replace(
+        /,\s*\}/g,
+        " }"
+      );
+      JSON.parse(uncommented);
+    } catch (e) {
+      console.error("Sync: Result content is not a valid JSON.", e.message);
+    }
 
     return result;
   }
@@ -101,85 +112,76 @@ export default class PragmaUtil {
    *
    * @static
    * @param {string} settingsContent
-   * @param {require('vscode').window} window
    * @returns {string}
    * @memberof PragmaUtil
    */
-  public static processBeforeUpload(settingsContent: string, window): string {
+  public static processBeforeUpload(settingsContent: string): string {
     let result: string = settingsContent;
     result = this.removeIgnoreBlocks(result);
 
-    const lines = result.split("\n");
+    const lines = result.split("\n").map(l => l.trim());
 
     // alert not supported OS
     const pragmaMatches: RegExpMatchArray = result.match(this.PragmaRegExp);
     if (pragmaMatches) {
+      let newBlock: string;
+
+      let osMatch: RegExpMatchArray;
+      let osFromPragma: string;
+
+      let hostMatch: RegExpMatchArray;
+      let hostFromPragma: string;
+
+      let envMatch: RegExpMatchArray;
+      let envFromPragma: string;
+
       for (const block of pragmaMatches) {
-        try {
-          let newBlock: string = block;
-          const osMatch: RegExpMatchArray = newBlock.match(
-            this.OSPragmaWhiteSpacesSupportRegExp
-          );
-          if (osMatch !== null) {
-            const osFromPragma = osMatch[1] || osMatch[2] || osMatch[3];
+        newBlock = block;
+        osMatch = newBlock.match(this.OSPragmaWhiteSpacesSupportRegExp);
+        if (osMatch !== null) {
+          osFromPragma = osMatch[1] || osMatch[2] || osMatch[3];
 
-            if (osFromPragma !== "" && /\s/.test(osFromPragma)) {
-              newBlock = newBlock.replace(
-                osFromPragma,
-                osFromPragma.trimLeft()
-              );
-            }
-
-            const trimmed = osFromPragma.toLowerCase().trim();
-            if (!SUPPORTED_OS.includes(trimmed)) {
-              console.warn("Sync: Invalid OS", osFromPragma);
-              if (window !== null) {
-                window.showWarningMessage(
-                  localize(
-                    "cmd.updateSettings.warning.OSNotSupported",
-                    trimmed,
-                    lines.indexOf(block)
-                  )
-                );
-              }
-            }
+          if (osFromPragma !== "" && /\s/.test(osFromPragma)) {
+            newBlock = newBlock.replace(osFromPragma, osFromPragma.trimLeft());
           }
 
-          const hostMatch: RegExpMatchArray = newBlock.match(
-            this.HostPragmaWhiteSpacesSupportRegExp
-          );
-          if (hostMatch !== null) {
-            const hostFromPragma = hostMatch[1] || hostMatch[2] || hostMatch[3];
-            if (hostFromPragma !== "" && /\s/.test(hostFromPragma)) {
-              newBlock = newBlock.replace(
-                hostFromPragma,
-                hostFromPragma.trimLeft()
-              );
-            }
+          const trimmed = osFromPragma.toLowerCase().trim();
+          if (!SUPPORTED_OS.includes(trimmed)) {
+            console.warn("Sync: Invalid OS", osFromPragma);
+            throw new Error(
+              localize(
+                "cmd.updateSettings.warning.OSNotSupported",
+                trimmed,
+                lines.indexOf(block.split("\n")[0]) + 1
+              )
+            );
           }
-
-          const envMatch: RegExpMatchArray = block.match(
-            this.EnvPragmaWhiteSpacesSupportRegExp
-          );
-          if (envMatch !== null) {
-            const envFromPragma = envMatch[1] || envMatch[2] || envMatch[3];
-            if (envFromPragma !== "" && /\s/.test(envFromPragma)) {
-              newBlock = newBlock.replace(
-                envFromPragma,
-                envFromPragma.trimLeft()
-              );
-            }
-          }
-
-          // uncomment line before upload
-          result = result.replace(
-            block,
-            this.uncommentLineAfterBreak(newBlock)
-          );
-        } catch (e) {
-          console.log("Sync: Proccess before upload error.", e.message);
-          continue;
         }
+
+        hostMatch = newBlock.match(this.HostPragmaWhiteSpacesSupportRegExp);
+        if (hostMatch !== null) {
+          hostFromPragma = hostMatch[1] || hostMatch[2] || hostMatch[3];
+          if (hostFromPragma !== "" && /\s/.test(hostFromPragma)) {
+            newBlock = newBlock.replace(
+              hostFromPragma,
+              hostFromPragma.trimLeft()
+            );
+          }
+        }
+
+        envMatch = block.match(this.EnvPragmaWhiteSpacesSupportRegExp);
+        if (envMatch !== null) {
+          envFromPragma = envMatch[1] || envMatch[2] || envMatch[3];
+          if (envFromPragma !== "" && /\s/.test(envFromPragma)) {
+            newBlock = newBlock.replace(
+              envFromPragma,
+              envFromPragma.trimLeft()
+            );
+          }
+        }
+
+        // uncomment line before upload
+        result = result.replace(block, this.uncommentLineAfterBreak(newBlock));
       }
     }
 
@@ -222,7 +224,7 @@ export default class PragmaUtil {
       settingLine[1] &&
       !settingLine[1].startsWith("//")
     ) {
-      return block.replace(settingLine[1], l => "// " + l);
+      return block.replace(settingLine[1], l => "//" + l);
     }
 
     return block;
@@ -239,6 +241,10 @@ export default class PragmaUtil {
     }
 
     return block;
+  }
+
+  public static removeAllComments(text: string): string {
+    return text.replace(/\s(\/\/.+)|(\/\*.+\*\/)/g, "");
   }
 
   private static readonly PragmaRegExp: RegExp = /\/\/[ \t]*\@sync[ \t]+(?:os=.+[ \t]*)?(?:host=.+[ \t]*)?(?:env=.+[ \t]*)?\n[ \t]*.+,?/g;
