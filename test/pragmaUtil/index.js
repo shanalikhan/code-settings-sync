@@ -45,6 +45,17 @@ describe('Process before upload', function () {
     expect(PragmaUtil.processBeforeUpload(commentedSettings)).to.match(/\s+"window"/).and.to.match(/\s+"mac"/)
   })
 
+  it('should uncomment lines before write file for os=linux', () => {
+    const commentedSettings = `{
+      // @sync os=linux
+      // "linux": 1,
+      // @sync os=mac
+        "mac": 1
+    }`
+    const processed = PragmaUtil.processBeforeWrite(commentedSettings, OSTypes['Linux'], null)
+    expect(processed).to.match(/\s+"linux"/).and.to.match(/.+\/\/\s+"mac"/)
+  })
+
   it('should not comment os=linux settings lines', () => {
     let processed = PragmaUtil.processBeforeUpload(test_settings)
     processed = PragmaUtil.processBeforeWrite(processed, OSTypes['Linux'], null)
