@@ -511,16 +511,11 @@ export class Sync {
               }
 
               try {
-                // TODO: Remove Older installation way in next version.
                 let useCli = true;
-                if (customSettings.useCliBaseInstallation) {
-                  const autoUpdate: boolean = vscode.workspace
-                    .getConfiguration("extensions")
-                    .get("autoUpdate");
-                  useCli = autoUpdate;
-                } else {
-                  useCli = false;
-                }
+                const autoUpdate: boolean = vscode.workspace
+                  .getConfiguration("extensions")
+                  .get("autoUpdate");
+                useCli = autoUpdate;
 
                 addedExtensions = await PluginService.InstallExtensions(
                   content,
@@ -832,7 +827,7 @@ export class Sync {
               );
             } else {
               vscode.window.showInformationMessage(
-                localize("cmd.otherOptions.preserve.info.done1", input, val)
+                localize("cmd.otherOptions.preserve.info.done2", input, val)
               );
             }
           }

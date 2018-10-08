@@ -104,13 +104,15 @@ export class Environment {
       });
     }
 
-    const possibleCodePaths = [
-      this.isInsiders
-        ? "/Code - Insiders"
-        : this.isOss
-          ? "/Code - OSS"
-          : "/Code"
-    ];
+    const possibleCodePaths = [];
+    if (this.isInsiders) {
+      possibleCodePaths.push("/Code - Insiders");
+    } else if (this.isOss) {
+      possibleCodePaths.push("/Code - OSS");
+      possibleCodePaths.push("/VSCodium");
+    } else {
+      possibleCodePaths.push("/Code");
+    }
     for (const possibleCodePath of possibleCodePaths) {
       try {
         fs.statSync(this.PATH + possibleCodePath);
