@@ -114,19 +114,20 @@ export default class PragmaUtil {
     // alert not supported OS
     const pragmaMatches: RegExpMatchArray = result.match(this.PragmaRegExp);
     if (pragmaMatches) {
-      for (let block of pragmaMatches) {
+      for (const block of pragmaMatches) {
         try {
-          let newBlock: string;
-          const osMatch: RegExpMatchArray = block.match(
+          let newBlock: string = block;
+          const osMatch: RegExpMatchArray = newBlock.match(
             this.OSPragmaWhiteSpacesSupportRegExp
           );
           if (osMatch !== null) {
             const osFromPragma = osMatch[1] || osMatch[2] || osMatch[3];
 
             if (osFromPragma !== "" && /\s/.test(osFromPragma)) {
-              newBlock = block.replace(osFromPragma, osFromPragma.trimLeft());
-              result = result.replace(block, newBlock);
-              block = newBlock;
+              newBlock = newBlock.replace(
+                osFromPragma,
+                osFromPragma.trimLeft()
+              );
             }
 
             const trimmed = osFromPragma.toLowerCase().trim();
@@ -144,19 +145,16 @@ export default class PragmaUtil {
             }
           }
 
-          const hostMatch: RegExpMatchArray = block.match(
+          const hostMatch: RegExpMatchArray = newBlock.match(
             this.HostPragmaWhiteSpacesSupportRegExp
           );
           if (hostMatch !== null) {
             const hostFromPragma = hostMatch[1] || hostMatch[2] || hostMatch[3];
             if (hostFromPragma !== "" && /\s/.test(hostFromPragma)) {
-              newBlock = block.replace(
+              newBlock = newBlock.replace(
                 hostFromPragma,
                 hostFromPragma.trimLeft()
               );
-              result = result.replace(block, newBlock);
-
-              block = newBlock;
             }
           }
 
@@ -166,14 +164,18 @@ export default class PragmaUtil {
           if (envMatch !== null) {
             const envFromPragma = envMatch[1] || envMatch[2] || envMatch[3];
             if (envFromPragma !== "" && /\s/.test(envFromPragma)) {
-              newBlock = block.replace(envFromPragma, envFromPragma.trimLeft());
-              result = result.replace(block, newBlock);
-              block = newBlock;
+              newBlock = newBlock.replace(
+                envFromPragma,
+                envFromPragma.trimLeft()
+              );
             }
           }
 
           // uncomment line before upload
-          result = result.replace(block, this.uncommentLineAfterBreak(block));
+          result = result.replace(
+            block,
+            this.uncommentLineAfterBreak(newBlock)
+          );
         } catch (e) {
           console.log("Sync: Proccess before upload error.", e.message);
           continue;
