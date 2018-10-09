@@ -190,6 +190,18 @@ export class Sync {
             return matchedFolders.length > 0;
           });
         }
+        const customFileKeys: string[] = Object.keys(
+          customSettings.customFiles
+        );
+        if (customFileKeys.length > 0) {
+          for (const key of customFileKeys) {
+            const val = customSettings.customFiles[key];
+            const customFile: File = await FileService.GetCustomFile(val, key);
+            if (customFile !== null) {
+              allSettingFiles.push(customFile);
+            }
+          }
+        }
       } else {
         Commons.LogException(null, common.ERROR_MESSAGE, true);
         return;
@@ -451,7 +463,21 @@ export class Sync {
       keys.forEach(gistName => {
         if (res.data.files[gistName]) {
           if (res.data.files[gistName].content) {
-            if (gistName.indexOf(".") > -1) {
+            const prefix = FileService.CUSTOMIZED_SYNC_PREFIX;
+            if (gistName.indexOf(prefix) > -1) {
+              const fileName = gistName.split(prefix).join(""); // |customized_sync|.htmlhintrc => .htmlhintrc
+              if (!(fileName in customSettings.customFiles)) {
+                // syncLocalSettings.json > customFiles doesn't have key
+                return;
+              }
+              const f: File = new File(
+                fileName,
+                res.data.files[gistName].content,
+                customSettings.customFiles[fileName],
+                gistName
+              );
+              updatedFiles.push(f);
+            } else if (gistName.indexOf(".") > -1) {
               if (
                 env.OsType === OsType.Mac &&
                 gistName === env.FILE_KEYBINDING_DEFAULT
@@ -573,10 +599,15 @@ export class Sync {
               if (file.gistName === env.FILE_KEYBINDING_MAC) {
                 file.fileName = env.FILE_KEYBINDING_DEFAULT;
               }
-              const filePath: string = await FileService.CreateDirTree(
-                env.USER_FOLDER,
-                file.fileName
-              );
+              let filePath: string = "";
+              if (file.filePath !== null) {
+                filePath = await FileService.CreateCustomDirTree(file.filePath);
+              } else {
+                filePath = await FileService.CreateDirTree(
+                  env.USER_FOLDER,
+                  file.fileName
+                );
+              }
 
               if (file.gistName === env.FILE_SETTING_NAME) {
                 content = PragmaUtil.processBeforeWrite(
@@ -721,6 +752,8 @@ export class Sync {
       "cmd.otherOptions.toggleAutoDownload",
       "cmd.otherOptions.toggleSummaryPage",
       "cmd.otherOptions.preserve",
+      "cmd.otherOptions.customizedSync",
+      "cmd.otherOptions.downloadCustomFile",
       "cmd.otherOptions.joinCommunity",
       "cmd.otherOptions.openIssue",
       "cmd.otherOptions.releaseNotes"
@@ -839,6 +872,73 @@ export class Sync {
         }
       },
       8: async () => {
+        // add customized sync file
+        const options: vscode.InputBoxOptions = {
+          ignoreFocusOut: true,
+          placeHolder: localize("cmd.otherOptions.customizedSync.placeholder"),
+          prompt: localize("cmd.otherOptions.customizedSync.prompt")
+        };
+        const input = await vscode.window.showInputBox(options);
+
+        if (input) {
+          const fileName: string = FileService.ExtractFileName(input);
+          if (fileName === "") {
+            return;
+          }
+          customSettings.customFiles[fileName] = input;
+          const done: boolean = await common.SetCustomSettings(customSettings);
+          if (done) {
+            vscode.window.showInformationMessage(
+              localize("cmd.otherOptions.customizedSync.done", fileName)
+            );
+          }
+        }
+      },
+      9: async () => {
+        // Import customized sync file to workspace
+        const customFiles = await this.getCustomFilesFromGist(
+          customSettings,
+          setting
+        );
+        if (customFiles.length < 1) {
+          return;
+        }
+        const options: vscode.QuickPickOptions = {
+          ignoreFocusOut: true,
+          placeHolder: localize(
+            "cmd.otherOptions.downloadCustomFile.placeholder"
+          )
+        };
+        const fileName = await vscode.window.showQuickPick(
+          customFiles.map(file => {
+            return file.fileName;
+          }),
+          options
+        );
+        // if not pick anyone, do nothing
+        if (!fileName) {
+          return;
+        }
+        const selected = customFiles.find(f => {
+          return f.fileName === fileName;
+        });
+        if (selected && vscode.workspace.rootPath) {
+          const downloadPath = FileService.ConcatPath(
+            vscode.workspace.rootPath,
+            selected.fileName
+          );
+          const done = await FileService.WriteFile(
+            downloadPath,
+            selected.content
+          );
+          if (done) {
+            vscode.window.showInformationMessage(
+              localize("cmd.otherOptions.downloadCustomFile.done", downloadPath)
+            );
+          }
+        }
+      },
+      10: async () => {
         vscode.commands.executeCommand(
           "vscode.open",
           vscode.Uri.parse(
@@ -846,7 +946,7 @@ export class Sync {
           )
         );
       },
-      9: async () => {
+      11: async () => {
         vscode.commands.executeCommand(
           "vscode.open",
           vscode.Uri.parse(
@@ -854,7 +954,7 @@ export class Sync {
           )
         );
       },
-      10: async () => {
+      12: async () => {
         vscode.commands.executeCommand(
           "vscode.open",
           vscode.Uri.parse(
@@ -941,5 +1041,42 @@ export class Sync {
       Commons.LogException(err, "Error", true);
       return;
     }
+  }
+
+  private async getCustomFilesFromGist(
+    customSettings: CustomSettings,
+    syncSetting: ExtensionConfig
+  ): Promise<File[]> {
+    const github = new GitHubService(
+      customSettings.token,
+      customSettings.githubEnterpriseUrl
+    );
+    const res = await github.ReadGist(syncSetting.gist);
+    if (!res) {
+      Commons.LogException(res, "Sync : Unable to Read Gist.", true);
+      return [];
+    }
+    const keys = Object.keys(res.data.files);
+    const customFiles: File[] = [];
+    keys.forEach(gistName => {
+      if (res.data.files[gistName]) {
+        if (res.data.files[gistName].content) {
+          const prefix = FileService.CUSTOMIZED_SYNC_PREFIX;
+          if (gistName.indexOf(prefix) > -1) {
+            const fileName = gistName.split(prefix).join(""); // |customized_sync|.htmlhintrc => .htmlhintrc
+            const f: File = new File(
+              fileName,
+              res.data.files[gistName].content,
+              fileName in customSettings.customFiles
+                ? customSettings.customFiles[fileName]
+                : null,
+              gistName
+            );
+            customFiles.push(f);
+          }
+        }
+      }
+    });
+    return customFiles;
   }
 }
