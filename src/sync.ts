@@ -525,21 +525,6 @@ export class Sync {
                   deletedExtensions = uncompletedExtensions;
                 }
               }
-              let outputChannel: vscode.OutputChannel = null;
-              if (!syncSetting.quietSync) {
-                outputChannel = vscode.window.createOutputChannel(
-                  "Code Settings Sync"
-                );
-                outputChannel.clear();
-                outputChannel.appendLine(
-                  `CODE SETTINGS SYNC - COMMAND LINE EXTENSION DOWNLOAD SUMMARY`
-                );
-                outputChannel.appendLine(
-                  `Version: ${Environment.getVersion()}`
-                );
-                outputChannel.appendLine(`--------------------`);
-                outputChannel.show();
-              }
 
               try {
                 let useCli = true;
@@ -547,6 +532,18 @@ export class Sync {
                   .getConfiguration("extensions")
                   .get("autoUpdate");
                 useCli = autoUpdate;
+                if (useCli) {
+                  if (!syncSetting.quietSync) {
+                    Commons.outputChannel = vscode.window.createOutputChannel(
+                      "Code Settings Sync"
+                    );
+                    Commons.outputChannel.clear();
+                    Commons.outputChannel.appendLine(
+                      `COMMAND LINE EXTENSION DOWNLOAD SUMMARY`
+                    );
+                    Commons.outputChannel.appendLine(`--------------------`);
+                  }
+                }
 
                 addedExtensions = await PluginService.InstallExtensions(
                   content,
@@ -557,7 +554,7 @@ export class Sync {
                   env.isInsiders,
                   (message: string, dispose: boolean) => {
                     if (!syncSetting.quietSync) {
-                      outputChannel.appendLine(message);
+                      Commons.outputChannel.appendLine(message);
                     } else {
                       console.log(message);
                       if (dispose) {
@@ -569,16 +566,8 @@ export class Sync {
                     }
                   }
                 );
-                if (!syncSetting.quietSync) {
-                  outputChannel.clear();
-                  outputChannel.dispose();
-                }
               } catch (extensions) {
                 addedExtensions = extensions;
-                if (!syncSetting.quietSync) {
-                  outputChannel.clear();
-                  outputChannel.dispose();
-                }
               }
             }
           } else {
@@ -647,6 +636,14 @@ export class Sync {
             null,
             localSettings
           );
+          const message = await vscode.window.showInformationMessage(
+            localize("common.prompt.restartCode"),
+            "Yes"
+          );
+
+          if (message === "Yes") {
+            vscode.commands.executeCommand("workbench.action.reloadWindow");
+          }
           vscode.window.setStatusBarMessage("").dispose();
         } else {
           vscode.window.setStatusBarMessage("").dispose();

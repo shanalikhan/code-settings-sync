@@ -154,6 +154,8 @@
   "devDependencies": {
     "@types/fs-extra": "^5.0.4",
     "@types/node": "^10.7.0",
+    "@types/chai":"4.1.6",
+    "@types/mocha": "^5.2.0",
     "chai": "^4.2.0",
     "mocha": "^5.2.0",
     "prettier": "^1.14.2",

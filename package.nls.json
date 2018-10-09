@@ -98,5 +98,6 @@
   "common.placeholder.multipleGist": "Gist Name (e.g : Personal Settings)",
   "common.prompt.multipleGist": "Allows you to identify the settings if you have multiple gist.",
   "common.prompt.enterGistId": "Enter Gist Id from previously uploaded settings. You can also set manually in code settings (sync.gist). Press [Enter] or [Esc] to cancel.",
-  "common.prompt.enterGithubAccessToken": "You can manually add token also (User Folder / syncLocalSettings.json). Press [Enter] or [Esc] to cancel."
+  "common.prompt.enterGithubAccessToken": "You can manually add token also (User Folder / syncLocalSettings.json). Press [Enter] or [Esc] to cancel.",
+  "common.prompt.restartCode":"Do you want to reload to apply extensions and configurations ?"
 }

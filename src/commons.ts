@@ -11,6 +11,7 @@ import { CustomSettings, ExtensionConfig, LocalConfig } from "./setting";
 import { Util } from "./util";
 
 export default class Commons {
+  public static outputChannel: vscode.OutputChannel = null;
   public static LogException(
     error: any,
     message: string,
@@ -76,7 +77,6 @@ export default class Commons {
 
   private static configWatcher = null;
   private static extensionWatcher = null;
-  private static outputChannel: vscode.OutputChannel = null;
 
   public ERROR_MESSAGE: string = localize("common.error.message");
 
@@ -639,7 +639,6 @@ export default class Commons {
     }
 
     const outputChannel = Commons.outputChannel;
-    outputChannel.clear();
     outputChannel.appendLine(
       `CODE SETTINGS SYNC ${upload ? "UPLOAD" : "DOWNLOAD"} SUMMARY`
     );
