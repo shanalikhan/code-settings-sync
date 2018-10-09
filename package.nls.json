@@ -5,7 +5,7 @@
   "ext.config.lastDownload": "Settings Sync last download date. Set it as empty if you want to manually hit download.",
   "ext.config.autoDownload": "Set it true to Auto Download the settings on code start. [Code Restart Required]",
   "ext.config.autoUpload": "Set it true to Auto Upload on the settings change. [Code Restart Required]",
-  "ext.config.forceDownload": "Set it to true if you want to download the settings even when you have latest settings.",
+  "ext.config.forceDownload": "Set it to true if you want to download the settings even when you have the latest settings.",
   "ext.config.host": "Set it to your GitHub Enterprise host if you want to use GHE.",
   "ext.config.pathPrefix": "Set it to your GitHub Enterprise API prefix if you want to use GHE. Normally '/api/v3'. Only used when host is set.",
   "ext.config.quietSync": "When set to true, will show the result in status bar instead of summary page.",
@@ -29,7 +29,7 @@
   "cmd.downloadSettings.title": "Sync : Download Settings",
   "cmd.downloadSettings.info.downloaded": "Sync : Download Complete.",
   "cmd.downloadSettings.info.readdingOnline": "Sync : Reading Settings Online.",
-  "cmd.downloadSettings.info.gotLatestVersion": "Sync : You already have latest version of saved settings.",
+  "cmd.downloadSettings.info.gotLatestVersion": "Sync : You already have the latest version of saved settings.",
   "cmd.downloadSettings.error.removeExtFail": "Sync : Unable to remove some extensions.",
   "cmd.downloadSettings.error.unableSave": "Sync : Unable to save extension settings file.",
   "cmd.resetSettings.title": "Sync : Reset Extension Settings",
@@ -98,6 +98,6 @@
   "common.placeholder.multipleGist": "Gist Name (e.g : Personal Settings)",
   "common.prompt.multipleGist": "Allows you to identify the settings if you have multiple gist.",
   "common.prompt.enterGistId": "Enter Gist Id from previously uploaded settings. You can also set manually in code settings (sync.gist). Press [Enter] or [Esc] to cancel.",
-  "common.prompt.enterGithubAccessToken": "You can manually add token also (User Folder / syncLocalSettings.json). Press [Enter] or [Esc] to cancel.",
-  "common.prompt.restartCode":"Do you want to reload to apply extensions and configurations ?"
+  "common.prompt.enterGithubAccessToken": "You also manually add a token (User Folder / syncLocalSettings.json). Press [Enter] or [Esc] to cancel.",
+  "common.prompt.restartCode":"Do you want to reload to apply extensions and configurations?"
 }
