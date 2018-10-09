@@ -7,6 +7,16 @@ import * as path from "path";
 import * as vscode from "vscode";
 import { OsType } from "./enums";
 
+export const SUPPORTED_OS: string[] = Object.keys(OsType)
+  .filter(k => !/\d/.test(k))
+  .map(k => k.toLowerCase()); // . ["windows", "linux", "mac"];
+
+export function osTypeFromString(osName: string): OsType {
+  const capitalized: string =
+    osName[0].toUpperCase() + osName.substr(1).toLowerCase();
+  return OsType[capitalized];
+}
+
 export class Environment {
   public static CURRENT_VERSION: number = 312;
   public static getVersion(): string {

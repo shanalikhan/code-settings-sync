@@ -16,6 +16,8 @@ import {
   LocalConfig
 } from "./setting";
 
+import PragmaUtil from "./pragmaUtil";
+
 export class Sync {
   constructor(private context: vscode.ExtensionContext) {}
   /**
@@ -218,6 +220,18 @@ export class Sync {
                   : env.FILE_KEYBINDING_DEFAULT;
             }
             allSettingFiles.push(snippetFile);
+          }
+        }
+
+        if (snippetFile.fileName === env.FILE_SETTING_NAME) {
+          try {
+            snippetFile.content = PragmaUtil.processBeforeUpload(
+              snippetFile.content
+            );
+          } catch (e) {
+            Commons.LogException(null, e.message, true);
+            console.error(e);
+            return;
           }
         }
       }
@@ -492,7 +506,7 @@ export class Sync {
 
       for (const file of updatedFiles) {
         let writeFile: boolean = false;
-        const content: string = file.content;
+        let content: string = file.content;
 
         if (content !== "") {
           if (file.gistName === env.FILE_EXTENSION_NAME) {
@@ -592,6 +606,14 @@ export class Sync {
                 filePath = await FileService.CreateDirTree(
                   env.USER_FOLDER,
                   file.fileName
+                );
+              }
+
+              if (file.gistName === env.FILE_SETTING_NAME) {
+                content = PragmaUtil.processBeforeWrite(
+                  content,
+                  env.OsType,
+                  localSettings.customConfig.hostName
                 );
               }
 
