@@ -7,6 +7,16 @@ import * as path from "path";
 import * as vscode from "vscode";
 import { OsType } from "./enums";
 
+export const SUPPORTED_OS: string[] = Object.keys(OsType)
+  .filter(k => !/\d/.test(k))
+  .map(k => k.toLowerCase()); // . ["windows", "linux", "mac"];
+
+export function osTypeFromString(osName: string): OsType {
+  const capitalized: string =
+    osName[0].toUpperCase() + osName.substr(1).toLowerCase();
+  return OsType[capitalized];
+}
+
 export class Environment {
   public static CURRENT_VERSION: number = 312;
   public static getVersion(): string {
@@ -59,7 +69,6 @@ export class Environment {
     this.isOss = /\boss\b/.test(this.context.asAbsolutePath(""));
     const isXdg =
       !this.isInsiders &&
-      !!this.isOss &&
       process.platform === "linux" &&
       !!process.env.XDG_DATA_HOME;
     this.homeDir = isXdg
@@ -102,13 +111,15 @@ export class Environment {
       });
     }
 
-    const possibleCodePaths = [
-      this.isInsiders
-        ? "/Code - Insiders"
-        : this.isOss
-          ? "/Code - OSS"
-          : "/Code"
-    ];
+    const possibleCodePaths = [];
+    if (this.isInsiders) {
+      possibleCodePaths.push("/Code - Insiders");
+    } else if (this.isOss) {
+      possibleCodePaths.push("/Code - OSS");
+      possibleCodePaths.push("/VSCodium");
+    } else {
+      possibleCodePaths.push("/Code");
+    }
     for (const possibleCodePath of possibleCodePaths) {
       try {
         fs.statSync(this.PATH + possibleCodePath);
