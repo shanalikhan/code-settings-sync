@@ -542,6 +542,7 @@ export class Sync {
                       `COMMAND LINE EXTENSION DOWNLOAD SUMMARY`
                     );
                     Commons.outputChannel.appendLine(`--------------------`);
+                    Commons.outputChannel.show();
                   }
                 }
 
