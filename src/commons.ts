@@ -169,14 +169,12 @@ export default class Commons {
         requiredFileChanged =
           path.indexOf(this.en.FILE_SYNC_LOCK_NAME) === -1 &&
           path.indexOf(".DS_Store") === -1 &&
-          path.indexOf(this.en.APP_SUMMARY_NAME) === -1 &&
           path.indexOf(this.en.FILE_CUSTOMIZEDSETTINGS_NAME) === -1;
       } else {
         requiredFileChanged =
           path.indexOf(this.en.FILE_SYNC_LOCK_NAME) === -1 &&
           path.indexOf("workspaceStorage") === -1 &&
           path.indexOf(".DS_Store") === -1 &&
-          path.indexOf(this.en.APP_SUMMARY_NAME) === -1 &&
           path.indexOf(this.en.FILE_CUSTOMIZEDSETTINGS_NAME) === -1;
       }
 
@@ -481,7 +479,9 @@ export default class Commons {
         setting[keyName] = "";
       }
       if (keyName.toLowerCase() !== "token") {
-        allKeysUpdated.push(config.update(keyName, setting[keyName], true));
+        if (config.get(keyName) !== setting[keyName]) {
+          allKeysUpdated.push(config.update(keyName, setting[keyName], true));
+        }
       }
     });
 
