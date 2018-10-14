@@ -11,6 +11,7 @@ import { CustomSettings, ExtensionConfig, LocalConfig } from "./setting";
 import { Util } from "./util";
 
 export default class Commons {
+  public static outputChannel: vscode.OutputChannel = null;
   public static LogException(
     error: any,
     message: string,
@@ -76,7 +77,6 @@ export default class Commons {
 
   private static configWatcher = null;
   private static extensionWatcher = null;
-  private static outputChannel: vscode.OutputChannel = null;
 
   public ERROR_MESSAGE: string = localize("common.error.message");
 
@@ -169,14 +169,12 @@ export default class Commons {
         requiredFileChanged =
           path.indexOf(this.en.FILE_SYNC_LOCK_NAME) === -1 &&
           path.indexOf(".DS_Store") === -1 &&
-          path.indexOf(this.en.APP_SUMMARY_NAME) === -1 &&
           path.indexOf(this.en.FILE_CUSTOMIZEDSETTINGS_NAME) === -1;
       } else {
         requiredFileChanged =
           path.indexOf(this.en.FILE_SYNC_LOCK_NAME) === -1 &&
           path.indexOf("workspaceStorage") === -1 &&
           path.indexOf(".DS_Store") === -1 &&
-          path.indexOf(this.en.APP_SUMMARY_NAME) === -1 &&
           path.indexOf(this.en.FILE_CUSTOMIZEDSETTINGS_NAME) === -1;
       }
 
@@ -418,53 +416,52 @@ export default class Commons {
       const writeReview = localize("common.action.writeReview");
       const support = localize("common.action.support");
       const joinCommunity = localize("common.action.joinCommunity");
-      // TODO : Remove this, v3.1 Specific only.
-      vscode.window.showInformationMessage(
-        "Some Settings are updated. You can remove unnecessary sync settings from code. Read Sync guide for details."
-      );
-      vscode.window
-        .showInformationMessage(
-          localize("common.info.updateTo", Environment.getVersion()),
-          releaseNotes,
-          writeReview,
-          support,
-          joinCommunity
-        )
-        .then((val: string) => {
-          if (val === releaseNotes) {
-            vscode.commands.executeCommand(
-              "vscode.open",
-              vscode.Uri.parse(
-                "http://shanalikhan.github.io/2016/05/14/Visual-studio-code-sync-settings-release-notes.html"
-              )
-            );
-          }
-          if (val === writeReview) {
-            vscode.commands.executeCommand(
-              "vscode.open",
-              vscode.Uri.parse(
-                "https://marketplace.visualstudio.com/items?itemName=Shan.code-settings-sync#review-details"
-              )
-            );
-          }
-          if (val === support) {
-            vscode.commands.executeCommand(
-              "vscode.open",
-              vscode.Uri.parse(
-                "https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=4W3EWHHBSYMM8&lc=IE&item_name=Code%20Settings%20Sync&item_number=visual%20studio%20code%20settings%20sync&currency_code=USD&bn=PP-DonationsBF:btn_donate_SM.gif:NonHosted"
-              )
-            );
-          }
-          if (val === joinCommunity) {
-            vscode.commands.executeCommand(
-              "vscode.open",
-              vscode.Uri.parse(
-                "https://join.slack.com/t/codesettingssync/shared_invite/enQtMzE3MjY5NTczNDMwLTYwMTIwNGExOGE2MTJkZWU0OTU5MmI3ZTc4N2JkZjhjMzY1OTk5OGExZjkwMDMzMDU4ZTBlYjk5MGQwZmMyNzk"
-              )
-            );
-          }
-        });
+      if (!customSettings.disableUpdateMessage) {
+        vscode.window
+          .showInformationMessage(
+            localize("common.info.updateTo", Environment.getVersion()),
+            releaseNotes,
+            writeReview,
+            support,
+            joinCommunity
+          )
+          .then((val: string) => {
+            if (val === releaseNotes) {
+              vscode.commands.executeCommand(
+                "vscode.open",
+                vscode.Uri.parse(
+                  "http://shanalikhan.github.io/2016/05/14/Visual-studio-code-sync-settings-release-notes.html"
+                )
+              );
+            }
+            if (val === writeReview) {
+              vscode.commands.executeCommand(
+                "vscode.open",
+                vscode.Uri.parse(
+                  "https://marketplace.visualstudio.com/items?itemName=Shan.code-settings-sync#review-details"
+                )
+              );
+            }
+            if (val === support) {
+              vscode.commands.executeCommand(
+                "vscode.open",
+                vscode.Uri.parse(
+                  "https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=4W3EWHHBSYMM8&lc=IE&item_name=Code%20Settings%20Sync&item_number=visual%20studio%20code%20settings%20sync&currency_code=USD&bn=PP-DonationsBF:btn_donate_SM.gif:NonHosted"
+                )
+              );
+            }
+            if (val === joinCommunity) {
+              vscode.commands.executeCommand(
+                "vscode.open",
+                vscode.Uri.parse(
+                  "https://join.slack.com/t/codesettingssync/shared_invite/enQtMzE3MjY5NTczNDMwLTYwMTIwNGExOGE2MTJkZWU0OTU5MmI3ZTc4N2JkZjhjMzY1OTk5OGExZjkwMDMzMDU4ZTBlYjk5MGQwZmMyNzk"
+                )
+              );
+            }
+          });
+      }
     }
+
     if (fileChanged) {
       customSettings.version = Environment.CURRENT_VERSION;
       await this.SetCustomSettings(customSettings);
@@ -482,7 +479,9 @@ export default class Commons {
         setting[keyName] = "";
       }
       if (keyName.toLowerCase() !== "token") {
-        allKeysUpdated.push(config.update(keyName, setting[keyName], true));
+        if (config.get(keyName) !== setting[keyName]) {
+          allKeysUpdated.push(config.update(keyName, setting[keyName], true));
+        }
       }
     });
 
@@ -640,7 +639,6 @@ export default class Commons {
     }
 
     const outputChannel = Commons.outputChannel;
-    outputChannel.clear();
     outputChannel.appendLine(
       `CODE SETTINGS SYNC ${upload ? "UPLOAD" : "DOWNLOAD"} SUMMARY`
     );
