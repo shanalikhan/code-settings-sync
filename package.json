@@ -1,181 +1,176 @@
 {
-    "name": "code-settings-sync",
-    "displayName": "Settings Sync",
-    "description": "Synchronize Settings, Snippets, Themes, File Icons, Launch, Keybindings, Workspaces and Extensions Across Multiple Machines Using GitHub Gist.",
-    "version": "3.2.0",
-    "icon": "images/cloud.png",
-    "publisher": "Shan",
-    "author": {
-      "name": "Shan Khan",
-      "url": "http://shanalikhan.github.io",
-      "email": "shanalikhan@hotmail.com"
+  "name": "code-settings-sync",
+  "displayName": "Settings Sync",
+  "description": "Synchronize Settings, Snippets, Themes, File Icons, Launch, Keybindings, Workspaces and Extensions Across Multiple Machines Using GitHub Gist.",
+  "version": "3.2.0",
+  "icon": "images/cloud.png",
+  "publisher": "Shan",
+  "author": {
+    "name": "Shan Khan",
+    "url": "http://shanalikhan.github.io",
+    "email": "shanalikhan@hotmail.com"
+  },
+  "homepage": "https://shanalikhan.github.io",
+  "galleryBanner": {
+    "color": "#3B4859",
+    "theme": "dark"
+  },
+  "badges": [
+    {
+      "url": "https://vsmarketplacebadge.apphb.com/version/Shan.code-settings-sync.svg",
+      "description": "Latest Version",
+      "href": "https://marketplace.visualstudio.com/items?itemName=Shan.code-settings-sync"
     },
-    "homepage": "https://shanalikhan.github.io",
-    "galleryBanner": {
-      "color": "#3B4859",
-      "theme": "dark"
+    {
+      "url": "https://vsmarketplacebadge.apphb.com/installs/Shan.code-settings-sync.svg",
+      "description": "Total Downloads",
+      "href": "https://marketplace.visualstudio.com/items?itemName=Shan.code-settings-sync"
     },
-    "badges": [
-      {
-        "url": "https://vsmarketplacebadge.apphb.com/version/Shan.code-settings-sync.svg",
-        "description": "Latest Version",
-        "href": "https://marketplace.visualstudio.com/items?itemName=Shan.code-settings-sync"
-      },
-      {
-        "url": "https://vsmarketplacebadge.apphb.com/installs/Shan.code-settings-sync.svg",
-        "description": "Total Downloads",
-        "href": "https://marketplace.visualstudio.com/items?itemName=Shan.code-settings-sync"
-      },
-      {
-        "url": "https://vsmarketplacebadge.apphb.com/rating/Shan.code-settings-sync.svg",
-        "description": "Ratings",
-        "href": "https://marketplace.visualstudio.com/items?itemName=Shan.code-settings-sync"
-      },
-      {
-        "url": "https://img.shields.io/badge/Join%20Community-slack-green.svg",
-        "description": "Join Slack Community",
-        "href": "https://join.slack.com/t/codesettingssync/shared_invite/enQtMzE3MjY5NTczNDMwLTYwMTIwNGExOGE2MTJkZWU0OTU5MmI3ZTc4N2JkZjhjMzY1OTk5OGExZjkwMDMzMDU4ZTBlYjk5MGQwZmMyNzk"
-      }
-    ],
-    "repository": {
-      "type": "git",
-      "url": "https://github.com/shanalikhan/code-settings-sync.git"
+    {
+      "url": "https://vsmarketplacebadge.apphb.com/rating/Shan.code-settings-sync.svg",
+      "description": "Ratings",
+      "href": "https://marketplace.visualstudio.com/items?itemName=Shan.code-settings-sync"
     },
-    "bugs": {
-      "url": "https://github.com/shanalikhan/code-settings-sync/issues",
-      "email": "shanalikhan@hotmail.com"
-    },
-    "engines": {
-      "vscode": "^1.28.0"
-    },
-    "categories": [
-      "Other"
-    ],
-    "keywords": [
-      "vscode-sync",
-      "vscode-settings-sync",
-      "code-settings-sync",
-      "settings-sync",
-      "workspace-sync",
-      "multi-root ready"
-    ],
-    "activationEvents": [
-      "*"
-    ],
-    "main": "./out/extension",
-    "contributes": {
-      "commands": [
-        {
-          "command": "extension.HowSettings",
-          "title": "%cmd.howSetting.title%"
-        },
-        {
-          "command": "extension.downloadSettings",
-          "title": "%cmd.downloadSettings.title%"
-        },
-        {
-          "command": "extension.updateSettings",
-          "title": "%cmd.updateSettings.title%"
-        },
-        {
-          "command": "extension.resetSettings",
-          "title": "%cmd.resetSettings.title%"
-        },
-        {
-          "command": "extension.otherOptions",
-          "title": "%cmd.otherOptions.title%"
-        }
-      ],
-      "keybindings": [
-        {
-          "key": "alt+shift+u",
-          "command": "extension.updateSettings"
-        },
-        {
-          "key": "alt+shift+d",
-          "command": "extension.downloadSettings"
-        }
-      ],
-      "configuration": {
-        "properties": {
-          "sync.gist": {
-            "type": "string",
-            "default": "",
-            "description": "%ext.config.gist%"
-          },
-          "sync.autoDownload": {
-            "type": "boolean",
-            "default": false,
-            "description": "%ext.config.autoDownload%"
-          },
-          "sync.autoUpload": {
-            "type": "boolean",
-            "default": false,
-            "description": "%ext.config.autoUpload%"
-          },
-          "sync.forceDownload": {
-            "type": "boolean",
-            "default": false,
-            "description": "%ext.config.forceDownload%"
-          },
-          "sync.quietSync": {
-            "type": "boolean",
-            "default": false,
-            "description": "%ext.config.quietSync%"
-          },
-          "sync.askGistName": {
-            "type": "boolean",
-            "default": false,
-            "description": "%ext.config.askGistName%"
-          },
-          "sync.removeExtensions": {
-            "type": "boolean",
-            "default": true,
-            "description": "%ext.config.removeExtensions%"
-          },
-          "sync.syncExtensions": {
-            "type": "boolean",
-            "default": true,
-            "description": "%ext.config.syncExtensions%"
-          }
-        },
-        "title": "%ext.config.title%"
-      }
-    },
-    "scripts": {
-      "vscode:prepublish": "npm run tslint-check && npm run compile",
-      "compile": "webpack --mode production",
-      "compile:dev": "webpack --mode development",
-      "compile:watch": "webpack --mode development --watch",
-      "watch": "tsc -watch -p ./",
-      "postinstall": "node ./node_modules/vscode/bin/install",
-      "tslint-check": "tslint -c ./tslint.json ./src/**/*.ts ./src/*.ts",
-      "format": "prettier --write './src/**/*.ts'",
-      "test": "npm run vscode:prepublish && node ./node_modules/bin/mocha --recursive"
-    },
-    "devDependencies": {
-      "@types/fs-extra": "^5.0.4",
-      "@types/node": "^10.11.6",
-      "@types/chai":"4.1.6",
-      "@types/mocha": "^5.2.0",
-      "chai": "^4.2.0",
-      "mocha": "^5.2.0",
-      "prettier": "^1.14.3",
-      "ts-loader": "^5.2.1",
-      "tslint": "^5.11.0",
-      "tslint-plugin-prettier": "^2.0.0",
-      "typescript": "^3.1.2",
-      "vscode": "^1.1.21",
-      "webpack": "^4.20.2",
-      "webpack-cli": "^3.1.2"
-    },
-    "dependencies": {
-      "@octokit/rest": "^15.13.0",
-      "adm-zip": "^0.4.11",
-      "chokidar": "^2.0.4",
-      "fs-extra": "^7.0.0",
-      "https-proxy-agent": "^2.2.1",
-      "lockfile": "^1.0.4",
-      "temp": "^0.8.3"
+    {
+      "url": "https://img.shields.io/badge/Join%20Community-slack-green.svg",
+      "description": "Join Slack Community",
+      "href": "https://join.slack.com/t/codesettingssync/shared_invite/enQtMzE3MjY5NTczNDMwLTYwMTIwNGExOGE2MTJkZWU0OTU5MmI3ZTc4N2JkZjhjMzY1OTk5OGExZjkwMDMzMDU4ZTBlYjk5MGQwZmMyNzk"
     }
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/shanalikhan/code-settings-sync.git"
+  },
+  "bugs": {
+    "url": "https://github.com/shanalikhan/code-settings-sync/issues",
+    "email": "shanalikhan@hotmail.com"
+  },
+  "engines": {
+    "vscode": "^1.28.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "keywords": [
+    "vscode-sync",
+    "vscode-settings-sync",
+    "code-settings-sync",
+    "settings-sync",
+    "workspace-sync",
+    "multi-root ready"
+  ],
+  "activationEvents": [
+    "*"
+  ],
+  "main": "./out/src/extension",
+  "contributes": {
+    "commands": [
+      {
+        "command": "extension.HowSettings",
+        "title": "%cmd.howSetting.title%"
+      },
+      {
+        "command": "extension.downloadSettings",
+        "title": "%cmd.downloadSettings.title%"
+      },
+      {
+        "command": "extension.updateSettings",
+        "title": "%cmd.updateSettings.title%"
+      },
+      {
+        "command": "extension.resetSettings",
+        "title": "%cmd.resetSettings.title%"
+      },
+      {
+        "command": "extension.otherOptions",
+        "title": "%cmd.otherOptions.title%"
+      }
+    ],
+    "keybindings": [
+      {
+        "key": "alt+shift+u",
+        "command": "extension.updateSettings"
+      },
+      {
+        "key": "alt+shift+d",
+        "command": "extension.downloadSettings"
+      }
+    ],
+    "configuration": {
+      "properties": {
+        "sync.gist": {
+          "type": "string",
+          "default": "",
+          "description": "%ext.config.gist%"
+        },
+        "sync.autoDownload": {
+          "type": "boolean",
+          "default": false,
+          "description": "%ext.config.autoDownload%"
+        },
+        "sync.autoUpload": {
+          "type": "boolean",
+          "default": false,
+          "description": "%ext.config.autoUpload%"
+        },
+        "sync.forceDownload": {
+          "type": "boolean",
+          "default": false,
+          "description": "%ext.config.forceDownload%"
+        },
+        "sync.quietSync": {
+          "type": "boolean",
+          "default": false,
+          "description": "%ext.config.quietSync%"
+        },
+        "sync.askGistName": {
+          "type": "boolean",
+          "default": false,
+          "description": "%ext.config.askGistName%"
+        },
+        "sync.removeExtensions": {
+          "type": "boolean",
+          "default": true,
+          "description": "%ext.config.removeExtensions%"
+        },
+        "sync.syncExtensions": {
+          "type": "boolean",
+          "default": true,
+          "description": "%ext.config.syncExtensions%"
+        }
+      },
+      "title": "%ext.config.title%"
+    }
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run tslint-check && npm run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "postinstall": "node ./node_modules/vscode/bin/install",
+    "tslint-check": "tslint -c ./tslint.json ./src/**/*.ts ./src/*.ts",
+    "format": "prettier --write './src/**/*.ts'",
+    "test": "npm run vscode:prepublish && node ./node_modules/bin/mocha --recursive"
+  },
+  "devDependencies": {
+    "@types/fs-extra": "^5.0.4",
+    "@types/node": "^10.11.6",
+    "@types/chai":"4.1.6",
+    "@types/mocha": "^5.2.0",
+    "chai": "^4.2.0",
+    "mocha": "^5.2.0",
+    "prettier": "^1.14.3",
+    "tslint": "^5.11.0",
+    "tslint-plugin-prettier": "^2.0.0",
+    "typescript": "^3.1.2",
+    "vscode": "^1.1.21"
+  },
+  "dependencies": {
+    "@octokit/rest": "^15.13.0",
+    "adm-zip": "^0.4.11",
+    "chokidar": "^2.0.4",
+    "fs-extra": "^7.0.0",
+    "https-proxy-agent": "^2.2.1",
+    "lockfile": "^1.0.4",
+    "temp": "^0.8.3"
   }
+}
