@@ -15,7 +15,7 @@ export class GitHubService {
   public userName: string = null;
   public name: string = null;
   private github: GitHubApi = null;
-  private GIST_JSON_EMPTY: GitHubApi.GistsCreateParams = {
+  private GIST_JSON_EMPTY: any = {
     description: "Visual Studio Code Sync Settings Gist",
     public: false,
     files: {

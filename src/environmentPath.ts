@@ -31,9 +31,9 @@ export class Environment {
 
   public isInsiders: boolean = false;
   public isOss: boolean = false;
-  public isPortable : boolean = false;
+  public isPortable: boolean = false;
   public homeDir: string | null = null;
-  public USER_FOLDER : string = null;
+  public USER_FOLDER: string = null;
 
   public ExtensionFolder: string = null;
   public PATH: string = null;
@@ -77,7 +77,7 @@ export class Environment {
     const configSuffix = `${isXdg ? "" : "."}vscode${
       this.isInsiders ? "-insiders" : this.isOss ? "-oss" : ""
     }`;
-    
+
     process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
     this.PATH = process.env.APPDATA;
     this.OsType = OsType.Windows;
@@ -107,7 +107,7 @@ export class Environment {
         this.OsType = OsType.Linux;
       } else {
         this.PATH = process.env.VSCODE_PORTABLE;
-        this.OsType = OsType.Linux;
+        this.OsType = OsType.Windows;
       }
     }
 
@@ -122,7 +122,7 @@ export class Environment {
         // command output is in stdout
       });
     }
-    if(!this.isPortable){
+    if (!this.isPortable) {
       const possibleCodePaths = [];
       if (this.isInsiders) {
         possibleCodePaths.push("/Code - Insiders");
@@ -142,23 +142,29 @@ export class Environment {
           console.error(e);
         }
       }
-      this.ExtensionFolder = path.join(this.homeDir, configSuffix, "extensions");
+      this.ExtensionFolder = path.join(
+        this.homeDir,
+        configSuffix,
+        "extensions"
+      );
       this.USER_FOLDER = this.PATH.concat("/User/");
-      
-    }
-    else{
+    } else {
       this.USER_FOLDER = this.PATH.concat("/user-data/User/");
-      this.ExtensionFolder = this.PATH.concat("/extensions/")
+      this.ExtensionFolder = this.PATH.concat("/extensions/");
     }
-    
+
     this.FILE_EXTENSION = this.USER_FOLDER.concat(this.FILE_EXTENSION_NAME);
     this.FILE_SETTING = this.USER_FOLDER.concat(this.FILE_SETTING_NAME);
     this.FILE_LAUNCH = this.USER_FOLDER.concat(this.FILE_LAUNCH_NAME);
     this.FILE_KEYBINDING = this.USER_FOLDER.concat(this.FILE_KEYBINDING_NAME);
     this.FILE_LOCALE = this.USER_FOLDER.concat(this.FILE_LOCALE_NAME);
     this.FOLDER_SNIPPETS = this.USER_FOLDER.concat("/snippets/");
-    this.FILE_CLOUDSETTINGS = this.USER_FOLDER.concat(this.FILE_CLOUDSETTINGS_NAME);
-    this.FILE_CUSTOMIZEDSETTINGS = this.USER_FOLDER.concat(this.FILE_CUSTOMIZEDSETTINGS_NAME);
+    this.FILE_CLOUDSETTINGS = this.USER_FOLDER.concat(
+      this.FILE_CLOUDSETTINGS_NAME
+    );
+    this.FILE_CUSTOMIZEDSETTINGS = this.USER_FOLDER.concat(
+      this.FILE_CUSTOMIZEDSETTINGS_NAME
+    );
     this.FILE_SYNC_LOCK = this.USER_FOLDER.concat(this.FILE_SYNC_LOCK_NAME);
   }
 }

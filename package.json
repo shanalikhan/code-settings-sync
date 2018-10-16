@@ -62,7 +62,11 @@
   "activationEvents": [
     "*"
   ],
+<<<<<<< HEAD
+  "main": "./out/extension",
+=======
   "main": "./out/src/extension",
+>>>>>>> v3.2
   "contributes": {
     "commands": [
       {
