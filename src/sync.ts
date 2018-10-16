@@ -208,10 +208,7 @@ export class Sync {
       }
 
       for (const snippetFile of contentFiles) {
-        if (
-          snippetFile.fileName !== env.APP_SUMMARY_NAME &&
-          snippetFile.fileName !== env.FILE_KEYBINDING_MAC
-        ) {
+        if (snippetFile.fileName !== env.FILE_KEYBINDING_MAC) {
           if (snippetFile.content !== "") {
             if (snippetFile.fileName === env.FILE_KEYBINDING_NAME) {
               snippetFile.gistName =
