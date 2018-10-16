@@ -62,7 +62,11 @@
   "activationEvents": [
     "*"
   ],
+<<<<<<< HEAD
   "main": "./out/extension",
+=======
+  "main": "./out/src/extension",
+>>>>>>> v3.2
   "contributes": {
     "commands": [
       {
@@ -144,9 +148,7 @@
   },
   "scripts": {
     "vscode:prepublish": "npm run tslint-check && npm run compile",
-    "compile": "webpack --mode production",
-    "compile:dev": "webpack --mode development",
-    "compile:watch": "webpack --mode development --watch",
+    "compile": "tsc -p ./",
     "watch": "tsc -watch -p ./",
     "postinstall": "node ./node_modules/vscode/bin/install",
     "tslint-check": "tslint -c ./tslint.json ./src/**/*.ts ./src/*.ts",
@@ -156,18 +158,15 @@
   "devDependencies": {
     "@types/fs-extra": "^5.0.4",
     "@types/node": "^10.11.6",
-    "@types/chai": "4.1.6",
+    "@types/chai":"4.1.6",
     "@types/mocha": "^5.2.0",
     "chai": "^4.2.0",
     "mocha": "^5.2.0",
     "prettier": "^1.14.3",
-    "ts-loader": "^5.2.1",
     "tslint": "^5.11.0",
     "tslint-plugin-prettier": "^2.0.0",
     "typescript": "^3.1.2",
-    "vscode": "^1.1.21",
-    "webpack": "^4.20.2",
-    "webpack-cli": "^3.1.2"
+    "vscode": "^1.1.21"
   },
   "dependencies": {
     "@octokit/rest": "^15.13.0",

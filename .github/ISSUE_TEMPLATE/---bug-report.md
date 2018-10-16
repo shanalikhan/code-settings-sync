@@ -10,8 +10,6 @@ A clear and concise description of what the bug is.
 
 🌴 **Visual Studio Code Version :** [ VERSION_HERE ] 
 🌴 **Code Settings Sync Version :** [ VERSION_HERE ] 
-🌴 **Standard or Insiders :** [ _here_ ] 
-🌴 **OSS or Portable :** [ _here_ ] 
 🌴 **Operating System :** [ VERSION_HERE ] 
 🌴 **Occurs On:** [Upload / Download / Help Configuring ]
 🌴 **Proxy Enabled:** [ Yes / No ]
