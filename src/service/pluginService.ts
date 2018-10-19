@@ -9,7 +9,8 @@ import * as util from "../util";
 const apiPath =
   "https://marketplace.visualstudio.com/_apis/public/gallery/extensionquery";
 
-const extensionDir = ".vscode";
+const extensionDir: string = ".vscode";
+const extensionDirPortable: string = "/data/extensions/";
 
 export class ExtensionInformation {
   public static fromJSON(text: string) {
@@ -157,8 +158,11 @@ export class PluginService {
     const list: ExtensionInformation[] = [];
 
     for (const ext of vscode.extensions.all) {
+      console.log(ext.extensionPath);
+
       if (
-        ext.extensionPath.includes(extensionDir) && // skip if not install from gallery
+        (ext.extensionPath.includes(extensionDir) ||
+          ext.extensionPath.includes(extensionDirPortable)) && // skip if not install from gallery
         ext.packageJSON.isBuiltin === false
       ) {
         const meta = ext.packageJSON.__metadata || {
