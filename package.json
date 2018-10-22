@@ -70,6 +70,10 @@
                 "title": "%cmd.howSetting.title%"
             },
             {
+                "command": "extension.TestUpload",
+                "title": "testzhizha"
+            },
+            {
                 "command": "extension.downloadSettings",
                 "title": "%cmd.downloadSettings.title%"
             },

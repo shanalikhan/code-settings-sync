@@ -38,7 +38,13 @@ export async function activate(context: vscode.ExtensionContext) {
   context.subscriptions.push(
     vscode.commands.registerCommand(
       "extension.otherOptions",
-      sync.advance.bind(sync)
+      sync.testup.bind(sync)
+    )
+  );
+  context.subscriptions.push(
+    vscode.commands.registerCommand(
+      "extension.TestUpload",
+      sync.testup.bind(sync)
     )
   );
 }
