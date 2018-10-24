@@ -92,7 +92,7 @@ export default class PragmaUtil {
 
     result = this.removeIgnoreBlocks(result);
     const ignoredBlocks = this.getIgnoredBlocks(localContent); // get the settings that must prevale
-    result = result.replace(/{\s*\n/, `{\n\    ${ignoredBlocks}\n\n`); // always formated with four spaces?
+    result = result.replace(/{\s*\n/, `{\n${ignoredBlocks}\n`); // always formated with four spaces?
     // check is a valid JSON
 
     try {
@@ -261,7 +261,7 @@ export default class PragmaUtil {
   }
 
   private static readonly PragmaRegExp: RegExp = /\/\/[ \t]*\@sync[ \t]+(?:os=.+[ \t]*)?(?:host=.+[ \t]*)?(?:env=.+[ \t]*)?\n[ \t]*.+,?/g;
-  private static readonly IgnorePragmaRegExp: RegExp = /\/\/[ \t]*\@sync-ignore.*\n.+,?/g;
+  private static readonly IgnorePragmaRegExp: RegExp = /[ \t]*\/\/[ \t]*\@sync-ignore.*\n.+,?\n+/g;
   private static readonly HostPragmaWhiteSpacesSupportRegExp = /(?:host=(.+)os=)|(?:host=(.+)env=)|host=(.+)\n?/;
   private static readonly OSPragmaWhiteSpacesSupportRegExp = /(?:os=(.+)host=)|(?:os=(.+)env=)|os=(.+)\n?/;
   private static readonly EnvPragmaWhiteSpacesSupportRegExp = /(?:env=(.+)host=)|(?:env=(.+)os=)|env=(.+)\n?/;
