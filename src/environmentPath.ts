@@ -18,7 +18,7 @@ export function osTypeFromString(osName: string): OsType {
 }
 
 export class Environment {
-  public static CURRENT_VERSION: number = 312;
+  public static CURRENT_VERSION: number = 320;
   public static getVersion(): string {
     return (
       Environment.CURRENT_VERSION.toString().slice(0, 1) +
@@ -31,8 +31,9 @@ export class Environment {
 
   public isInsiders: boolean = false;
   public isOss: boolean = false;
+  public isPortable: boolean = false;
   public homeDir: string | null = null;
-  public USER_FOLDER = null;
+  public USER_FOLDER: string = null;
 
   public ExtensionFolder: string = null;
   public PATH: string = null;
@@ -61,15 +62,13 @@ export class Environment {
   public FILE_CLOUDSETTINGS_NAME: string = "cloudSettings";
 
   public FOLDER_SNIPPETS: string = null;
-  public APP_SUMMARY_NAME: string = "syncSummary.txt";
-  public APP_SUMMARY: string = null;
 
   constructor(private context: vscode.ExtensionContext) {
     this.isInsiders = /insiders/.test(this.context.asAbsolutePath(""));
+    this.isPortable = process.env.VSCODE_PORTABLE ? true : false;
     this.isOss = /\boss\b/.test(this.context.asAbsolutePath(""));
     const isXdg =
       !this.isInsiders &&
-      !!this.isOss &&
       process.platform === "linux" &&
       !!process.env.XDG_DATA_HOME;
     this.homeDir = isXdg
@@ -78,13 +77,12 @@ export class Environment {
     const configSuffix = `${isXdg ? "" : "."}vscode${
       this.isInsiders ? "-insiders" : this.isOss ? "-oss" : ""
     }`;
-    this.ExtensionFolder = path.join(this.homeDir, configSuffix, "extensions");
 
     process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
     this.PATH = process.env.APPDATA;
     this.OsType = OsType.Windows;
 
-    if (!this.PATH) {
+    if (!this.PATH && !this.isPortable) {
       if (process.platform === "darwin") {
         this.PATH = process.env.HOME + "/Library/Application Support";
         this.OsType = OsType.Mac;
@@ -100,6 +98,19 @@ export class Environment {
       }
     }
 
+    if (!this.PATH && this.isPortable) {
+      if (process.platform === "darwin") {
+        this.PATH = process.env.HOME + "/Library/Application Support";
+        this.OsType = OsType.Mac;
+      } else if (process.platform === "linux") {
+        this.PATH = process.env.VSCODE_PORTABLE;
+        this.OsType = OsType.Linux;
+      } else {
+        this.PATH = process.env.VSCODE_PORTABLE;
+        this.OsType = OsType.Windows;
+      }
+    }
+
     if (this.OsType === OsType.Linux) {
       const myExt =
         "chmod +x " +
@@ -111,46 +122,49 @@ export class Environment {
         // command output is in stdout
       });
     }
-
-    const possibleCodePaths = [];
-    if (this.isInsiders) {
-      possibleCodePaths.push("/Code - Insiders");
-    } else if (this.isOss) {
-      possibleCodePaths.push("/Code - OSS");
-      possibleCodePaths.push("/VSCodium");
-    } else {
-      possibleCodePaths.push("/Code");
-    }
-    for (const possibleCodePath of possibleCodePaths) {
-      try {
-        fs.statSync(this.PATH + possibleCodePath);
-        this.PATH = this.PATH + possibleCodePath;
-        break;
-      } catch (e) {
-        console.error("Error :" + possibleCodePath);
-        console.error(e);
+    if (!this.isPortable) {
+      const possibleCodePaths = [];
+      if (this.isInsiders) {
+        possibleCodePaths.push("/Code - Insiders");
+      } else if (this.isOss) {
+        possibleCodePaths.push("/Code - OSS");
+        possibleCodePaths.push("/VSCodium");
+      } else {
+        possibleCodePaths.push("/Code");
       }
+      for (const possibleCodePath of possibleCodePaths) {
+        try {
+          fs.statSync(this.PATH + possibleCodePath);
+          this.PATH = this.PATH + possibleCodePath;
+          break;
+        } catch (e) {
+          console.error("Error :" + possibleCodePath);
+          console.error(e);
+        }
+      }
+      this.ExtensionFolder = path.join(
+        this.homeDir,
+        configSuffix,
+        "extensions"
+      );
+      this.USER_FOLDER = this.PATH.concat("/User/");
+    } else {
+      this.USER_FOLDER = this.PATH.concat("/user-data/User/");
+      this.ExtensionFolder = this.PATH.concat("/extensions/");
     }
-    this.USER_FOLDER = this.PATH.concat("/User/");
 
-    this.FILE_EXTENSION = this.PATH.concat("/User/", this.FILE_EXTENSION_NAME);
-    this.FILE_SETTING = this.PATH.concat("/User/", this.FILE_SETTING_NAME);
-    this.FILE_LAUNCH = this.PATH.concat("/User/", this.FILE_LAUNCH_NAME);
-    this.FILE_KEYBINDING = this.PATH.concat(
-      "/User/",
-      this.FILE_KEYBINDING_NAME
-    );
-    this.FILE_LOCALE = this.PATH.concat("/User/", this.FILE_LOCALE_NAME);
-    this.FOLDER_SNIPPETS = this.PATH.concat("/User/snippets/");
-    this.APP_SUMMARY = this.PATH.concat("/User/", this.APP_SUMMARY_NAME);
-    this.FILE_CLOUDSETTINGS = this.PATH.concat(
-      "/User/",
+    this.FILE_EXTENSION = this.USER_FOLDER.concat(this.FILE_EXTENSION_NAME);
+    this.FILE_SETTING = this.USER_FOLDER.concat(this.FILE_SETTING_NAME);
+    this.FILE_LAUNCH = this.USER_FOLDER.concat(this.FILE_LAUNCH_NAME);
+    this.FILE_KEYBINDING = this.USER_FOLDER.concat(this.FILE_KEYBINDING_NAME);
+    this.FILE_LOCALE = this.USER_FOLDER.concat(this.FILE_LOCALE_NAME);
+    this.FOLDER_SNIPPETS = this.USER_FOLDER.concat("/snippets/");
+    this.FILE_CLOUDSETTINGS = this.USER_FOLDER.concat(
       this.FILE_CLOUDSETTINGS_NAME
     );
-    this.FILE_CUSTOMIZEDSETTINGS = this.PATH.concat(
-      "/User/",
+    this.FILE_CUSTOMIZEDSETTINGS = this.USER_FOLDER.concat(
       this.FILE_CUSTOMIZEDSETTINGS_NAME
     );
-    this.FILE_SYNC_LOCK = this.PATH.concat("/User/", this.FILE_SYNC_LOCK_NAME);
+    this.FILE_SYNC_LOCK = this.USER_FOLDER.concat(this.FILE_SYNC_LOCK_NAME);
   }
 }

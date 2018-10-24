@@ -11,6 +11,7 @@ import { CustomSettings, ExtensionConfig, LocalConfig } from "./setting";
 import { Util } from "./util";
 
 export default class Commons {
+  public static outputChannel: vscode.OutputChannel = null;
   public static LogException(
     error: any,
     message: string,
@@ -76,7 +77,6 @@ export default class Commons {
 
   private static configWatcher = null;
   private static extensionWatcher = null;
-  private static outputChannel: vscode.OutputChannel = null;
 
   public ERROR_MESSAGE: string = localize("common.error.message");
 
@@ -169,14 +169,12 @@ export default class Commons {
         requiredFileChanged =
           path.indexOf(this.en.FILE_SYNC_LOCK_NAME) === -1 &&
           path.indexOf(".DS_Store") === -1 &&
-          path.indexOf(this.en.APP_SUMMARY_NAME) === -1 &&
           path.indexOf(this.en.FILE_CUSTOMIZEDSETTINGS_NAME) === -1;
       } else {
         requiredFileChanged =
           path.indexOf(this.en.FILE_SYNC_LOCK_NAME) === -1 &&
           path.indexOf("workspaceStorage") === -1 &&
           path.indexOf(".DS_Store") === -1 &&
-          path.indexOf(this.en.APP_SUMMARY_NAME) === -1 &&
           path.indexOf(this.en.FILE_CUSTOMIZEDSETTINGS_NAME) === -1;
       }
 
@@ -481,7 +479,9 @@ export default class Commons {
         setting[keyName] = "";
       }
       if (keyName.toLowerCase() !== "token") {
-        allKeysUpdated.push(config.update(keyName, setting[keyName], true));
+        if (config.get(keyName) !== setting[keyName]) {
+          allKeysUpdated.push(config.update(keyName, setting[keyName], true));
+        }
       }
     });
 
@@ -639,7 +639,6 @@ export default class Commons {
     }
 
     const outputChannel = Commons.outputChannel;
-    outputChannel.clear();
     outputChannel.appendLine(
       `CODE SETTINGS SYNC ${upload ? "UPLOAD" : "DOWNLOAD"} SUMMARY`
     );
