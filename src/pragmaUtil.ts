@@ -14,16 +14,17 @@ export default class PragmaUtil {
    * Process @sync pragma statements before file is saved.
    * Comment lines that don't match with the user OS or host value.
    * @static
-   * @param {string} settingsContent a valid JSON string
+   * @param {string} newContent a valid JSON string
    * @returns {string}
    * @memberof PragmaUtil
    */
   public static processBeforeWrite(
-    settingsContent: string,
+    localContent: string,
+    newContent: string,
     osType: OsType,
     hostName: string
   ): string {
-    let result: string = settingsContent;
+    let result: string = newContent;
 
     const pragmaSettingsBlocks: RegExpMatchArray = result.match(
       this.PragmaRegExp
@@ -90,7 +91,8 @@ export default class PragmaUtil {
     }
 
     result = this.removeIgnoreBlocks(result);
-
+    const ignoredBlocks = this.getIgnoredBlocks(localContent); // get the settings that must prevale
+    result = result.replace(/{\s*\n/, `{\n\    ${ignoredBlocks}\n\n`); // always formated with four spaces?
     // check is a valid JSON
 
     try {
@@ -204,6 +206,17 @@ export default class PragmaUtil {
     return result;
   }
 
+  public static getIgnoredBlocks(content: string): string {
+    content = content.replace(/\@sync ignore/g, "@sync-ignore");
+    const ignoredBlocks: RegExpMatchArray = content.match(
+      this.IgnorePragmaRegExp
+    );
+    if (ignoredBlocks == null) {
+      return "";
+    }
+    return ignoredBlocks.join("");
+  }
+
   public static matchPragmaSettings(settingsContent: string): RegExpMatchArray {
     return settingsContent.match(this.PragmaRegExp);
   }
@@ -244,7 +257,7 @@ export default class PragmaUtil {
   }
 
   public static removeAllComments(text: string): string {
-    return text.replace(/\s(\/\/.+)|(\/\*.+\*\/)/g, "");
+    return text.replace(/\s*(\/\/.+)|(\/\*.+\*\/)/g, "");
   }
 
   private static readonly PragmaRegExp: RegExp = /\/\/[ \t]*\@sync[ \t]+(?:os=.+[ \t]*)?(?:host=.+[ \t]*)?(?:env=.+[ \t]*)?\n[ \t]*.+,?/g;
