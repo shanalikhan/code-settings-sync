@@ -597,7 +597,9 @@ export class Sync {
               }
 
               if (file.gistName === env.FILE_SETTING_NAME) {
+                const localContent = await FileService.ReadFile(filePath);
                 content = PragmaUtil.processBeforeWrite(
+                  localContent,
                   content,
                   env.OsType,
                   localSettings.customConfig.hostName

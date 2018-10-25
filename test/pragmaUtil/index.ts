@@ -62,6 +62,7 @@ describe("Process before upload", function() {
     }`;
     const processed = PragmaUtil.processBeforeWrite(
       commentedSettings,
+      commentedSettings,
       OsType.Linux,
       null
     );
@@ -72,7 +73,12 @@ describe("Process before upload", function() {
 
   it("should not comment os=linux settings lines", () => {
     let processed = PragmaUtil.processBeforeUpload(testSettings);
-    processed = PragmaUtil.processBeforeWrite(processed, OsType.Linux, null);
+    processed = PragmaUtil.processBeforeWrite(
+      processed,
+      processed,
+      OsType.Linux,
+      null
+    );
     expect(processed).to.match(/\s+"not_commented"/);
   });
 
@@ -80,7 +86,9 @@ describe("Process before upload", function() {
     const processed = PragmaUtil.processBeforeUpload(testSettings);
     // tslint:disable-next-line:no-string-literal
     process.env["TEST_ENV"] = "1";
-    expect(PragmaUtil.processBeforeWrite(processed, OsType.Mac, "mac2"))
+    expect(
+      PragmaUtil.processBeforeWrite(processed, processed, OsType.Mac, "mac2")
+    )
       .to.match(/\n\s+"mac2"/)
       .and.match(/\n\s+"mactest"/);
   });
