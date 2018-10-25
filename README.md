@@ -267,7 +267,7 @@ You can contribute in different ways. Read the details [here](https://github.com
 ### Contributors
 
 Thank you to all the people who have already contributed to Settings Sync!
-<a href="graphs/contributors"><img src="https://opencollective.com/code-settings-sync/contributors.svg?width=890" /></a>
+<a href="https://github.com/shanalikhan/code-settings-sync/graphs/contributors"><img src="https://opencollective.com/code-settings-sync/contributors.svg?width=890" /></a>
 
 ### Backers
 
