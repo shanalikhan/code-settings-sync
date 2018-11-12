@@ -1,6 +1,5 @@
 "use strict";
 
-import { exec } from "child_process";
 import * as fs from "fs-extra";
 import * as os from "os";
 import * as path from "path";
@@ -79,10 +78,8 @@ export class Environment {
     }`;
 
     process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
-    this.PATH = process.env.APPDATA;
-    this.OsType = OsType.Windows;
 
-    if (!this.PATH && !this.isPortable) {
+    if (!this.isPortable) {
       if (process.platform === "darwin") {
         this.PATH = process.env.HOME + "/Library/Application Support";
         this.OsType = OsType.Mac;
@@ -92,36 +89,31 @@ export class Environment {
             ? process.env.XDG_CONFIG_HOME
             : os.homedir() + "/.config";
         this.OsType = OsType.Linux;
+      } else if (process.platform === "win32") {
+        this.PATH = process.env.APPDATA;
+        this.OsType = OsType.Windows;
       } else {
         this.PATH = "/var/local";
         this.OsType = OsType.Linux;
       }
     }
 
-    if (!this.PATH && this.isPortable) {
+    if (this.isPortable) {
       if (process.platform === "darwin") {
         this.PATH = process.env.HOME + "/Library/Application Support";
         this.OsType = OsType.Mac;
       } else if (process.platform === "linux") {
         this.PATH = process.env.VSCODE_PORTABLE;
         this.OsType = OsType.Linux;
-      } else {
+      } else if (process.platform === "win32") {
         this.PATH = process.env.VSCODE_PORTABLE;
         this.OsType = OsType.Windows;
+      } else {
+        this.PATH = process.env.VSCODE_PORTABLE;
+        this.OsType = OsType.Linux;
       }
     }
 
-    if (this.OsType === OsType.Linux) {
-      const myExt =
-        "chmod +x " +
-        this.ExtensionFolder +
-        "/Shan.code-settings-sync-" +
-        Environment.getVersion() +
-        "/node_modules/opn/xdg-open";
-      exec(myExt, () => {
-        // command output is in stdout
-      });
-    }
     if (!this.isPortable) {
       const possibleCodePaths = [];
       if (this.isInsiders) {
