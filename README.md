@@ -260,7 +260,7 @@ I will recommend you to read the configurations details [here](https://medium.co
 
 You can contribute in different ways. Read the details [here](https://github.com/shanalikhan/code-settings-sync/blob/master/CONTRIBUTING.md)
 
-
+**Fix and Earn** - You can also earn money by fixing the issues - Check the issues under bounty program [here](https://github.com/shanalikhan/code-settings-sync/labels/bounty).
 
 ## Credits
 
