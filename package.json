@@ -171,6 +171,7 @@
     "fs-extra": "^7.0.0",
     "https-proxy-agent": "^2.2.1",
     "lockfile": "^1.0.4",
+    "simple-git": "^1.107.0",
     "temp": "^0.8.3"
   }
 }
