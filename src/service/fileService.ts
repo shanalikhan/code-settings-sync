@@ -10,6 +10,14 @@ export class File {
     public filePath: string,
     public gistName: string
   ) {}
+
+  public Write(): Promise<boolean> {
+    return FileService.WriteFile(this.filePath, this.content)
+  }
+
+  public ResolvePath(parentDir: string): void {
+    this.filePath = parentDir + path.sep + this.fileName
+  }
 }
 export class FileService {
   public static CUSTOMIZED_SYNC_PREFIX = "|customized_sync|";

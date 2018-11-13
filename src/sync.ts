@@ -152,7 +152,7 @@ export class Sync {
           extensionFilePath,
           extensionFileName
         );
-        allSettingFiles.push(extensionFile);
+        extensionFile.Write();
       }
 
       let contentFiles: File[] = [];
@@ -238,6 +238,8 @@ export class Sync {
       const fileName: string = env.FILE_CLOUDSETTINGS_NAME;
       const fileContent: string = JSON.stringify(extProp);
       const file: File = new File(fileName, fileContent, "", fileName);
+      file.ResolvePath(env.USER_FOLDER);
+      file.Write();
       allSettingFiles.push(file);
 
       let completed: boolean = false;
