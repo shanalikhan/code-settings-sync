@@ -103,6 +103,21 @@
           "default": "",
           "description": "%ext.config.gist%"
         },
+        "sync.repoEnabled": {
+          "type": "boolean",
+          "default": false,
+          "description": "%ext.config.repoEnabled%"
+        },
+        "sync.repoPush": {
+          "type": "boolean",
+          "default": true,
+          "description": "%ext.config.repoPush%"
+        },
+        "sync.repoUrl": {
+          "type": "string",
+          "default": null,
+          "description": "%ext.config.repoUrl%"
+        },
         "sync.autoDownload": {
           "type": "boolean",
           "default": false,

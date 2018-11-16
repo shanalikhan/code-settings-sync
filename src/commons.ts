@@ -26,19 +26,35 @@ export default class Commons {
       } else if (error.code === 4) {
         message = localize("common.error.canNotSave");
       } else if (error.message) {
-        try {
-          message = JSON.parse(error.message).message;
-          if (message.toLowerCase() === "bad credentials") {
-            msgBox = true;
-            message = localize("common.error.invalidToken");
-            // vscode.commands.executeCommand('vscode.open', vscode.Uri.parse('https://github.com/settings/tokens'));
+        if (error.message.indexOf("spawn git ENOENT") !== -1) {
+          msgBox = true;
+          message = localize("common.error.noGit");
+        } else if (error.message.indexOf("Please tell me who you are") !== -1) {
+          msgBox = true;
+          message = localize("common.error.noGitUser");
+        } else if (
+          error.message.indexOf("No configured push destination") !== -1
+        ) {
+          msgBox = true;
+          message = localize("common.error.noGitRepoUrl");
+        } else if (error.message.indexOf("fetch first") !== -1) {
+          msgBox = true;
+          message = localize("common.error.fetchFirst");
+        } else {
+          try {
+            message = JSON.parse(error.message).message;
+            if (message.toLowerCase() === "bad credentials") {
+              msgBox = true;
+              message = localize("common.error.invalidToken");
+              // vscode.commands.executeCommand('vscode.open', vscode.Uri.parse('https://github.com/settings/tokens'));
+            }
+            if (message.toLowerCase() === "not found") {
+              msgBox = true;
+              message = localize("common.error.invalidGistId");
+            }
+          } catch (error) {
+            // message = error.message;
           }
-          if (message.toLowerCase() === "not found") {
-            msgBox = true;
-            message = localize("common.error.invalidGistId");
-          }
-        } catch (error) {
-          // message = error.message;
         }
       }
     }

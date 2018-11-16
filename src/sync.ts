@@ -17,6 +17,7 @@ import {
 } from "./setting";
 
 import PragmaUtil from "./pragmaUtil";
+import { LocalGitService } from "./service/localGitService";
 
 export class Sync {
   constructor(private context: vscode.ExtensionContext) {}
@@ -69,6 +70,7 @@ export class Sync {
     const env = new Environment(this.context);
     const common = new Commons(env, this.context);
     let github: GitHubService = null;
+    let localgit: LocalGitService = null;
     let localConfig: LocalConfig = new LocalConfig();
     const allSettingFiles: File[] = [];
     let uploadedExtensions: ExtensionInformation[] = [];
@@ -89,6 +91,9 @@ export class Sync {
         localConfig.customConfig.token,
         localConfig.customConfig.githubEnterpriseUrl
       );
+
+      localgit = new LocalGitService(env.USER_FOLDER);
+
       // ignoreSettings = await common.GetIgnoredSettings(localConfig.customConfig.ignoreUploadSettings);
       await startGitProcess(localConfig.extConfig, localConfig.customConfig);
       // await common.SetIgnoredSettings(ignoreSettings);
@@ -106,7 +111,7 @@ export class Sync {
         2000
       );
 
-      if (customSettings.downloadPublicGist) {
+      if (!syncSetting.repoEnabled && customSettings.downloadPublicGist) {
         if (customSettings.token == null || customSettings.token === "") {
           vscode.window.showInformationMessage(
             localize("cmd.updateSettings.warning.noToken")
@@ -245,73 +250,92 @@ export class Sync {
       let completed: boolean = false;
       let newGIST: boolean = false;
       try {
-        if (syncSetting.gist == null || syncSetting.gist === "") {
-          if (customSettings.askGistName) {
-            customSettings.gistDescription = await common.AskGistName();
-          }
-          newGIST = true;
-          const gistID = await github.CreateEmptyGIST(
-            localConfig.publicGist,
-            customSettings.gistDescription
+        if (syncSetting.repoEnabled) {
+          vscode.window.setStatusBarMessage(
+            localize("cmd.updateSettings.info.uploadingFile"),
+            3000
           );
-          if (gistID) {
-            syncSetting.gist = gistID;
-            vscode.window.setStatusBarMessage(
-              localize("cmd.updateSettings.info.newGistCreated"),
-              2000
-            );
-          } else {
-            vscode.window.showInformationMessage(
-              localize("cmd.updateSettings.error.newGistCreateFail")
-            );
-            return;
+          await localgit.Init(syncSetting.repoUrl);
+          await localgit.Add(allSettingFiles);
+          await localgit.Commit(dateNow.toString());
+          if (syncSetting.repoUrl && syncSetting.repoPush) {
+            await localgit.Push();
           }
-        }
-        let gistObj = await github.ReadGist(syncSetting.gist);
-        if (!gistObj) {
-          vscode.window.showErrorMessage(
-            localize("cmd.updateSettings.error.readGistFail", syncSetting.gist)
-          );
-          return;
-        }
-
-        if (gistObj.data.owner !== null) {
-          const gistOwnerName: string = gistObj.data.owner.login.trim();
-          if (github.userName != null) {
-            const userName: string = github.userName.trim();
-            if (gistOwnerName !== userName) {
-              Commons.LogException(
-                null,
-                "Sync : You cant edit GIST for user : " +
-                  gistObj.data.owner.login,
-                true,
-                () => {
-                  console.log("Sync : Current User : " + "'" + userName + "'");
-                  console.log(
-                    "Sync : Gist Owner User : " + "'" + gistOwnerName + "'"
-                  );
-                }
+          completed = true;
+        } else {
+          if (syncSetting.gist == null || syncSetting.gist === "") {
+            if (customSettings.askGistName) {
+              customSettings.gistDescription = await common.AskGistName();
+            }
+            newGIST = true;
+            const gistID = await github.CreateEmptyGIST(
+              localConfig.publicGist,
+              customSettings.gistDescription
+            );
+            if (gistID) {
+              syncSetting.gist = gistID;
+              vscode.window.setStatusBarMessage(
+                localize("cmd.updateSettings.info.newGistCreated"),
+                2000
+              );
+            } else {
+              vscode.window.showInformationMessage(
+                localize("cmd.updateSettings.error.newGistCreateFail")
               );
               return;
             }
           }
-        }
+          let gistObj = await github.ReadGist(syncSetting.gist);
+          if (!gistObj) {
+            vscode.window.showErrorMessage(
+              localize(
+                "cmd.updateSettings.error.readGistFail",
+                syncSetting.gist
+              )
+            );
+            return;
+          }
 
-        if (gistObj.public === true) {
-          localConfig.publicGist = true;
-        }
+          if (gistObj.data.owner !== null) {
+            const gistOwnerName: string = gistObj.data.owner.login.trim();
+            if (github.userName != null) {
+              const userName: string = github.userName.trim();
+              if (gistOwnerName !== userName) {
+                Commons.LogException(
+                  null,
+                  "Sync : You cant edit GIST for user : " +
+                    gistObj.data.owner.login,
+                  true,
+                  () => {
+                    console.log(
+                      "Sync : Current User : " + "'" + userName + "'"
+                    );
+                    console.log(
+                      "Sync : Gist Owner User : " + "'" + gistOwnerName + "'"
+                    );
+                  }
+                );
+                return;
+              }
+            }
+          }
 
-        vscode.window.setStatusBarMessage(
-          localize("cmd.updateSettings.info.uploadingFile"),
-          3000
-        );
-        gistObj = github.UpdateGIST(gistObj, allSettingFiles);
-        completed = await github.SaveGIST(gistObj.data);
-        if (!completed) {
-          vscode.window.showErrorMessage(
-            localize("cmd.updateSettings.error.gistNotSave")
+          if (gistObj.public === true) {
+            localConfig.publicGist = true;
+          }
+
+          vscode.window.setStatusBarMessage(
+            localize("cmd.updateSettings.info.uploadingFile"),
+            3000
           );
-          return;
+          gistObj = github.UpdateGIST(gistObj, allSettingFiles);
+          completed = await github.SaveGIST(gistObj.data);
+          if (!completed) {
+            vscode.window.showErrorMessage(
+              localize("cmd.updateSettings.error.gistNotSave")
+            );
+            return;
+          }
         }
       } catch (err) {
         Commons.LogException(err, common.ERROR_MESSAGE, true);
