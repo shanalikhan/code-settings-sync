@@ -111,7 +111,10 @@ export class Sync {
         2000
       );
 
-      if (!syncSetting.repoEnabled && customSettings.downloadPublicGist) {
+      if (
+        customSettings.syncMode === "gist" &&
+        customSettings.downloadPublicGist
+      ) {
         if (customSettings.token == null || customSettings.token === "") {
           vscode.window.showInformationMessage(
             localize("cmd.updateSettings.warning.noToken")
@@ -250,7 +253,7 @@ export class Sync {
       let completed: boolean = false;
       let newGIST: boolean = false;
       try {
-        if (syncSetting.repoEnabled) {
+        if (customSettings.syncMode === "repo") {
           vscode.window.setStatusBarMessage(
             localize("cmd.updateSettings.info.uploadingFile"),
             3000
@@ -258,7 +261,7 @@ export class Sync {
           await localgit.Init(syncSetting.repoUrl);
           await localgit.Add(allSettingFiles);
           await localgit.Commit(dateNow.toString());
-          if (syncSetting.repoUrl && syncSetting.repoPush) {
+          if (syncSetting.repoUrl && customSettings.repoPush) {
             await localgit.Push();
           }
           completed = true;

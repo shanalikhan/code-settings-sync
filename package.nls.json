@@ -1,8 +1,6 @@
 {
   "ext.config.title": "Code Settings Sync Configuration Settings",
   "ext.config.gist": "GitHub GIST ID for Settings Sync.",
-  "ext.config.repoEnabled": "Use git repository instead of gist.",
-  "ext.config.repoPush": "Set it false to save configuration only locally.",
   "ext.config.repoUrl": "Provide remote url to push changes.",
   "ext.config.lastUpload": "Settings Sync last upload date. Set it as empty if you want to manually hit download.",
   "ext.config.lastDownload": "Settings Sync last download date. Set it as empty if you want to manually hit download.",

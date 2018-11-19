@@ -3,8 +3,6 @@ import { Environment } from "./environmentPath";
 
 export class ExtensionConfig {
   public gist: string = null;
-  public repoEnabled: boolean = false;
-  public repoPush: boolean = true;
   public repoUrl: string = null;
   public quietSync: boolean = false;
   public removeExtensions: boolean = true;
@@ -57,4 +55,6 @@ export class CustomSettings {
   public askGistName: boolean = false;
   public customFiles: { [key: string]: string } = {};
   public hostName: string = null;
+  public syncMode: "gist" | "repo" = "gist";
+  public repoPush: boolean = false;
 }
