@@ -92,7 +92,7 @@
   "common.error.noGit": "Sync : Git is not installed",
   "common.error.noGitUser": "Sync : Git user or email is not configured",
   "common.error.noGitRepoUrl": "Sync : Git repository is not set",
-  "common.error.fetchFirst": "Sync : Remote repository has diffrent settings. Please download first and then retry",
+  "common.error.fetchFirst": "Sync : Remote repository has different settings. Please download first and then retry",
   "common.action.openExtPage": "Open Extension Page",
   "common.action.openExtTutorial": "Open Tutorial",
   "common.action.releaseNotes": "Release Notes",
