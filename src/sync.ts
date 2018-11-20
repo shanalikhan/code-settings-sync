@@ -780,11 +780,13 @@ export class Sync {
       "cmd.otherOptions.downloadCustomFile",
       "cmd.otherOptions.joinCommunity",
       "cmd.otherOptions.openIssue",
-      "cmd.otherOptions.releaseNotes"
+      "cmd.otherOptions.releaseNotes",
+      "cmd.otherOptions.toggleSyncMode"
     ].map(localize);
 
     let selectedItem: number = 0;
     let settingChanged: boolean = false;
+    let customSettingsChanged: boolean = false;
 
     const item = await vscode.window.showQuickPick(items);
 
@@ -985,17 +987,30 @@ export class Sync {
             "http://shanalikhan.github.io/2016/05/14/Visual-studio-code-sync-settings-release-notes.html"
           )
         );
+      },
+      13: async () => {
+        // sync mode toggle
+        selectedItem = 13;
+        customSettingsChanged = true;
+
+        customSettings.syncMode =
+          customSettings.syncMode === "gist" ? "repo" : "gist";
       }
     };
 
     try {
       await handlerMap[index]();
-      if (settingChanged) {
+      if (settingChanged || customSettingsChanged) {
         if (selectedItem === 1) {
           common.CloseWatch();
         }
-        await common
-          .SaveSettings(setting)
+        let savePromise: Promise<boolean>;
+        if (customSettingsChanged) {
+          savePromise = common.SetCustomSettings(customSettings);
+        } else {
+          savePromise = common.SaveSettings(setting);
+        }
+        await savePromise
           .then((added: boolean) => {
             if (added) {
               const callbackMap = {
@@ -1040,6 +1055,14 @@ export class Sync {
                     : "cmd.otherOptions.quietSync.off";
                   return vscode.window.showInformationMessage(
                     localize(message)
+                  );
+                },
+                13: async () => {
+                  return vscode.window.showInformationMessage(
+                    localize(
+                      "cmd.otherOptions.toggleSyncMode.changed",
+                      customSettings.syncMode
+                    )
                   );
                 }
               };

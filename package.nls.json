@@ -51,6 +51,8 @@
   "cmd.otherOptions.toggleAutoDownload.on": "Sync : Auto Download turned ON upon VSCode Startup.",
   "cmd.otherOptions.toggleAutoDownload.off": "Sync : Auto Download turned OFF upon VSCode Startup.",
   "cmd.otherOptions.toggleSummaryPage": "Sync : Toggle Show Summary Page On Upload / Download",
+  "cmd.otherOptions.toggleSyncMode": "Sync : Toggle Sync mode - gist / repo",
+  "cmd.otherOptions.toggleSyncMode.changed": "Sync : Sync mode changed to {0}",
   "cmd.otherOptions.preserve": "Sync : Preserve Setting To Stop Override After Download",
   "cmd.otherOptions.preserve.placeholder": "Enter any Key from settings.json to preserve.",
   "cmd.otherOptions.preserve.prompt": "Example : Write 'http.proxy' => store this computer proxy and overwrite it , if set empty it will remove proxy.",
