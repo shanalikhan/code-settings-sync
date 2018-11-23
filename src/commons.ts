@@ -367,7 +367,6 @@ export default class Commons {
 
     if (firstTime) {
       const openExtensionPage = localize("common.action.openExtPage");
-      const openExtensionTutorial = localize("common.action.openExtTutorial");
       vscode.window.showInformationMessage(localize("common.info.installed"));
       vscode.window
         .showInformationMessage(
