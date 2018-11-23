@@ -384,21 +384,6 @@ export default class Commons {
             );
           }
         });
-      vscode.window
-        .showInformationMessage(
-          localize("common.info.excludeFile"),
-          openExtensionTutorial
-        )
-        .then((val: string) => {
-          if (val === openExtensionTutorial) {
-            vscode.commands.executeCommand(
-              "vscode.open",
-              vscode.Uri.parse(
-                "https://shanalikhan.github.io/2016/07/31/Visual-Studio-code-sync-setting-edit-manually.html"
-              )
-            );
-          }
-        });
     } else if (customSettings.version < Environment.CURRENT_VERSION) {
       fileChanged = true;
       if (this.context.globalState.get("synctoken")) {
@@ -663,9 +648,11 @@ export default class Commons {
     outputChannel.appendLine(`--------------------`);
 
     outputChannel.appendLine(`Files ${upload ? "Upload" : "Download"}ed:`);
-    files.filter(item => item.fileName.indexOf(".") > 0).forEach(item => {
-      outputChannel.appendLine(`  ${item.fileName} > ${item.gistName}`);
-    });
+    files
+      .filter(item => item.fileName.indexOf(".") > 0)
+      .forEach(item => {
+        outputChannel.appendLine(`  ${item.fileName} > ${item.gistName}`);
+      });
 
     outputChannel.appendLine(``);
     outputChannel.appendLine(`Extensions Ignored:`);
