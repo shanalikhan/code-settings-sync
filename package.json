@@ -153,12 +153,12 @@
   },
   "devDependencies": {
     "@types/fs-extra": "^5.0.4",
-    "@types/node": "^10.11.6",
-    "@types/chai": "4.1.6",
-    "@types/mocha": "^5.2.0",
+    "@types/node": "^10.12.10",
+    "@types/chai": "4.1.7",
+    "@types/mocha": "^5.2.5",
     "chai": "^4.2.0",
     "mocha": "^5.2.0",
-    "prettier": "^1.14.3",
+    "prettier": "^1.15.2",
     "tslint": "^5.11.0",
     "tslint-plugin-prettier": "^2.0.0",
     "typescript": "^3.1.2",
@@ -166,9 +166,9 @@
   },
   "dependencies": {
     "@octokit/rest": "^16.0.1",
-    "adm-zip": "^0.4.11",
+    "adm-zip": "^0.4.13",
     "chokidar": "^2.0.4",
-    "fs-extra": "^7.0.0",
+    "fs-extra": "^7.0.1",
     "https-proxy-agent": "^2.2.1",
     "lockfile": "^1.0.4",
     "temp": "^0.8.3"
