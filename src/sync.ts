@@ -425,11 +425,43 @@ export class Sync {
         2000
       );
 
-      const res = await github.ReadGist(syncSetting.gist);
+      const localgit = new LocalGitService(env.USER_FOLDER);
+      let res;
+      if (customSettings.syncMode === "repo") {
+        try {
+          await localgit.Init(syncSetting.repoUrl);
+          await localgit.Pull();
+          const paths = await localgit.Files();
+          res = {
+            data: {
+              files: await Promise.all(
+                paths
+                  .filter(file => file.length > 0)
+                  .map(file =>
+                    FileService.GetFile(env.USER_FOLDER + file, file)
+                  )
+              ).then(files => {
+                return files.reduce(
+                  (map, file) => {
+                    map[file.fileName] = file;
+                    return map;
+                  },
+                  {} as Map<string, File>
+                );
+              })
+            }
+          };
+        } catch (err) {
+          Commons.LogException(err, common.ERROR_MESSAGE, true);
+          return;
+        }
+      } else {
+        res = await github.ReadGist(syncSetting.gist);
 
-      if (!res) {
-        Commons.LogException(res, "Sync : Unable to Read Gist.", true);
-        return;
+        if (!res) {
+          Commons.LogException(res, "Sync : Unable to Read Gist.", true);
+          return;
+        }
       }
 
       let addedExtensions: ExtensionInformation[] = [];

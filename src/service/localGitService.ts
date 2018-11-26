@@ -27,6 +27,16 @@ export class LocalGitService {
     await this.git.push("origin", "master", { "--set-upstream": null });
   }
 
+  public async Pull(): Promise<void> {
+    await this.git.pull("origin", "master", { "--ff-only": null });
+  }
+
+  public async Files(): Promise<string[]> {
+    return await this.git
+      .raw(["ls-tree", "--full-tree", "--name-only", "-r", "HEAD"])
+      .then(result => result.split(/\r\n|\r|\n/));
+  }
+
   private async _setupGit(): Promise<void> {
     if (!(await this.git.checkIsRepo())) {
       await this.git.init();

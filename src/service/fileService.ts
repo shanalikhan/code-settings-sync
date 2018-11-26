@@ -80,6 +80,11 @@ export class FileService {
     return file;
   }
 
+  public static async GetFileFromPath(filePath: string): Promise<File> {
+    const fileName = path.basename(filePath);
+    return await FileService.GetFile(filePath, fileName);
+  }
+
   public static async WriteFile(
     filePath: string,
     data: string
