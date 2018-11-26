@@ -9,6 +9,35 @@
 [![Greenkeeper badge](https://badges.greenkeeper.io/shanalikhan/code-settings-sync.svg)](https://greenkeeper.io/)
 [![Master course](https://img.shields.io/badge/Supported%20by-VSCode%20Power%20User%20Course%20%E2%86%92-gray.svg?colorA=444444&colorB=4F44D6)](https://t.co/8BEMyhpKU5?amp=1)
 
+## Support
+
+**Settings Sync** is an open source extension. While being free and open source, if you find it useful, please consider supporting it and allow me to support and maintain this project even more !
+
+<table align="center" width="60%" border="0">
+  <tr>
+    <td>
+      <a href="https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=4W3EWHHBSYMM8&lc=IE&item_name=Code%20Settings%20Sync&item_number=visual%20studio%20code%20settings%20sync&currency_code=USD&bn=PP%2dDonationsBF%3abtn_donate_SM%2egif%3aNonHosted">
+          <img src="https://www.paypalobjects.com/en_US/i/btn/btn_donateCC_LG.gif"/>
+      </a>
+        <br>
+    </td>
+    <td>
+        <a href="https://opencollective.com/code-settings-sync/donate" target="_blank">
+            <img src="https://opencollective.com/webpack/donate/button.png?color=blue" width=200 />
+        </a>
+        <br>
+        * One Time Payment
+    </td>
+      <td> 
+        <a href="https://opencollective.com/code-settings-sync/order/3848" target="_blank">
+            <img src="https://opencollective.com/webpack/donate/button.png?color=blue" width=200 />
+        </a>
+          <br>
+          *2$ Per Month
+    </td>
+  </tr>
+</table>
+
 <a href="https://join.slack.com/t/codesettingssync/shared_invite/enQtMzE3MjY5NTczNDMwLTYwMTIwNGExOGE2MTJkZWU0OTU5MmI3ZTc4N2JkZjhjMzY1OTk5OGExZjkwMDMzMDU4ZTBlYjk5MGQwZmMyNzk">
 <img src="https://i.imgur.com/1QWdtcX.png" alt="Drawing" style="width: 150px;"/>
 </a>
@@ -18,7 +47,7 @@
 
 ## Key Features
 
-```
+``` 
 1. Use your GitHub account token and Gist.
 2. Easy to Upload and Download on one click.
 3. Show a summary page at the end with details about config and extensions effected.
