@@ -149,7 +149,7 @@
     "postinstall": "node ./node_modules/vscode/bin/install",
     "tslint-check": "tslint -c ./tslint.json ./src/**/*.ts ./src/*.ts",
     "format": "prettier --write './src/**/*.ts'",
-    "test": "npm run vscode:prepublish && node ./node_modules/bin/mocha --recursive"
+    "test": "npm run tslint-check && tsc -p ./ && node ./node_modules/bin/mocha --recursive"
   },
   "devDependencies": {
     "@types/chai": "4.1.7",
