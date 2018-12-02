@@ -647,9 +647,11 @@ export default class Commons {
     outputChannel.appendLine(`--------------------`);
 
     outputChannel.appendLine(`Files ${upload ? "Upload" : "Download"}ed:`);
-    files.filter(item => item.fileName.indexOf(".") > 0).forEach(item => {
-      outputChannel.appendLine(`  ${item.fileName} > ${item.gistName}`);
-    });
+    files
+      .filter(item => item.fileName.indexOf(".") > 0)
+      .forEach(item => {
+        outputChannel.appendLine(`  ${item.fileName} > ${item.gistName}`);
+      });
 
     outputChannel.appendLine(``);
     outputChannel.appendLine(`Extensions Ignored:`);
