@@ -528,7 +528,7 @@ export class Sync {
                 const autoUpdate: boolean = vscode.workspace
                   .getConfiguration("extensions")
                   .get("autoUpdate");
-                useCli = autoUpdate;
+                useCli = autoUpdate && !env.isCoderCom;
                 if (useCli) {
                   if (!syncSetting.quietSync) {
                     Commons.outputChannel = vscode.window.createOutputChannel(
