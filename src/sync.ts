@@ -262,7 +262,55 @@ export class Sync {
           await localgit.Add(allSettingFiles);
           await localgit.Commit(dateNow.toString());
           if (syncSetting.repoUrl && customSettings.repoPush) {
-            await localgit.Push();
+            try {
+              await localgit.Push();
+            } catch (err) {
+              if (err.message.indexOf("Repository not found")) {
+                if (customSettings.token === "") {
+                  if (customSettings.openTokenLink) {
+                    vscode.commands.executeCommand(
+                      "vscode.open",
+                      vscode.Uri.parse("https://github.com/settings/tokens")
+                    );
+                  }
+                  await common.GetTokenAndSave(customSettings);
+                }
+
+                const repoName = (
+                  (await vscode.window.showInputBox({
+                    placeHolder:
+                      "Enter repository name, for ex. vscode-settings",
+                    password: false,
+                    prompt:
+                      "Enter name for repository which will be created on your account before changes will be pushed.",
+                    ignoreFocusOut: true
+                  })) || ""
+                ).trim();
+
+                const uriFormat = (
+                  (await vscode.window.showQuickPick(["ssh", "https"], {
+                    ignoreFocusOut: true
+                  })) || ""
+                ).trim();
+
+                if (uriFormat !== "") {
+                  const res = await github.MakeRepository({
+                    name: repoName
+                  });
+
+                  syncSetting.repoUrl =
+                    uriFormat === "https"
+                      ? res.data.html_url
+                      : res.data.ssh_url;
+                  await common.SaveSettings(syncSetting);
+
+                  await localgit.Init(syncSetting.repoUrl);
+                  await localgit.Push();
+                }
+              } else {
+                throw err;
+              }
+            }
           }
           completed = true;
         } else {

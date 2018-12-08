@@ -1,6 +1,7 @@
 "use strict";
 
 import * as GitHubApi from "@octokit/rest";
+import { ReposCreateParams } from "@octokit/rest";
 import * as HttpsProxyAgent from "https-proxy-agent";
 import * as vscode from "vscode";
 import { File } from "./fileService";
@@ -153,5 +154,11 @@ export class GitHubService {
   public async SaveGIST(gistObject: any): Promise<boolean> {
     await this.github.gists.edit(gistObject);
     return true;
+  }
+
+  public async MakeRepository(
+    options: GitHubApi.ReposCreateParams
+  ): Promise<GitHubApi.Response<GitHubApi.ReposCreateResponse>> {
+    return await this.github.repos.create(options);
   }
 }
