@@ -272,6 +272,10 @@ export default class Commons {
         askToken = !cusSettings.downloadPublicGist;
       }
 
+      if (cusSettings.syncMode === "repo" && extSettings.repoUrl !== "") {
+        askToken = false;
+      }
+
       if (askToken) {
         if (cusSettings.openTokenLink) {
           vscode.commands.executeCommand(
@@ -289,7 +293,7 @@ export default class Commons {
       }
     }
 
-    if (extSettings.gist === "") {
+    if (extSettings.gist === "" && cusSettings.syncMode === "gist") {
       if (askGist) {
         const gistTemp: string = await this.GetGistAndSave(extSettings);
         if (!gistTemp) {
