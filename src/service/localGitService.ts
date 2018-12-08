@@ -24,11 +24,14 @@ export class LocalGitService {
   }
 
   public async Push(): Promise<void> {
-    await this.git.push("origin", "master", { "--set-upstream": null });
+    await this.git.push("origin", "master", {
+      "--set-upstream": null,
+      "--force": null
+    });
   }
 
   public async Pull(): Promise<void> {
-    await this.git.pull("origin", "master", { "--ff-only": null });
+    await this.git.checkout(["-B", "master", "origin/master"]);
   }
 
   public async Files(): Promise<string[]> {
