@@ -122,6 +122,15 @@ Here is the gif of the complete process when you execute the Upload command (Mig
 
 ![Upload](https://media.giphy.com/media/xT9IglKxSqs2Wdwq2c/source.gif)
 
+### Troubleshooting
+
+If for some reason you get an error when following these instructions try the following:
+
+1. manually create a Gist in GitHub
+1. copy its Gist ID
+1. manually paste it into VSCode settings `"sync.gist": "GistID"`
+1. manually upload settings with either `shift + alt + u` or `>Sync : Update/Upload Settings`
+
 ## Download your Settings
 
 **Press Shift + Alt + D it will ask your GitHub Gist ID.**
