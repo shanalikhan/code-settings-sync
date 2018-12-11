@@ -20,19 +20,17 @@ export default class Commons {
   ): void {
     if (error) {
       console.error(error);
-      if (error.code === 500) {
+      if (error.status === 500) {
         message = localize("common.error.connection");
         msgBox = false;
-      } else if (error.code === 4) {
+      } else if (error.status === 401) {
+        msgBox = true;
+        message = localize("common.error.invalidToken");
+      } else if (error.status === 4) {
         message = localize("common.error.canNotSave");
       } else if (error.message) {
         try {
           message = JSON.parse(error.message).message;
-          if (message.toLowerCase() === "bad credentials") {
-            msgBox = true;
-            message = localize("common.error.invalidToken");
-            // vscode.commands.executeCommand('vscode.open', vscode.Uri.parse('https://github.com/settings/tokens'));
-          }
           if (message.toLowerCase() === "not found") {
             msgBox = true;
             message = localize("common.error.invalidGistId");
