@@ -2,7 +2,7 @@
   "name": "code-settings-sync",
   "displayName": "Settings Sync",
   "description": "Synchronize Settings, Snippets, Themes, File Icons, Launch, Keybindings, Workspaces and Extensions Across Multiple Machines Using GitHub Gist.",
-  "version": "3.2.2",
+  "version": "3.2.3",
   "icon": "images/cloud.png",
   "publisher": "Shan",
   "author": {
@@ -153,19 +153,19 @@
   },
   "devDependencies": {
     "@types/fs-extra": "^5.0.4",
-    "@types/node": "^10.12.10",
+    "@types/node": "^10.12.12",
     "@types/chai": "4.1.7",
     "@types/mocha": "^5.2.5",
     "chai": "^4.2.0",
     "mocha": "^5.2.0",
-    "prettier": "^1.15.2",
+    "prettier": "^1.15.3",
     "tslint": "^5.11.0",
-    "tslint-plugin-prettier": "^2.0.0",
-    "typescript": "^3.1.2",
-    "vscode": "^1.1.21"
+    "tslint-plugin-prettier": "^2.0.1",
+    "typescript": "^3.2.2",
+    "vscode": "^1.1.26"
   },
   "dependencies": {
-    "@octokit/rest": "^16.0.1",
+    "@octokit/rest": "^16.2.0",
     "adm-zip": "^0.4.13",
     "chokidar": "^2.0.4",
     "fs-extra": "^7.0.1",
