@@ -107,17 +107,14 @@ export class Environment {
     }
 
     if (this.isPortable) {
+      this.PATH = process.env.VSCODE_PORTABLE;
       if (process.platform === "darwin") {
-        this.PATH = process.env.HOME + "/Library/Application Support";
         this.OsType = OsType.Mac;
       } else if (process.platform === "linux") {
-        this.PATH = process.env.VSCODE_PORTABLE;
         this.OsType = OsType.Linux;
       } else if (process.platform === "win32") {
-        this.PATH = process.env.VSCODE_PORTABLE;
         this.OsType = OsType.Windows;
       } else {
-        this.PATH = process.env.VSCODE_PORTABLE;
         this.OsType = OsType.Linux;
       }
     }
