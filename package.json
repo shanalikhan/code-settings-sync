@@ -160,10 +160,13 @@
     "clean-webpack-plugin": "^1.0.0",
     "mocha": "^5.2.0",
     "prettier": "^1.15.3",
+    "ts-loader": "^5.3.0",
     "tslint": "^5.11.0",
     "tslint-plugin-prettier": "^2.0.1",
     "typescript": "^3.2.2",
-    "vscode": "^1.1.26"
+    "vscode": "^1.1.26",
+    "webpack": "^4.26.1",
+    "webpack-cli": "^3.1.2"
   },
   "dependencies": {
     "@octokit/rest": "^16.2.0",

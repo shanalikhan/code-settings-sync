@@ -1,5 +1,6 @@
 import * as fs from "fs-extra";
 import * as path from "path";
+import { extensions } from "vscode";
 
 interface IConfig {
   locale?: string;
@@ -49,7 +50,8 @@ export class Localize {
     const defaultResvoleLanguage = ".nls.json";
     let resolvedLanguage: string = "";
     // TODO: it should read the extension root path from context
-    const rootPath = path.join(__dirname, "..", "..");
+    const rootPath = extensions.getExtension("Shan.code-settings-sync")
+      .extensionPath;
     const file = path.join(rootPath, "package");
     const options = this.options;
 
