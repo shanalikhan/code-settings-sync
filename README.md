@@ -11,7 +11,7 @@
 
 ## Support
 
-**Settings Sync** is an open source extension. While being free and open source, if you find it useful, please consider supporting it and allow me to support and maintain this project even more !
+**Settings Sync** is an open source extension. While being free and open source, if you find it useful, please consider supporting it by donating via PayPal or via Open Collective from 2$ a month!
 
 <table align="center" width="60%" border="0">
   <tr>
@@ -19,14 +19,7 @@
       <a href="https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=4W3EWHHBSYMM8&lc=IE&item_name=Code%20Settings%20Sync&item_number=visual%20studio%20code%20settings%20sync&currency_code=USD&bn=PP%2dDonationsBF%3abtn_donate_SM%2egif%3aNonHosted">
           <img src="https://www.paypalobjects.com/en_US/i/btn/btn_donateCC_LG.gif"/>
       </a>
-        <br>
-    </td>
-    <td>
-        <a href="https://opencollective.com/code-settings-sync/donate" target="_blank">
-            <img src="https://opencollective.com/webpack/donate/button.png?color=blue" width=200 />
-        </a>
-        <br>
-        * One Time Payment
+      <br>
     </td>
       <td> 
         <a href="https://opencollective.com/code-settings-sync/order/3848" target="_blank">
@@ -34,11 +27,12 @@
         </a>
           <br>
           *2$ Per Month
-    </td>
+      </td>
+     
   </tr>
 </table>
-
-<a href="https://join.slack.com/t/codesettingssync/shared_invite/enQtMzE3MjY5NTczNDMwLTYwMTIwNGExOGE2MTJkZWU0OTU5MmI3ZTc4N2JkZjhjMzY1OTk5OGExZjkwMDMzMDU4ZTBlYjk5MGQwZmMyNzk">
+<br>
+ <a href="https://join.slack.com/t/codesettingssync/shared_invite/enQtMzE3MjY5NTczNDMwLTYwMTIwNGExOGE2MTJkZWU0OTU5MmI3ZTc4N2JkZjhjMzY1OTk5OGExZjkwMDMzMDU4ZTBlYjk5MGQwZmMyNzk">
 <img src="https://i.imgur.com/1QWdtcX.png" alt="Drawing" style="width: 150px;"/>
 </a>
 
@@ -284,6 +278,9 @@ You can customize the sync:
 
 I will recommend you to read the configurations details [here](https://medium.com/@itsShanKhan/visual-studio-code-settings-sync-configurations-ed8dd6fd9753).
 
+### Troubleshooting
+
+If you ever get into problem while setting up the Settings Sync. You can check our troubleshooting guide that cover those scenarios [here](https://github.com/shanalikhan/code-settings-sync/wiki/Troubleshooting), you can also add your solution there if its not available there to help other users.
 
 ## How To Contribute
 
