@@ -54,4 +54,6 @@ export class CustomSettings {
   public askGistName: boolean = false;
   public customFiles: { [key: string]: string } = {};
   public hostName: string = null;
+  public useCliBaseInstallation: boolean = true;
+  public codeCliPath: string = null;
 }

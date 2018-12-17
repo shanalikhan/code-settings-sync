@@ -524,11 +524,17 @@ export class Sync {
               }
 
               try {
-                let useCli = true;
                 const autoUpdate: boolean = vscode.workspace
                   .getConfiguration("extensions")
                   .get("autoUpdate");
-                useCli = autoUpdate && !env.isCoderCom;
+
+                let useCli =
+                  autoUpdate &&
+                  !env.isCoderCom &&
+                  customSettings.useCliBaseInstallation;
+
+                let codeCliPath = customSettings.codeCliPath;
+
                 if (useCli) {
                   if (!syncSetting.quietSync) {
                     Commons.outputChannel = vscode.window.createOutputChannel(
@@ -541,15 +547,55 @@ export class Sync {
                     Commons.outputChannel.appendLine(`--------------------`);
                     Commons.outputChannel.show();
                   }
+
+                  if (!codeCliPath) {
+                    let myExt: string = process.argv0;
+                    console.log(myExt);
+                    let codeLastFolder = "";
+                    let cliRelativePath = "";
+                    if (env.OsType === OsType.Windows) {
+                      if (env.isInsiders) {
+                        codeLastFolder = "Code - Insiders";
+                        cliRelativePath = "bin/code-insiders";
+                      } else {
+                        codeLastFolder = "Code";
+                        cliRelativePath = "bin/code";
+                      }
+                    } else if (env.OsType === OsType.Linux) {
+                      if (env.isInsiders) {
+                        codeLastFolder = "code-insiders";
+                        cliRelativePath = "bin/code-insiders";
+                      } else {
+                        codeLastFolder = "code";
+                        cliRelativePath = "bin/code";
+                      }
+                    } else if (env.OsType === OsType.Mac) {
+                      codeLastFolder = "Frameworks";
+                      cliRelativePath = "Resources/app/bin/code";
+                    }
+                    codeCliPath = `${myExt.substr(
+                      0,
+                      myExt.lastIndexOf(codeLastFolder)
+                    )}${cliRelativePath}`;
+                  }
+
+                  const cliExists = await FileService.FileExists(codeCliPath);
+
+                  if (!cliExists) {
+                    vscode.window.showErrorMessage(
+                      `${localize(
+                        "cmd.downloadSettings.error.cliNotFound"
+                      )}: ${codeCliPath}`
+                    );
+                  }
                 }
 
                 addedExtensions = await PluginService.InstallExtensions(
                   content,
                   env.ExtensionFolder,
                   useCli,
+                  codeCliPath,
                   ignoredExtensions,
-                  env.OsType,
-                  env.isInsiders,
                   (message: string, dispose: boolean) => {
                     if (!syncSetting.quietSync) {
                       Commons.outputChannel.appendLine(message);

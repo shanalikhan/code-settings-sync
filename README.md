@@ -21,14 +21,14 @@
       </a>
       <br>
     </td>
-      <td> 
+      <td>
         <a href="https://opencollective.com/code-settings-sync/order/3848" target="_blank">
             <img src="https://opencollective.com/webpack/donate/button.png?color=blue" width=200 />
         </a>
           <br>
           *2$ Per Month
       </td>
-     
+
   </tr>
 </table>
 <br>
@@ -41,7 +41,7 @@
 
 ## Key Features
 
-``` 
+```
 1. Use your GitHub account token and Gist.
 2. Easy to Upload and Download on one click.
 3. Show a summary page at the end with details about config and extensions effected.
@@ -203,7 +203,7 @@ You can customize the settings in gist settings like:
 
 ```
 1. Configure Gist Id (Environment)
-2. Configure auto upload / download for Github Gist 
+2. Configure auto upload / download for Github Gist
 3. Configure extension sync behaviour
 4. Configure force download
 5. Configure quiet sync
@@ -269,6 +269,7 @@ You can customize the sync:
     ],
     "openTokenLink": true,
     "useCliBaseInstallation": true,
+    "codeCliPath": null,
     "lastUpload": null,
     "lastDownload": null,
     "githubEnterpriseUrl": null,

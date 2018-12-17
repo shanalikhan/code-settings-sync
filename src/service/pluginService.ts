@@ -3,7 +3,6 @@ import * as fs from "fs-extra";
 import * as path from "path";
 import * as vscode from "vscode";
 
-import { OsType } from "../enums";
 import * as util from "../util";
 
 const apiPath =
@@ -200,7 +199,7 @@ export class PluginService {
     );
 
     try {
-      await fs.remove(destination);
+      await fs.remove(destination.toLowerCase());
       return true;
     } catch (err) {
       console.log("Sync : " + "Error in uninstalling Extension.");
@@ -246,9 +245,8 @@ export class PluginService {
     extensions: string,
     extFolder: string,
     useCli: boolean,
+    cliPath: string,
     ignoredExtensions: string[],
-    osType: OsType,
-    insiders: boolean,
     notificationCallBack: (...data: any[]) => void
   ): Promise<ExtensionInformation[]> {
     let actionList: Array<Promise<void>> = [];
@@ -265,8 +263,7 @@ export class PluginService {
     if (useCli) {
       addedExtensions = await PluginService.ProcessInstallationCLI(
         missingList,
-        osType,
-        insiders,
+        cliPath,
         notificationCallBack
       );
       return addedExtensions;
@@ -288,8 +285,7 @@ export class PluginService {
 
   public static async ProcessInstallationCLI(
     missingList: ExtensionInformation[],
-    osType: OsType,
-    isInsiders: boolean,
+    cliPath: string,
     notificationCallBack: (...data: any[]) => void
   ): Promise<ExtensionInformation[]> {
     const addedExtensions: ExtensionInformation[] = [];
@@ -297,39 +293,12 @@ export class PluginService {
     notificationCallBack("TOTAL EXTENSIONS : " + missingList.length);
     notificationCallBack("");
     notificationCallBack("");
-    let myExt: string = process.argv0;
-    console.log(myExt);
-    let codeLastFolder = "";
-    let codeCliPath = "";
-    if (osType === OsType.Windows) {
-      if (isInsiders) {
-        codeLastFolder = "Code - Insiders";
-        codeCliPath = "bin/code-insiders";
-      } else {
-        codeLastFolder = "Code";
-        codeCliPath = "bin/code";
-      }
-    } else if (osType === OsType.Linux) {
-      if (isInsiders) {
-        codeLastFolder = "code-insiders";
-        codeCliPath = "bin/code-insiders";
-      } else {
-        codeLastFolder = "code";
-        codeCliPath = "bin/code";
-      }
-    } else if (osType === OsType.Mac) {
-      codeLastFolder = "Frameworks";
-      codeCliPath = "Resources/app/bin/code";
-    }
-    myExt =
-      '"' +
-      myExt.substr(0, myExt.lastIndexOf(codeLastFolder)) +
-      codeCliPath +
-      '"';
+
     for (let i = 0; i < missingList.length; i++) {
       const missExt = missingList[i];
       const name = missExt.publisher + "." + missExt.name;
-      const extensionCli = myExt + " --install-extension " + name;
+      const extensionCli = `"${cliPath}" --install-extension ${name}`;
+
       notificationCallBack(extensionCli);
       try {
         const installed = await new Promise<boolean>(res => {
@@ -510,7 +479,7 @@ export class PluginService {
     destination: string,
     source: string
   ): Promise<void> {
-    await fs.copy(source, destination, { overwrite: true });
+    await fs.copy(source, destination.toLowerCase(), { overwrite: true });
   }
   private static async WritePackageJson(dirName: string, packageJson: string) {
     await fs.writeFile(

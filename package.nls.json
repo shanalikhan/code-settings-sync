@@ -32,6 +32,7 @@
   "cmd.downloadSettings.info.gotLatestVersion": "Sync : You already have the latest version of saved settings.",
   "cmd.downloadSettings.error.removeExtFail": "Sync : Unable to remove some extensions.",
   "cmd.downloadSettings.error.unableSave": "Sync : Unable to save extension settings file.",
+  "cmd.downloadSettings.error.cliNotFound": "Sync : Unable to find cli path.",
   "cmd.resetSettings.title": "Sync : Reset Extension Settings",
   "cmd.resetSettings.info.resetting": "Sync : Resetting Your Settings.",
   "cmd.resetSettings.info.settingClear": "Sync : Settings Cleared.",
@@ -69,7 +70,7 @@
   "cmd.otherOptions.quietSync.off": "Sync : Summary will be shown upon download / upload.",
   "cmd.otherOptions.warning.tokenNotRequire": "Sync : Settings Sync will not ask for GitHub Token from now on.",
   "cmd.otherOptions.error.toggleFail": "Sync : Unable to Toggle.",
-  "cmd.otherOptions.triggerReset" : "Sync : Do you want to reset the settings ?",
+  "cmd.otherOptions.triggerReset": "Sync : Do you want to reset the settings ?",
   "common.info.installed": "Sync : Settings created, thank you for installing!",
   "common.info.needHelp": "Sync : Need Help configuring this extension?",
   "common.info.excludeFile": "Sync : You can exclude any file / folder for upload and settings for download.",
@@ -101,6 +102,5 @@
   "common.prompt.enterGistId": "Enter Gist Id from previously uploaded settings. You can also set manually in code settings (sync.gist). Press [Enter] or [Esc] to cancel.",
   "common.prompt.enterGithubAccessToken": "You also manually add a token (User Folder / syncLocalSettings.json). Press [Enter] or [Esc] to cancel.",
   "common.prompt.restartCode": "Do you want to reload to apply extensions and configurations?",
-  "common.button.yes" :"Yes"
-  
+  "common.button.yes": "Yes"
 }
