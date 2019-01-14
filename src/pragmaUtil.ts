@@ -36,14 +36,6 @@ export default class PragmaUtil {
     let envFromPragma: string;
     let currentLine: string = "";
 
-    const parseLine = (line: string, shouldComment: boolean) => {
-      if (!line.trim().startsWith("//") && shouldComment) {
-        return "//" + line;
-      } else {
-        return line.replace("//", "");
-      }
-    };
-
     for (let index = 0; index < lines.length; index++) {
       let shouldComment = false;
       currentLine = lines[index];
@@ -103,7 +95,7 @@ export default class PragmaUtil {
 
     let result = parsedLines.join("\n");
     const ignoredBlocks = this.getIgnoredBlocks(localContent); // get the settings that must prevail
-    result = result.replace(/{\s*\n/, `{\n${ignoredBlocks}\n`); // always formated with four spaces?
+    result = result.replace(/{\s*\n/, `{\n${ignoredBlocks}\n\n\n`); // 3 lines breaks to separate from other settings
     // check is a valid JSON
 
     try {
@@ -255,13 +247,15 @@ export default class PragmaUtil {
     checkTrailingComma: boolean = false
   ): number {
     let currentLine = lines[++currentIndex]; // check the next line for comments
-    if (!shouldIgnore) {
-      parsedLines.push(this.toggleComments(currentLine, shouldComment));
-    }
 
     if (checkTrailingComma && !currentLine.trim().endsWith(",")) {
       currentLine = currentLine.trimRight() + ",";
     }
+    // nothing more to do, just add the line to the parsedLines array
+    if (!shouldIgnore) {
+      parsedLines.push(this.toggleComments(currentLine, shouldComment));
+    }
+
     const opensCurlyBraces = /".+"\s*:\s*{/.test(currentLine);
     const opensBrackets = /".+"\s*:\s*\[/.test(currentLine);
 
