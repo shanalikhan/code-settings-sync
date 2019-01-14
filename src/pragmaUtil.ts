@@ -24,27 +24,34 @@ export default class PragmaUtil {
     osType: OsType,
     hostName: string
   ): string {
-    let result: string = newContent;
+    const parsedLines: string[] = [];
+    const lines = newContent.split("\n");
+    let osMatch: RegExpMatchArray;
+    let osFromPragma: string;
 
-    const pragmaSettingsBlocks: RegExpMatchArray = result.match(
-      this.PragmaRegExp
-    );
+    let hostMatch: RegExpMatchArray;
+    let hostFromPragma: string;
 
-    if (pragmaSettingsBlocks !== null) {
-      let osMatch: RegExpMatchArray;
-      let osFromPragma: string;
+    let envMatch: RegExpMatchArray;
+    let envFromPragma: string;
+    let currentLine: string = "";
 
-      let hostMatch: RegExpMatchArray;
-      let hostFromPragma: string;
+    const parseLine = (line: string, shouldComment: boolean) => {
+      if (!line.trim().startsWith("//") && shouldComment) {
+        return "//" + line;
+      } else {
+        return line.replace("//", "");
+      }
+    };
 
-      let envMatch: RegExpMatchArray;
-      let envFromPragma: string;
-
-      for (const block of pragmaSettingsBlocks) {
-        // line e.g.: // @sync os=windows host=Laptop\n"window.menuBarVisibility": "none",
+    for (let index = 0; index < lines.length; index++) {
+      let shouldComment = false;
+      currentLine = lines[index];
+      if (this.PragmaRegExp.test(currentLine)) {
+        parsedLines.push(currentLine);
         try {
           // check OS pragma
-          osMatch = block.match(/os=(\w+)/);
+          osMatch = currentLine.match(/os=(\w+)/);
           if (osMatch !== null) {
             osFromPragma = osMatch[1].toLowerCase();
 
@@ -52,13 +59,11 @@ export default class PragmaUtil {
               continue;
             }
             if (osTypeFromString(osFromPragma) !== osType) {
-              result = result.replace(block, this.commentLineAfterBreak(block));
-              continue; // no need to lookup the host name
+              shouldComment = true;
             }
           }
-
           // check host pragma
-          hostMatch = block.match(/host=(\S+)/);
+          hostMatch = currentLine.match(/host=(\S+)/);
           if (hostMatch !== null) {
             hostFromPragma = hostMatch[1];
             if (
@@ -66,32 +71,53 @@ export default class PragmaUtil {
               hostName === "" ||
               hostFromPragma.toLowerCase() !== hostName.toLowerCase()
             ) {
-              result = result.replace(block, this.commentLineAfterBreak(block));
-              continue;
+              shouldComment = true;
             }
           }
 
           // check env pragma
-          envMatch = block.match(/env=(\S+)/);
+          envMatch = currentLine.match(/env=(\S+)/);
           if (envMatch !== null) {
             envFromPragma = envMatch[1];
             if (process.env[envFromPragma.toUpperCase()] === undefined) {
-              result = result.replace(block, this.commentLineAfterBreak(block));
-              continue;
+              shouldComment = true;
             }
           }
 
-          // if os, host and evn matched the current machine make sure to uncomment the setting
-          result = result.replace(block, this.uncommentLineAfterBreak(block));
+          currentLine = lines[++index]; // check the next line for comments
+          parsedLines.push(parseLine(currentLine, shouldComment));
+          if (currentLine.match(/".+"\s*:\s*{/)) {
+            let openedBlock = true;
+            while (openedBlock) {
+              currentLine = lines[++index];
+              parsedLines.push(parseLine(currentLine, shouldComment));
+              if (currentLine.indexOf("}") !== -1) {
+                openedBlock = false;
+              }
+            }
+          }
         } catch (e) {
           console.error("Sync: Error processing pragmas ", e.message);
           continue;
         }
+      } else if (this.IgnorePragmaRegExp.test(currentLine)) {
+        currentLine = lines[++index]; // ignore the following lines
+        if (currentLine.match(/".+"\s*:\s*{/)) {
+          let openedBlock = true;
+          while (openedBlock) {
+            index++;
+            if (currentLine.indexOf("}") !== -1) {
+              openedBlock = false;
+            }
+          }
+        }
+      } else {
+        parsedLines.push(currentLine);
       }
     }
 
-    result = this.removeIgnoreBlocks(result);
-    const ignoredBlocks = this.getIgnoredBlocks(localContent); // get the settings that must prevale
+    let result = parsedLines.join("\n");
+    const ignoredBlocks = this.getIgnoredBlocks(localContent); // get the settings that must prevail
     result = result.replace(/{\s*\n/, `{\n${ignoredBlocks}\n`); // always formated with four spaces?
     // check is a valid JSON
 
@@ -118,33 +144,44 @@ export default class PragmaUtil {
    * @memberof PragmaUtil
    */
   public static processBeforeUpload(settingsContent: string): string {
-    let result: string = settingsContent;
-    result = this.removeIgnoreBlocks(result);
+    const lines = settingsContent.split("\n");
+    let osMatch: RegExpMatchArray;
+    let osFromPragma: string;
 
-    const lines = result.split("\n").map(l => l.trim());
+    let hostMatch: RegExpMatchArray;
+    let hostFromPragma: string;
 
-    // alert not supported OS
-    const pragmaMatches: RegExpMatchArray = result.match(this.PragmaRegExp);
-    if (pragmaMatches) {
-      let newBlock: string;
+    let envMatch: RegExpMatchArray;
+    let envFromPragma: string;
 
-      let osMatch: RegExpMatchArray;
-      let osFromPragma: string;
+    const parsedLines: string[] = [];
+    let currentLine = "";
 
-      let hostMatch: RegExpMatchArray;
-      let hostFromPragma: string;
+    for (let index = 0; index < lines.length; index++) {
+      currentLine = lines[index];
 
-      let envMatch: RegExpMatchArray;
-      let envFromPragma: string;
-
-      for (const block of pragmaMatches) {
-        newBlock = block;
-        osMatch = newBlock.match(this.OSPragmaWhiteSpacesSupportRegExp);
+      if (this.IgnorePragmaRegExp.test(currentLine)) {
+        currentLine = lines[++index]; // ignore the following lines
+        if (currentLine.match(/".+"\s*:\s*{/)) {
+          let openedBlock = true;
+          while (openedBlock) {
+            index++;
+            if (currentLine.indexOf("}") !== -1) {
+              openedBlock = false;
+            }
+          }
+        }
+      } else if (this.PragmaRegExp.test(currentLine)) {
+        // alert not supported OS
+        osMatch = currentLine.match(this.OSPragmaWhiteSpacesSupportRegExp);
         if (osMatch !== null) {
           osFromPragma = osMatch[1] || osMatch[2] || osMatch[3];
 
           if (osFromPragma !== "" && /\s/.test(osFromPragma)) {
-            newBlock = newBlock.replace(osFromPragma, osFromPragma.trimLeft());
+            currentLine = currentLine.replace(
+              osFromPragma,
+              osFromPragma.trimLeft()
+            );
           }
 
           const trimmed = osFromPragma.toLowerCase().trim();
@@ -154,114 +191,88 @@ export default class PragmaUtil {
               localize(
                 "cmd.updateSettings.warning.OSNotSupported",
                 trimmed,
-                lines.indexOf(block.split("\n")[0]) + 1
+                index + 1
               )
             );
           }
         }
 
-        hostMatch = newBlock.match(this.HostPragmaWhiteSpacesSupportRegExp);
+        hostMatch = currentLine.match(this.HostPragmaWhiteSpacesSupportRegExp);
         if (hostMatch !== null) {
           hostFromPragma = hostMatch[1] || hostMatch[2] || hostMatch[3];
           if (hostFromPragma !== "" && /\s/.test(hostFromPragma)) {
-            newBlock = newBlock.replace(
+            currentLine = currentLine.replace(
               hostFromPragma,
               hostFromPragma.trimLeft()
             );
           }
         }
 
-        envMatch = block.match(this.EnvPragmaWhiteSpacesSupportRegExp);
+        envMatch = currentLine.match(this.EnvPragmaWhiteSpacesSupportRegExp);
         if (envMatch !== null) {
           envFromPragma = envMatch[1] || envMatch[2] || envMatch[3];
           if (envFromPragma !== "" && /\s/.test(envFromPragma)) {
-            newBlock = newBlock.replace(
+            currentLine = currentLine.replace(
               envFromPragma,
               envFromPragma.trimLeft()
             );
           }
         }
 
-        // uncomment line before upload
-        result = result.replace(block, this.uncommentLineAfterBreak(newBlock));
+        parsedLines.push(currentLine);
+        currentLine = lines[++index]; // check the next line for comments
+        parsedLines.push(currentLine.replace("//", ""));
+        if (currentLine.match(/".+"\s*:\s*{/)) {
+          let openedBlock = true;
+          while (openedBlock) {
+            currentLine = lines[++index];
+            parsedLines.push(currentLine.replace("//", ""));
+            if (currentLine.indexOf("}") !== -1) {
+              openedBlock = false;
+            }
+          }
+        }
+      } else {
+        parsedLines.push(currentLine);
       }
     }
 
-    return result;
-  }
-
-  public static removeIgnoreBlocks(settingsContent: string): string {
-    let result: string = settingsContent;
-    result = result.replace(/\@sync ignore/g, "@sync-ignore");
-    const ignoreSettingsBlocks: RegExpMatchArray = result.match(
-      this.IgnorePragmaRegExp
-    );
-
-    if (ignoreSettingsBlocks !== null) {
-      for (const block of ignoreSettingsBlocks) {
-        result = result.replace(block, "");
-      }
-    }
-
-    return result;
+    return parsedLines.join("\n");
   }
 
   public static getIgnoredBlocks(content: string): string {
     content = content.replace(/\@sync ignore/g, "@sync-ignore");
-    const ignoredBlocks: RegExpMatchArray = content.match(
-      this.IgnorePragmaRegExp
-    );
-    if (ignoredBlocks == null) {
-      return "";
+    const ignoredBlocks: string[] = [];
+    const lines = content.split("\n");
+    let currentLine = "";
+    for (let index = 0; index < lines.length; index++) {
+      currentLine = lines[index];
+      if (this.IgnorePragmaRegExp.test(currentLine)) {
+        ignoredBlocks.push(currentLine);
+        currentLine = lines[++index];
+        ignoredBlocks.push(currentLine);
+
+        if (currentLine.match(/".+"\s*:\s*{/)) {
+          let openedBlock = true;
+          while (openedBlock) {
+            currentLine = lines[++index];
+            ignoredBlocks.push(currentLine.replace("//", ""));
+            if (currentLine.indexOf("}") !== -1) {
+              openedBlock = false;
+            }
+          }
+        }
+      }
     }
-    return ignoredBlocks.join("");
-  }
-
-  public static matchPragmaSettings(settingsContent: string): RegExpMatchArray {
-    return settingsContent.match(this.PragmaRegExp);
-  }
-
-  /**
-   * Insert Javascript comment slashes
-   *
-   * @private
-   * @param {string} settingContent
-   * @param {string} line
-   * @returns {strign}
-   * @memberof PragmaUtil
-   */
-  public static commentLineAfterBreak(block: string): string {
-    const settingLine = block.match(/\n[ \t]*(.+)/);
-    if (
-      settingLine !== null &&
-      settingLine[1] &&
-      !settingLine[1].startsWith("//")
-    ) {
-      return block.replace(settingLine[1], l => "//" + l);
-    }
-
-    return block;
-  }
-
-  public static uncommentLineAfterBreak(block: string): string {
-    const settingLine = block.match(/\n[ \t]*(.+)/);
-    if (
-      settingLine !== null &&
-      settingLine[1] &&
-      settingLine[1].startsWith("//")
-    ) {
-      return block.replace(settingLine[1], l => l.replace("//", ""));
-    }
-
-    return block;
+    return ignoredBlocks.join("\n");
   }
 
   public static removeAllComments(text: string): string {
     return text.replace(/\s*(\/\/.+)|(\/\*.+\*\/)/g, "");
   }
 
-  private static readonly PragmaRegExp: RegExp = /\/\/[ \t]*\@sync[ \t]+(?:os=.+[ \t]*)?(?:host=.+[ \t]*)?(?:env=.+[ \t]*)?\n[ \t]*.+,?/g;
-  private static readonly IgnorePragmaRegExp: RegExp = /[ \t]*\/\/[ \t]*\@sync-ignore.*\n.+,?\n+/g;
+  private static readonly PragmaRegExp: RegExp = /\/{2}[\s\t]*\@sync[\s\t]+(?:os=.+[\s\t]*)?(?:host=.+[\s\t]*)?(?:env=.+[\s\t]*)?/;
+  private static readonly IgnorePragmaRegExp: RegExp = /\/{2}[\s\t]*\@sync-ignore/;
   private static readonly HostPragmaWhiteSpacesSupportRegExp = /(?:host=(.+)os=)|(?:host=(.+)env=)|host=(.+)\n?/;
   private static readonly OSPragmaWhiteSpacesSupportRegExp = /(?:os=(.+)host=)|(?:os=(.+)env=)|os=(.+)\n?/;
   private static readonly EnvPragmaWhiteSpacesSupportRegExp = /(?:env=(.+)host=)|(?:env=(.+)os=)|env=(.+)\n?/;
