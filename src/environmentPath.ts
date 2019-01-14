@@ -1,6 +1,5 @@
 "use strict";
 
-import { exec } from "child_process";
 import * as fs from "fs-extra";
 import * as os from "os";
 import * as path from "path";
@@ -18,7 +17,7 @@ export function osTypeFromString(osName: string): OsType {
 }
 
 export class Environment {
-  public static CURRENT_VERSION: number = 320;
+  public static CURRENT_VERSION: number = 324;
   public static getVersion(): string {
     return (
       Environment.CURRENT_VERSION.toString().slice(0, 1) +
@@ -32,6 +31,7 @@ export class Environment {
   public isInsiders: boolean = false;
   public isOss: boolean = false;
   public isPortable: boolean = false;
+  public isCoderCom: boolean = false;
   public homeDir: string | null = null;
   public USER_FOLDER: string = null;
 
@@ -67,61 +67,58 @@ export class Environment {
     this.isInsiders = /insiders/.test(this.context.asAbsolutePath(""));
     this.isPortable = process.env.VSCODE_PORTABLE ? true : false;
     this.isOss = /\boss\b/.test(this.context.asAbsolutePath(""));
+    this.isCoderCom =
+      vscode.extensions.getExtension("coder.coder") !== undefined;
     const isXdg =
       !this.isInsiders &&
+      !this.isCoderCom &&
       process.platform === "linux" &&
       !!process.env.XDG_DATA_HOME;
     this.homeDir = isXdg
       ? process.env.XDG_DATA_HOME
       : process.env[process.platform === "win32" ? "USERPROFILE" : "HOME"];
-    const configSuffix = `${isXdg ? "" : "."}vscode${
+    const configSuffix = `${isXdg || this.isCoderCom ? "" : "."}vscode${
       this.isInsiders ? "-insiders" : this.isOss ? "-oss" : ""
     }`;
 
     process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
-    this.PATH = process.env.APPDATA;
-    this.OsType = OsType.Windows;
 
-    if (!this.PATH && !this.isPortable) {
+    if (!this.isPortable) {
       if (process.platform === "darwin") {
         this.PATH = process.env.HOME + "/Library/Application Support";
         this.OsType = OsType.Mac;
       } else if (process.platform === "linux") {
-        this.PATH =
-          isXdg && !!process.env.XDG_CONFIG_HOME
-            ? process.env.XDG_CONFIG_HOME
-            : os.homedir() + "/.config";
+        if (!this.isCoderCom) {
+          this.PATH =
+            isXdg && !!process.env.XDG_CONFIG_HOME
+              ? process.env.XDG_CONFIG_HOME
+              : os.homedir() + "/.config";
+        } else {
+          this.PATH = "/tmp";
+        }
         this.OsType = OsType.Linux;
+      } else if (process.platform === "win32") {
+        this.PATH = process.env.APPDATA;
+        this.OsType = OsType.Windows;
       } else {
         this.PATH = "/var/local";
         this.OsType = OsType.Linux;
       }
     }
 
-    if (!this.PATH && this.isPortable) {
+    if (this.isPortable) {
+      this.PATH = process.env.VSCODE_PORTABLE;
       if (process.platform === "darwin") {
-        this.PATH = process.env.HOME + "/Library/Application Support";
         this.OsType = OsType.Mac;
       } else if (process.platform === "linux") {
-        this.PATH = process.env.VSCODE_PORTABLE;
         this.OsType = OsType.Linux;
-      } else {
-        this.PATH = process.env.VSCODE_PORTABLE;
+      } else if (process.platform === "win32") {
         this.OsType = OsType.Windows;
+      } else {
+        this.OsType = OsType.Linux;
       }
     }
 
-    if (this.OsType === OsType.Linux) {
-      const myExt =
-        "chmod +x " +
-        this.ExtensionFolder +
-        "/Shan.code-settings-sync-" +
-        Environment.getVersion() +
-        "/node_modules/opn/xdg-open";
-      exec(myExt, () => {
-        // command output is in stdout
-      });
-    }
     if (!this.isPortable) {
       const possibleCodePaths = [];
       if (this.isInsiders) {

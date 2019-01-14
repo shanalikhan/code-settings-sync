@@ -74,7 +74,7 @@ export class GitHubService {
       }
 
       this.github.users
-        .get({})
+        .getAuthenticated({})
         .then(res => {
           this.userName = res.data.login;
           this.name = res.data.name;
@@ -151,7 +151,8 @@ export class GitHubService {
   }
 
   public async SaveGIST(gistObject: any): Promise<boolean> {
-    await this.github.gists.edit(gistObject);
+    gistObject.gist_id = gistObject.id;
+    await this.github.gists.update(gistObject);
     return true;
   }
 }

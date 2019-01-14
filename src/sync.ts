@@ -528,7 +528,7 @@ export class Sync {
                 const autoUpdate: boolean = vscode.workspace
                   .getConfiguration("extensions")
                   .get("autoUpdate");
-                useCli = autoUpdate;
+                useCli = autoUpdate && !env.isCoderCom;
                 if (useCli) {
                   if (!syncSetting.quietSync) {
                     Commons.outputChannel = vscode.window.createOutputChannel(
@@ -735,6 +735,18 @@ export class Sync {
     const common: Commons = new Commons(env, this.context);
     const setting: ExtensionConfig = await common.GetSettings();
     const customSettings: CustomSettings = await common.GetCustomSettings();
+    if (customSettings == null) {
+      vscode.window
+        .showInformationMessage(
+          localize("cmd.otherOptions.triggerReset"),
+          localize("common.button.yes")
+        )
+        .then(val => {
+          if (val === localize("common.button.yes")) {
+            vscode.commands.executeCommand("extension.resetSettings");
+          }
+        });
+    }
     const localSetting: LocalConfig = new LocalConfig();
     const tokenAvailable: boolean =
       customSettings.token != null && customSettings.token !== "";

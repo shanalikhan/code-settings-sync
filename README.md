@@ -1,4 +1,4 @@
-# Settings Sync [![Tweet](https://img.shields.io/twitter/url/http/shields.io.svg?style=social)](https://twitter.com/intent/tweet?text=Synchronize%20your%20%40VisualStudio%20%40code%20Settings%20Across%20Multiple%20Machines%20using%20%40github%20GIST%20by%20%40itsShanKhan&url=https://github.com/shanalikhan/code-settings-sync&via=code&hashtags=code,vscode,SettingsSync,developers)
+# Settings Sync [![Tweet](https://img.shields.io/twitter/url/http/shields.io.svg?style=social)](https://twitter.com/intent/tweet?text=Synchronize%20your%20%40VisualStudio%20%40code%20Settings%20Across%20Multiple%20Machines%20using%20%40github%20GIST%20by%20%40itsShanKhan&url=https://github.com/shanalikhan/code-settings-sync&via=code&hashtags=code,vscode,SettingsSync,developers) [![Follow](https://img.shields.io/twitter/follow/itsShanKhan.svg?style=social&label=Follow)](https://twitter.com/intent/follow?screen_name=itsShanKhan)
 
 
 
@@ -7,9 +7,32 @@
 
 [![Version](https://vsmarketplacebadge.apphb.com/version/Shan.code-settings-sync.svg)](https://marketplace.visualstudio.com/items?itemName=Shan.code-settings-sync) [![Travis](https://img.shields.io/travis/rust-lang/rust.svg)](https://marketplace.visualstudio.com/items?itemName=Shan.code-settings-sync)
 [![Greenkeeper badge](https://badges.greenkeeper.io/shanalikhan/code-settings-sync.svg)](https://greenkeeper.io/)
-[![Follow](https://img.shields.io/twitter/follow/itsShanKhan.svg?style=social&label=Follow)](https://twitter.com/intent/follow?screen_name=itsShanKhan)
+[![Master course](https://img.shields.io/badge/Supported%20by-VSCode%20Power%20User%20Course%20%E2%86%92-gray.svg?colorA=444444&colorB=4F44D6)](https://t.co/8BEMyhpKU5?amp=1)
 
-<a href="https://join.slack.com/t/codesettingssync/shared_invite/enQtMzE3MjY5NTczNDMwLTYwMTIwNGExOGE2MTJkZWU0OTU5MmI3ZTc4N2JkZjhjMzY1OTk5OGExZjkwMDMzMDU4ZTBlYjk5MGQwZmMyNzk">
+## Support
+
+**Settings Sync** is an open source extension. While being free and open source, if you find it useful, please consider supporting it by donating via PayPal or via Open Collective from 2$ a month!
+
+<table align="center" width="60%" border="0">
+  <tr>
+    <td>
+      <a href="https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=4W3EWHHBSYMM8&lc=IE&item_name=Code%20Settings%20Sync&item_number=visual%20studio%20code%20settings%20sync&currency_code=USD&bn=PP%2dDonationsBF%3abtn_donate_SM%2egif%3aNonHosted">
+          <img src="https://www.paypalobjects.com/en_US/i/btn/btn_donateCC_LG.gif"/>
+      </a>
+      <br>
+    </td>
+      <td> 
+        <a href="https://opencollective.com/code-settings-sync/order/3848" target="_blank">
+            <img src="https://opencollective.com/webpack/donate/button.png?color=blue" width=200 />
+        </a>
+          <br>
+          *2$ Per Month
+      </td>
+     
+  </tr>
+</table>
+<br>
+ <a href="https://join.slack.com/t/codesettingssync/shared_invite/enQtMzE3MjY5NTczNDMwLTYwMTIwNGExOGE2MTJkZWU0OTU5MmI3ZTc4N2JkZjhjMzY1OTk5OGExZjkwMDMzMDU4ZTBlYjk5MGQwZmMyNzk">
 <img src="https://i.imgur.com/1QWdtcX.png" alt="Drawing" style="width: 150px;"/>
 </a>
 
@@ -18,7 +41,7 @@
 
 ## Key Features
 
-```
+``` 
 1. Use your GitHub account token and Gist.
 2. Easy to Upload and Download on one click.
 3. Show a summary page at the end with details about config and extensions effected.
@@ -255,19 +278,22 @@ You can customize the sync:
 
 I will recommend you to read the configurations details [here](https://medium.com/@itsShanKhan/visual-studio-code-settings-sync-configurations-ed8dd6fd9753).
 
+### Troubleshooting
+
+If you ever get into problem while setting up the Settings Sync. You can check our troubleshooting guide that cover those scenarios [here](https://github.com/shanalikhan/code-settings-sync/wiki/Troubleshooting), you can also add your solution there if its not available there to help other users.
 
 ## How To Contribute
 
 You can contribute in different ways. Read the details [here](https://github.com/shanalikhan/code-settings-sync/blob/master/CONTRIBUTING.md)
 
-
+**Fix and Earn** - You can also earn money by fixing the issues - Check the issues under bounty program [here](https://github.com/shanalikhan/code-settings-sync/labels/bounty).
 
 ## Credits
 
 ### Contributors
 
 Thank you to all the people who have already contributed to Settings Sync!
-<a href="graphs/contributors"><img src="https://opencollective.com/code-settings-sync/contributors.svg?width=890" /></a>
+<a href="https://github.com/shanalikhan/code-settings-sync/graphs/contributors"><img src="https://opencollective.com/code-settings-sync/contributors.svg?width=890" /></a>
 
 ### Backers
 
@@ -295,6 +321,8 @@ Thank you to all our sponsors! (please ask your company to also support this ope
 [![Installs](https://vsmarketplacebadge.apphb.com/installs/Shan.code-settings-sync.svg)](https://marketplace.visualstudio.com/items?itemName=Shan.code-settings-sync)
 
 [![Ratings](https://vsmarketplacebadge.apphb.com/rating/Shan.code-settings-sync.svg)](https://marketplace.visualstudio.com/items?itemName=Shan.code-settings-sync)
+
+[![Master course](https://img.shields.io/badge/Supported%20by-VSCode%20Power%20User%20Course%20%E2%86%92-gray.svg?colorA=444444&colorB=4F44D6)](https://t.co/8BEMyhpKU5?amp=1)
 
 <a href="https://join.slack.com/t/codesettingssync/shared_invite/enQtMzE3MjY5NTczNDMwLTYwMTIwNGExOGE2MTJkZWU0OTU5MmI3ZTc4N2JkZjhjMzY1OTk5OGExZjkwMDMzMDU4ZTBlYjk5MGQwZmMyNzk">
 <img src="https://shanalikhan.github.io/img/slack.PNG" alt="Drawing" style="width: 150px;"/>

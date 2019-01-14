@@ -142,13 +142,9 @@ export class Util {
   }
 
   public static async Extract(filePath: string) {
-    const dirName = temp.path();
     const zip = new adm_zip(filePath);
-
-    await promisify(temp.mkdir)(dirName);
-
+    const dirName = await promisify(temp.mkdir)(undefined);
     zip.extractAllTo(dirName, /*overwrite*/ true);
-
     return dirName;
   }
 

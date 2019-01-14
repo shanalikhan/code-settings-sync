@@ -20,19 +20,17 @@ export default class Commons {
   ): void {
     if (error) {
       console.error(error);
-      if (error.code === 500) {
+      if (error.status === 500) {
         message = localize("common.error.connection");
         msgBox = false;
-      } else if (error.code === 4) {
+      } else if (error.status === 401) {
+        msgBox = true;
+        message = localize("common.error.invalidToken");
+      } else if (error.status === 4) {
         message = localize("common.error.canNotSave");
       } else if (error.message) {
         try {
           message = JSON.parse(error.message).message;
-          if (message.toLowerCase() === "bad credentials") {
-            msgBox = true;
-            message = localize("common.error.invalidToken");
-            // vscode.commands.executeCommand('vscode.open', vscode.Uri.parse('https://github.com/settings/tokens'));
-          }
           if (message.toLowerCase() === "not found") {
             msgBox = true;
             message = localize("common.error.invalidGistId");
@@ -367,7 +365,6 @@ export default class Commons {
 
     if (firstTime) {
       const openExtensionPage = localize("common.action.openExtPage");
-      const openExtensionTutorial = localize("common.action.openExtTutorial");
       vscode.window.showInformationMessage(localize("common.info.installed"));
       vscode.window
         .showInformationMessage(
@@ -380,21 +377,6 @@ export default class Commons {
               "vscode.open",
               vscode.Uri.parse(
                 "https://marketplace.visualstudio.com/items?itemName=Shan.code-settings-sync"
-              )
-            );
-          }
-        });
-      vscode.window
-        .showInformationMessage(
-          localize("common.info.excludeFile"),
-          openExtensionTutorial
-        )
-        .then((val: string) => {
-          if (val === openExtensionTutorial) {
-            vscode.commands.executeCommand(
-              "vscode.open",
-              vscode.Uri.parse(
-                "https://shanalikhan.github.io/2016/07/31/Visual-Studio-code-sync-setting-edit-manually.html"
               )
             );
           }
@@ -663,9 +645,11 @@ export default class Commons {
     outputChannel.appendLine(`--------------------`);
 
     outputChannel.appendLine(`Files ${upload ? "Upload" : "Download"}ed:`);
-    files.filter(item => item.fileName.indexOf(".") > 0).forEach(item => {
-      outputChannel.appendLine(`  ${item.fileName} > ${item.gistName}`);
-    });
+    files
+      .filter(item => item.fileName.indexOf(".") > 0)
+      .forEach(item => {
+        outputChannel.appendLine(`  ${item.fileName} > ${item.gistName}`);
+      });
 
     outputChannel.appendLine(``);
     outputChannel.appendLine(`Extensions Ignored:`);

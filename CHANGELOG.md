@@ -1,7 +1,23 @@
-# ChangeLog : Settings Sync [![Tweet](https://img.shields.io/twitter/url/http/shields.io.svg?style=social)](https://twitter.com/intent/tweet?text=Synchronize%20your%20%40VisualStudio%20%40code%20Settings%20Across%20Multiple%20Machines%20using%20%40github%20GIST%20by%20%40itsShanKhan&url=https://github.com/shanalikhan/code-settings-sync&via=code&hashtags=code,vscode,SettingsSync,developers)
+# ChangeLog : Settings Sync [![Tweet](https://img.shields.io/twitter/url/http/shields.io.svg?style=social)](https://twitter.com/intent/tweet?text=Synchronize%20your%20%40VisualStudio%20%40code%20Settings%20Across%20Multiple%20Machines%20using%20%40github%20GIST%20by%20%40itsShanKhan&url=https://github.com/shanalikhan/code-settings-sync&via=code&hashtags=code,vscode,SettingsSync,developers) [![Follow](https://img.shields.io/twitter/follow/itsShanKhan.svg?style=social&label=Follow)](https://twitter.com/intent/follow?screen_name=itsShanKhan)
 
-[![Version](https://vsmarketplacebadge.apphb.com/version/Shan.code-settings-sync.svg)](https://marketplace.visualstudio.com/items?itemName=Shan.code-settings-sync) [![Travis](https://img.shields.io/travis/rust-lang/rust.svg)](https://marketplace.visualstudio.com/items?itemName=Shan.code-settings-sync)
-[![Follow](https://img.shields.io/twitter/follow/itsShanKhan.svg?style=social&label=Follow)](https://twitter.com/intent/follow?screen_name=itsShanKhan)
+[![Version](https://vsmarketplacebadge.apphb.com/version/Shan.code-settings-sync.svg)](https://marketplace.visualstudio.com/items?itemName=Shan.code-settings-sync) [![Travis](https://img.shields.io/travis/rust-lang/rust.svg)](https://marketplace.visualstudio.com/items?itemName=Shan.code-settings-sync) [![Master course](https://img.shields.io/badge/Supported%20by-VSCode%20Power%20User%20Course%20%E2%86%92-gray.svg?colorA=444444&colorB=4F44D6)](https://t.co/8BEMyhpKU5?amp=1)
+
+#### Version - 3.2.3 - 11 Dec, 2018
+
+* Startup : Long startup activation time on the first start [#656](https://github.com/shanalikhan/code-settings-sync/issues/656) -  Thanks for PR [#717](https://github.com/shanalikhan/code-settings-sync/pull/717) by [@thejewdude](https://github.com/thejewdude)
+* Feature : Adding coder.com support [#714](https://github.com/shanalikhan/code-settings-sync/issues/714) - Thanks for PR [#720](https://github.com/shanalikhan/code-settings-sync/pull/720) by [@deansheather](https://github.com/deansheather)
+
+#### Version - 3.2.2 - 26 Nov, 2018
+
+* Sync Advance Setting Menu doesnt open when JSON not Valid [#683](https://github.com/shanalikhan/code-settings-sync/issues/683)
+
+#### Version - 3.2.1 - 23 Nov, 2018
+
+* Bug : Only install missing extensions in Portable Vs Code [#687](https://github.com/shanalikhan/code-settings-sync/issues/687)
+* Bug : Error: Cannot read property 'token' of undefined [#685](https://github.com/shanalikhan/code-settings-sync/issues/685)
+* Bug : sync-ignore isn't ignoring my local value, it deletes it [#686](https://github.com/shanalikhan/code-settings-sync/issues/686)
+* Bug : Download of extension packages failed [#642](https://github.com/shanalikhan/code-settings-sync/issues/642) - Thanks for PR [#705](https://github.com/shanalikhan/code-settings-sync/pull/705) by [@emptyother](https://github.com/emptyother)
+
 
 #### Version - 3.2.0 - 17 Oct, 2018
 
