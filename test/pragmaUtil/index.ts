@@ -13,31 +13,10 @@ describe("Process before upload", function() {
     );
   });
 
-  it("should remove @sync-ignore and @sync ignore lines", () => {
-    expect(PragmaUtil.removeIgnoreBlocks(testSettings))
-      .to.not.contains("@sync-ignore")
-      .and.not.contains("@sync ignore");
-  });
-
   it("should trim os, host and env", () => {
     expect(PragmaUtil.processBeforeUpload(testSettings)).to.match(
       /@sync os=linux host=trim env=TEST_ENV/
     );
-  });
-
-  it("should comment line after linebreak", () => {
-    const line = '// @sync host=mac1 os=_mac_\n\t"mac": 3,';
-    expect(PragmaUtil.commentLineAfterBreak(line)).to.match(/\/\/\s*"mac"/);
-  });
-
-  it("should uncomment line after linebreak", () => {
-    const line = '// @sync host=mac1 os=_mac_\n\t//"mac": 3,';
-    expect(PragmaUtil.uncommentLineAfterBreak(line)).to.match(/\s*"mac"/);
-  });
-
-  it("should get eight @sync pragma valid lines", () => {
-    const processed = PragmaUtil.processBeforeUpload(testSettings);
-    expect(PragmaUtil.matchPragmaSettings(processed).length).to.be.equals(8);
   });
 
   it("should uncomment all lines", () => {
