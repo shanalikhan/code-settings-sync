@@ -8,7 +8,7 @@ let testSettings = null;
 describe("Process before upload", function() {
   this.beforeAll(() => {
     testSettings = fs.readFileSync(
-      __dirname + "/../../../test/pragmaUtil/testSettings.json",
+      __dirname + "/../../../test/pragmaUtil/testSettings.txt",
       "utf8"
     );
   });
@@ -76,4 +76,27 @@ describe("Process before upload", function() {
     const possibleJson = PragmaUtil.removeAllComments(testSettings);
     expect(JSON.parse.bind(null, possibleJson)).to.not.throw();
   });
+
+  it("should parse multi-line settings", () => {
+    const commentedSettings = `{
+      // @sync os=linux
+      // "multi": {
+            "setting": false,
+          },
+      // @sync os=mac
+        "mac": 1
+    }`;
+    const processed = PragmaUtil.processBeforeWrite(
+      commentedSettings,
+      commentedSettings,
+      OsType.Mac,
+      null
+    );
+    expect(processed)
+      .to.match(/\/{2}\s+"multi"/)
+      .and.to.match(/\/{2}\s+"multi"/)
+      .and.to.match(/\/{2}\s+"setting"/)
+      .and.to.match(/\/{2}\s+},/)
+      .and.to.match(/\s+"mac"/);
+  })
 });
