@@ -48,7 +48,6 @@ export default class PragmaUtil {
       let shouldComment = false;
       currentLine = lines[index];
       if (this.PragmaRegExp.test(currentLine)) {
-        parsedLines.push(currentLine);
         try {
           // check OS pragma
           osMatch = currentLine.match(/os=(\w+)/);
@@ -83,34 +82,20 @@ export default class PragmaUtil {
               shouldComment = true;
             }
           }
-
-          currentLine = lines[++index]; // check the next line for comments
-          parsedLines.push(parseLine(currentLine, shouldComment));
-          if (currentLine.match(/".+"\s*:\s*{/)) {
-            let openedBlock = true;
-            while (openedBlock) {
-              currentLine = lines[++index];
-              parsedLines.push(parseLine(currentLine, shouldComment));
-              if (currentLine.indexOf("}") !== -1) {
-                openedBlock = false;
-              }
-            }
-          }
+          parsedLines.push(currentLine);
+          index = this.checkNextLines(
+            lines,
+            parsedLines,
+            index,
+            false,
+            shouldComment
+          );
         } catch (e) {
           console.error("Sync: Error processing pragmas ", e.message);
           continue;
         }
       } else if (this.IgnorePragmaRegExp.test(currentLine)) {
-        currentLine = lines[++index]; // ignore the following lines
-        if (currentLine.match(/".+"\s*:\s*{/)) {
-          let openedBlock = true;
-          while (openedBlock) {
-            index++;
-            if (currentLine.indexOf("}") !== -1) {
-              openedBlock = false;
-            }
-          }
-        }
+        index = this.checkNextLines(lines, parsedLines, index, true, false);
       } else {
         parsedLines.push(currentLine);
       }
@@ -161,16 +146,7 @@ export default class PragmaUtil {
       currentLine = lines[index];
 
       if (this.IgnorePragmaRegExp.test(currentLine)) {
-        currentLine = lines[++index]; // ignore the following lines
-        if (currentLine.match(/".+"\s*:\s*{/)) {
-          let openedBlock = true;
-          while (openedBlock) {
-            index++;
-            if (currentLine.indexOf("}") !== -1) {
-              openedBlock = false;
-            }
-          }
-        }
+        index = this.checkNextLines(lines, parsedLines, index, true);
       } else if (this.PragmaRegExp.test(currentLine)) {
         // alert not supported OS
         osMatch = currentLine.match(this.OSPragmaWhiteSpacesSupportRegExp);
@@ -220,18 +196,7 @@ export default class PragmaUtil {
         }
 
         parsedLines.push(currentLine);
-        currentLine = lines[++index]; // check the next line for comments
-        parsedLines.push(currentLine.replace("//", ""));
-        if (currentLine.match(/".+"\s*:\s*{/)) {
-          let openedBlock = true;
-          while (openedBlock) {
-            currentLine = lines[++index];
-            parsedLines.push(currentLine.replace("//", ""));
-            if (currentLine.indexOf("}") !== -1) {
-              openedBlock = false;
-            }
-          }
-        }
+        index = this.checkNextLines(lines, parsedLines, index, false, false);
       } else {
         parsedLines.push(currentLine);
       }
@@ -242,29 +207,24 @@ export default class PragmaUtil {
 
   public static getIgnoredBlocks(content: string): string {
     content = content.replace(/\@sync ignore/g, "@sync-ignore");
-    const ignoredBlocks: string[] = [];
+    const ignoredLines: string[] = [];
     const lines = content.split("\n");
     let currentLine = "";
     for (let index = 0; index < lines.length; index++) {
       currentLine = lines[index];
       if (this.IgnorePragmaRegExp.test(currentLine)) {
-        ignoredBlocks.push(currentLine);
-        currentLine = lines[++index];
-        ignoredBlocks.push(currentLine);
-
-        if (currentLine.match(/".+"\s*:\s*{/)) {
-          let openedBlock = true;
-          while (openedBlock) {
-            currentLine = lines[++index];
-            ignoredBlocks.push(currentLine.replace("//", ""));
-            if (currentLine.indexOf("}") !== -1) {
-              openedBlock = false;
-            }
-          }
-        }
+        ignoredLines.push(currentLine);
+        index = this.checkNextLines(
+          lines,
+          ignoredLines,
+          index,
+          false,
+          false,
+          true
+        );
       }
     }
-    return ignoredBlocks.join("\n");
+    return ignoredLines.join("\n");
   }
 
   public static removeAllComments(text: string): string {
@@ -276,4 +236,54 @@ export default class PragmaUtil {
   private static readonly HostPragmaWhiteSpacesSupportRegExp = /(?:host=(.+)os=)|(?:host=(.+)env=)|host=(.+)\n?/;
   private static readonly OSPragmaWhiteSpacesSupportRegExp = /(?:os=(.+)host=)|(?:os=(.+)env=)|os=(.+)\n?/;
   private static readonly EnvPragmaWhiteSpacesSupportRegExp = /(?:env=(.+)host=)|(?:env=(.+)os=)|env=(.+)\n?/;
+
+  private static toggleComments(line: string, shouldComment: boolean) {
+    if (shouldComment && !line.trim().startsWith("//")) {
+      return "  //" + line; // 2 spaces as formmating
+    } else {
+      return line.replace("//", "");
+    }
+  }
+
+  // checks and advance index
+  private static checkNextLines(
+    lines: string[],
+    parsedLines: string[],
+    currentIndex: number,
+    shouldIgnore: boolean,
+    shouldComment: boolean = false,
+    checkTrailingComma: boolean = false
+  ): number {
+    let currentLine = lines[++currentIndex]; // check the next line for comments
+    if (!shouldIgnore) {
+      parsedLines.push(this.toggleComments(currentLine, shouldComment));
+    }
+
+    if (checkTrailingComma && !currentLine.trim().endsWith(",")) {
+      currentLine = currentLine.trimRight() + ",";
+    }
+    const opensCurlyBraces = /".+"\s*:\s*{/.test(currentLine);
+    const opensBrackets = /".+"\s*:\s*\[/.test(currentLine);
+
+    let openedBlock = opensCurlyBraces || opensBrackets;
+    if (openedBlock) {
+      while (openedBlock) {
+        currentLine = lines[++currentIndex];
+        if (
+          (opensCurlyBraces && currentLine.indexOf("}") !== -1) ||
+          (opensBrackets && currentLine.indexOf("]") !== -1)
+        ) {
+          if (checkTrailingComma && !currentLine.trim().endsWith(",")) {
+            currentLine = currentLine.trimRight() + ","; // we add a coma to avoid parse error when we paste the ignored settings at the beginning of the file
+          }
+          openedBlock = false;
+        }
+        if (!shouldIgnore) {
+          parsedLines.push(this.toggleComments(currentLine, shouldComment));
+        }
+      }
+    }
+
+    return currentIndex;
+  }
 }
