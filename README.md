@@ -11,7 +11,7 @@
 
 ## Support
 
-**Settings Sync** is an open source extension. While being free and open source, if you find it useful, please consider supporting it by donating via PayPal or via Open Collective from 2$ a month!
+While being free and open source, if you find it useful, please consider supporting it by donating via PayPal or Open Collective. If you are using it in office as a team, please ask your company to support us via Open Collective from just 2$ per month!
 
 <table align="center" width="60%" border="0">
   <tr>
@@ -35,7 +35,8 @@
  <a href="https://join.slack.com/t/codesettingssync/shared_invite/enQtMzE3MjY5NTczNDMwLTYwMTIwNGExOGE2MTJkZWU0OTU5MmI3ZTc4N2JkZjhjMzY1OTk5OGExZjkwMDMzMDU4ZTBlYjk5MGQwZmMyNzk">
 <img src="https://i.imgur.com/1QWdtcX.png" alt="Drawing" style="width: 150px;"/>
 </a>
-
+<br>
+<br>
 
 **Type Sync in command Palette in order to view all commands.**
 
