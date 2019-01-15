@@ -8,36 +8,15 @@ let testSettings = null;
 describe("Process before upload", function() {
   this.beforeAll(() => {
     testSettings = fs.readFileSync(
-      __dirname + "/../../../test/pragmaUtil/testSettings.json",
+      __dirname + "/../../../test/pragmaUtil/testSettings.txt",
       "utf8"
     );
-  });
-
-  it("should remove @sync-ignore and @sync ignore lines", () => {
-    expect(PragmaUtil.removeIgnoreBlocks(testSettings))
-      .to.not.contains("@sync-ignore")
-      .and.not.contains("@sync ignore");
   });
 
   it("should trim os, host and env", () => {
     expect(PragmaUtil.processBeforeUpload(testSettings)).to.match(
       /@sync os=linux host=trim env=TEST_ENV/
     );
-  });
-
-  it("should comment line after linebreak", () => {
-    const line = '// @sync host=mac1 os=_mac_\n\t"mac": 3,';
-    expect(PragmaUtil.commentLineAfterBreak(line)).to.match(/\/\/\s*"mac"/);
-  });
-
-  it("should uncomment line after linebreak", () => {
-    const line = '// @sync host=mac1 os=_mac_\n\t//"mac": 3,';
-    expect(PragmaUtil.uncommentLineAfterBreak(line)).to.match(/\s*"mac"/);
-  });
-
-  it("should get eight @sync pragma valid lines", () => {
-    const processed = PragmaUtil.processBeforeUpload(testSettings);
-    expect(PragmaUtil.matchPragmaSettings(processed).length).to.be.equals(8);
   });
 
   it("should uncomment all lines", () => {
@@ -97,4 +76,27 @@ describe("Process before upload", function() {
     const possibleJson = PragmaUtil.removeAllComments(testSettings);
     expect(JSON.parse.bind(null, possibleJson)).to.not.throw();
   });
+
+  it("should parse multi-line settings", () => {
+    const commentedSettings = `{
+      // @sync os=linux
+      // "multi": {
+            "setting": false,
+          },
+      // @sync os=mac
+        "mac": 1
+    }`;
+    const processed = PragmaUtil.processBeforeWrite(
+      commentedSettings,
+      commentedSettings,
+      OsType.Mac,
+      null
+    );
+    expect(processed)
+      .to.match(/\/{2}\s+"multi"/)
+      .and.to.match(/\/{2}\s+"multi"/)
+      .and.to.match(/\/{2}\s+"setting"/)
+      .and.to.match(/\/{2}\s+},/)
+      .and.to.match(/\s+"mac"/);
+  })
 });
