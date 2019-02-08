@@ -171,7 +171,6 @@
   "dependencies": {
     "@octokit/rest": "^16.2.0",
     "adm-zip": "^0.4.13",
-    "chokidar": "^2.0.4",
     "fs-extra": "^7.0.1",
     "https-proxy-agent": "^2.2.1",
     "lockfile": "^1.0.4",
