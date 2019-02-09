@@ -100,7 +100,7 @@ export default class Commons {
       this.en.ExtensionFolder + "*"
     );
     Commons.configWatcher = vscode.workspace.createFileSystemWatcher(
-      this.en.PATH + "/User/" + "**"
+      this.en.PATH + "/User/" + "{*,*/*,*/*/*}" // depth: 2
     );
 
     // TODO : Uncomment the following lines when code allows feature to update Issue in github code repo - #14444
