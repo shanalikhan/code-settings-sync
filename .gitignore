@@ -1,7 +1,6 @@
 out
 node_modules
+package-lock.json
 *.vsix
-package-lock.json
 *.lock
-package-lock.json
 *.log
