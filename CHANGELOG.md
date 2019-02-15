@@ -2,16 +2,22 @@
 
 [![Version](https://vsmarketplacebadge.apphb.com/version/Shan.code-settings-sync.svg)](https://marketplace.visualstudio.com/items?itemName=Shan.code-settings-sync) [![Travis](https://img.shields.io/travis/rust-lang/rust.svg)](https://marketplace.visualstudio.com/items?itemName=Shan.code-settings-sync) [![Master course](https://img.shields.io/badge/Supported%20by-VSCode%20Power%20User%20Course%20%E2%86%92-gray.svg?colorA=444444&colorB=4F44D6)](https://t.co/8BEMyhpKU5?amp=1)
 
-#### Version - 3.2.3 - 11 Dec, 2018
+#### v3.2.5 - Feb 15,2018
+
+* Bug : Not working with VSCode 1.31 [#762](https://github.com/shanalikhan/code-settings-sync/issues/762) -  Thanks for PR [#763](https://github.com/shanalikhan/code-settings-sync/pull/763) by [@nekonenene](https://github.com/nekonenene)
+* Bug : Multi-line settings aren't ignored properly using sync pragma [#701](https://github.com/shanalikhan/code-settings-sync/issues/701) -  Thanks for PR [#750](https://github.com/shanalikhan/code-settings-sync/pull/750) by [@ioprotium](https://github.com/ioprotium)
+* Packages updated, small improvements
+
+#### v3.2.3 - 11 Dec, 2018
 
 * Startup : Long startup activation time on the first start [#656](https://github.com/shanalikhan/code-settings-sync/issues/656) -  Thanks for PR [#717](https://github.com/shanalikhan/code-settings-sync/pull/717) by [@thejewdude](https://github.com/thejewdude)
 * Feature : Adding coder.com support [#714](https://github.com/shanalikhan/code-settings-sync/issues/714) - Thanks for PR [#720](https://github.com/shanalikhan/code-settings-sync/pull/720) by [@deansheather](https://github.com/deansheather)
 
-#### Version - 3.2.2 - 26 Nov, 2018
+#### v3.2.2 - 26 Nov, 2018
 
 * Sync Advance Setting Menu doesnt open when JSON not Valid [#683](https://github.com/shanalikhan/code-settings-sync/issues/683)
 
-#### Version - 3.2.1 - 23 Nov, 2018
+#### v3.2.1 - 23 Nov, 2018
 
 * Bug : Only install missing extensions in Portable Vs Code [#687](https://github.com/shanalikhan/code-settings-sync/issues/687)
 * Bug : Error: Cannot read property 'token' of undefined [#685](https://github.com/shanalikhan/code-settings-sync/issues/685)
@@ -19,7 +25,7 @@
 * Bug : Download of extension packages failed [#642](https://github.com/shanalikhan/code-settings-sync/issues/642) - Thanks for PR [#705](https://github.com/shanalikhan/code-settings-sync/pull/705) by [@emptyother](https://github.com/emptyother)
 
 
-#### Version - 3.2.0 - 17 Oct, 2018
+#### v3.2.0 - 17 Oct, 2018
 
 * Prompt to reload VSCode after installing extensions [#629](https://github.com/shanalikhan/code-settings-sync/issues/629)
 * Keep output of CLI installation command [#628](https://github.com/shanalikhan/code-settings-sync/issues/628)
@@ -31,15 +37,15 @@
 * Idea/Suggestion: Adds support to sync custom files [#258](https://github.com/shanalikhan/code-settings-sync/issues/258) - Thanks for PR [#258](https://github.com/shanalikhan/code-settings-sync/pull/258) by [@tkrtmy](https://github.com/tkrtmy)
 
 
-#### Version - 3.1.2
+#### v3.1.2
 * Extension CLI Download Improvements.
 
-#### Version - 3.1.1
+#### v3.1.1
 * Fixed : Extension Download fails for Code Insiders and mac Users [#618](https://github.com/shanalikhan/code-settings-sync/issues/618)
 * Fixed : Upload issues for mac [#622](https://github.com/shanalikhan/code-settings-sync/issues/622)
 
 
-#### Version - 3.1.0
+#### v3.1.0
 * Option to Install Extensions Using CLI [#434](https://github.com/shanalikhan/code-settings-sync/issues/434)
     - Code Team hasn't provided API to install extension, but as CLI is available Settings Sync will start using code cli to download extensions. Live Status will be displayed while downloading.
     - Note : This feature wont work in Mac as I cant test on Mac. You will be facing problems, for this I need Mac users to help and fix it.
@@ -55,7 +61,7 @@
 * Ignored extensions can be accidentally deleted if removeExtensions is enabled. - Thanks for PR [#604](https://github.com/shanalikhan/code-settings-sync/pull/604) by [@leepowellcouk](https://github.com/leepowellcouk)
 * Error Translation - Thanks for PR [#616](https://github.com/shanalikhan/code-settings-sync/pull/616) by [@Xiongqi-XQ](https://github.com/Xiongqi-XQ)
 
-#### Version - 3.0.0
+#### v3.0.0
 
 * Bug Fix for OSS Variant  [#549](https://github.com/shanalikhan/code-settings-sync/issues/549) - Thanks for PR [@rudfoss](https://github.com/rudfoss)
 * Support i18n for extension - Currently Supports English and Chinese [#581](https://github.com/shanalikhan/code-settings-sync/issues/581) - Thanks for PR [@axetroy](https://github.com/axetroy)
