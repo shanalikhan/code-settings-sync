@@ -1,5 +1,4 @@
 "use strict";
-import * as chokidar from "chokidar";
 import * as fs from "fs-extra";
 import * as vscode from "vscode";
 import { Environment } from "./environmentPath";
@@ -97,14 +96,12 @@ export default class Commons {
     }
 
     let uploadStopped: boolean = true;
-    Commons.extensionWatcher = chokidar.watch(this.en.ExtensionFolder, {
-      depth: 0,
-      ignoreInitial: true
-    });
-    Commons.configWatcher = chokidar.watch(this.en.PATH + "/User/", {
-      depth: 2,
-      ignoreInitial: true
-    });
+    Commons.extensionWatcher = vscode.workspace.createFileSystemWatcher(
+      this.en.ExtensionFolder + "*"
+    );
+    Commons.configWatcher = vscode.workspace.createFileSystemWatcher(
+      this.en.PATH + "/User/" + "{*,*/*,*/*/*}" // depth: 2
+    );
 
     // TODO : Uncomment the following lines when code allows feature to update Issue in github code repo - #14444
 
@@ -137,7 +134,9 @@ export default class Commons {
     //     }
     // });
 
-    Commons.configWatcher.on("change", async (path: string) => {
+    Commons.configWatcher.onDidChange(async (uri: vscode.Uri) => {
+      const path: string = uri.path;
+
       // check sync is locking
       if (await lockfile.Check(this.en.FILE_SYNC_LOCK)) {
         uploadStopped = false;
@@ -234,10 +233,10 @@ export default class Commons {
 
   public CloseWatch(): void {
     if (Commons.configWatcher != null) {
-      Commons.configWatcher.close();
+      Commons.configWatcher.dispose();
     }
     if (Commons.extensionWatcher != null) {
-      Commons.extensionWatcher.close();
+      Commons.extensionWatcher.dispose();
     }
   }
 

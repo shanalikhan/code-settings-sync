@@ -5,7 +5,7 @@ about: "Bugs, missing documentation, or unexpected behavior \U0001F914"
 ---
 
 🐛 **Describe the bug**  
-A clear and concise description of what the bug is.
+A clear and concise description of what the bug is. You are always welcome to check the [Troubleshooting](https://github.com/shanalikhan/code-settings-sync/wiki/Troubleshooting) section before filing the ticket.
 
 
 🌴 **Visual Studio Code Version :** [ VERSION_HERE ] 
