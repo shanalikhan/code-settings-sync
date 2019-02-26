@@ -81,8 +81,6 @@ export class Environment {
       this.isInsiders ? "-insiders" : this.isOss ? "-oss" : ""
     }`;
 
-    process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
-
     if (!this.isPortable) {
       if (process.platform === "darwin") {
         this.PATH = process.env.HOME + "/Library/Application Support";
