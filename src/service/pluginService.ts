@@ -9,8 +9,8 @@ import * as util from "../util";
 const apiPath =
   "https://marketplace.visualstudio.com/_apis/public/gallery/extensionquery";
 
-const extensionDir: string = ".vscode";
-const extensionDirPortable: string = "/data/extensions/";
+const extensionDir: string = ".vscode/";
+const extensionDirPortable: string = "/extensions/";
 
 export class ExtensionInformation {
   public static fromJSON(text: string) {
