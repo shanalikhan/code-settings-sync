@@ -2,6 +2,13 @@
 
 [![Version](https://vsmarketplacebadge.apphb.com/version/Shan.code-settings-sync.svg)](https://marketplace.visualstudio.com/items?itemName=Shan.code-settings-sync) [![Travis](https://img.shields.io/travis/rust-lang/rust.svg)](https://marketplace.visualstudio.com/items?itemName=Shan.code-settings-sync) [![Master course](https://img.shields.io/badge/Supported%20by-VSCode%20Power%20User%20Course%20%E2%86%92-gray.svg?colorA=444444&colorB=4F44D6)](https://t.co/8BEMyhpKU5?amp=1)
 
+#### v3.2.6 - March 05,2019
+
+* Bug : Syncing of extensions not working in portable mode [#756](https://github.com/shanalikhan/code-settings-sync/issues/756) -  Thanks for PR [#782](https://github.com/shanalikhan/code-settings-sync/pull/782) by [@LuisUrrutia](https://github.com/LuisUrrutia)
+* Bug : Fixing NODE_TLS_REJECT_UNAUTHORIZED [#776](https://github.com/shanalikhan/code-settings-sync/issues/776) -  Thanks for PR [#779](https://github.com/shanalikhan/code-settings-sync/pull/779) by [@MattMorgis](https://github.com/MattMorgis)
+* Documentation Updated
+* Packages Updated
+
 #### v3.2.5 - Feb 15,2019
 
 * Bug : Not working with VSCode 1.31 [#762](https://github.com/shanalikhan/code-settings-sync/issues/762) -  Thanks for PR [#763](https://github.com/shanalikhan/code-settings-sync/pull/763) by [@nekonenene](https://github.com/nekonenene)

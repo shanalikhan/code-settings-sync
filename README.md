@@ -269,7 +269,6 @@ You can customize the sync:
         "code-snippets"
     ],
     "openTokenLink": true,
-    "useCliBaseInstallation": true,
     "lastUpload": null,
     "lastDownload": null,
     "githubEnterpriseUrl": null,
