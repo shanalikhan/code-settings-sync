@@ -158,7 +158,8 @@
     "@types/node": "^11.9.0",
     "chai": "^4.2.0",
     "clean-webpack-plugin": "^2.0.0",
-    "mocha": "^5.2.0",
+    "mocha": "^6.0.0",
+
     "prettier": "^1.16.4",
     "ts-loader": "^5.3.3",
     "tslint": "^5.12.1",
