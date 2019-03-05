@@ -1,10 +1,9 @@
-//@ts-check
-/** @typedef {import('webpack').Configuration} WebpackOptions **/
 
 "use strict";
 
 const path = require("path");
 const CleanWebpackPlugin = require("clean-webpack-plugin");
+
 
 /** @type WebpackOptions */
 const config = {
@@ -38,7 +37,7 @@ const config = {
     "original-fs": "commonjs original-fs"
   },
   devtool: "source-map",
-  plugins: [new CleanWebpackPlugin(["out"])]
+  plugins: [new CleanWebpackPlugin()]
 };
 
 module.exports = config;
