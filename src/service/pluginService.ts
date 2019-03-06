@@ -9,8 +9,6 @@ import * as util from "../util";
 const apiPath =
   "https://marketplace.visualstudio.com/_apis/public/gallery/extensionquery";
 
-const extensionDir: string = ".vscode/";
-const extensionDirPortable: string = "/extensions/";
 
 export class ExtensionInformation {
   public static fromJSON(text: string) {
@@ -160,31 +158,29 @@ export class PluginService {
     for (const ext of vscode.extensions.all) {
       console.log(ext.extensionPath);
 
-      if (
-        (ext.extensionPath.includes(extensionDir) ||
-          ext.extensionPath.includes(extensionDirPortable)) && // skip if not install from gallery
-        ext.packageJSON.isBuiltin === false
-      ) {
-        const meta = ext.packageJSON.__metadata || {
-          id: ext.packageJSON.uuid,
-          publisherId: ext.id,
-          publisherDisplayName: ext.packageJSON.publisher
-        };
-        const data = new ExtensionMetadata(
-          meta.galleryApiUrl,
-          meta.id,
-          meta.downloadUrl,
-          meta.publisherId,
-          meta.publisherDisplayName,
-          meta.date
-        );
-        const info = new ExtensionInformation();
-        info.metadata = data;
-        info.name = ext.packageJSON.name;
-        info.publisher = ext.packageJSON.publisher;
-        info.version = ext.packageJSON.version;
-        list.push(info);
+      if (ext.packageJSON.isBuiltin === true) {
+        continue;
       }
+
+      const meta = ext.packageJSON.__metadata || {
+        id: ext.packageJSON.uuid,
+        publisherId: ext.id,
+        publisherDisplayName: ext.packageJSON.publisher
+      };
+      const data = new ExtensionMetadata(
+        meta.galleryApiUrl,
+        meta.id,
+        meta.downloadUrl,
+        meta.publisherId,
+        meta.publisherDisplayName,
+        meta.date
+      );
+      const info = new ExtensionInformation();
+      info.metadata = data;
+      info.name = ext.packageJSON.name;
+      info.publisher = ext.packageJSON.publisher;
+      info.version = ext.packageJSON.version;
+      list.push(info);
     }
 
     return list;
