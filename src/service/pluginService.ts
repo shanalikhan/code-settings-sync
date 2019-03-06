@@ -9,7 +9,6 @@ import * as util from "../util";
 const apiPath =
   "https://marketplace.visualstudio.com/_apis/public/gallery/extensionquery";
 
-
 export class ExtensionInformation {
   public static fromJSON(text: string) {
     // TODO: JSON.parse may throw error
