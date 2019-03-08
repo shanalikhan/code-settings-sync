@@ -307,10 +307,10 @@ export class PluginService {
     } else if (osType === OsType.Linux) {
       if (isInsiders) {
         codeLastFolder = "code-insiders";
-        codeCliPath = "bin/code-insiders";
+        codeCliPath = "/bin/code-insiders"; // notice the '/' prefix
       } else {
         codeLastFolder = "code";
-        codeCliPath = "bin/code";
+        codeCliPath =  "/bin/code"; // notice the '/' prefix
       }
     } else if (osType === OsType.Mac) {
       codeLastFolder = "Frameworks";
