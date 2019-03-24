@@ -268,7 +268,7 @@ export default class Commons {
 
   public CloseWatch(): void {
     if (Commons.configWatcher) {
-      Commons.configWatcher = null;
+      Commons.configWatcher.close();
     }
   }
 
