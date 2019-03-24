@@ -30,7 +30,7 @@ Steps to reproduce the behavior:
 A clear and concise description of what you expected to happen.
 
 📺 **Console Error Log** 
-If applicable, add screenshots or paste the console log from developer console of VSCode.
+If applicable, add screenshots or paste the console log from developer console of VSCode (Help Menu > Developer Tool - Console Tab). 
 
 📺  **Additional context**
 Add any other context about the problem here.
