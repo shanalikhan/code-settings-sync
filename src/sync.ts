@@ -48,13 +48,7 @@ export class Sync {
         startUpSetting.gist != null && startUpSetting.gist !== "";
 
       if (gistAvailable === true && startUpSetting.autoDownload === true) {
-        vscode.commands
-          .executeCommand("extension.downloadSettings")
-          .then(() => {
-            if (startUpSetting.autoUpload && tokenAvailable && gistAvailable) {
-              return globalCommonService.StartWatch();
-            }
-          });
+        vscode.commands.executeCommand("extension.downloadSettings");
       }
       if (startUpSetting.autoUpload && tokenAvailable && gistAvailable) {
         return globalCommonService.StartWatch();
@@ -65,6 +59,7 @@ export class Sync {
    * Upload setting to github gist
    */
   public async upload(): Promise<void> {
+    console.log("uploading");
     const args = arguments;
     const env = new Environment(this.context);
     const common = new Commons(env, this.context);

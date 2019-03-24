@@ -1,4 +1,5 @@
 "use strict";
+import { watch } from "chokidar";
 import * as fs from "fs-extra";
 import * as vscode from "vscode";
 import { Environment } from "./environmentPath";
@@ -73,7 +74,6 @@ export default class Commons {
   }
 
   private static configWatcher = null;
-  private static extensionWatcher = null;
 
   public ERROR_MESSAGE: string = localize("common.error.message");
 
@@ -96,12 +96,10 @@ export default class Commons {
     }
 
     let uploadStopped: boolean = true;
-    Commons.extensionWatcher = vscode.workspace.createFileSystemWatcher(
-      this.en.ExtensionFolder + "*"
-    );
-    Commons.configWatcher = vscode.workspace.createFileSystemWatcher(
-      this.en.PATH + "/User/" + "{*,*/*,*/*/*}" // depth: 2
-    );
+    Commons.configWatcher = watch(`${this.en.PATH}/User/`, {
+      ignoreInitial: true,
+      depth: 2
+    });
 
     // TODO : Uncomment the following lines when code allows feature to update Issue in github code repo - #14444
 
@@ -134,9 +132,51 @@ export default class Commons {
     //     }
     // });
 
-    Commons.configWatcher.onDidChange(async (uri: vscode.Uri) => {
-      const path: string = uri.path;
+    vscode.extensions.onDidChange(async () => {
+      if (await lockfile.Check(this.en.FILE_SYNC_LOCK)) {
+        uploadStopped = false;
+      }
 
+      if (!uploadStopped) {
+        vscode.window.setStatusBarMessage("").dispose();
+        vscode.window.setStatusBarMessage(
+          localize("common.info.updating"),
+          3000
+        );
+        return false;
+      }
+      uploadStopped = false;
+      await lockfile.Lock(this.en.FILE_SYNC_LOCK);
+      const settings: ExtensionConfig = this.GetSettings();
+      const customSettings: CustomSettings = await this.GetCustomSettings();
+      if (customSettings == null) {
+        return lockfile.Unlock(this.en.FILE_SYNC_LOCK);
+      }
+
+      const requiredFileChanged: boolean = true;
+
+      console.log("Sync : Folder Change Detected");
+
+      if (requiredFileChanged) {
+        if (settings.autoUpload) {
+          console.log("Sync : Initiating Auto-upload");
+          this.InitiateAutoUpload()
+            .then(isDone => {
+              uploadStopped = isDone;
+              return lockfile.Unlock(this.en.FILE_SYNC_LOCK);
+            })
+            .catch(() => {
+              uploadStopped = true;
+              return lockfile.Unlock(this.en.FILE_SYNC_LOCK);
+            });
+        }
+      } else {
+        uploadStopped = true;
+        await lockfile.Unlock(this.en.FILE_SYNC_LOCK);
+      }
+    });
+
+    Commons.configWatcher.on("change", async (path: string) => {
       // check sync is locking
       if (await lockfile.Check(this.en.FILE_SYNC_LOCK)) {
         uploadStopped = false;
@@ -150,13 +190,12 @@ export default class Commons {
         );
         return false;
       }
-
       uploadStopped = false;
       await lockfile.Lock(this.en.FILE_SYNC_LOCK);
       const settings: ExtensionConfig = this.GetSettings();
       const customSettings: CustomSettings = await this.GetCustomSettings();
       if (customSettings == null) {
-        return;
+        return lockfile.Unlock(this.en.FILE_SYNC_LOCK);
       }
 
       let requiredFileChanged: boolean = false;
@@ -191,12 +230,12 @@ export default class Commons {
                 "Sync : Cannot Initiate Auto-upload on This File (Not JSON)."
               );
               uploadStopped = true;
-              return;
+              return lockfile.Unlock(this.en.FILE_SYNC_LOCK);
             }
           }
 
           console.log("Sync : Initiating Auto-upload For File : " + path);
-          this.InitiateAutoUpload(path)
+          this.InitiateAutoUpload()
             .then(isDone => {
               uploadStopped = isDone;
               return lockfile.Unlock(this.en.FILE_SYNC_LOCK);
@@ -213,7 +252,7 @@ export default class Commons {
     });
   }
 
-  public async InitiateAutoUpload(path: string): Promise<boolean> {
+  public async InitiateAutoUpload(): Promise<boolean> {
     vscode.window.setStatusBarMessage("").dispose();
     vscode.window.setStatusBarMessage(
       localize("common.info.initAutoUpload"),
@@ -222,21 +261,14 @@ export default class Commons {
 
     await Util.Sleep(3000);
 
-    vscode.commands.executeCommand(
-      "extension.updateSettings",
-      "forceUpdate",
-      path
-    );
+    vscode.commands.executeCommand("extension.updateSettings", "forceUpdate");
 
     return true;
   }
 
   public CloseWatch(): void {
-    if (Commons.configWatcher != null) {
-      Commons.configWatcher.dispose();
-    }
-    if (Commons.extensionWatcher != null) {
-      Commons.extensionWatcher.dispose();
+    if (Commons.configWatcher) {
+      Commons.configWatcher = null;
     }
   }
 
