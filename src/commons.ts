@@ -28,6 +28,11 @@ export default class Commons {
       } else if (error.status === 4) {
         message = localize("common.error.canNotSave");
       } else if (error.message) {
+        message = error.message;
+        if (message.indexOf("spawn git ENOENT") !== -1) {
+            msgBox = true;
+            message = localize("common.error.noGit");
+        }
         try {
           message = JSON.parse(error.message).message;
           if (message.toLowerCase() === "not found") {
