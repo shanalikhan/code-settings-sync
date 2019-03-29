@@ -1,6 +1,7 @@
 {
   "ext.config.title": "Code Settings Sync Configuration Settings",
   "ext.config.gist": "GitHub GIST ID for Settings Sync.",
+  "ext.config.repoUrl": "Repository URL for Settings Sync.",
   "ext.config.lastUpload": "Settings Sync last upload date. Set it as empty if you want to manually hit download.",
   "ext.config.lastDownload": "Settings Sync last download date. Set it as empty if you want to manually hit download.",
   "ext.config.autoDownload": "Set it true to Auto Download the settings on code start. [Code Restart Required]",
@@ -107,5 +108,5 @@
   "common.prompt.enterGithubAccessToken": "You also manually add a token (User Folder / syncLocalSettings.json). Press [Enter] or [Esc] to cancel.",
   "common.prompt.restartCode": "Do you want to reload to apply extensions and configurations?",
   "common.button.yes" :"Yes"
-  
+
 }

@@ -103,6 +103,11 @@
           "default": "",
           "description": "%ext.config.gist%"
         },
+        "sync.repoUrl": {
+          "type": "string",
+          "default": "",
+          "description": "%ext.config.repoUrl%"
+        },
         "sync.autoDownload": {
           "type": "boolean",
           "default": false,

@@ -3,6 +3,7 @@ import { Environment } from "./environmentPath";
 
 export class ExtensionConfig {
   public gist: string = null;
+  public repoUrl: string = null;
   public quietSync: boolean = false;
   public removeExtensions: boolean = true;
   public syncExtensions: boolean = true;
