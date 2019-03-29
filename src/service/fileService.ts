@@ -12,6 +12,8 @@ export class File {
   ) {}
 }
 export class FileService {
+  public static CUSTOMIZED_SYNC_PREFIX = "|customized_sync|";
+
   public static async ReadFile(filePath: string): Promise<string> {
     try {
       const data = await fs.readFile(filePath, { encoding: "utf8" });
@@ -184,6 +186,29 @@ export class FileService {
     }
   }
 
+  public static async GetCustomFile(
+    filePath: string,
+    fileName: string
+  ): Promise<File> {
+    const fileExists: boolean = await FileService.FileExists(filePath);
+
+    if (!fileExists) {
+      return null;
+    }
+
+    const content = await FileService.ReadFile(filePath);
+
+    if (content === null) {
+      return null;
+    }
+
+    // for identifing Customized Sync file
+    const gistName: string = FileService.CUSTOMIZED_SYNC_PREFIX + fileName;
+
+    const file: File = new File(fileName, content, filePath, gistName);
+    return file;
+  }
+
   public static async CreateDirectory(name: string): Promise<boolean> {
     try {
       await fs.mkdir(name);
@@ -194,6 +219,18 @@ export class FileService {
       }
       throw err;
     }
+  }
+
+  public static async CreateCustomDirTree(filePath: string): Promise<string> {
+    const dir = $path.dirname(filePath);
+    const fileExists = await FileService.FileExists(dir);
+
+    if (!fileExists) {
+      // mkdir recursively
+      await fs.mkdirs(dir);
+    }
+
+    return filePath;
   }
 
   public static ExtractFileName(fullPath: string): string {
