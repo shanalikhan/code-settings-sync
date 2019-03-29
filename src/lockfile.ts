@@ -1,4 +1,4 @@
-import * as lockfile from "lockfile";
+import { check, lock, unlock } from "lockfile";
 import { Util } from "./util";
 
 interface IOptions {
@@ -19,16 +19,16 @@ export function Check(
   filepath: string,
   options: IOptions = {}
 ): Promise<boolean> {
-  return Util.promisify(lockfile.check)(filepath, options);
+  return Util.promisify(check)(filepath, options);
 }
 
 export function Lock(
   filepath: string,
   options: IOptions = {}
 ): Promise<boolean> {
-  return Util.promisify(lockfile.lock)(filepath, options);
+  return Util.promisify(lock)(filepath, options);
 }
 
 export function Unlock(filepath: string): Promise<boolean> {
-  return Util.promisify(lockfile.unlock)(filepath);
+  return Util.promisify(unlock)(filepath);
 }
