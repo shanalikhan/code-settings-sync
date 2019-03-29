@@ -334,7 +334,7 @@ export default class Commons {
       delete json.ignoreUploadSettings;
       await FileService.WriteFile(
         this.en.FILE_CUSTOMIZEDSETTINGS,
-        JSON.stringify(json)
+        JSON.stringify(json, null, 4)
       );
       return true;
     } catch (e) {
