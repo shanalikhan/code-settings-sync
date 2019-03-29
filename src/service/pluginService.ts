@@ -1,6 +1,6 @@
 "use strict";
 import * as fs from "fs-extra";
-import * as path from "path";
+import * as $path from "path";
 import * as vscode from "vscode";
 
 import { OsType } from "../enums";
@@ -10,33 +10,32 @@ const apiPath =
   "https://marketplace.visualstudio.com/_apis/public/gallery/extensionquery";
 
 export class ExtensionInformation {
-  public static fromJSON(text: string) {
-    // TODO: JSON.parse may throw error
-    // Throw custom error should be more friendly
-    const obj = JSON.parse(text);
-    const meta = new ExtensionMetadata(
-      obj.meta.galleryApiUrl,
-      obj.meta.id,
-      obj.meta.downloadUrl,
-      obj.meta.publisherId,
-      obj.meta.publisherDisplayName,
-      obj.meta.date
-    );
-    const item = new ExtensionInformation();
-    item.metadata = meta;
-    item.name = obj.name;
-    item.publisher = obj.publisher;
-    item.version = obj.version;
-    return item;
+  public static async fromJSON(text: string) {
+    try {
+      const obj = JSON.parse(text);
+      const meta = new ExtensionMetadata(
+        obj.meta.galleryApiUrl,
+        obj.meta.id,
+        obj.meta.downloadUrl,
+        obj.meta.publisherId,
+        obj.meta.publisherDisplayName,
+        obj.meta.date
+      );
+      const item = new ExtensionInformation();
+      item.metadata = meta;
+      item.name = obj.name;
+      item.publisher = obj.publisher;
+      item.version = obj.version;
+      return item;
+    } catch (e) {
+      console.error(`Sync: Invalid JSON [fromJSON()]; error: ${{ e }}`);
+    }
   }
 
   public static fromJSONList(text: string) {
     const extList: ExtensionInformation[] = [];
     try {
-      // TODO: JSON.parse may throw error
-      // Throw custom error should be more friendly
-      const list = JSON.parse(text);
-      list.forEach(obj => {
+      JSON.parse(text).forEach(obj => {
         const meta = new ExtensionMetadata(
           obj.metadata.galleryApiUrl,
           obj.metadata.id,
@@ -55,8 +54,8 @@ export class ExtensionInformation {
           extList.push(item);
         }
       });
-    } catch (err) {
-      console.error("Sync : Unable to Parse extensions list", err);
+    } catch (e) {
+      console.error(`Sync: Invalid JSON [fromJSONList()]; error: ${{ e }}`);
     }
 
     return extList;
@@ -155,8 +154,6 @@ export class PluginService {
     const list: ExtensionInformation[] = [];
 
     for (const ext of vscode.extensions.all) {
-      console.log(ext.extensionPath);
-
       if (ext.packageJSON.isBuiltin === true) {
         continue;
       }
@@ -189,7 +186,7 @@ export class PluginService {
     item: ExtensionInformation,
     ExtensionFolder: string
   ): Promise<boolean> {
-    const destination = path.join(
+    const destination = $path.join(
       ExtensionFolder,
       item.publisher + "." + item.name + "-" + item.version
     );
@@ -197,10 +194,8 @@ export class PluginService {
     try {
       await fs.remove(destination);
       return true;
-    } catch (err) {
-      console.log("Sync : " + "Error in uninstalling Extension.");
-      console.log(err);
-      throw err;
+    } catch (e) {
+      console.error(`Sync: Error in uninstalling Extension; error: ${{ e }}`);
     }
   }
 
@@ -225,10 +220,9 @@ export class PluginService {
         deletedExt.push(selectedExtension);
       } catch (err) {
         console.error(
-          "Sync : Unable to delete extension " +
-            selectedExtension.name +
-            " " +
+          `Sync: Unable to delete extension ${selectedExtension.name} ${
             selectedExtension.version
+          }`
         );
         console.error(err);
         throw deletedExt;
@@ -253,7 +247,7 @@ export class PluginService {
       ignoredExtensions
     );
     if (missingList.length === 0) {
-      notificationCallBack("Sync : No Extensions needs to be installed.");
+      notificationCallBack("Sync: No Extensions needs to be installed.");
       return [];
     }
 
@@ -373,7 +367,7 @@ export class PluginService {
           () => {
             totalInstalled = totalInstalled + 1;
             notificationCallBack(
-              "Sync : Extension " +
+              "Sync: Extension " +
                 totalInstalled +
                 " of " +
                 missingList.length.toString() +
@@ -385,7 +379,7 @@ export class PluginService {
           (err: any) => {
             console.error(err);
             notificationCallBack(
-              "Sync : " + element.name + " Download Failed.",
+              "Sync: " + element.name + " Download Failed.",
               true
             );
           }
@@ -461,7 +455,7 @@ export class PluginService {
       } catch (error) {
         if (error === "NA" || error.message === "NA") {
           console.error(
-            "Sync : Extension : '" +
+            "Sync: Extension : '" +
               item.name +
               "' - Version : '" +
               item.version +
@@ -487,15 +481,15 @@ export class PluginService {
       await PluginService.WritePackageJson(extractPath, text);
 
       // Move the folder to correct path
-      const destination = path.join(
+      const destination = $path.join(
         ExtensionFolder,
         item.publisher + "." + item.name + "-" + item.version
       );
-      const source = path.join(extractPath, "extension");
+      const source = $path.join(extractPath, "extension");
       await PluginService.CopyExtension(destination, source);
     } catch (err) {
       console.error(
-        `Sync : Extension : '${item.name}' - Version : '${item.version}'` + err
+        `Sync: Extension : '${item.name}' - Version : '${item.version}'` + err
       );
       throw err;
     }

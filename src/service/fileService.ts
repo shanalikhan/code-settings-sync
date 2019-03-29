@@ -1,7 +1,7 @@
 "use strict";
 
 import * as fs from "fs-extra";
-import * as path from "path";
+import * as $path from "path";
 
 export class File {
   constructor(
@@ -12,8 +12,6 @@ export class File {
   ) {}
 }
 export class FileService {
-  public static CUSTOMIZED_SYNC_PREFIX = "|customized_sync|";
-
   public static async ReadFile(filePath: string): Promise<string> {
     try {
       const data = await fs.readFile(filePath, { encoding: "utf8" });
@@ -33,30 +31,27 @@ export class FileService {
     }
   }
 
-  public static async GetFile(
-    filePath: string,
-    fileName: string
-  ): Promise<File> {
-    const fileExists: boolean = await FileService.FileExists(filePath);
+  public static async GetFile(path: string): Promise<File> {
+    const fileExists: boolean = await FileService.FileExists(path);
 
     if (!fileExists) {
       return null;
     }
 
-    const content = await FileService.ReadFile(filePath);
+    const content = await FileService.ReadFile(path);
 
     if (content === null) {
       return null;
     }
 
-    const pathFromUser: string = filePath.substring(
-      filePath.lastIndexOf("User") + 5,
-      filePath.length
+    const pathFromUser: string = path.substring(
+      path.lastIndexOf("User") + 5,
+      path.length
     );
 
     const arr: string[] = pathFromUser.indexOf("/")
       ? pathFromUser.split("/")
-      : pathFromUser.split(path.sep);
+      : pathFromUser.split($path.sep);
 
     let gistName: string = "";
 
@@ -68,7 +63,12 @@ export class FileService {
       }
     });
 
-    const file: File = new File(fileName, content, filePath, gistName);
+    const file: File = new File(
+      this.ExtractFileName(path),
+      content,
+      path,
+      gistName
+    );
     return file;
   }
 
@@ -103,11 +103,11 @@ export class FileService {
 
     const files: File[] = [];
     for (const fileName of fileList) {
-      const fullPath: string = directory.concat(fileName);
-      if (await FileService.IsDirectory(fullPath)) {
+      const path: string = directory.concat(fileName);
+      if (await FileService.IsDirectory(path)) {
         if (depth < fullDepth) {
           for (const element of await FileService.ListFiles(
-            fullPath + "/",
+            path + "/",
             depth + 1,
             fullDepth,
             fileExtensions
@@ -116,11 +116,11 @@ export class FileService {
           }
         }
       } else {
-        const hasExtension: boolean = fullPath.lastIndexOf(".") > 0;
+        const hasExtension: boolean = path.lastIndexOf(".") > 0;
         let allowedFile: boolean = false;
         if (hasExtension) {
-          const extension: string = fullPath
-            .substr(fullPath.lastIndexOf(".") + 1, fullPath.length)
+          const extension: string = path
+            .substr(path.lastIndexOf(".") + 1, path.length)
             .toLowerCase();
           allowedFile = fileExtensions.filter(m => m === extension).length > 0;
         } else {
@@ -128,7 +128,7 @@ export class FileService {
         }
 
         if (allowedFile) {
-          const file: File = await FileService.GetFile(fullPath, fileName);
+          const file: File = await FileService.GetFile(path);
           files.push(file);
         }
       }
@@ -196,46 +196,11 @@ export class FileService {
     }
   }
 
-  public static async GetCustomFile(
-    filePath: string,
-    fileName: string
-  ): Promise<File> {
-    const fileExists: boolean = await FileService.FileExists(filePath);
-
-    if (!fileExists) {
-      return null;
-    }
-
-    const content = await FileService.ReadFile(filePath);
-
-    if (content === null) {
-      return null;
-    }
-
-    // for identifing Customized Sync file
-    const gistName: string = FileService.CUSTOMIZED_SYNC_PREFIX + fileName;
-
-    const file: File = new File(fileName, content, filePath, gistName);
-    return file;
-  }
-
-  public static async CreateCustomDirTree(filePath: string): Promise<string> {
-    const dir = path.dirname(filePath);
-    const fileExists = await FileService.FileExists(dir);
-
-    if (!fileExists) {
-      // mkdir recursively
-      await fs.mkdirs(dir);
-    }
-
-    return filePath;
-  }
-
   public static ExtractFileName(fullPath: string): string {
-    return path.basename(fullPath);
+    return $path.basename(fullPath);
   }
 
   public static ConcatPath(...filePaths: string[]): string {
-    return filePaths.join(path.sep);
+    return filePaths.join($path.sep);
   }
 }

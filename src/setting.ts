@@ -29,29 +29,40 @@ export class KeyValue<T, S> {
 }
 
 export class CustomSettings {
-  public ignoreUploadFiles: string[] = [
-    "projects.json",
-    "projects_cache_vscode.json",
-    "projects_cache_git.json",
-    "projects_cache_svn.json",
-    "gpm_projects.json",
-    "gpm-recentItems.json"
-  ];
-  public ignoreUploadFolders: string[] = ["workspaceStorage"];
+  public repoSettings = {
+    ignoredItems: [
+      "syncLocalSettings",
+      "workspaceStorage",
+      "globalStorage/state.vscdb"
+    ],
+    repo: ""
+  };
+  public gistSettings = {
+    ignoreUploadFiles: [
+      "projects.json",
+      "projects_cache_vscode.json",
+      "projects_cache_git.json",
+      "projects_cache_svn.json",
+      "gpm_projects.json",
+      "gpm-recentItems.json"
+    ],
+    ignoreUploadFolders: ["workspaceStorage"],
+    customFiles: {},
+    githubEnterpriseUrl: null,
+    askGistName: false,
+    downloadPublicGist: false,
+    token: "",
+    supportedFileExtensions: ["json", "code-snippets"],
+    openTokenLink: true,
+    gistDescription: "Visual Studio Code Settings Sync Gist"
+  };
   public ignoreExtensions: string[] = [];
   public ignoreUploadSettings: string[] = [];
   public replaceCodeSettings: { [key: string]: any } = {};
-  public gistDescription: string = "Visual Studio Code Settings Sync Gist";
   public version: number = Environment.CURRENT_VERSION;
-  public token: string = "";
-  public downloadPublicGist: boolean = false;
-  public supportedFileExtensions: string[] = ["json", "code-snippets"];
-  public openTokenLink: boolean = true;
   public disableUpdateMessage: boolean = false;
   public lastUpload: Date = null;
   public lastDownload: Date = null;
-  public githubEnterpriseUrl: string = null;
-  public askGistName: boolean = false;
-  public customFiles: { [key: string]: string } = {};
   public hostName: string = null;
+  public method = null;
 }

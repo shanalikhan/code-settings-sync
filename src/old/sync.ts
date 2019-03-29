@@ -7,7 +7,7 @@ import { Environment } from "./environmentPath";
 import localize from "./localize";
 import * as lockfile from "./lockfile";
 import { File, FileService } from "./service/fileService";
-import { GitHubService } from "./service/gistService";
+import { GitHubService } from "./service/githubService";
 import { RepoService } from "./service/repoService";
 import { ExtensionInformation, PluginService } from "./service/pluginService";
 import {
@@ -354,13 +354,13 @@ export class Sync {
             if (gistOwnerName !== userName) {
               Commons.LogException(
                 null,
-                "Sync: You cant edit GIST for user : " +
+                "Sync : You cant edit GIST for user : " +
                   gistObj.data.owner.login,
                 true,
                 () => {
-                  console.log("Sync: Current User : " + "'" + userName + "'");
+                  console.log("Sync : Current User : " + "'" + userName + "'");
                   console.log(
-                    "Sync: Gist Owner User : " + "'" + gistOwnerName + "'"
+                    "Sync : Gist Owner User : " + "'" + gistOwnerName + "'"
                   );
                 }
               );
@@ -487,7 +487,7 @@ export class Sync {
       const res = await github.ReadGist(syncSetting.gist);
 
       if (!res) {
-        Commons.LogException(res, "Sync: Unable to Read Gist.", true);
+        Commons.LogException(res, "Sync : Unable to Read Gist.", true);
         return;
       }
 
@@ -645,7 +645,7 @@ export class Sync {
                       console.log(message);
                       if (dispose) {
                         vscode.window.setStatusBarMessage(
-                          "Sync: " + message,
+                          "Sync : " + message,
                           3000
                         );
                       }
@@ -805,7 +805,7 @@ export class Sync {
     } catch (err) {
       Commons.LogException(
         err,
-        "Sync: Unable to clear settings. Error Logged on console. Please open an issue.",
+        "Sync : Unable to clear settings. Error Logged on console. Please open an issue.",
         true
       );
     }
@@ -1130,7 +1130,7 @@ export class Sync {
           .catch(err => {
             Commons.LogException(
               err,
-              "Sync: Unable to toggle. Please open an issue.",
+              "Sync : Unable to toggle. Please open an issue.",
               true
             );
           });
@@ -1151,7 +1151,7 @@ export class Sync {
     );
     const res = await github.ReadGist(syncSetting.gist);
     if (!res) {
-      Commons.LogException(res, "Sync: Unable to Read Gist.", true);
+      Commons.LogException(res, "Sync : Unable to Read Gist.", true);
       return [];
     }
     const keys = Object.keys(res.data.files);

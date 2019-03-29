@@ -52,28 +52,7 @@ export default class Commons {
     }
   }
 
-  public static GetInputBox(token: boolean) {
-    if (token) {
-      const options: vscode.InputBoxOptions = {
-        placeHolder: localize("common.placeholder.enterGithubAccessToken"),
-        password: false,
-        prompt: localize("common.prompt.enterGithubAccessToken"),
-        ignoreFocusOut: true
-      };
-      return options;
-    } else {
-      const options: vscode.InputBoxOptions = {
-        placeHolder: localize("common.placeholder.enterGistId"),
-        password: false,
-        prompt: localize("common.prompt.enterGistId"),
-        ignoreFocusOut: true
-      };
-      return options;
-    }
-  }
-
-  private static configWatcher = null;
-  private static extensionWatcher = null;
+  private static configWatcher;
 
   public ERROR_MESSAGE: string = localize("common.error.message");
 
@@ -116,7 +95,7 @@ export default class Commons {
     //     }
     //     else {
     //         vscode.window.setStatusBarMessage("");
-    //         vscode.window.setStatusBarMessage("Sync : Updating In Progres... Please Wait.", 3000);
+    //         vscode.window.setStatusBarMessage("Sync: Updating In Progres... Please Wait.", 3000);
     //     }
     // });
     // Commons.extensionWatcher.on('unlinkDir', (path)=> {
@@ -130,7 +109,7 @@ export default class Commons {
     //     }
     //     else {
     //         vscode.window.setStatusBarMessage("");
-    //         vscode.window.setStatusBarMessage("Sync : Updating In Progres... Please Wait.", 3000);
+    //         vscode.window.setStatusBarMessage("Sync: Updating In Progres... Please Wait.", 3000);
     //     }
     // });
 
@@ -161,7 +140,9 @@ export default class Commons {
 
       let requiredFileChanged: boolean = false;
       if (
-        customSettings.ignoreUploadFolders.indexOf("workspaceStorage") === -1
+        customSettings.gistSettings.ignoreUploadFolders.indexOf(
+          "workspaceStorage"
+        ) === -1
       ) {
         requiredFileChanged =
           path.indexOf(this.en.FILE_SYNC_LOCK_NAME) === -1 &&
@@ -175,12 +156,14 @@ export default class Commons {
           path.indexOf(this.en.FILE_CUSTOMIZEDSETTINGS_NAME) === -1;
       }
 
-      console.log("Sync : File Change Detected On : " + path);
+      console.log("Sync: File Change Detected On : " + path);
 
       if (requiredFileChanged) {
         if (settings.autoUpload) {
           if (
-            customSettings.ignoreUploadFolders.indexOf("workspaceStorage") > -1
+            customSettings.gistSettings.ignoreUploadFolders.indexOf(
+              "workspaceStorage"
+            ) > -1
           ) {
             const fileType: string = path.substring(
               path.lastIndexOf("."),
@@ -188,14 +171,14 @@ export default class Commons {
             );
             if (fileType.indexOf("json") === -1) {
               console.log(
-                "Sync : Cannot Initiate Auto-upload on This File (Not JSON)."
+                "Sync: Cannot Initiate Auto-upload on This File (Not JSON)."
               );
               uploadStopped = true;
               return;
             }
           }
 
-          console.log("Sync : Initiating Auto-upload For File : " + path);
+          console.log("Sync: Initiating Auto-upload For File : " + path);
           this.InitiateAutoUpload(path)
             .then(isDone => {
               uploadStopped = isDone;
@@ -240,39 +223,45 @@ export default class Commons {
     }
   }
 
-  public async InitalizeSettings(
-    askToken: boolean,
-    askGist: boolean
-  ): Promise<LocalConfig> {
+  public async InitalizeSettings(): Promise<LocalConfig> {
     const settings: LocalConfig = new LocalConfig();
     const extSettings: ExtensionConfig = this.GetSettings();
     const cusSettings: CustomSettings = await this.GetCustomSettings();
 
-    if (cusSettings.token === "") {
-      if (askToken === true) {
-        askToken = !cusSettings.downloadPublicGist;
+    if (!cusSettings.method) {
+      const method: string = await this.AskForInput({
+        prompt: "Enter save mechanism ('gist' or 'repo'):"
+      });
+      if (method === "gist" || method === "repo") {
+        cusSettings.method = method;
+      } else {
+        const msg = localize("common.error.tokenNotSave");
+        vscode.window.showErrorMessage(msg);
       }
+    }
 
-      if (askToken) {
-        if (cusSettings.openTokenLink) {
+    if (cusSettings.method === "gist") {
+      if (cusSettings.gistSettings.token === "") {
+        if (cusSettings.gistSettings.openTokenLink) {
           vscode.commands.executeCommand(
             "vscode.open",
             vscode.Uri.parse("https://github.com/settings/tokens")
           );
         }
-        const tokTemp: string = await this.GetTokenAndSave(cusSettings);
+        const tokTemp: string = await this.AskForInput({
+          prompt: "Enter token:"
+        });
         if (!tokTemp) {
           const msg = localize("common.error.tokenNotSave");
           vscode.window.showErrorMessage(msg);
           throw new Error(msg);
         }
-        cusSettings.token = tokTemp;
+        cusSettings.gistSettings.token = tokTemp;
       }
-    }
-
-    if (extSettings.gist === "") {
-      if (askGist) {
-        const gistTemp: string = await this.GetGistAndSave(extSettings);
+      if (extSettings.gist === "") {
+        const gistTemp: string = await this.AskForInput({
+          prompt: "Enter Gist ID:"
+        });
         if (!gistTemp) {
           const msg = localize("common.error.gistNotSave");
           vscode.window.showErrorMessage(msg);
@@ -281,8 +270,26 @@ export default class Commons {
         extSettings.gist = gistTemp;
       }
     }
+
+    if (cusSettings.method === "repo") {
+      if (cusSettings.repoSettings.repo === "") {
+        const temp: string = await this.AskForInput({
+          prompt:
+            "Enter repo url (https://username:token@host.com/username/repo.git):"
+        });
+        if (!temp) {
+          const msg = localize("common.error.tokenNotSave");
+          vscode.window.showErrorMessage(msg);
+          throw new Error(msg);
+        }
+        cusSettings.repoSettings.repo = temp;
+      }
+    }
+
     settings.customConfig = cusSettings;
     settings.extConfig = extSettings;
+
+    this.SetCustomSettings(cusSettings);
     return settings;
   }
 
@@ -304,13 +311,13 @@ export default class Commons {
           tempObj.ignoreUploadSettings = [];
         }
         Object.assign(customSettings, tempObj);
-        customSettings.token = customSettings.token.trim();
+        customSettings.gistSettings.token = customSettings.gistSettings.token.trim();
         return customSettings;
       }
     } catch (e) {
       Commons.LogException(
         e,
-        "Sync : Unable to read " +
+        "Sync: Unable to read " +
           this.en.FILE_CUSTOMIZEDSETTINGS_NAME +
           ". Make sure its Valid JSON.",
         true
@@ -340,7 +347,7 @@ export default class Commons {
     } catch (e) {
       Commons.LogException(
         e,
-        "Sync : Unable to write " + this.en.FILE_CUSTOMIZEDSETTINGS_NAME,
+        "Sync: Unable to write " + this.en.FILE_CUSTOMIZEDSETTINGS_NAME,
         true
       );
       return false;
@@ -385,7 +392,7 @@ export default class Commons {
       if (this.context.globalState.get("synctoken")) {
         const token = this.context.globalState.get("synctoken");
         if (token !== "") {
-          customSettings.token = String(token);
+          customSettings.gistSettings.token = String(token);
           this.context.globalState.update("synctoken", "");
           vscode.window.showInformationMessage(
             localize("common.info.setToken")
@@ -525,40 +532,8 @@ export default class Commons {
     return settings;
   }
 
-  public async GetTokenAndSave(sett: CustomSettings): Promise<string> {
-    const opt = Commons.GetInputBox(true);
-
-    const token = ((await vscode.window.showInputBox(opt)) || "").trim();
-
-    if (token && token !== "esc") {
-      sett.token = token;
-      const saved = await this.SetCustomSettings(sett);
-      if (saved) {
-        vscode.window.setStatusBarMessage(
-          localize("common.info.tokenSaved"),
-          1000
-        );
-      }
-    }
-
-    return token;
-  }
-  public async GetGistAndSave(sett: ExtensionConfig): Promise<string> {
-    const opt = Commons.GetInputBox(false);
-
-    const gist = ((await vscode.window.showInputBox(opt)) || "").trim();
-
-    if (gist && gist !== "esc") {
-      sett.gist = gist;
-      const saved = await this.SaveSettings(sett);
-      if (saved) {
-        vscode.window.setStatusBarMessage(
-          localize("common.info.gistSaved"),
-          1000
-        );
-      }
-      return gist;
-    }
+  public async AskForInput(options: vscode.InputBoxOptions): Promise<string> {
+    return ((await vscode.window.showInputBox(options)) || "").trim();
   }
 
   /**
@@ -626,14 +601,15 @@ export default class Commons {
     outputChannel.appendLine(`Version: ${Environment.getVersion()}`);
     outputChannel.appendLine(`--------------------`);
     outputChannel.appendLine(
-      `GitHub Token: ${syncSettings.customConfig.token || "Anonymous"}`
+      `GitHub Token: ${syncSettings.customConfig.gistSettings.token ||
+        "Anonymous"}`
     );
     outputChannel.appendLine(`GitHub Gist: ${syncSettings.extConfig.gist}`);
     outputChannel.appendLine(
       `GitHub Gist Type: ${syncSettings.publicGist ? "Public" : "Secret"}`
     );
     outputChannel.appendLine(``);
-    if (!syncSettings.customConfig.token) {
+    if (!syncSettings.customConfig.gistSettings.token) {
       outputChannel.appendLine(
         `Anonymous Gist cannot be edited, the extension will always create a new one during upload.`
       );
