@@ -8,6 +8,7 @@ import localize from "./localize";
 import * as lockfile from "./lockfile";
 import { File, FileService } from "./service/fileService";
 import { GitHubService } from "./service/githubService";
+import { GitService } from "./service/gitService";
 import { ExtensionInformation, PluginService } from "./service/pluginService";
 import {
   CloudSetting,
@@ -68,6 +69,7 @@ export class Sync {
     const args = arguments;
     const env = new Environment(this.context);
     const common = new Commons(env, this.context);
+    let git: GitService = null;
     let github: GitHubService = null;
     let localConfig: LocalConfig = new LocalConfig();
     const allSettingFiles: File[] = [];
@@ -83,6 +85,11 @@ export class Sync {
         if (args[0] === "publicGIST") {
           localConfig.publicGist = true;
         }
+      }
+
+      if (localConfig.customConfig.syncMode === "git") {
+        git = new GitService(env.USER_FOLDER);
+        await git.initialize();
       }
 
       github = new GitHubService(
