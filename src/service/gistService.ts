@@ -18,8 +18,8 @@ export class GistService {
     public options: {
       token: string;
       workingDirectory: string;
-      username: string;
-      name: string;
+      username?: string;
+      name?: string;
     }
   ) {
     const gistAPIConfig: GitHubApi.Options = {};
