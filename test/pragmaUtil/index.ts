@@ -1,7 +1,7 @@
 import { expect } from "chai";
 import fs = require("fs");
-import { OsType } from "../../src/old/enums";
-import PragmaUtil from "../../src/old/pragmaUtil";
+import { OsType } from "../../src/enums";
+import PragmaUtil from "../../src/pragmaUtil";
 
 let testSettings = null;
 
