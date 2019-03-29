@@ -7,9 +7,9 @@ import { Environment } from "./environmentPath";
 import localize from "./localize";
 import * as lockfile from "./lockfile";
 import { File, FileService } from "./service/fileService";
-import { GitHubService } from "./service/gistService";
-import { RepoService } from "./service/repoService";
+import { GistService } from "./service/gistService";
 import { ExtensionInformation, PluginService } from "./service/pluginService";
+import { RepoService } from "./service/repoService";
 import {
   CloudSetting,
   CustomSettings,
@@ -17,19 +17,22 @@ import {
   LocalConfig
 } from "./setting";
 
-let git: RepoService;
+let repoService: RepoService;
+let gistService: GistService;
+let env: Environment;
 
 import { writeFileSync } from "fs-extra";
 import PragmaUtil from "./pragmaUtil";
 
 export class Sync {
+  private globalCommonService: Commons;
   constructor(private context: vscode.ExtensionContext) {}
   /**
    * Run when extension have been activated
    */
   public async bootstrap(): Promise<void> {
-    const env = new Environment(this.context);
-    const globalCommonService = new Commons(env, this.context);
+    env = new Environment(this.context);
+    this.globalCommonService = new Commons(env, this.context);
     // if lock file not exist
     // then create it
     if (!(await FileService.FileExists(env.FILE_SYNC_LOCK))) {
@@ -41,13 +44,18 @@ export class Sync {
       await lockfile.Unlock(env.FILE_SYNC_LOCK);
     }
 
-    await globalCommonService.StartMigrationProcess();
-    const startUpSetting = await globalCommonService.GetSettings();
-    const startUpCustomSetting = await globalCommonService.GetCustomSettings();
+    await this.globalCommonService.StartMigrationProcess();
+    const startUpSetting = await this.globalCommonService.GetSettings();
+    const startUpCustomSetting = await this.globalCommonService.GetCustomSettings();
+
+    gistService = new GistService({
+      token: startUpCustomSetting.gistSettings.token,
+      workingDirectory: env.USER_FOLDER
+    });
 
     if (startUpSetting) {
-      if (startUpCustomSetting.repoSettings.repo) {
-        git = new RepoService({
+      if (startUpCustomSetting.method === "repo") {
+        repoService = new RepoService({
           workingDirectory: env.USER_FOLDER,
           repoURL: startUpCustomSetting.repoSettings.repo,
           ignored: startUpCustomSetting.repoSettings.ignoredItems
@@ -58,7 +66,7 @@ export class Sync {
         }
 
         if (startUpSetting.autoUpload) {
-          return globalCommonService.StartWatch();
+          return this.globalCommonService.StartWatch();
         }
       } else {
         const tokenAvailable: boolean =
@@ -71,7 +79,7 @@ export class Sync {
           vscode.commands.executeCommand("extension.downloadSettings");
         }
         if (startUpSetting.autoUpload && tokenAvailable && gistAvailable) {
-          return globalCommonService.StartWatch();
+          return this.globalCommonService.StartWatch();
         }
       }
     }
@@ -82,18 +90,15 @@ export class Sync {
 
   public async upload(): Promise<void> {
     const args = arguments;
-    const env = new Environment(this.context);
-    const common = new Commons(env, this.context);
-    let github: GitHubService = null;
     let localConfig: LocalConfig = new LocalConfig();
     const allSettingFiles: File[] = [];
     let uploadedExtensions: ExtensionInformation[] = [];
     const ignoredExtensions: ExtensionInformation[] = [];
     const dateNow = new Date();
-    common.CloseWatch();
+    this.globalCommonService.CloseWatch();
 
     async function syncExtensions() {
-      localConfig = await common.InitalizeSettings();
+      localConfig = await this.globalCommonService.InitalizeSettings();
       if (localConfig.extConfig.syncExtensions) {
         uploadedExtensions = PluginService.CreateExtensionList();
         if (
@@ -127,7 +132,7 @@ export class Sync {
       }
     }
 
-    if (git) {
+    if (repoService) {
       const extensionFile = await syncExtensions();
       if (extensionFile) {
         writeFileSync(extensionFile.path, extensionFile.content);
@@ -136,17 +141,17 @@ export class Sync {
         localize("cmd.updateSettings.info.uploading"),
         2000
       );
-      await git.push();
+      await repoService.push();
       vscode.window.setStatusBarMessage(
         localize("cmd.updateSettings.info.uploadingSuccess"),
         5000
       );
-      common.StartWatch();
+      this.globalCommonService.StartWatch();
       return;
     }
 
     try {
-      localConfig = await common.InitalizeSettings();
+      localConfig = await this.globalCommonService.InitalizeSettings();
       localConfig.publicGist = false;
       if (args.length > 0) {
         if (args[0] === "publicGIST") {
@@ -154,15 +159,16 @@ export class Sync {
         }
       }
 
-      github = new GitHubService(
-        localConfig.customConfig.gistSettings.token,
-        localConfig.customConfig.gistSettings.githubEnterpriseUrl
-      );
+      gistService = new GistService({
+        token: localConfig.customConfig.gistSettings.token,
+        workingDirectory:
+          localConfig.customConfig.gistSettings.githubEnterpriseUrl
+      });
       // ignoreSettings = await common.GetIgnoredSettings(localConfig.customConfig.ignoreUploadSettings);
       await startGitProcess(localConfig.extConfig, localConfig.customConfig);
       // await common.SetIgnoredSettings(ignoreSettings);
     } catch (error) {
-      Commons.LogException(error, common.ERROR_MESSAGE, true);
+      Commons.LogException(error, this.globalCommonService.ERROR_MESSAGE, true);
       return;
     }
 
@@ -188,7 +194,7 @@ export class Sync {
         }
       }
 
-      customSettings.lastUpload = dateNow;
+      customSettings.gistSettings.lastUpload = dateNow;
       vscode.window.setStatusBarMessage(
         localize("cmd.updateSettings.info.readding"),
         2000
@@ -277,7 +283,11 @@ export class Sync {
           }
         }
       } else {
-        Commons.LogException(null, common.ERROR_MESSAGE, true);
+        Commons.LogException(
+          null,
+          this.globalCommonService.ERROR_MESSAGE,
+          true
+        );
         return;
       }
 
@@ -319,13 +329,13 @@ export class Sync {
       try {
         if (syncSetting.gist == null || syncSetting.gist === "") {
           if (customSettings.gistSettings.askGistName) {
-            customSettings.gistSettings.gistDescription = await common.AskGistName();
+            customSettings.gistSettings.gistDescription = await this.globalCommonService.AskGistName();
           }
           newGIST = true;
-          const gistID = await github.CreateEmptyGIST(
-            localConfig.publicGist,
-            customSettings.gistSettings.gistDescription
-          );
+          const gistID = await gistService.CreateEmptyGist({
+            public: localConfig.publicGist,
+            description: customSettings.gistSettings.gistDescription
+          });
           if (gistID) {
             syncSetting.gist = gistID;
             vscode.window.setStatusBarMessage(
@@ -339,7 +349,7 @@ export class Sync {
             return;
           }
         }
-        let gistObj = await github.ReadGist(syncSetting.gist);
+        let gistObj = await gistService.ReadGist(syncSetting.gist);
         if (!gistObj) {
           vscode.window.showErrorMessage(
             localize("cmd.updateSettings.error.readGistFail", syncSetting.gist)
@@ -349,8 +359,8 @@ export class Sync {
 
         if (gistObj.data.owner !== null) {
           const gistOwnerName: string = gistObj.data.owner.login.trim();
-          if (github.userName != null) {
-            const userName: string = github.userName.trim();
+          if (gistService.options.username != null) {
+            const userName: string = gistService.options.username.trim();
             if (gistOwnerName !== userName) {
               Commons.LogException(
                 null,
@@ -377,8 +387,8 @@ export class Sync {
           localize("cmd.updateSettings.info.uploadingFile"),
           3000
         );
-        gistObj = github.UpdateGIST(gistObj, allSettingFiles);
-        completed = await github.SaveGIST(gistObj.data);
+        gistObj = gistService.UpdateGist(gistObj, allSettingFiles);
+        completed = await gistService.SaveGist(gistObj.data);
         if (!completed) {
           vscode.window.showErrorMessage(
             localize("cmd.updateSettings.error.gistNotSave")
@@ -386,14 +396,16 @@ export class Sync {
           return;
         }
       } catch (err) {
-        Commons.LogException(err, common.ERROR_MESSAGE, true);
+        Commons.LogException(err, this.globalCommonService.ERROR_MESSAGE, true);
         return;
       }
 
       if (completed) {
         try {
-          const settingsUpdated = await common.SaveSettings(syncSetting);
-          const customSettingsUpdated = await common.SetCustomSettings(
+          const settingsUpdated = await this.globalCommonService.SaveSettings(
+            syncSetting
+          );
+          const customSettingsUpdated = await this.globalCommonService.SetCustomSettings(
             customSettings
           );
           if (settingsUpdated && customSettingsUpdated) {
@@ -413,7 +425,7 @@ export class Sync {
             }
 
             if (!syncSetting.quietSync) {
-              common.ShowSummaryOutput(
+              this.globalCommonService.ShowSummaryOutput(
                 true,
                 allSettingFiles,
                 null,
@@ -430,11 +442,15 @@ export class Sync {
               );
             }
             if (syncSetting.autoUpload) {
-              common.StartWatch();
+              this.globalCommonService.StartWatch();
             }
           }
         } catch (err) {
-          Commons.LogException(err, common.ERROR_MESSAGE, true);
+          Commons.LogException(
+            err,
+            this.globalCommonService.ERROR_MESSAGE,
+            true
+          );
         }
       }
     }
@@ -443,17 +459,16 @@ export class Sync {
    * Download setting from github gist
    */
   public async download(): Promise<void> {
-    const env = new Environment(this.context);
     const common = new Commons(env, this.context);
     let localSettings: LocalConfig = new LocalConfig();
     common.CloseWatch();
 
-    if (git) {
+    if (repoService) {
       vscode.window.setStatusBarMessage(
         localize("cmd.downloadSettings.info.readdingOnline"),
         2000
       );
-      await git.pull();
+      await repoService.pull();
       common.StartWatch();
       vscode.window.setStatusBarMessage(
         localize("cmd.downloadSettings.info.downloaded"),
@@ -474,17 +489,13 @@ export class Sync {
       syncSetting: ExtensionConfig,
       customSettings: CustomSettings
     ) {
-      const github = new GitHubService(
-        customSettings.gistSettings.token,
-        customSettings.gistSettings.githubEnterpriseUrl
-      );
       vscode.window.setStatusBarMessage("").dispose();
       vscode.window.setStatusBarMessage(
         localize("cmd.downloadSettings.info.readdingOnline"),
         2000
       );
 
-      const res = await github.ReadGist(syncSetting.gist);
+      const res = await gistService.ReadGist(syncSetting.gist);
 
       if (!res) {
         Commons.LogException(res, "Sync: Unable to Read Gist.", true);
@@ -511,11 +522,11 @@ export class Sync {
           cloudSettGist
         );
 
-        const lastUploadStr: string = customSettings.lastUpload
-          ? customSettings.lastUpload.toString()
+        const lastUploadStr: string = customSettings.gistSettings.lastUpload
+          ? customSettings.gistSettings.lastUpload.toString()
           : "";
-        const lastDownloadStr: string = customSettings.lastDownload
-          ? customSettings.lastDownload.toString()
+        const lastDownloadStr: string = customSettings.gistSettings.lastDownload
+          ? customSettings.gistSettings.lastDownload.toString()
           : "";
 
         let upToDate: boolean = false;
@@ -542,7 +553,7 @@ export class Sync {
             return;
           }
         }
-        customSettings.lastDownload = cloudSett.lastUpload;
+        customSettings.gistSettings.lastDownload = cloudSett.lastUpload;
       }
 
       keys.forEach(gistName => {
@@ -740,17 +751,6 @@ export class Sync {
             5000
           );
         }
-        if (Object.keys(customSettings.replaceCodeSettings).length > 0) {
-          const config = vscode.workspace.getConfiguration();
-          const keysDefined: string[] = Object.keys(
-            customSettings.replaceCodeSettings
-          );
-          for (const key of keysDefined) {
-            const value: string = customSettings.replaceCodeSettings[key];
-            const c: any = value === "" ? undefined : value;
-            config.update(key, c, true);
-          }
-        }
         if (syncSetting.autoUpload) {
           common.StartWatch();
         }
@@ -774,7 +774,6 @@ export class Sync {
     );
 
     try {
-      const env: Environment = new Environment(this.context);
       const common: Commons = new Commons(env, this.context);
 
       extSettings = new ExtensionConfig();
@@ -819,7 +818,6 @@ export class Sync {
     );
   }
   public async advance() {
-    const env: Environment = new Environment(this.context);
     const common: Commons = new Commons(env, this.context);
     const setting: ExtensionConfig = await common.GetSettings();
     const customSettings: CustomSettings = await common.GetCustomSettings();
@@ -942,34 +940,6 @@ export class Sync {
         setting.quietSync = !setting.quietSync;
       },
       7: async () => {
-        // preserve
-        const options: vscode.InputBoxOptions = {
-          ignoreFocusOut: true,
-          placeHolder: localize("cmd.otherOptions.preserve.placeholder"),
-          prompt: localize("cmd.otherOptions.preserve.prompt")
-        };
-        const input = await vscode.window.showInputBox(options);
-
-        if (input) {
-          const settingKey: string = input;
-          const a = vscode.workspace.getConfiguration();
-          const val: string = a.get<string>(settingKey);
-          customSettings.replaceCodeSettings[input] = val;
-          const done: boolean = await common.SetCustomSettings(customSettings);
-          if (done) {
-            if (val === "") {
-              vscode.window.showInformationMessage(
-                localize("cmd.otherOptions.preserve.info.done1", input)
-              );
-            } else {
-              vscode.window.showInformationMessage(
-                localize("cmd.otherOptions.preserve.info.done2", input, val)
-              );
-            }
-          }
-        }
-      },
-      8: async () => {
         // add customized sync file
         const options: vscode.InputBoxOptions = {
           ignoreFocusOut: true,
@@ -992,7 +962,7 @@ export class Sync {
           }
         }
       },
-      9: async () => {
+      8: async () => {
         // Import customized sync file to workspace
         const customFiles = await this.getCustomFilesFromGist(
           customSettings,
@@ -1036,7 +1006,7 @@ export class Sync {
           }
         }
       },
-      10: async () => {
+      9: async () => {
         vscode.commands.executeCommand(
           "vscode.open",
           vscode.Uri.parse(
@@ -1044,7 +1014,7 @@ export class Sync {
           )
         );
       },
-      11: async () => {
+      10: async () => {
         vscode.commands.executeCommand(
           "vscode.open",
           vscode.Uri.parse(
@@ -1052,7 +1022,7 @@ export class Sync {
           )
         );
       },
-      12: async () => {
+      11: async () => {
         vscode.commands.executeCommand(
           "vscode.open",
           vscode.Uri.parse(
@@ -1145,11 +1115,7 @@ export class Sync {
     customSettings: CustomSettings,
     syncSetting: ExtensionConfig
   ): Promise<File[]> {
-    const github = new GitHubService(
-      customSettings.gistSettings.token,
-      customSettings.gistSettings.githubEnterpriseUrl
-    );
-    const res = await github.ReadGist(syncSetting.gist);
+    const res = await gistService.ReadGist(syncSetting.gist);
     if (!res) {
       Commons.LogException(res, "Sync: Unable to Read Gist.", true);
       return [];
