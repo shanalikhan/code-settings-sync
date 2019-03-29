@@ -23,6 +23,7 @@
   "cmd.updateSettings.info.newGistCreated": "Sync : New gist created.",
   "cmd.updateSettings.warning.noToken": "Sync : Set GitHub Token or disable 'downloadPublicGist' from local Sync settings file.",
   "cmd.updateSettings.warning.OSNotSupported": "Sync Pragma OS value {0} not supported at line {1}",
+  "cmd.updateSettings.warning.extFileNotSaved": "Sync: Extension File failed to save. Not Updated.",
   "cmd.updateSettings.error.newGistCreateFail": "Sync : Unable to create Gist.",
   "cmd.updateSettings.error.readGistFail": "Sync :  GIST ID : {0} UNABLE TO READ.",
   "cmd.updateSettings.error.gistNotSave": "Sync : GIST NOT SAVED",

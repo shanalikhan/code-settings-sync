@@ -152,7 +152,13 @@ export class Sync {
           extensionFilePath,
           extensionFileName
         );
-        allSettingFiles.push(extensionFile);
+        const done: boolean =
+          await FileService.WriteFile(extensionFile.filePath, extensionFile.content);
+        if (!done) {
+          vscode.window.showWarningMessage(
+            localize("cmd.updateSettings.warning.extFileNotSaved")
+          );
+        }
       }
 
       let contentFiles: File[] = [];
