@@ -24,6 +24,17 @@ export class GitService {
     return this.git.add(file.filePath);
   }
 
+  public static async ParseService(repoUrl: string): Promise<string> {
+    const matchedString: string[] =
+      repoUrl.match(this.httpsRegex) || repoUrl.match(this.sshRegex);
+    if (!matchedString) {
+      return Promise.resolve(null);
+    }
+    // The 2nd to last group in the regex is specifies which service we are using
+    // Guaranteed to be either github or gitlab as regex must match to get here
+    return Promise.resolve(matchedString[matchedString.length - 2]);
+  }
+
   public static CheckValidRepoUrl(repoUrl: string): boolean {
     return this.sshRegex.test(repoUrl) || this.httpsRegex.test(repoUrl);
   }

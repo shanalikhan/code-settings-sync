@@ -256,6 +256,12 @@ export default class Commons {
 
     if (cusSettings.syncMode === "git") {
       const repoUrl: string = await this.GetGitRepoAndSave(extSettings);
+      const repoService: string = await GitService.ParseService(repoUrl);
+      if (!repoService) {
+        const msg: string = localize("common.error.noRepoServiceFound");
+        vscode.window.showErrorMessage(msg);
+        throw new Error(msg);
+      }
     }
 
     if (cusSettings.token === "") {
