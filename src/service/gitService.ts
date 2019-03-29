@@ -7,6 +7,9 @@ import * as simplegit from "simple-git/promise";
 export class GitService {
   public git: simplegit.SimpleGit = null;
 
+  public static sshRegex: RegExp = /(^)git@(github|gitlab).com:[a-zA-Z0-9]+\/[a-zA-Z0-9\-]+.git($)/;
+  public static httpsRegex: RegExp = /(^)https:\/\/(www.)?(github|gitlab).com\/[a-zA-Z0-9]+\/[a-zA-Z0-9\-]+.git($)/;
+
   constructor (workspace: string) {
     this.git = simplegit(workspace);
   }
@@ -19,6 +22,10 @@ export class GitService {
 
   public async addFile(file: File): Promise<void> {
     return this.git.add(file.filePath);
+  }
+
+  public static CheckValidRepoUrl(repoUrl: string): boolean {
+    return this.sshRegex.test(repoUrl) || this.httpsRegex.test(repoUrl);
   }
 
   public async status () {

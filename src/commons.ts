@@ -4,6 +4,7 @@ import * as vscode from "vscode";
 import { Environment } from "./environmentPath";
 import localize from "./localize";
 import * as lockfile from "./lockfile";
+import { GitService } from "./service/gitService";
 import { File, FileService } from "./service/fileService";
 import { ExtensionInformation } from "./service/pluginService";
 import { CustomSettings, ExtensionConfig, LocalConfig } from "./setting";
@@ -252,6 +253,10 @@ export default class Commons {
     const settings: LocalConfig = new LocalConfig();
     const extSettings: ExtensionConfig = this.GetSettings();
     const cusSettings: CustomSettings = await this.GetCustomSettings();
+
+    if (cusSettings.syncMode === "git") {
+      const repoUrl: string = await this.GetGitRepoAndSave(extSettings);
+    }
 
     if (cusSettings.token === "") {
       if (askToken === true) {
@@ -564,6 +569,53 @@ export default class Commons {
       }
       return gist;
     }
+  }
+
+  public async GetGitRepoAndSave(sett: ExtensionConfig): Promise<string> {
+    let repoUrl: string = sett.repoUrl || "";
+    if (GitService.CheckValidRepoUrl(repoUrl)) {
+      return Promise.resolve(repoUrl);
+    }
+
+    if (repoUrl !== "") {
+      vscode.window.showWarningMessage(
+        localize("common.error.invalidRepoUrl")
+      );
+    }
+
+    const opt: vscode.InputBoxOptions = {
+      "value": repoUrl,
+      "prompt": localize("common.prompt.enterGitRepoUrl"),
+      "placeHolder": localize("common.placeholder.enterGitRepoUrl"),
+      "ignoreFocusOut": true
+    };
+    do {
+      repoUrl = ((await vscode.window.showInputBox(opt)) || "").trim();
+      if (!repoUrl || repoUrl === "esc") {
+        const message: string = localize("common.error.noRepoUrl");
+        vscode.window.showErrorMessage(message);
+        throw new Error(message);
+      }
+      if (!GitService.CheckValidRepoUrl(repoUrl)) {
+        repoUrl = null;
+        vscode.window.showWarningMessage(
+          localize("common.error.invalidRepoUrl")
+        );
+      }
+    } while (!repoUrl);
+
+    sett.repoUrl = repoUrl;
+    const saved: boolean = await this.SaveSettings(sett);
+    if (!saved) {
+      const message: string = localize("common.error.gitRepoNotSave");
+      vscode.window.showErrorMessage(message);
+      throw new Error(message);
+    }
+    vscode.window.setStatusBarMessage(
+      localize("common.info.gitRepoSaved"),
+      1000
+    );
+    return Promise.resolve(repoUrl);
   }
 
   /**
