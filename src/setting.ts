@@ -54,15 +54,14 @@ export class CustomSettings {
     token: "",
     supportedFileExtensions: ["json", "code-snippets"],
     openTokenLink: true,
-    gistDescription: "Visual Studio Code Settings Sync Gist"
+    gistDescription: "Visual Studio Code Settings Sync Gist",
+    lastUpload: null,
+    lastDownload: null,
+    ignoreUploadSettings: []
   };
   public ignoreExtensions: string[] = [];
-  public ignoreUploadSettings: string[] = [];
-  public replaceCodeSettings: { [key: string]: any } = {};
   public version: number = Environment.CURRENT_VERSION;
   public disableUpdateMessage: boolean = false;
-  public lastUpload: Date = null;
-  public lastDownload: Date = null;
   public hostName: string = null;
-  public method = null;
+  public method: "repo" | "gist" = null;
 }
