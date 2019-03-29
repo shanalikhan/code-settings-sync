@@ -98,5 +98,5 @@ describe("Process before upload", function() {
       .and.to.match(/\/{2}\s+"setting"/)
       .and.to.match(/\/{2}\s+},/)
       .and.to.match(/\s+"mac"/);
-  })
+  });
 });
