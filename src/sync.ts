@@ -246,6 +246,18 @@ export class Sync {
         }
       }
 
+      if (customSettings.syncMode === "git") {
+        let actionList: Promise<void>[] = [];
+        for (const settingFile of allSettingFiles) {
+          actionList.push(git.addFile(settingFile));
+        }
+
+        Promise.all(actionList).then(() => {
+          git.status().then(status => console.log(status));
+        });
+        return;
+      }
+
       const extProp: CloudSetting = new CloudSetting();
       extProp.lastUpload = dateNow;
       const fileName: string = env.FILE_CLOUDSETTINGS_NAME;
