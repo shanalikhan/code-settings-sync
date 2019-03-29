@@ -1,4 +1,5 @@
 "use strict";
+import { watch } from "chokidar";
 import * as fs from "fs-extra";
 import * as vscode from "vscode";
 import { Environment } from "./environmentPath";
