@@ -9,6 +9,16 @@ export class GitService {
 
   public static sshRegex: RegExp = /(^)git@(github|gitlab).com:[a-zA-Z0-9]+\/[a-zA-Z0-9\-]+.git($)/;
   public static httpsRegex: RegExp = /(^)https:\/\/(www.)?(github|gitlab).com\/[a-zA-Z0-9]+\/[a-zA-Z0-9\-]+.git($)/;
+  public static servicesInfo: any = {
+    "github": {
+      id: "GitHub Repo",
+      tokenUrl: "https://github.com/settings/tokens",
+    },
+    "gitlab": {
+      id: "GitLab Repo",
+      tokenUrl: "https://gitlab.com/profile/personal_access_tokens"
+    }
+  };
 
   constructor (workspace: string) {
     this.git = simplegit(workspace);
@@ -33,6 +43,14 @@ export class GitService {
     // The 2nd to last group in the regex is specifies which service we are using
     // Guaranteed to be either github or gitlab as regex must match to get here
     return Promise.resolve(matchedString[matchedString.length - 2]);
+  }
+
+  public static GetServiceId(repoService: string): string {
+    return this.servicesInfo[repoService].id;
+  }
+
+  public static GetTokenUrl(repoService: string): string {
+    return this.servicesInfo[repoService].tokenUrl;
   }
 
   public static CheckValidRepoUrl(repoUrl: string): boolean {
