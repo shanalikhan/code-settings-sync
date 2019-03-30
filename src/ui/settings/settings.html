@@ -16,6 +16,7 @@
       href="https://fonts.googleapis.com/css?family=Roboto:400,900"
       rel="stylesheet"
     />
+    <script src="https://cdn.jsdelivr.net/npm/lodash@4.17.11/lodash.min.js"></script>
     <title>Sync Settings</title>
   </head>
   <body>
@@ -270,42 +271,10 @@
       integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
       crossorigin="anonymous"
     ></script>
-    <script src="https://cdn.jsdelivr.net/npm/lodash@4.17.11/lodash.min.js"></script>
     <script>
-      let settings;
+      const settings = JSON.parse(`@PLACEHOLDER_DATA`);
       const vscode = acquireVsCodeApi();
-      $(".checkbox").change(function() {
-        let val = $(this).is(":checked");
-        vscode.postMessage({
-          command: $(this).attr("setting"),
-          text: val
-        });
-      });
-      $(".textarea").change(function() {
-        let val = [];
-        $(this)
-          .val()
-          .split("\n")
-          .forEach(item => {
-            if (item !== "") {
-              val.push(item);
-            }
-          });
-        vscode.postMessage({
-          command: $(this).attr("setting"),
-          text: val
-        });
-      });
-      $(".text").change(function() {
-        let val = $(this).val();
-
-        vscode.postMessage({
-          command: $(this).attr("setting"),
-          text: val
-        });
-      });
-      window.addEventListener("message", function(event) {
-        settings = JSON.parse(event.data);
+      $(document).ready(function() {
         $(".checkbox").each((i, el) => {
           $(el).prop("checked", _.get(settings, $(el).attr("setting")));
         });
@@ -318,6 +287,36 @@
             item => (str += item + "\n")
           );
           $(el).val(str);
+        });
+        $(".checkbox").change(function() {
+          let val = $(this).is(":checked");
+          vscode.postMessage({
+            command: $(this).attr("setting"),
+            text: val
+          });
+        });
+        $(".textarea").change(function() {
+          let val = [];
+          $(this)
+            .val()
+            .split("\n")
+            .forEach(item => {
+              if (item !== "") {
+                val.push(item);
+              }
+            });
+          vscode.postMessage({
+            command: $(this).attr("setting"),
+            text: val
+          });
+        });
+        $(".text").change(function() {
+          let val = $(this).val();
+
+          vscode.postMessage({
+            command: $(this).attr("setting"),
+            text: val
+          });
         });
       });
     </script>
