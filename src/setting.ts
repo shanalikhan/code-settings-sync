@@ -45,6 +45,10 @@ export class CustomSettings {
   public gistDescription: string = "Visual Studio Code Settings Sync Gist";
   public version: number = Environment.CURRENT_VERSION;
   public token: string = "";
+  public repoServiceTokens: any = {
+    "github": "",
+    "gitlab": ""
+  };
   public downloadPublicGist: boolean = false;
   public supportedFileExtensions: string[] = ["json", "code-snippets"];
   public openTokenLink: boolean = true;
