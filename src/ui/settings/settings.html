@@ -298,7 +298,6 @@
       });
       $(".text").change(function() {
         let val = $(this).val();
-        this.is(":checked");
 
         vscode.postMessage({
           command: $(this).attr("setting"),
