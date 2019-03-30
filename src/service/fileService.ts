@@ -5,9 +5,9 @@ import * as $path from "path";
 
 export class File {
   constructor(
-    public fileName: string,
+    public filename: string,
     public content: string,
-    public filePath: string,
+    public path: string,
     public gistName: string
   ) {}
 }
