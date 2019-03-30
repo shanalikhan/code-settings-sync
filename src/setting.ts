@@ -31,7 +31,9 @@ export class CustomSettings {
       "workspaceStorage",
       "globalStorage/state.vscdb"
     ],
-    repo: ""
+    repo: "",
+    token: "",
+    username: ""
   };
   public gistSettings = {
     ignoreUploadFiles: [
