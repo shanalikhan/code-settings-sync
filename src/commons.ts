@@ -1,7 +1,7 @@
 "use strict";
 import { FSWatcher, watch } from "chokidar";
 import * as fs from "fs-extra";
-import * as _ from "lodash";
+import { has, set } from "lodash";
 import * as vscode from "vscode";
 import { Environment } from "./environmentPath";
 import localize from "./localize";
@@ -129,6 +129,13 @@ export default class Commons {
     settingsPanel.webview.onDidReceiveMessage(message =>
       this.ReceiveSettingChange(message)
     );
+    setTimeout(
+      () =>
+        settingsPanel.webview.postMessage(
+          JSON.stringify(this.GetCustomSettings())
+        ),
+      1500
+    );
   }
 
   public ReceiveSettingChange(message: { command: string; text: string }) {
@@ -137,8 +144,8 @@ export default class Commons {
       value = message.text === "true";
     }
     const customSettings = this.GetCustomSettings();
-    if (_.has(customSettings, message.command)) {
-      _.set(customSettings, message.command, value);
+    if (has(customSettings, message.command)) {
+      set(customSettings, message.command, value);
     }
     this.SetCustomSettings(customSettings);
   }
