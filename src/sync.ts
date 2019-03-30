@@ -55,9 +55,10 @@ export class Sync {
 
     if (startUpSetting) {
       if (startUpCustomSetting.syncMethod === "repo") {
+        const rs = startUpCustomSetting.repoSettings;
         repoService = new RepoService({
           workingDirectory: env.USER_FOLDER,
-          repoURL: startUpCustomSetting.repoSettings.repo,
+          repoURL: `https://${rs.username}:${rs.token}@${rs.repo}`,
           ignored: startUpCustomSetting.repoSettings.ignoredItems
         });
 
