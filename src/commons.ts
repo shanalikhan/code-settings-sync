@@ -1,5 +1,4 @@
 "use strict";
-import { FSWatcher, watch } from "chokidar";
 import * as fs from "fs-extra";
 import { has, set } from "lodash";
 import * as vscode from "vscode";
@@ -60,9 +59,7 @@ export default class Commons {
 
   public ERROR_MESSAGE: string = localize("common.error.message");
 
-  private configWatcher: FSWatcher;
   private autoUploadService = new AutoUploadService({
-    watcher: this.configWatcher,
     en: this.en,
     commons: this
   });
@@ -70,9 +67,7 @@ export default class Commons {
   constructor(
     private en: Environment,
     private context: vscode.ExtensionContext
-  ) {
-    this.OpenSettingsPage();
-  }
+  ) {}
 
   public async StartWatch(): Promise<void> {
     const lockExist: boolean = await FileService.FileExists(
@@ -88,10 +83,6 @@ export default class Commons {
     }
 
     this.autoUploadService.StopWatching();
-    this.configWatcher = watch(`${this.en.PATH}/User/`, {
-      ignoreInitial: true,
-      depth: 2
-    });
     this.autoUploadService.StartWatching();
   }
 
@@ -387,13 +378,7 @@ export default class Commons {
         settings[key] = vscode.workspace.getConfiguration("sync").get(key);
       }
     }
-
-    settings.gist = settings.gist.trim();
     return settings;
-  }
-
-  public async AskForInput(options: vscode.InputBoxOptions): Promise<string> {
-    return ((await vscode.window.showInputBox(options)) || "").trim();
   }
 
   /**
@@ -464,7 +449,9 @@ export default class Commons {
       `GitHub Token: ${syncSettings.customConfig.gistSettings.token ||
         "Anonymous"}`
     );
-    outputChannel.appendLine(`GitHub Gist: ${syncSettings.extConfig.gist}`);
+    outputChannel.appendLine(
+      `GitHub Gist: ${syncSettings.customConfig.gistSettings.gist}`
+    );
     outputChannel.appendLine(
       `GitHub Gist Type: ${syncSettings.publicGist ? "Public" : "Secret"}`
     );
