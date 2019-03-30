@@ -45,12 +45,12 @@ export class GitService {
     return Promise.resolve(matchedString[matchedString.length - 2]);
   }
 
-  public static GetServiceId(repoService: string): string {
-    return this.servicesInfo[repoService].id;
+  public static async GetServiceId(repoService: string): Promise<string> {
+    return Promise.resolve(this.servicesInfo[repoService].id);
   }
 
-  public static GetTokenUrl(repoService: string): string {
-    return this.servicesInfo[repoService].tokenUrl;
+  public static async GetTokenUrl(repoService: string): Promise<string> {
+    return Promise.resolve(this.servicesInfo[repoService].tokenUrl);
   }
 
   public static CheckValidRepoUrl(repoUrl: string): boolean {

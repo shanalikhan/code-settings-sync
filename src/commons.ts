@@ -254,39 +254,46 @@ export default class Commons {
     const extSettings: ExtensionConfig = this.GetSettings();
     const cusSettings: CustomSettings = await this.GetCustomSettings();
 
-    if (cusSettings.syncMode === "git") {
-      const repoUrl: string = await this.GetGitRepoAndSave(extSettings);
-      const repoService: string = await GitService.ParseService(repoUrl);
-      if (!repoService) {
-        const msg: string = localize("common.error.noRepoServiceFound");
-        vscode.window.showErrorMessage(msg);
-        throw new Error(msg);
-      }
-    }
+    if (askToken) {
+      // Set for gist defaults when trying to save token
+      let tokenId: string = "gist";
+      let serviceId: string = "GitHub";
+      let tokenValue: string = cusSettings.token;
+      let tokenUrl: string = await GitService.GetTokenUrl(serviceId.toLowerCase());
 
-    if (cusSettings.token === "") {
-      if (askToken === true) {
-        askToken = !cusSettings.downloadPublicGist;
-      }
-
-      if (askToken) {
-        if (cusSettings.openTokenLink) {
-          vscode.commands.executeCommand(
-            "vscode.open",
-            vscode.Uri.parse("https://github.com/settings/tokens")
-          );
-        }
-        const tokTemp: string = await this.GetTokenAndSave(cusSettings);
-        if (!tokTemp) {
-          const msg = localize("common.error.tokenNotSave");
+      if (cusSettings.syncMode === "git") {
+        const repoUrl: string = await this.GetGitRepoAndSave(extSettings);
+        const repoService: string = await GitService.ParseService(repoUrl);
+        if (!repoService) {
+          const msg: string = localize("common.error.noRepoServiceFound");
           vscode.window.showErrorMessage(msg);
           throw new Error(msg);
         }
-        cusSettings.token = tokTemp;
+        tokenId = repoService;
+        tokenValue = cusSettings.repoServiceTokens[repoService];
+        tokenUrl = await GitService.GetTokenUrl(repoService);
+        serviceId = await GitService.GetServiceId(repoService);
+      } else {
+        askToken = !cusSettings.downloadPublicGist;
+      }
+
+      if (askToken && !tokenValue) {
+        if (cusSettings.openTokenLink) {
+          vscode.commands.executeCommand(
+            "vscode.open",
+            vscode.Uri.parse(tokenUrl)
+          );
+        }
+        const token: string = await this.GetTokenAndSave(cusSettings, serviceId, tokenId);
+        if (!token) {
+          const msg: string = localize("common.error.tokenNotSave");
+          vscode.window.showErrorMessage(msg);
+          throw new Error(msg);
+        }
       }
     }
 
-    if (extSettings.gist === "") {
+    if (cusSettings.syncMode === "gist" &&  extSettings.gist === "") {
       if (askGist) {
         const gistTemp: string = await this.GetGistAndSave(extSettings);
         if (!gistTemp) {
@@ -541,14 +548,36 @@ export default class Commons {
     return settings;
   }
 
-  public async GetTokenAndSave(sett: CustomSettings): Promise<string> {
-    const opt = Commons.GetInputBox(true);
+  public async SetToken(sett: CustomSettings, tokenId: string, tokenValue: string): Promise<boolean> {
+    if (tokenValue) {
+      switch(tokenId) {
+        case "gist":
+          sett.token = tokenValue;
+          break;
+        case "github":
+        case "gitlab":
+          sett.repoServiceTokens[tokenId] = tokenValue;
+          break;
+        default:
+          const message: string = localize("common.error.invalidTokenId");
+          vscode.window.showErrorMessage(message);
+          return Promise.resolve(false);
+      }
+    }
+    return Promise.resolve(true);
+  }
 
-    const token = ((await vscode.window.showInputBox(opt)) || "").trim();
+  public async GetTokenAndSave(sett: CustomSettings, serviceId: string = "GitHub", tokenId: string = "gist"): Promise<string> {
+    const opt: vscode.InputBoxOptions = Commons.GetInputBox(true, serviceId);
+
+    const token: string = ((await vscode.window.showInputBox(opt)) || "").trim();
 
     if (token && token !== "esc") {
-      sett.token = token;
-      const saved = await this.SetCustomSettings(sett);
+      const set: boolean = await this.SetToken(sett, tokenId, token);
+      if (!set) {
+        return null;
+      }
+      const saved: boolean = await this.SetCustomSettings(sett);
       if (saved) {
         vscode.window.setStatusBarMessage(
           localize("common.info.tokenSaved"),
@@ -556,7 +585,6 @@ export default class Commons {
         );
       }
     }
-
     return token;
   }
   public async GetGistAndSave(sett: ExtensionConfig): Promise<string> {
