@@ -54,7 +54,7 @@ export class Sync {
     });
 
     if (startUpSetting) {
-      if (startUpCustomSetting.method === "repo") {
+      if (startUpCustomSetting.syncMethod === "repo") {
         repoService = new RepoService({
           workingDirectory: env.USER_FOLDER,
           repoURL: startUpCustomSetting.repoSettings.repo,
@@ -102,12 +102,12 @@ export class Sync {
       if (localConfig.extConfig.syncExtensions) {
         uploadedExtensions = PluginService.CreateExtensionList();
         if (
-          localConfig.customConfig.ignoreExtensions &&
-          localConfig.customConfig.ignoreExtensions.length > 0
+          localConfig.customConfig.ignoredExtensions &&
+          localConfig.customConfig.ignoredExtensions.length > 0
         ) {
           uploadedExtensions = uploadedExtensions.filter(extension => {
             if (
-              localConfig.customConfig.ignoreExtensions.includes(
+              localConfig.customConfig.ignoredExtensions.includes(
                 extension.info.name
               )
             ) {
@@ -209,11 +209,13 @@ export class Sync {
       if (syncSetting.syncExtensions) {
         uploadedExtensions = PluginService.CreateExtensionList();
         if (
-          customSettings.ignoreExtensions &&
-          customSettings.ignoreExtensions.length > 0
+          customSettings.ignoredExtensions &&
+          customSettings.ignoredExtensions.length > 0
         ) {
           uploadedExtensions = uploadedExtensions.filter(extension => {
-            if (customSettings.ignoreExtensions.includes(extension.info.name)) {
+            if (
+              customSettings.ignoredExtensions.includes(extension.info.name)
+            ) {
               ignoredExtensions.push(extension);
               return false;
             }
@@ -511,7 +513,7 @@ export class Sync {
       let addedExtensions: ExtensionInformation[] = [];
       let deletedExtensions: ExtensionInformation[] = [];
       const ignoredExtensions: string[] =
-        customSettings.ignoreExtensions || new Array<string>();
+        customSettings.ignoredExtensions || new Array<string>();
       const updatedFiles: File[] = [];
       const actionList: Array<void | boolean> = [];
 
@@ -1035,72 +1037,54 @@ export class Sync {
         if (selectedItem === 1) {
           common.CloseWatch();
         }
-        await common
-          .SaveSettings(setting)
-          .then((added: boolean) => {
-            if (added) {
-              const callbackMap = {
-                1: async () => {
-                  return await vscode.commands.executeCommand(
-                    "extension.updateSettings",
-                    "publicGIST"
-                  );
-                },
-                2: async () => {
-                  return await vscode.window.showInformationMessage(
-                    localize("cmd.otherOptions.warning.tokenNotRequire")
-                  );
-                },
-                3: async () => {
-                  const message = setting.forceDownload
-                    ? "cmd.otherOptions.toggleForceDownload.on"
-                    : "cmd.otherOptions.toggleForceDownload.off";
-                  return vscode.window.showInformationMessage(
-                    localize(message)
-                  );
-                },
-                4: async () => {
-                  const message = setting.autoUpload
-                    ? "cmd.otherOptions.toggleAutoUpload.on"
-                    : "cmd.otherOptions.toggleAutoUpload.off";
-                  return vscode.window.showInformationMessage(
-                    localize(message)
-                  );
-                },
-                5: async () => {
-                  const message = setting.autoDownload
-                    ? "cmd.otherOptions.toggleAutoDownload.on"
-                    : "cmd.otherOptions.toggleAutoDownload.off";
-                  return vscode.window.showInformationMessage(
-                    localize(message)
-                  );
-                },
-                6: async () => {
-                  const message = setting.quietSync
-                    ? "cmd.otherOptions.quietSync.on"
-                    : "cmd.otherOptions.quietSync.off";
-                  return vscode.window.showInformationMessage(
-                    localize(message)
-                  );
-                }
-              };
-
-              if (callbackMap[selectedItem]) {
-                return callbackMap[selectedItem]();
-              }
-            } else {
-              return vscode.window.showErrorMessage(
-                localize("cmd.otherOptions.error.toggleFail")
+        const added = common.SaveSettings(setting);
+        if (added) {
+          const callbackMap = {
+            1: async () => {
+              return await vscode.commands.executeCommand(
+                "extension.updateSettings",
+                "publicGIST"
               );
+            },
+            2: async () => {
+              return await vscode.window.showInformationMessage(
+                localize("cmd.otherOptions.warning.tokenNotRequire")
+              );
+            },
+            3: async () => {
+              const message = setting.forceDownload
+                ? "cmd.otherOptions.toggleForceDownload.on"
+                : "cmd.otherOptions.toggleForceDownload.off";
+              return vscode.window.showInformationMessage(localize(message));
+            },
+            4: async () => {
+              const message = setting.autoUpload
+                ? "cmd.otherOptions.toggleAutoUpload.on"
+                : "cmd.otherOptions.toggleAutoUpload.off";
+              return vscode.window.showInformationMessage(localize(message));
+            },
+            5: async () => {
+              const message = setting.autoDownload
+                ? "cmd.otherOptions.toggleAutoDownload.on"
+                : "cmd.otherOptions.toggleAutoDownload.off";
+              return vscode.window.showInformationMessage(localize(message));
+            },
+            6: async () => {
+              const message = setting.quietSync
+                ? "cmd.otherOptions.quietSync.on"
+                : "cmd.otherOptions.quietSync.off";
+              return vscode.window.showInformationMessage(localize(message));
             }
-          })
-          .catch(err => {
-            Commons.LogException(
-              err,
-              "Sync: Unable to toggle. Please open an issue.",
-              true
-            );
-          });
+          };
+
+          if (callbackMap[selectedItem]) {
+            return callbackMap[selectedItem]();
+          }
+        } else {
+          return vscode.window.showErrorMessage(
+            localize("cmd.otherOptions.error.toggleFail")
+          );
+        }
       }
     } catch (err) {
       Commons.LogException(err, "Error", true);
