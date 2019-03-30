@@ -104,14 +104,14 @@
   "common.action.support": "Support This Project",
   "common.action.joinCommunity": "Join Community",
   "common.action.donate": "Donate Now",
-  "common.placeholder.enterGithubAccessToken": "Enter GitHub Personal Access Token",
+  "common.placeholder.enterAccessToken": "Enter {0} Personal Access Token",
   "common.placeholder.enterGistId": "Enter Gist Id",
   "common.placeholder.enterGitRepoUrl": "e.g. https://github.com/<your_account>/<repo_name>.git",
   "common.placeholder.multipleGist": "Gist Name (e.g. : Personal Settings)",
   "common.prompt.multipleGist": "Allows you to identify the settings if you have multiple gist.",
   "common.prompt.enterGitRepoUrl": "Enter GitHub or GitLab Repo Url as SSH or HTTPS. You can also set manually in syncLocalSetting.json file (repoUrl).",
   "common.prompt.enterGistId": "Enter Gist Id from previously uploaded settings. You can also set manually in code settings (sync.gist). Press [Enter] or [Esc] to cancel.",
-  "common.prompt.enterGithubAccessToken": "You also manually add a token (User Folder / syncLocalSettings.json). Press [Enter] or [Esc] to cancel.",
+  "common.prompt.enterAccessToken": "You also manually add a token (User Folder / syncLocalSettings.json). Press [Enter] or [Esc] to cancel.",
   "common.prompt.restartCode": "Do you want to reload to apply extensions and configurations?",
   "common.button.yes" :"Yes"
 

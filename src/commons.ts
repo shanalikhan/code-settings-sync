@@ -58,12 +58,12 @@ export default class Commons {
     }
   }
 
-  public static GetInputBox(token: boolean) {
+  public static GetInputBox(token: boolean, serviceId: string = "GitHub") {
     if (token) {
       const options: vscode.InputBoxOptions = {
-        placeHolder: localize("common.placeholder.enterGithubAccessToken"),
+        placeHolder: localize("common.placeholder.enterAccessToken", serviceId),
         password: false,
-        prompt: localize("common.prompt.enterGithubAccessToken"),
+        prompt: localize("common.prompt.enterAccessToken", serviceId),
         ignoreFocusOut: true
       };
       return options;
