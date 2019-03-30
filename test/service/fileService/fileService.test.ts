@@ -11,16 +11,14 @@ describe("FileService", () => {
       "|customized_sync|dummyrc"
     );
     const actual = await FileService.GetCustomFile(
-      __dirname + "/../../../../test/service/fileService/dummyrc", // __dirname => out/src/test/service
-      "dummyrc"
+      __dirname + "/../../../../test/service/fileService/dummyrc"
     );
     expect(actual).to.deep.equals(expected);
   });
 
   it("should return null if file does not exists", async () => {
     const actual = await FileService.GetCustomFile(
-      __dirname + "/../../../../test/service/fileService/hoge",
-      "hoge"
+      __dirname + "/../../../../test/service/fileService/hoge"
     );
     expect(actual).to.be.equals(null);
   });
