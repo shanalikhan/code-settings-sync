@@ -1,6 +1,7 @@
 "use strict";
 import { FSWatcher, watch } from "chokidar";
 import * as fs from "fs-extra";
+import * as _ from "lodash";
 import * as vscode from "vscode";
 import { Environment } from "./environmentPath";
 import localize from "./localize";
@@ -10,6 +11,9 @@ import { File, FileService } from "./service/fileService";
 import { ExtensionInformation } from "./service/pluginService";
 import { CustomSettings, ExtensionConfig, LocalConfig } from "./setting";
 import { Util } from "./util";
+
+// tslint:disable-next-line: no-var-requires
+const SettingsView = require("html-loader!./ui/settings/settings.html");
 
 export default class Commons {
   public static outputChannel: vscode.OutputChannel = null;
@@ -66,7 +70,9 @@ export default class Commons {
   constructor(
     private en: Environment,
     private context: vscode.ExtensionContext
-  ) {}
+  ) {
+    this.OpenSettingsPage();
+  }
 
   public async StartWatch(): Promise<void> {
     const lockExist: boolean = await FileService.FileExists(
@@ -110,7 +116,31 @@ export default class Commons {
   }
 
   public OpenSettingsPage() {
-    //
+    const settingsPanel = vscode.window.createWebviewPanel(
+      "syncSettings",
+      "Sync Settings",
+      vscode.ViewColumn.One,
+      {
+        retainContextWhenHidden: true,
+        enableScripts: true
+      }
+    );
+    settingsPanel.webview.html = SettingsView;
+    settingsPanel.webview.onDidReceiveMessage(message =>
+      this.ReceiveSettingChange(message)
+    );
+  }
+
+  public ReceiveSettingChange(message: { command: string; text: string }) {
+    let value: any = message.text;
+    if (message.text === "true" || message.text === "false") {
+      value = message.text === "true";
+    }
+    const customSettings = this.GetCustomSettings();
+    if (_.has(customSettings, message.command)) {
+      _.set(customSettings, message.command, value);
+    }
+    this.SetCustomSettings(customSettings);
   }
 
   public InitalizeSettings(): LocalConfig {
@@ -167,7 +197,7 @@ export default class Commons {
       delete json.ignoreUploadSettings;
       FileService.WriteFile(
         this.en.FILE_CUSTOMIZEDSETTINGS,
-        JSON.stringify(json)
+        JSON.stringify(json, null, 2)
       );
       return true;
     } catch (e) {
