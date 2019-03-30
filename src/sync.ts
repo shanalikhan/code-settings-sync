@@ -20,19 +20,18 @@ import {
 let repoService: RepoService;
 let gistService: GistService;
 let env: Environment;
+let globalCommonService: Commons;
 
-import { writeFileSync } from "fs-extra";
 import PragmaUtil from "./pragmaUtil";
 
 export class Sync {
-  private globalCommonService: Commons;
   constructor(private context: vscode.ExtensionContext) {}
   /**
    * Run when extension have been activated
    */
   public async bootstrap(): Promise<void> {
     env = new Environment(this.context);
-    this.globalCommonService = new Commons(env, this.context);
+    globalCommonService = new Commons(env, this.context);
     // if lock file not exist
     // then create it
     if (!(await FileService.FileExists(env.FILE_SYNC_LOCK))) {
@@ -44,43 +43,50 @@ export class Sync {
       await lockfile.Unlock(env.FILE_SYNC_LOCK);
     }
 
-    await this.globalCommonService.StartMigrationProcess();
-    const startUpSetting = await this.globalCommonService.GetSettings();
-    const startUpCustomSetting = await this.globalCommonService.GetCustomSettings();
-
-    gistService = new GistService({
-      token: startUpCustomSetting.gistSettings.token,
-      workingDirectory: env.USER_FOLDER
-    });
+    await globalCommonService.StartMigrationProcess();
+    const startUpSetting = await globalCommonService.GetSettings();
+    const startUpCustomSetting = await globalCommonService.GetCustomSettings();
 
     if (startUpSetting) {
       if (startUpCustomSetting.syncMethod === "repo") {
         const rs = startUpCustomSetting.repoSettings;
-        repoService = new RepoService({
-          workingDirectory: env.USER_FOLDER,
-          repoURL: `https://${rs.username}:${rs.token}@${rs.repo}`,
-          ignored: startUpCustomSetting.repoSettings.ignoredItems
-        });
+        const configured =
+          rs.repo !== "" && rs.token !== "" && rs.username !== "";
+        if (configured) {
+          repoService = new RepoService({
+            workingDirectory: env.USER_FOLDER,
+            repoURL: `https://${rs.username}:${rs.token}@${rs.repo}`,
+            ignored: startUpCustomSetting.repoSettings.ignoredItems
+          });
 
-        if (startUpSetting.autoDownload === true) {
-          vscode.commands.executeCommand("extension.downloadSettings");
-        }
+          if (startUpSetting.autoDownload === true) {
+            vscode.commands.executeCommand("extension.downloadSettings");
+          }
 
-        if (startUpSetting.autoUpload) {
-          return this.globalCommonService.StartWatch();
+          if (startUpSetting.autoUpload) {
+            return globalCommonService.StartWatch();
+          }
+        } else {
+          return globalCommonService.OpenSettingsPage();
         }
-      } else {
-        const tokenAvailable: boolean =
-          startUpCustomSetting.gistSettings.token != null &&
-          startUpCustomSetting.gistSettings.token !== "";
-        const gistAvailable: boolean =
-          startUpSetting.gist != null && startUpSetting.gist !== "";
+      }
+      if (startUpCustomSetting.syncMethod === "gist") {
+        const gs = startUpCustomSetting.gistSettings;
+        const configured = gs.token !== "";
+        if (configured) {
+          gistService = new GistService({
+            token: gs.token,
+            workingDirectory: env.USER_FOLDER
+          });
 
-        if (gistAvailable === true && startUpSetting.autoDownload === true) {
-          vscode.commands.executeCommand("extension.downloadSettings");
-        }
-        if (startUpSetting.autoUpload && tokenAvailable && gistAvailable) {
-          return this.globalCommonService.StartWatch();
+          if (startUpSetting.autoDownload === true) {
+            vscode.commands.executeCommand("extension.downloadSettings");
+          }
+          if (startUpSetting.autoUpload) {
+            return globalCommonService.StartWatch();
+          }
+        } else {
+          return globalCommonService.OpenSettingsPage();
         }
       }
     }
@@ -90,58 +96,53 @@ export class Sync {
    */
 
   public async upload(): Promise<void> {
-    const args = arguments;
-    let localConfig: LocalConfig = new LocalConfig();
+    const localConfig: LocalConfig = globalCommonService.InitalizeSettings();
     const allSettingFiles: File[] = [];
     let uploadedExtensions: ExtensionInformation[] = [];
     const ignoredExtensions: ExtensionInformation[] = [];
     const dateNow = new Date();
-    this.globalCommonService.CloseWatch();
+    globalCommonService.CloseWatch();
 
-    async function syncExtensions() {
-      localConfig = await this.globalCommonService.InitalizeSettings();
-      if (localConfig.extConfig.syncExtensions) {
-        uploadedExtensions = PluginService.CreateExtensionList();
-        if (
-          localConfig.customConfig.ignoredExtensions &&
-          localConfig.customConfig.ignoredExtensions.length > 0
-        ) {
-          uploadedExtensions = uploadedExtensions.filter(extension => {
-            if (
-              localConfig.customConfig.ignoredExtensions.includes(
-                extension.info.name
-              )
-            ) {
-              ignoredExtensions.push(extension);
-              return false;
-            }
-            return true;
-          });
+    if (localConfig.customConfig.syncMethod === "repo") {
+      const configured =
+        localConfig.customConfig.repoSettings.repo !== "" &&
+        localConfig.customConfig.repoSettings.token !== "" &&
+        localConfig.customConfig.repoSettings.username !== "";
+      if (configured) {
+        if (localConfig.extConfig.syncExtensions) {
+          uploadedExtensions = PluginService.CreateExtensionList();
+          if (
+            localConfig.customConfig.ignoredExtensions &&
+            localConfig.customConfig.ignoredExtensions.length > 0
+          ) {
+            uploadedExtensions = uploadedExtensions.filter(extension => {
+              if (
+                localConfig.customConfig.ignoredExtensions.includes(
+                  extension.info.name
+                )
+              ) {
+                ignoredExtensions.push(extension);
+                return false;
+              }
+              return true;
+            });
+          }
+          uploadedExtensions.sort((a, b) =>
+            a.info.name.localeCompare(b.info.name)
+          );
+          const extensionFilePath = env.FILE_EXTENSION;
+          const extensionFileContent = JSON.stringify(
+            uploadedExtensions,
+            undefined,
+            2
+          );
+          fs.writeFileSync(extensionFilePath, extensionFileContent);
         }
-        uploadedExtensions.sort((a, b) =>
-          a.info.name.localeCompare(b.info.name)
-        );
-        const extensionFilePath = env.FILE_EXTENSION;
-        const extensionFileContent = JSON.stringify(
-          uploadedExtensions,
-          undefined,
-          2
-        );
-        const extensionFile = {
-          path: extensionFilePath,
-          content: extensionFileContent
-        };
-        return extensionFile;
       } else {
-        return false;
+        globalCommonService.StartWatch();
+        return globalCommonService.OpenSettingsPage();
       }
-    }
 
-    if (repoService) {
-      const extensionFile = await syncExtensions();
-      if (extensionFile) {
-        writeFileSync(extensionFile.path, extensionFile.content);
-      }
       vscode.window.setStatusBarMessage(
         localize("cmd.updateSettings.info.uploading"),
         2000
@@ -151,33 +152,27 @@ export class Sync {
         localize("cmd.updateSettings.info.uploadingSuccess"),
         5000
       );
-      this.globalCommonService.StartWatch();
-      return;
-    }
-
-    try {
-      localConfig = await this.globalCommonService.InitalizeSettings();
-      localConfig.publicGist = false;
-      if (args.length > 0) {
-        if (args[0] === "publicGIST") {
-          localConfig.publicGist = true;
+      return globalCommonService.StartWatch();
+    } else {
+      const configured =
+        localConfig.customConfig.gistSettings.gist !== "" &&
+        localConfig.customConfig.gistSettings.token !== "";
+      if (configured) {
+        try {
+          await startUploadingToGist(
+            localConfig.extConfig,
+            localConfig.customConfig
+          );
+        } catch (err) {
+          Commons.LogException(err, globalCommonService.ERROR_MESSAGE, true);
         }
+        return globalCommonService.StartWatch();
+      } else {
+        return globalCommonService.StartWatch();
       }
-
-      gistService = new GistService({
-        token: localConfig.customConfig.gistSettings.token,
-        workingDirectory:
-          localConfig.customConfig.gistSettings.githubEnterpriseUrl
-      });
-      // ignoreSettings = await common.GetIgnoredSettings(localConfig.customConfig.ignoreUploadSettings);
-      await startGitProcess(localConfig.extConfig, localConfig.customConfig);
-      // await common.SetIgnoredSettings(ignoreSettings);
-    } catch (error) {
-      Commons.LogException(error, this.globalCommonService.ERROR_MESSAGE, true);
-      return;
     }
 
-    async function startGitProcess(
+    async function startUploadingToGist(
       syncSetting: ExtensionConfig,
       customSettings: CustomSettings
     ) {
@@ -187,15 +182,11 @@ export class Sync {
       );
 
       if (customSettings.gistSettings.downloadPublicGist) {
-        if (
-          customSettings.gistSettings.token == null ||
-          customSettings.gistSettings.token === ""
-        ) {
+        if (customSettings.gistSettings.token === "") {
           vscode.window.showInformationMessage(
             localize("cmd.updateSettings.warning.noToken")
           );
-
-          return;
+          return globalCommonService.OpenSettingsPage();
         }
       }
 
@@ -292,11 +283,7 @@ export class Sync {
           }
         }
       } else {
-        Commons.LogException(
-          null,
-          this.globalCommonService.ERROR_MESSAGE,
-          true
-        );
+        Commons.LogException(null, globalCommonService.ERROR_MESSAGE, true);
         return;
       }
 
@@ -336,9 +323,9 @@ export class Sync {
       let completed: boolean = false;
       let newGIST: boolean = false;
       try {
-        if (syncSetting.gist == null || syncSetting.gist === "") {
+        if (customSettings.gistSettings.gist === "") {
           if (customSettings.gistSettings.askGistName) {
-            customSettings.gistSettings.gistDescription = await this.globalCommonService.AskGistName();
+            customSettings.gistSettings.gistDescription = await globalCommonService.AskGistName();
           }
           newGIST = true;
           const gistID = await gistService.CreateEmptyGist({
@@ -346,7 +333,7 @@ export class Sync {
             description: customSettings.gistSettings.gistDescription
           });
           if (gistID) {
-            syncSetting.gist = gistID;
+            customSettings.gistSettings.gist = gistID;
             vscode.window.setStatusBarMessage(
               localize("cmd.updateSettings.info.newGistCreated"),
               2000
@@ -358,10 +345,15 @@ export class Sync {
             return;
           }
         }
-        let gistObj = await gistService.ReadGist(syncSetting.gist);
+        let gistObj = await gistService.ReadGist(
+          customSettings.gistSettings.gist
+        );
         if (!gistObj) {
           vscode.window.showErrorMessage(
-            localize("cmd.updateSettings.error.readGistFail", syncSetting.gist)
+            localize(
+              "cmd.updateSettings.error.readGistFail",
+              customSettings.gistSettings.gist
+            )
           );
           return;
         }
@@ -405,16 +397,16 @@ export class Sync {
           return;
         }
       } catch (err) {
-        Commons.LogException(err, this.globalCommonService.ERROR_MESSAGE, true);
+        Commons.LogException(err, globalCommonService.ERROR_MESSAGE, true);
         return;
       }
 
       if (completed) {
         try {
-          const settingsUpdated = await this.globalCommonService.SaveSettings(
+          const settingsUpdated = await globalCommonService.SaveSettings(
             syncSetting
           );
-          const customSettingsUpdated = await this.globalCommonService.SetCustomSettings(
+          const customSettingsUpdated = await globalCommonService.SetCustomSettings(
             customSettings
           );
           if (settingsUpdated && customSettingsUpdated) {
@@ -422,7 +414,7 @@ export class Sync {
               vscode.window.showInformationMessage(
                 localize(
                   "cmd.updateSettings.info.uploadingDone",
-                  syncSetting.gist
+                  customSettings.gistSettings.gist
                 )
               );
             }
@@ -434,7 +426,7 @@ export class Sync {
             }
 
             if (!syncSetting.quietSync) {
-              this.globalCommonService.ShowSummaryOutput(
+              globalCommonService.ShowSummaryOutput(
                 true,
                 allSettingFiles,
                 null,
@@ -451,15 +443,11 @@ export class Sync {
               );
             }
             if (syncSetting.autoUpload) {
-              this.globalCommonService.StartWatch();
+              globalCommonService.StartWatch();
             }
           }
         } catch (err) {
-          Commons.LogException(
-            err,
-            this.globalCommonService.ERROR_MESSAGE,
-            true
-          );
+          Commons.LogException(err, globalCommonService.ERROR_MESSAGE, true);
         }
       }
     }
@@ -504,7 +492,7 @@ export class Sync {
         2000
       );
 
-      const res = await gistService.ReadGist(syncSetting.gist);
+      const res = await gistService.ReadGist(customSettings.gistSettings.gist);
 
       if (!res) {
         Commons.LogException(res, "Sync: Unable to Read Gist.", true);
@@ -837,7 +825,9 @@ export class Sync {
     const tokenAvailable: boolean =
       customSettings.gistSettings.token != null &&
       customSettings.gistSettings.token !== "";
-    const gistAvailable: boolean = setting.gist != null && setting.gist !== "";
+    const gistAvailable: boolean =
+      customSettings.gistSettings.gist != null &&
+      customSettings.gistSettings.gist !== "";
 
     const items: string[] = [
       "cmd.otherOptions.editLocalSetting",
@@ -888,7 +878,7 @@ export class Sync {
         if (answer === "Yes") {
           localSetting.publicGist = true;
           settingChanged = true;
-          setting.gist = "";
+          customSettings.gistSettings.gist = "";
           selectedItem = 1;
           customSettings.gistSettings.downloadPublicGist = false;
           await common.SetCustomSettings(customSettings);
@@ -964,10 +954,7 @@ export class Sync {
       },
       8: async () => {
         // Import customized sync file to workspace
-        const customFiles = await this.getCustomFilesFromGist(
-          customSettings,
-          setting
-        );
+        const customFiles = await this.getCustomFilesFromGist(customSettings);
         if (customFiles.length < 1) {
           return;
         }
@@ -1094,10 +1081,9 @@ export class Sync {
   }
 
   private async getCustomFilesFromGist(
-    customSettings: CustomSettings,
-    syncSetting: ExtensionConfig
+    customSettings: CustomSettings
   ): Promise<File[]> {
-    const res = await gistService.ReadGist(syncSetting.gist);
+    const res = await gistService.ReadGist(customSettings.gistSettings.gist);
     if (!res) {
       Commons.LogException(res, "Sync: Unable to Read Gist.", true);
       return [];
