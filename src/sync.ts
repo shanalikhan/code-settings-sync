@@ -107,7 +107,9 @@ export class Sync {
         ) {
           uploadedExtensions = uploadedExtensions.filter(extension => {
             if (
-              localConfig.customConfig.ignoreExtensions.includes(extension.name)
+              localConfig.customConfig.ignoreExtensions.includes(
+                extension.info.name
+              )
             ) {
               ignoredExtensions.push(extension);
               return false;
@@ -115,7 +117,9 @@ export class Sync {
             return true;
           });
         }
-        uploadedExtensions.sort((a, b) => a.name.localeCompare(b.name));
+        uploadedExtensions.sort((a, b) =>
+          a.info.name.localeCompare(b.info.name)
+        );
         const extensionFilePath = env.FILE_EXTENSION;
         const extensionFileContent = JSON.stringify(
           uploadedExtensions,
@@ -209,14 +213,16 @@ export class Sync {
           customSettings.ignoreExtensions.length > 0
         ) {
           uploadedExtensions = uploadedExtensions.filter(extension => {
-            if (customSettings.ignoreExtensions.includes(extension.name)) {
+            if (customSettings.ignoreExtensions.includes(extension.info.name)) {
               ignoredExtensions.push(extension);
               return false;
             }
             return true;
           });
         }
-        uploadedExtensions.sort((a, b) => a.name.localeCompare(b.name));
+        uploadedExtensions.sort((a, b) =>
+          a.info.name.localeCompare(b.info.name)
+        );
         const extensionFileName = env.FILE_EXTENSION_NAME;
         const extensionFilePath = env.FILE_EXTENSION;
         const extensionFileContent = JSON.stringify(

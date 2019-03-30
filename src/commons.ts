@@ -519,7 +519,7 @@ export default class Commons {
       outputChannel.appendLine(`  No extensions ignored.`);
     } else {
       ignoredExtensions.forEach(extn => {
-        outputChannel.appendLine(`  ${extn.name} v${extn.version}`);
+        outputChannel.appendLine(`  ${extn.info.name} v${extn.info.version}`);
       });
     }
 
@@ -533,7 +533,7 @@ export default class Commons {
         outputChannel.appendLine(`  No extensions removed.`);
       } else {
         removedExtensions.forEach(extn => {
-          outputChannel.appendLine(`  ${extn.name} v${extn.version}`);
+          outputChannel.appendLine(`  ${extn.info.name} v${extn.info.version}`);
         });
       }
     }
@@ -547,7 +547,7 @@ export default class Commons {
       }
 
       addedExtensions.forEach(extn => {
-        outputChannel.appendLine(`  ${extn.name} v${extn.version}`);
+        outputChannel.appendLine(`  ${extn.info.name} v${extn.info.version}`);
       });
     }
 
