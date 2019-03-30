@@ -61,5 +61,5 @@ export class CustomSettings {
   public version: number = Environment.CURRENT_VERSION;
   public disableUpdateMessage: boolean = true;
   public hostName: string = null;
-  public syncMethod: "repo" | "gist" = null;
+  public syncMethod: "repo" | "gist" = "gist";
 }
