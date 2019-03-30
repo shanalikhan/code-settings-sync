@@ -14,33 +14,29 @@ export class File {
 export class FileService {
   public static CUSTOMIZED_SYNC_PREFIX = "|customized_sync|";
 
-  public static async ReadFile(filePath: string): Promise<string> {
+  public static ReadFile(path: string): string {
     try {
-      const data = await fs.readFile(filePath, { encoding: "utf8" });
-      return data;
+      return fs.readFileSync(path, { encoding: "utf8" });
     } catch (err) {
       console.error(err);
       throw err;
     }
   }
 
-  public static async IsDirectory(filepath: string): Promise<boolean> {
+  public static IsDirectory(path: string): boolean {
     try {
-      const stat = await fs.lstat(filepath);
-      return stat.isDirectory();
+      return fs.lstatSync(path).isDirectory();
     } catch (err) {
       return false;
     }
   }
 
-  public static async GetFile(path: string): Promise<File> {
-    const fileExists: boolean = await FileService.FileExists(path);
-
-    if (!fileExists) {
+  public static GetFile(path: string): File {
+    if (FileService.FileExists(path)) {
       return null;
     }
 
-    const content = await FileService.ReadFile(path);
+    const content = FileService.ReadFile(path);
 
     if (content === null) {
       return null;
@@ -65,29 +61,18 @@ export class FileService {
       }
     });
 
-    const file: File = new File(
-      this.ExtractFileName(path),
-      content,
-      path,
-      gistName
-    );
-    return file;
+    return new File(this.ExtractFileName(path), content, path, gistName);
   }
 
-  public static async WriteFile(
-    filePath: string,
-    data: string
-  ): Promise<boolean> {
+  public static WriteFile(path: string, data: string): boolean {
     if (!data) {
       console.error(
-        new Error(
-          "Unable to write file. FilePath :" + filePath + " Data :" + data
-        )
+        new Error("Unable to write file. FilePath :" + path + " Data :" + data)
       );
       return false;
     }
     try {
-      await fs.writeFile(filePath, data);
+      fs.writeFileSync(path, data);
       return true;
     } catch (err) {
       console.error(err);
@@ -95,20 +80,20 @@ export class FileService {
     }
   }
 
-  public static async ListFiles(
+  public static ListFiles(
     directory: string,
     depth: number,
     fullDepth: number,
     fileExtensions: string[]
-  ): Promise<File[]> {
-    const fileList = await fs.readdir(directory);
+  ): File[] {
+    const fileList = fs.readdirSync(directory);
 
     const files: File[] = [];
     for (const fileName of fileList) {
       const path: string = directory.concat(fileName);
-      if (await FileService.IsDirectory(path)) {
+      if (FileService.IsDirectory(path)) {
         if (depth < fullDepth) {
-          for (const element of await FileService.ListFiles(
+          for (const element of FileService.ListFiles(
             path + "/",
             depth + 1,
             fullDepth,
@@ -130,8 +115,7 @@ export class FileService {
         }
 
         if (allowedFile) {
-          const file: File = await FileService.GetFile(path);
-          files.push(file);
+          files.push(FileService.GetFile(path));
         }
       }
     }
@@ -143,7 +127,7 @@ export class FileService {
     userFolder: string,
     fileName: string
   ): Promise<string> {
-    let fullPath: string = userFolder;
+    let path: string = userFolder;
     let result: string;
 
     if (fileName.indexOf("|") > -1) {
@@ -151,67 +135,63 @@ export class FileService {
 
       for (let i = 0; i < paths.length - 1; i++) {
         const element = paths[i];
-        fullPath += element + "/";
-        await FileService.CreateDirectory(fullPath);
+        path += element + "/";
+        await FileService.CreateDirectory(path);
       }
 
-      result = fullPath + paths[paths.length - 1];
+      result = path + paths[paths.length - 1];
       return result;
     } else {
-      result = fullPath + fileName;
+      result = path + fileName;
 
       return result;
     }
   }
 
-  public static async DeleteFile(filePath: string): Promise<boolean> {
+  public static DeleteFile(path: string): boolean {
     try {
-      const stat: boolean = await FileService.FileExists(filePath);
+      const stat: boolean = FileService.FileExists(path);
       if (stat) {
-        await fs.unlink(filePath);
+        fs.unlinkSync(path);
       }
       return true;
     } catch (err) {
-      console.error("Unable to delete file. File Path is :" + filePath);
+      console.error("Unable to delete file. File Path is :" + path);
       return false;
     }
   }
 
-  public static async FileExists(filePath: string): Promise<boolean> {
+  public static FileExists(path: string): boolean {
     try {
-      await fs.access(filePath, fs.constants.F_OK);
+      fs.accessSync(path, fs.constants.F_OK);
       return true;
     } catch (err) {
       return false;
     }
   }
 
-  public static async GetCustomFile(
-    filePath: string,
-    fileName: string
-  ): Promise<File> {
-    const fileExists: boolean = await FileService.FileExists(filePath);
+  public static GetCustomFile(path: string): File {
+    const fileExists = FileService.FileExists(path);
 
     if (!fileExists) {
       return null;
     }
 
-    const content = await FileService.ReadFile(filePath);
+    const content = FileService.ReadFile(path);
 
     if (content === null) {
       return null;
     }
 
-    // for identifing Customized Sync file
-    const gistName: string = FileService.CUSTOMIZED_SYNC_PREFIX + fileName;
+    const filename = this.ExtractFileName(path);
+    const gistName: string = FileService.CUSTOMIZED_SYNC_PREFIX + filename;
 
-    const file: File = new File(fileName, content, filePath, gistName);
-    return file;
+    return new File(filename, content, path, gistName);
   }
 
-  public static async CreateDirectory(name: string): Promise<boolean> {
+  public static CreateDirectory(name: string): boolean {
     try {
-      await fs.mkdir(name);
+      fs.mkdirSync(name);
       return true;
     } catch (err) {
       if (err.code === "EEXIST") {
@@ -221,15 +201,13 @@ export class FileService {
     }
   }
 
-  public static async CreateCustomDirTree(filePath: string): Promise<string> {
+  public static CreateCustomDirTree(filePath: string): string {
     const dir = $path.dirname(filePath);
-    const fileExists = await FileService.FileExists(dir);
+    const fileExists = FileService.FileExists(dir);
 
     if (!fileExists) {
-      // mkdir recursively
-      await fs.mkdirs(dir);
+      fs.mkdirsSync(dir);
     }
-
     return filePath;
   }
 
