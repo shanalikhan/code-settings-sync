@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, shrink-to-fit=no"
+    />
+    <link
+      rel="stylesheet"
+      href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+      integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T"
+      crossorigin="anonymous"
+    />
+    <link
+      href="https://fonts.googleapis.com/css?family=Roboto:400,900"
+      rel="stylesheet"
+    />
+    <title>Sync Settings</title>
+  </head>
+  <body>
+    <div style="height: 70px"></div>
+    <div class="container">
+      <div class="jumbotron">
+        <h2 class="display-4">Gist Settings</h2>
+        <hr class="my-4" />
+        <form>
+          <div class="form-group">
+            <label>GitHub Token</label>
+            <input
+              type="text"
+              class="form-control"
+              id="setting:gistSettings:token"
+              placeholder="Enter Token"
+              setting="gistSettings.token"
+            />
+          </div>
+          <div class="form-group">
+            <label>Gist Description</label>
+            <input
+              type="text"
+              class="form-control"
+              id="setting:gistSettings:gistDescription"
+              placeholder="Enter Gist Description"
+              setting="gistSettings.gistDescription"
+            />
+          </div>
+          <div class="form-group">
+            <label>GitHub Enterprise URL</label>
+            <input
+              type="text"
+              class="form-control"
+              id="setting:gistSettings:githubEnterpriseUrl"
+              placeholder="Enter GitHub Enterprise URL"
+              setting="gistSettings.githubEnterpriseUrl"
+            />
+          </div>
+          <div class="custom-control custom-checkbox my-1 mr-sm-2">
+            <input
+              class="custom-control-input"
+              type="checkbox"
+              id="setting:gistSettings:askGistName"
+              setting="gistSettings.askGistName"
+            />
+            <label
+              for="setting:gistSettings:askGistName"
+              class="custom-control-label"
+            >
+              Ask Gist Name
+            </label>
+          </div>
+          <div class="custom-control custom-checkbox my-1 mr-sm-2">
+            <input
+              class="custom-control-input"
+              type="checkbox"
+              id="setting:gistSettings:downloadPublicGist"
+              setting="gistSettings.downloadPublicGist"
+            />
+            <label
+              for="setting:gistSettings:downloadPublicGist"
+              class="custom-control-label"
+            >
+              Download Public Gist
+            </label>
+          </div>
+          <div class="custom-control custom-checkbox my-1 mr-sm-2">
+            <input
+              class="custom-control-input"
+              type="checkbox"
+              id="setting:gistSettings:openTokenLink"
+              setting="gistSettings.openTokenLink"
+            />
+            <label
+              for="setting:gistSettings:openTokenLink"
+              class="custom-control-label"
+            >
+              Open Token Link
+            </label>
+          </div>
+        </form>
+      </div>
+      <div class="jumbotron">
+        <h2 class="display-4">Repo Settings</h2>
+        <hr class="my-4" />
+        <form>
+          <div class="form-group">
+            <label>GitHub Repo</label>
+            <input
+              type="text"
+              class="form-control"
+              id="setting:repoSettings:repo"
+              placeholder="Enter Git Repo URL (e.g. github.com/username/repo.git)"
+              setting="repoSettings.repo"
+            />
+          </div>
+          <div class="form-group">
+            <label>GitHub Token</label>
+            <input
+              type="text"
+              class="form-control"
+              id="setting:repoSettings:token"
+              placeholder="Enter GitHub Token"
+              setting="repoSettings.token"
+            />
+          </div>
+          <div class="form-group">
+            <label>GitHub Username</label>
+            <input
+              type="text"
+              class="form-control"
+              id="setting:repoSettings:username"
+              placeholder="Enter GitHub Username"
+              setting="repoSettings.username"
+            />
+          </div>
+        </form>
+      </div>
+    </div>
+    <script
+      src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
+      integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
+      crossorigin="anonymous"
+    ></script>
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"
+      integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1"
+      crossorigin="anonymous"
+    ></script>
+    <script
+      src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
+      integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
+      crossorigin="anonymous"
+    ></script>
+    <script>
+      const vscode = acquireVsCodeApi();
+      $(":input").change(function() {
+        let val = $(this).val();
+        if ($(this).attr("type") === "checkbox") {
+          val = $(this).is(":checked");
+        }
+        vscode.postMessage({
+          command: $(this).attr("setting"),
+          text: val
+        });
+      });
+    </script>
+    <style>
+      html,
+      body {
+        background-color: rgb(37, 37, 37);
+        font-family: "Roboto", sans-serif !important;
+      }
+      .jumbotron > .display-4 {
+        font-weight: 900;
+      }
+    </style>
+  </body>
+</html>
