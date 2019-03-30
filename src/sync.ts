@@ -247,16 +247,16 @@ export class Sync {
       if (customExist) {
         contentFiles = contentFiles.filter(
           contentFile =>
-            contentFile.fileName !== env.FILE_CUSTOMIZEDSETTINGS_NAME
+            contentFile.filename !== env.FILE_CUSTOMIZEDSETTINGS_NAME
         );
 
         if (customSettings.gistSettings.ignoreUploadFiles.length > 0) {
           contentFiles = contentFiles.filter(contentFile => {
             const isMatch: boolean =
               customSettings.gistSettings.ignoreUploadFiles.indexOf(
-                contentFile.fileName
+                contentFile.filename
               ) === -1 &&
-              contentFile.fileName !== env.FILE_CUSTOMIZEDSETTINGS_NAME;
+              contentFile.filename !== env.FILE_CUSTOMIZEDSETTINGS_NAME;
             return isMatch;
           });
         }
@@ -264,7 +264,7 @@ export class Sync {
           contentFiles = contentFiles.filter((contentFile: File) => {
             const matchedFolders = customSettings.gistSettings.ignoreUploadFolders.filter(
               folder => {
-                return contentFile.filePath.indexOf(folder) === -1;
+                return contentFile.path.indexOf(folder) === -1;
               }
             );
             return matchedFolders.length > 0;
@@ -276,7 +276,7 @@ export class Sync {
         if (customFileKeys.length > 0) {
           for (const key of customFileKeys) {
             const val = customSettings.gistSettings.customFiles[key];
-            const customFile: File = await FileService.GetCustomFile(val, key);
+            const customFile: File = FileService.GetCustomFile(val);
             if (customFile !== null) {
               allSettingFiles.push(customFile);
             }
@@ -292,9 +292,9 @@ export class Sync {
       }
 
       for (const snippetFile of contentFiles) {
-        if (snippetFile.fileName !== env.FILE_KEYBINDING_MAC) {
+        if (snippetFile.filename !== env.FILE_KEYBINDING_MAC) {
           if (snippetFile.content !== "") {
-            if (snippetFile.fileName === env.FILE_KEYBINDING_NAME) {
+            if (snippetFile.filename === env.FILE_KEYBINDING_NAME) {
               snippetFile.gistName =
                 env.OsType === OsType.Mac
                   ? env.FILE_KEYBINDING_MAC
@@ -304,7 +304,7 @@ export class Sync {
           }
         }
 
-        if (snippetFile.fileName === env.FILE_SETTING_NAME) {
+        if (snippetFile.filename === env.FILE_SETTING_NAME) {
           try {
             snippetFile.content = PragmaUtil.processBeforeUpload(
               snippetFile.content
@@ -507,7 +507,7 @@ export class Sync {
       const ignoredExtensions: string[] =
         customSettings.ignoreExtensions || new Array<string>();
       const updatedFiles: File[] = [];
-      const actionList: Array<Promise<void | boolean>> = [];
+      const actionList: Array<void | boolean> = [];
 
       if (res.data.public === true) {
         localSettings.publicGist = true;
@@ -683,15 +683,15 @@ export class Sync {
             }
             if (writeFile) {
               if (file.gistName === env.FILE_KEYBINDING_MAC) {
-                file.fileName = env.FILE_KEYBINDING_DEFAULT;
+                file.filename = env.FILE_KEYBINDING_DEFAULT;
               }
               let filePath: string = "";
-              if (file.filePath !== null) {
-                filePath = await FileService.CreateCustomDirTree(file.filePath);
+              if (file.path !== null) {
+                filePath = await FileService.CreateCustomDirTree(file.path);
               } else {
                 filePath = await FileService.CreateDirTree(
                   env.USER_FOLDER,
-                  file.fileName
+                  file.filename
                 );
               }
 
@@ -705,16 +705,7 @@ export class Sync {
                 );
               }
 
-              actionList.push(
-                FileService.WriteFile(filePath, content)
-                  .then(() => {
-                    // TODO : add Name attribute in File and show information message here with name , when required.
-                  })
-                  .catch(err => {
-                    Commons.LogException(err, common.ERROR_MESSAGE, true);
-                    return;
-                  })
-              );
+              actionList.push(FileService.WriteFile(filePath, content));
             }
           }
         }
@@ -979,7 +970,7 @@ export class Sync {
         };
         const fileName = await vscode.window.showQuickPick(
           customFiles.map(file => {
-            return file.fileName;
+            return file.filename;
           }),
           options
         );
@@ -988,12 +979,12 @@ export class Sync {
           return;
         }
         const selected = customFiles.find(f => {
-          return f.fileName === fileName;
+          return f.filename === fileName;
         });
         if (selected && vscode.workspace.rootPath) {
           const downloadPath = FileService.ConcatPath(
             vscode.workspace.rootPath,
-            selected.fileName
+            selected.filename
           );
           const done = await FileService.WriteFile(
             downloadPath,
