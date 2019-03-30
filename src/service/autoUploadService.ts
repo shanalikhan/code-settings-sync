@@ -1,4 +1,4 @@
-import { FSWatcher } from "chokidar";
+import { FSWatcher, watch } from "chokidar";
 import * as vscode from "vscode";
 import Commons from "../commons";
 import { Environment } from "../environmentPath";
@@ -6,9 +6,8 @@ import lockfile from "../lockfile";
 import { CustomSettings, ExtensionConfig } from "../setting";
 
 export class AutoUploadService {
-  constructor(
-    private options: { watcher: FSWatcher; en: Environment; commons: Commons }
-  ) {}
+  private watcher: FSWatcher;
+  constructor(private options: { en: Environment; commons: Commons }) {}
 
   public StartWatching() {
     vscode.extensions.onDidChange(async () => {
@@ -43,7 +42,11 @@ export class AutoUploadService {
       }
     });
 
-    this.options.watcher.on("change", async (path: string) => {
+    this.watcher = watch(`${this.options.en.PATH}/User/`, {
+      ignoreInitial: true,
+      depth: 2
+    });
+    this.watcher.on("change", async (path: string) => {
       // check sync is locking
       if (await lockfile.Check(this.options.en.FILE_SYNC_LOCK)) {
         return lockfile.Unlock(this.options.en.FILE_SYNC_LOCK);
@@ -111,8 +114,8 @@ export class AutoUploadService {
   }
 
   public StopWatching() {
-    if (this.options.watcher) {
-      this.options.watcher.close();
+    if (this.watcher) {
+      this.watcher.close();
     }
   }
 
