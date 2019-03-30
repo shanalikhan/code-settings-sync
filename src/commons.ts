@@ -125,16 +125,13 @@ export default class Commons {
         enableScripts: true
       }
     );
-    settingsPanel.webview.html = SettingsView;
+    const content = SettingsView.replace(
+      "@PLACEHOLDER_DATA",
+      JSON.stringify(this.GetCustomSettings())
+    );
+    settingsPanel.webview.html = content;
     settingsPanel.webview.onDidReceiveMessage(message =>
       this.ReceiveSettingChange(message)
-    );
-    setTimeout(
-      () =>
-        settingsPanel.webview.postMessage(
-          JSON.stringify(this.GetCustomSettings())
-        ),
-      1500
     );
   }
 
