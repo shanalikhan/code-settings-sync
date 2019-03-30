@@ -118,7 +118,7 @@ export default class Commons {
     const extSettings = this.GetSettings();
     const cusSettings = this.GetCustomSettings();
 
-    if (!cusSettings.method) {
+    if (!cusSettings.syncMethod) {
       this.OpenSettingsPage();
     }
 

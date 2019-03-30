@@ -24,10 +24,6 @@ export class CloudSetting {
   public extensionVersion: string = "v" + Environment.getVersion();
 }
 
-export class KeyValue<T, S> {
-  constructor(public Key: T, public Value: S) {}
-}
-
 export class CustomSettings {
   public repoSettings = {
     ignoredItems: [
@@ -59,9 +55,9 @@ export class CustomSettings {
     lastDownload: null,
     ignoreUploadSettings: []
   };
-  public ignoreExtensions: string[] = [];
+  public ignoredExtensions: string[] = [];
   public version: number = Environment.CURRENT_VERSION;
-  public disableUpdateMessage: boolean = false;
+  public disableUpdateMessage: boolean = true;
   public hostName: string = null;
-  public method: "repo" | "gist" = null;
+  public syncMethod: "repo" | "gist" = null;
 }
