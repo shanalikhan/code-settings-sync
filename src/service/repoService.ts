@@ -1,5 +1,7 @@
 import { appendFile, existsSync, writeFile } from "fs-extra";
 import * as Git from "simple-git/promise";
+import * as vscode from "vscode";
+import localize from "../localize";
 
 export class RepoService {
   public git: Git.SimpleGit;
@@ -43,6 +45,13 @@ export class RepoService {
   }
 
   public async push() {
+    if ((await this.git.diff()) === "") {
+      vscode.window.setStatusBarMessage(
+        localize("cmd.updateSettings.info.noChanges"),
+        2000
+      );
+      return;
+    }
     await this.git.commit("Update settings", ".");
     await this.git.push(this.options.repoURL, "master");
     return;
