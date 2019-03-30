@@ -171,17 +171,17 @@ export class PluginService {
     return list;
   }
 
-  public static async DeleteExtension(
+  public static DeleteExtension(
     item: ExtensionInformation,
     ExtensionFolder: string
-  ): Promise<boolean> {
+  ): boolean {
     const destination = $path.join(
       ExtensionFolder,
       item.info.publisher + "." + item.info.name + "-" + item.info.version
     );
 
     try {
-      await fs.remove(destination);
+      fs.removeSync(destination);
       return true;
     } catch (e) {
       console.error(`Sync: Error in uninstalling Extension; error: ${{ e }}`);
@@ -486,11 +486,8 @@ export class PluginService {
     }
   }
 
-  private static async CopyExtension(
-    destination: string,
-    source: string
-  ): Promise<void> {
-    await fs.copy(source, destination, { overwrite: true });
+  private static CopyExtension(destination: string, source: string) {
+    fs.copySync(source, destination, { overwrite: true });
   }
   private static async WritePackageJson(dirName: string, packageJson: string) {
     await fs.writeFile(
@@ -499,14 +496,8 @@ export class PluginService {
       "utf-8"
     );
   }
-  private static async GetPackageJson(
-    dirName: string,
-    item: ExtensionInformation
-  ) {
-    const text = await fs.readFile(
-      dirName + "/extension/package.json",
-      "utf-8"
-    );
+  private static GetPackageJson(dirName: string, item: ExtensionInformation) {
+    const text = fs.readFileSync(dirName + "/extension/package.json", "utf-8");
 
     const config = JSON.parse(text);
 
