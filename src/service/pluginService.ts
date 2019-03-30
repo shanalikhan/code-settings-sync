@@ -13,19 +13,13 @@ export class ExtensionInformation {
   public static async fromJSON(text: string) {
     try {
       const obj = JSON.parse(text);
-      const meta = new ExtensionMetadata(
-        obj.meta.galleryApiUrl,
-        obj.meta.id,
-        obj.meta.downloadUrl,
-        obj.meta.publisherId,
-        obj.meta.publisherDisplayName,
-        obj.meta.date
-      );
-      const item = new ExtensionInformation();
-      item.metadata = meta;
-      item.name = obj.name;
-      item.publisher = obj.publisher;
-      item.version = obj.version;
+      const meta = new ExtensionMetadata(obj.meta);
+      const item = new ExtensionInformation({
+        meta,
+        name: obj.name,
+        publisher: obj.publisher,
+        version: obj.version
+      });
       return item;
     } catch (e) {
       console.error(`Sync: Invalid JSON [fromJSON()]; error: ${{ e }}`);
@@ -36,21 +30,15 @@ export class ExtensionInformation {
     const extList: ExtensionInformation[] = [];
     try {
       JSON.parse(text).forEach(obj => {
-        const meta = new ExtensionMetadata(
-          obj.metadata.galleryApiUrl,
-          obj.metadata.id,
-          obj.metadata.downloadUrl,
-          obj.metadata.publisherId,
-          obj.metadata.publisherDisplayName,
-          obj.metadata.date
-        );
-        const item = new ExtensionInformation();
-        item.metadata = meta;
-        item.name = obj.name;
-        item.publisher = obj.publisher;
-        item.version = obj.version;
+        const meta = new ExtensionMetadata(obj.metadata);
+        const item = new ExtensionInformation({
+          meta,
+          name: obj.name,
+          publisher: obj.publisher,
+          version: obj.version
+        });
 
-        if (item.name !== "code-settings-sync") {
+        if (item.info.name !== "code-settings-sync") {
           extList.push(item);
         }
       });
@@ -61,20 +49,26 @@ export class ExtensionInformation {
     return extList;
   }
 
-  public metadata: ExtensionMetadata;
-  public name: string;
-  public version: string;
-  public publisher: string;
+  constructor(
+    public info: {
+      meta: ExtensionMetadata;
+      name: string;
+      publisher: string;
+      version: string;
+    }
+  ) {}
 }
 
 export class ExtensionMetadata {
   constructor(
-    public galleryApiUrl: string,
-    public id: string,
-    public downloadUrl: string,
-    public publisherId: string,
-    public publisherDisplayName: string,
-    public date: string
+    public info: {
+      galleryApiUrl: string;
+      id: string;
+      downloadUrl: string;
+      publisherId: string;
+      publisherDisplayName: string;
+      date: string;
+    }
   ) {}
 }
 
@@ -89,15 +83,15 @@ export class PluginService {
     const missingList: ExtensionInformation[] = [];
 
     for (const ext of localList) {
-      if (hashset[ext.name] == null) {
-        hashset[ext.name] = ext;
+      if (hashset[ext.info.name] == null) {
+        hashset[ext.info.name] = ext;
       }
     }
 
     for (const ext of remoteList) {
       if (
-        hashset[ext.name] == null &&
-        ignoredExtensions.includes(ext.name) === false
+        hashset[ext.info.name] == null &&
+        ignoredExtensions.includes(ext.info.name) === false
       ) {
         missingList.push(ext);
       }
@@ -132,11 +126,11 @@ export class PluginService {
 
     for (const ext of localList) {
       let found: boolean = false;
-      if (ext.name !== "code-settings-sync") {
+      if (ext.info.name !== "code-settings-sync") {
         for (const localExt of remoteList) {
           if (
-            ext.name === localExt.name ||
-            ignoredExtensions.includes(ext.name)
+            ext.info.name === localExt.info.name ||
+            ignoredExtensions.includes(ext.info.name)
           ) {
             found = true;
             break;
@@ -163,19 +157,14 @@ export class PluginService {
         publisherId: ext.id,
         publisherDisplayName: ext.packageJSON.publisher
       };
-      const data = new ExtensionMetadata(
-        meta.galleryApiUrl,
-        meta.id,
-        meta.downloadUrl,
-        meta.publisherId,
-        meta.publisherDisplayName,
-        meta.date
-      );
-      const info = new ExtensionInformation();
-      info.metadata = data;
-      info.name = ext.packageJSON.name;
-      info.publisher = ext.packageJSON.publisher;
-      info.version = ext.packageJSON.version;
+      const data = new ExtensionMetadata(meta);
+      const info = new ExtensionInformation({
+        meta: data,
+        name: ext.packageJSON.name,
+        publisher: ext.packageJSON.publisher,
+        version: ext.packageJSON.version
+      });
+
       list.push(info);
     }
 
@@ -188,7 +177,7 @@ export class PluginService {
   ): Promise<boolean> {
     const destination = $path.join(
       ExtensionFolder,
-      item.publisher + "." + item.name + "-" + item.version
+      item.info.publisher + "." + item.info.name + "-" + item.info.version
     );
 
     try {
@@ -220,8 +209,8 @@ export class PluginService {
         deletedExt.push(selectedExtension);
       } catch (err) {
         console.error(
-          `Sync: Unable to delete extension ${selectedExtension.name} ${
-            selectedExtension.version
+          `Sync: Unable to delete extension ${selectedExtension.info.name} ${
+            selectedExtension.info.version
           }`
         );
         console.error(err);
@@ -317,7 +306,7 @@ export class PluginService {
       '"';
     for (let i = 0; i < missingList.length; i++) {
       const missExt = missingList[i];
-      const name = missExt.publisher + "." + missExt.name;
+      const name = missExt.info.publisher + "." + missExt.info.name;
       const extensionCli = myExt + " --install-extension " + name;
       notificationCallBack(extensionCli);
       try {
@@ -379,7 +368,7 @@ export class PluginService {
           (err: any) => {
             console.error(err);
             notificationCallBack(
-              "Sync: " + element.name + " Download Failed.",
+              "Sync: " + element.info.name + " Download Failed.",
               true
             );
           }
@@ -404,7 +393,7 @@ export class PluginService {
           criteria: [
             {
               filterType: 4,
-              value: item.metadata.id
+              value: item.info.meta.info.id
             }
           ]
         }
@@ -424,7 +413,7 @@ export class PluginService {
         for (const result of content.results) {
           for (const extension of result.extensions) {
             for (const version of extension.versions) {
-              if (version.version === item.version) {
+              if (version.version === item.info.version) {
                 targetVersion = version;
                 break;
               }
@@ -456,9 +445,9 @@ export class PluginService {
         if (error === "NA" || error.message === "NA") {
           console.error(
             "Sync: Extension : '" +
-              item.name +
+              item.info.name +
               "' - Version : '" +
-              item.version +
+              item.info.version +
               "' Not Found in marketplace. Remove the extension and upload the settings to fix this."
           );
         }
@@ -474,7 +463,7 @@ export class PluginService {
       const packageJson = await PluginService.GetPackageJson(dir, item);
 
       Object.assign(packageJson, {
-        __metadata: item.metadata
+        __metadata: item.info.meta
       });
 
       const text = JSON.stringify(packageJson, null, " ");
@@ -483,13 +472,15 @@ export class PluginService {
       // Move the folder to correct path
       const destination = $path.join(
         ExtensionFolder,
-        item.publisher + "." + item.name + "-" + item.version
+        item.info.publisher + "." + item.info.name + "-" + item.info.version
       );
       const source = $path.join(extractPath, "extension");
       await PluginService.CopyExtension(destination, source);
     } catch (err) {
       console.error(
-        `Sync: Extension : '${item.name}' - Version : '${item.version}'` + err
+        `Sync: Extension : '${item.info.name}' - Version : '${
+          item.info.version
+        }'` + err
       );
       throw err;
     }
@@ -519,13 +510,13 @@ export class PluginService {
 
     const config = JSON.parse(text);
 
-    if (config.name !== item.name) {
+    if (config.name !== item.info.name) {
       throw new Error("name not equal");
     }
-    if (config.publisher !== item.publisher) {
+    if (config.publisher !== item.info.publisher) {
       throw new Error("publisher not equal");
     }
-    if (config.version !== item.version) {
+    if (config.version !== item.info.version) {
       throw new Error("version not equal");
     }
 
