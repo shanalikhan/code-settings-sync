@@ -507,9 +507,9 @@ export default class Commons {
 
     outputChannel.appendLine(`Files ${upload ? "Upload" : "Download"}ed:`);
     files
-      .filter(item => item.fileName.indexOf(".") > 0)
+      .filter(item => item.filename.indexOf(".") > 0)
       .forEach(item => {
-        outputChannel.appendLine(`  ${item.fileName} > ${item.gistName}`);
+        outputChannel.appendLine(`  ${item.filename} > ${item.gistName}`);
       });
 
     outputChannel.appendLine(``);
