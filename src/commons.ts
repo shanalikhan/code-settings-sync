@@ -109,84 +109,32 @@ export default class Commons {
     }
   }
 
-  public async InitalizeSettings(): Promise<LocalConfig> {
-    const settings: LocalConfig = new LocalConfig();
-    const extSettings: ExtensionConfig = this.GetSettings();
-    const cusSettings: CustomSettings = await this.GetCustomSettings();
+  public OpenSettingsPage() {
+    //
+  }
+
+  public InitalizeSettings(): LocalConfig {
+    const settings = new LocalConfig();
+    const extSettings = this.GetSettings();
+    const cusSettings = this.GetCustomSettings();
 
     if (!cusSettings.method) {
-      const method: string = await this.AskForInput({
-        prompt: "Enter save mechanism ('gist' or 'repo'):"
-      });
-      if (method === "gist" || method === "repo") {
-        cusSettings.method = method;
-      } else {
-        const msg = localize("common.error.tokenNotSave");
-        vscode.window.showErrorMessage(msg);
-      }
-    }
-
-    if (cusSettings.method === "gist") {
-      if (cusSettings.gistSettings.token === "") {
-        if (cusSettings.gistSettings.openTokenLink) {
-          vscode.commands.executeCommand(
-            "vscode.open",
-            vscode.Uri.parse("https://github.com/settings/tokens")
-          );
-        }
-        const tokTemp: string = await this.AskForInput({
-          prompt: "Enter token:"
-        });
-        if (!tokTemp) {
-          const msg = localize("common.error.tokenNotSave");
-          vscode.window.showErrorMessage(msg);
-          throw new Error(msg);
-        }
-        cusSettings.gistSettings.token = tokTemp;
-      }
-      if (extSettings.gist === "") {
-        const gistTemp: string = await this.AskForInput({
-          prompt: "Enter Gist ID:"
-        });
-        if (!gistTemp) {
-          const msg = localize("common.error.gistNotSave");
-          vscode.window.showErrorMessage(msg);
-          throw new Error(msg);
-        }
-        extSettings.gist = gistTemp;
-      }
-    }
-
-    if (cusSettings.method === "repo") {
-      if (cusSettings.repoSettings.repo === "") {
-        const temp: string = await this.AskForInput({
-          prompt:
-            "Enter repo url (https://username:token@host.com/username/repo.git):"
-        });
-        if (!temp) {
-          const msg = localize("common.error.tokenNotSave");
-          vscode.window.showErrorMessage(msg);
-          throw new Error(msg);
-        }
-        cusSettings.repoSettings.repo = temp;
-      }
+      this.OpenSettingsPage();
     }
 
     settings.customConfig = cusSettings;
     settings.extConfig = extSettings;
-
-    this.SetCustomSettings(cusSettings);
     return settings;
   }
 
-  public async GetCustomSettings(): Promise<CustomSettings> {
-    let customSettings: CustomSettings = new CustomSettings();
+  public GetCustomSettings(): CustomSettings {
+    const customSettings: CustomSettings = new CustomSettings();
     try {
-      const customExist: boolean = await FileService.FileExists(
+      const customExist: boolean = FileService.FileExists(
         this.en.FILE_CUSTOMIZEDSETTINGS
       );
       if (customExist) {
-        const customSettingStr: string = await FileService.ReadFile(
+        const customSettingStr: string = FileService.ReadFile(
           this.en.FILE_CUSTOMIZEDSETTINGS
         );
         const tempObj: {
@@ -203,29 +151,21 @@ export default class Commons {
     } catch (e) {
       Commons.LogException(
         e,
-        "Sync: Unable to read " +
-          this.en.FILE_CUSTOMIZEDSETTINGS_NAME +
-          ". Make sure its Valid JSON.",
+        `Sync: Unable to read ${
+          this.en.FILE_CUSTOMIZEDSETTINGS_NAME
+        }. Make sure its Valid JSON.`,
         true
       );
-      vscode.commands.executeCommand(
-        "vscode.open",
-        vscode.Uri.parse(
-          "http://shanalikhan.github.io/2017/02/19/Option-to-ignore-settings-folders-code-settings-sync.html"
-        )
-      );
-      customSettings = null;
-      return customSettings;
+      this.OpenSettingsPage();
+      return null;
     }
   }
 
-  public async SetCustomSettings(setting: CustomSettings): Promise<boolean> {
+  public SetCustomSettings(setting: CustomSettings): boolean {
     try {
-      const json: { [key: string]: any } = {
-        ...setting
-      };
+      const json: { [key: string]: any } = { ...setting };
       delete json.ignoreUploadSettings;
-      await FileService.WriteFile(
+      FileService.WriteFile(
         this.en.FILE_CUSTOMIZEDSETTINGS,
         JSON.stringify(json)
       );
@@ -233,15 +173,15 @@ export default class Commons {
     } catch (e) {
       Commons.LogException(
         e,
-        "Sync: Unable to write " + this.en.FILE_CUSTOMIZEDSETTINGS_NAME,
+        `Sync: Unable to write ${this.en.FILE_CUSTOMIZEDSETTINGS_NAME}`,
         true
       );
       return false;
     }
   }
 
-  public async StartMigrationProcess(): Promise<boolean> {
-    const fileExist: boolean = await FileService.FileExists(
+  public StartMigrationProcess(): boolean {
+    const fileExist: boolean = FileService.FileExists(
       this.en.FILE_CUSTOMIZEDSETTINGS
     );
     let customSettings: CustomSettings = null;
@@ -249,7 +189,7 @@ export default class Commons {
     let fileChanged: boolean = firstTime;
 
     if (fileExist) {
-      customSettings = await this.GetCustomSettings();
+      customSettings = this.GetCustomSettings();
     } else {
       customSettings = new CustomSettings();
     }
@@ -338,17 +278,17 @@ export default class Commons {
 
     if (fileChanged) {
       customSettings.version = Environment.CURRENT_VERSION;
-      await this.SetCustomSettings(customSettings);
+      this.SetCustomSettings(customSettings);
     }
     return true;
   }
 
-  public async SaveSettings(setting: ExtensionConfig): Promise<boolean> {
+  public SaveSettings(setting: ExtensionConfig): boolean {
     const config = vscode.workspace.getConfiguration("sync");
     const allKeysUpdated = new Array<Thenable<void>>();
 
     const keys = Object.keys(setting);
-    keys.forEach(async keyName => {
+    keys.forEach(keyName => {
       if (setting[keyName] == null) {
         setting[keyName] = "";
       }
@@ -360,7 +300,7 @@ export default class Commons {
     });
 
     try {
-      await Promise.all(allKeysUpdated);
+      Promise.all(allKeysUpdated);
       if (this.context.globalState.get("syncCounter")) {
         const counter = this.context.globalState.get("syncCounter");
         let count: number = parseInt(counter + "", 10);
@@ -379,10 +319,10 @@ export default class Commons {
     }
   }
 
-  public async DonateMessage(): Promise<void> {
+  public DonateMessage(): void {
     const donateNow = localize("common.action.donate");
     const writeReview = localize("common.action.writeReview");
-    const res = await vscode.window.showInformationMessage(
+    const res = vscode.window.showInformationMessage(
       localize("common.info.donate"),
       donateNow,
       writeReview
@@ -425,7 +365,7 @@ export default class Commons {
   /**
    * IgnoreSettings
    */
-  public async GetIgnoredSettings(settings: string[]): Promise<object> {
+  public GetIgnoredSettings(settings: string[]): object {
     const ignoreSettings: object = {};
     const config = vscode.workspace.getConfiguration();
     const keysUpdated: Array<Thenable<void>> = [];
@@ -439,7 +379,7 @@ export default class Commons {
       }
     }
 
-    await Promise.all(keysUpdated);
+    Promise.all(keysUpdated);
 
     return ignoreSettings;
   }
