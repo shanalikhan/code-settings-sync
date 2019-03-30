@@ -2,7 +2,6 @@
 import { Environment } from "./environmentPath";
 
 export class ExtensionConfig {
-  public gist: string = null;
   public quietSync: boolean = false;
   public removeExtensions: boolean = true;
   public syncExtensions: boolean = true;
@@ -36,6 +35,7 @@ export class CustomSettings {
     username: ""
   };
   public gistSettings = {
+    gist: "",
     ignoreUploadFiles: [
       "projects.json",
       "projects_cache_vscode.json",
