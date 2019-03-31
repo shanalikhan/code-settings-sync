@@ -8,7 +8,7 @@ import localize from "./localize";
 import * as lockfile from "./lockfile";
 import { File, FileService } from "./service/fileService";
 import { GitHubService } from "./service/githubService";
-import { GitService, UrlInfo } from "./service/gitService";
+import { GitService } from "./service/gitService";
 import { ExtensionInformation, PluginService } from "./service/pluginService";
 import {
   CloudSetting,
@@ -88,26 +88,29 @@ export class Sync {
       }
 
       if (localConfig.customConfig.syncMode === "git") {
+        const repoUrl: string = localConfig.extConfig.repoUrl;
+        const token: string = localConfig.customConfig.repoServiceTokens.github;
         git = new GitService(env.USER_FOLDER);
         github = new GitHubService(
-          localConfig.customConfig.repoServiceTokens.github,
+          token,
           localConfig.customConfig.githubEnterpriseUrl
         );
-        const repoUrl: string = localConfig.extConfig.repoUrl;
-        await Promise.all([git.initialize(repoUrl), github.Authenticate()]);
+        await Promise.all([
+          github.Authenticate(),
+          /* Read Push Method in GitService */
+          // git.initialize(repoUrl, token, true, true)
+          git.initialize(repoUrl, true, true)
+        ]);
 
-        const repoName: string = await GitService.ParseUrl(repoUrl, UrlInfo.NAME);
-        const repoOwner: string = await GitService.ParseUrl(repoUrl, UrlInfo.OWNER);
-        const repoInfo: any = await github.GetRepo(repoOwner, repoName);
-
+        const repoInfo: any = await github.GetRepo(git.owner, git.repoName);
         if (repoInfo) {
           if (!repoInfo.data.permissions.push) {
             throw new Error(localize("cmd.updateSettings.error.gitNoPushPermissions"));
           }
-        } else if (repoOwner !== github.userName) {
+        } else if (git.owner !== github.userName) {
           throw new Error(localize("cmd.updateSettings.error.gitNotOwner"));
         } else {
-          await github.CreateRepo(repoName);
+          await github.CreateRepo(git.repoName);
         }
       } else {
         github = new GitHubService(
@@ -273,9 +276,12 @@ export class Sync {
           actionList.push(git.addFile(settingFile));
         }
 
-        Promise.all(actionList).then(() => {
-          git.status().then(status => console.log(status));
-        });
+        await Promise.all(actionList);
+        await git.Commit(dateNow.toString());
+        await git.Push();
+        const status: any = await git.status();
+        console.log(status);
+
         return;
       }
 

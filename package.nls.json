@@ -96,6 +96,7 @@
   "common.error.invalidGistId": "Sync : Invalid Gist Id Entered. Verify your gist : https://gist.github.com/<your_userName>/<gist_id>.",
   "common.error.invalidRepoUrl": "Sync : Invalid Git Repo Url. Verify your url is correct.",
   "common.error.noGit": "Sync : No Git Found. Please install git to use git sync.",
+  "common.error.noGitUser": "Sync : Git User not configured. Please set your git username to continue.",
   "common.error.noRepoUrl": "Sync : No Git Repo Url. Set Git Repo Url to use git sync.",
   "common.error.tokenNotSave": "Sync : Token Not Saved.",
   "common.error.gistNotSave": "Sync : Gist Not Saved.",

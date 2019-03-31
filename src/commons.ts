@@ -33,6 +33,9 @@ export default class Commons {
         if (message.indexOf("spawn git ENOENT") !== -1) {
           msgBox = true;
           message = localize("common.error.noGit");
+        } else if (message.indexOf("Please tell me who you are") !== -1) {
+          msgBox = true;
+          message = localize("common.error.noGitUser");
         } else if (message.indexOf("Bad credentials") !== -1) {
           msgBox = true;
           message = localize("common.error.authError");

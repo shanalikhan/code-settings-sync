@@ -3,7 +3,7 @@
 
 import { File } from "./fileService";
 import * as simplegit from "simple-git/promise";
-import { RemoteWithRefs } from "simple-git/typings/response";
+import { RemoteWithRefs, CommitSummary } from "simple-git/typings/response";
 
 export enum UrlInfo {
   NAME    = 2,
@@ -12,7 +12,12 @@ export enum UrlInfo {
 };
 
 export class GitService {
-  public remoteUrl: string = null;
+  public owner: string = null;
+  public service: string = null;
+  public repoUrl: string = null;
+  public repoName: string = null;
+  public forcePush: boolean = false;
+  public forcePull: boolean = false;
   public git: simplegit.SimpleGit = null;
 
   public static sshRegex: RegExp = /(^)git@(github|gitlab).com:([a-zA-Z0-9]+)\/([a-zA-Z0-9\-]+).git($)/;
@@ -27,25 +32,57 @@ export class GitService {
       tokenUrl: "https://gitlab.com/profile/personal_access_tokens"
     }
   };
+  // private token: string = null;
 
   constructor (workspace: string) {
     this.git = simplegit(workspace);
   }
 
-  public async initialize(repoUrl: string): Promise<boolean> {
+  // public async initialize(repoUrl: string, token: string, forcePush?: boolean, forcePull?: boolean): Promise<boolean> {
+  public async initialize(repoUrl: string, forcePush?: boolean, forcePull?: boolean): Promise<boolean> {
     await this.git.init();
     if (repoUrl) {
-      this.remoteUrl = repoUrl;
+      // this.token    = token;
+      this.repoUrl  = repoUrl;
+      this.repoName = await GitService.ParseUrl(repoUrl, UrlInfo.NAME);
+      this.owner    = await GitService.ParseUrl(repoUrl, UrlInfo.OWNER);
+      this.service  = await GitService.ParseUrl(repoUrl, UrlInfo.SERVICE);
+      if (forcePush) this.forcePush = forcePush;
+      if (forcePull) this.forcePull = forcePull;
+
       const remote: RemoteWithRefs = await this.getOrigin();
       if (!remote) {
-        await this.git.addRemote("origin", this.remoteUrl);
-      } else if (remote.refs.push !== this.remoteUrl) {
-        await this.git.raw(['remote', 'set-url', 'origin', this.remoteUrl]);
+        await this.git.addRemote("origin", this.repoUrl);
+      } else if (remote.refs.push !== this.repoUrl) {
+        await this.git.raw(['remote', 'set-url', 'origin', this.repoUrl]);
       }
       const updatedOrigin: RemoteWithRefs = await this.getOrigin();
-      return Promise.resolve(updatedOrigin && updatedOrigin.refs.push === this.remoteUrl);
+      return Promise.resolve(updatedOrigin && updatedOrigin.refs.push === this.repoUrl);
     }
     return Promise.resolve(false);
+  }
+
+  public async Commit(message: string): Promise<CommitSummary> {
+    return this.git.commit(message);
+  }
+
+  public async Push(branch: string = 'master'): Promise<void> {
+    /* For some reason, the repo gave back a fatal: error cannot find username. Device not configured...
+     * when using simplegit's regular push method. However, this is no longer the case though
+     * I'm not entirely sure what fixed it. Though, as long as the user is still using https, there is a
+     * possibility of error? Leaving the raw method with token at the bottom just in case.
+     * https://github.com/github/hub/issues/1644
+     * https://stackoverflow.com/questions/22147574/fatal-could-not-read-username-for-https-github-com-no-such-file-or-directo
+     */
+    let pushOpts: any = {'--set-upstream': null};
+    if (this.forcePush) pushOpts['--force'] = null;
+
+    return this.git.push('origin', branch, pushOpts);
+
+    // let pushOpts: string[] = ['push', '--set-upstream'];
+    // if (this.forcePush) pushOpts.push('--force');
+    // const remoteUrl: string = `https://${this.owner}:${this.token}@${this.service}.com/${this.owner}/${this.repoName}`
+    // return this.git.raw([...pushOpts, remoteUrl]);
   }
 
   public async addFile(file: File): Promise<void> {
