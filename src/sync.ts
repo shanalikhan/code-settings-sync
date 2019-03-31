@@ -278,13 +278,29 @@ export class Sync {
         for (const settingFile of allSettingFiles) {
           actionList.push(git.addFile(settingFile));
         }
-
         await Promise.all(actionList);
+
         await git.Commit(dateNow.toString());
         await git.Push();
+
         const status: any = await git.status();
         console.log(status);
 
+        const settingsUpdated = await common.SaveSettings(syncSetting);
+        const customSettingsUpdated = await common.SetCustomSettings(
+          customSettings
+        );
+
+        if (settingsUpdated && customSettingsUpdated) {
+          const commitID: string = await git.GetCommitID();
+          vscode.window.showInformationMessage(
+            localize(
+              "cmd.updateSettings.info.uploadingDone.git",
+              commitID
+            )
+          );
+        }
+        if(syncSetting.autoUpload) common.StartWatch();
         return;
       }
 

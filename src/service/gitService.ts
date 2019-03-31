@@ -111,6 +111,10 @@ export class GitService {
     return Promise.resolve(matchedString[matchedString.length - regexPos]);
   }
 
+  public async GetCommitID(): Promise<string> {
+    return this.git.raw(['rev-parse', 'HEAD']);
+  }
+
   public static async GetServiceId(repoService: string): Promise<string> {
     return Promise.resolve(this.servicesInfo[repoService].id);
   }
