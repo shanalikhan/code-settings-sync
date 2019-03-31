@@ -8,6 +8,7 @@ import { CustomSettings } from "../setting";
 import { FileService } from "./fileService";
 
 export class AutoUploadService {
+  public watching = false;
   private watcher = watch(this.options.en.USER_FOLDER, {
     depth: 2,
     ignored: this.options.commons.GetCustomSettings().ignoredItems.map(item => {
@@ -19,21 +20,27 @@ export class AutoUploadService {
     })
   });
 
-  constructor(private options: { en: Environment; commons: Commons }) {}
+  constructor(private options: { en: Environment; commons: Commons }) {
+    vscode.extensions.onDidChange(async () => {
+      if (this.watching) {
+        console.log("Sync: Extensions changed");
+        if (await lockfile.Check(this.options.en.FILE_SYNC_LOCK)) {
+          return;
+        }
+        await lockfile.Lock(this.options.en.FILE_SYNC_LOCK);
+        const customSettings: CustomSettings = await this.options.commons.GetCustomSettings();
+        if (customSettings) {
+          await this.InitiateAutoUpload();
+        }
+        return await lockfile.Unlock(this.options.en.FILE_SYNC_LOCK);
+      }
+    });
+  }
 
   public async StartWatching() {
     this.StopWatching();
-    vscode.extensions.onDidChange(async () => {
-      if (await lockfile.Check(this.options.en.FILE_SYNC_LOCK)) {
-        return;
-      }
-      await lockfile.Lock(this.options.en.FILE_SYNC_LOCK);
-      const customSettings: CustomSettings = await this.options.commons.GetCustomSettings();
-      if (customSettings) {
-        await this.InitiateAutoUpload();
-      }
-      return await lockfile.Unlock(this.options.en.FILE_SYNC_LOCK);
-    });
+
+    this.watching = true;
 
     this.watcher.addListener("all", async (event: string, path: string) => {
       console.log(
@@ -72,6 +79,7 @@ export class AutoUploadService {
     if (this.watcher) {
       this.watcher.removeAllListeners();
     }
+    this.watching = false;
   }
 
   private async InitiateAutoUpload() {
