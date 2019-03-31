@@ -143,8 +143,8 @@ export default class Commons {
 
   public SetCustomSettings(setting: CustomSettings): boolean {
     try {
-      const json: { [key: string]: any } = { ...setting };
-      delete json.ignoreUploadSettings;
+      const json = { ...setting };
+      delete json.gistSettings.ignoredSettings;
       FileService.WriteFile(
         this.en.FILE_CUSTOMIZEDSETTINGS,
         JSON.stringify(json, null, 2)
