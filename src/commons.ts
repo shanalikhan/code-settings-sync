@@ -1,15 +1,12 @@
 "use strict";
-import * as fs from "fs-extra";
 import { has, set } from "lodash";
 import * as vscode from "vscode";
 import { Environment } from "./environmentPath";
 import localize from "./localize";
-import * as lockfile from "./lockfile";
 import { AutoUploadService } from "./service/autoUploadService";
 import { File, FileService } from "./service/fileService";
 import { ExtensionInformation } from "./service/pluginService";
-import { CustomSettings, ExtensionConfig, LocalConfig } from "./setting";
-import { Util } from "./util";
+import { CustomSettings, LocalConfig } from "./setting";
 
 // tslint:disable-next-line: no-var-requires
 const SettingsView = require("html-loader!./ui/settings/settings.html");
@@ -59,7 +56,7 @@ export default class Commons {
 
   public ERROR_MESSAGE: string = localize("common.error.message");
 
-  private autoUploadService = new AutoUploadService({
+  public autoUploadService = new AutoUploadService({
     en: this.en,
     commons: this
   });
@@ -68,43 +65,6 @@ export default class Commons {
     private en: Environment,
     private context: vscode.ExtensionContext
   ) {}
-
-  public async StartWatch(): Promise<void> {
-    const lockExist: boolean = await FileService.FileExists(
-      this.en.FILE_SYNC_LOCK
-    );
-    if (!lockExist) {
-      fs.closeSync(fs.openSync(this.en.FILE_SYNC_LOCK, "w"));
-    }
-
-    // check is sync locking
-    if (await lockfile.Check(this.en.FILE_SYNC_LOCK)) {
-      await lockfile.Unlock(this.en.FILE_SYNC_LOCK);
-    }
-
-    this.autoUploadService.StopWatching();
-    this.autoUploadService.StartWatching();
-  }
-
-  public async InitiateAutoUpload(): Promise<boolean> {
-    vscode.window.setStatusBarMessage("").dispose();
-    vscode.window.setStatusBarMessage(
-      localize("common.info.initAutoUpload"),
-      5000
-    );
-
-    await Util.Sleep(3000);
-
-    vscode.commands.executeCommand("extension.updateSettings", "forceUpdate");
-
-    return true;
-  }
-
-  public CloseWatch(): void {
-    if (this.autoUploadService) {
-      this.autoUploadService.StopWatching();
-    }
-  }
 
   public OpenSettingsPage() {
     const settingsPanel = vscode.window.createWebviewPanel(
@@ -140,7 +100,6 @@ export default class Commons {
 
   public InitalizeSettings(): LocalConfig {
     const settings = new LocalConfig();
-    const extSettings = this.GetSettings();
     const cusSettings = this.GetCustomSettings();
 
     if (!cusSettings.syncMethod) {
@@ -148,29 +107,25 @@ export default class Commons {
     }
 
     settings.customConfig = cusSettings;
-    settings.extConfig = extSettings;
     return settings;
   }
 
-  public GetCustomSettings(): CustomSettings {
+  public GetCustomSettings() {
     const customSettings: CustomSettings = new CustomSettings();
     try {
-      const customExist: boolean = FileService.FileExists(
+      const customExist = FileService.FileExists(
         this.en.FILE_CUSTOMIZEDSETTINGS
       );
       if (customExist) {
-        const customSettingStr: string = FileService.ReadFile(
+        const customSettingStr = FileService.ReadFile(
           this.en.FILE_CUSTOMIZEDSETTINGS
         );
         const tempObj: {
           [key: string]: any;
-          ignoreUploadSettings: string[];
         } = JSON.parse(customSettingStr);
-        if (!Array.isArray(tempObj.ignoreUploadSettings)) {
-          tempObj.ignoreUploadSettings = [];
-        }
         Object.assign(customSettings, tempObj);
         customSettings.gistSettings.token = customSettings.gistSettings.token.trim();
+        customSettings.repoSettings.token = customSettings.repoSettings.token.trim();
         return customSettings;
       }
     } catch (e) {
@@ -308,42 +263,6 @@ export default class Commons {
     return true;
   }
 
-  public SaveSettings(setting: ExtensionConfig): boolean {
-    const config = vscode.workspace.getConfiguration("sync");
-    const allKeysUpdated = new Array<Thenable<void>>();
-
-    const keys = Object.keys(setting);
-    keys.forEach(keyName => {
-      if (setting[keyName] == null) {
-        setting[keyName] = "";
-      }
-      if (keyName.toLowerCase() !== "token") {
-        if (config.get(keyName) !== setting[keyName]) {
-          allKeysUpdated.push(config.update(keyName, setting[keyName], true));
-        }
-      }
-    });
-
-    try {
-      Promise.all(allKeysUpdated);
-      if (this.context.globalState.get("syncCounter")) {
-        const counter = this.context.globalState.get("syncCounter");
-        let count: number = parseInt(counter + "", 10);
-        if (count % 450 === 0) {
-          this.DonateMessage();
-        }
-        count = count + 1;
-        this.context.globalState.update("syncCounter", count);
-      } else {
-        this.context.globalState.update("syncCounter", 1);
-      }
-      return true;
-    } catch (err) {
-      Commons.LogException(err, this.ERROR_MESSAGE, true);
-      return false;
-    }
-  }
-
   public DonateMessage(): void {
     const donateNow = localize("common.action.donate");
     const writeReview = localize("common.action.writeReview");
@@ -368,17 +287,6 @@ export default class Commons {
         )
       );
     }
-  }
-
-  public GetSettings(): ExtensionConfig {
-    const settings = new ExtensionConfig();
-
-    for (const key of Object.keys(settings)) {
-      if (key !== "token") {
-        settings[key] = vscode.workspace.getConfiguration("sync").get(key);
-      }
-    }
-    return settings;
   }
 
   /**
@@ -487,7 +395,7 @@ export default class Commons {
     outputChannel.appendLine(``);
     outputChannel.appendLine(`Extensions Removed:`);
 
-    if (!syncSettings.extConfig.removeExtensions) {
+    if (!syncSettings.customConfig.removeExtensions) {
       outputChannel.appendLine(`  Feature Disabled.`);
     } else {
       if (!removedExtensions || removedExtensions.length === 0) {
