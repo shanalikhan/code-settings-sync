@@ -97,9 +97,12 @@ export class Sync {
         );
         await Promise.all([
           github.Authenticate(),
-          /* Read Push Method in GitService */
-          // git.initialize(repoUrl, token, true, true)
-          git.initialize(repoUrl, true, true)
+          git.initialize(
+            repoUrl,
+            localConfig.customConfig.gitBranch,
+            localConfig.customConfig.forcePush,
+            localConfig.customConfig.forcePull
+          )
         ]);
 
         const repoInfo: any = await github.GetRepo(git.owner, git.repoName);
