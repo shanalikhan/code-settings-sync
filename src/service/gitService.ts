@@ -6,9 +6,9 @@ import * as simplegit from "simple-git/promise";
 import { RemoteWithRefs, CommitSummary } from "simple-git/typings/response";
 
 export enum UrlInfo {
-  NAME    = 2,
-  OWNER   = 3,
-  SERVICE = 4,
+  NAME    = 1,
+  OWNER   = 2,
+  SERVICE = 3,
 };
 
 export class GitService {
@@ -20,8 +20,8 @@ export class GitService {
   public forcePull: boolean = false;
   public git: simplegit.SimpleGit = null;
 
-  public static sshRegex: RegExp = /(^)git@(github|gitlab).com:([a-zA-Z0-9]+)\/([a-zA-Z0-9\-]+).git($)/;
-  public static httpsRegex: RegExp = /(^)https:\/\/(www.)?(github|gitlab).com\/([a-zA-Z0-9]+)\/([a-zA-Z0-9\-]+).git($)/;
+  public static sshRegex: RegExp = /^git@(github|gitlab).com:([a-zA-Z0-9]+)\/([a-zA-Z0-9\-]+).git$/;
+  public static httpsRegex: RegExp = /^https:\/\/(www.)?(github|gitlab).com\/([a-zA-Z0-9]+)\/([a-zA-Z0-9\-]+).git$/;
   public static servicesInfo: any = {
     "github": {
       id: "GitHub Repo",
