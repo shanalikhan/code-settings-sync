@@ -10,8 +10,12 @@ export class RepoService {
       workingDirectory: string;
       repoURL: string;
       ignored: string[];
+      branch?: string;
     }
   ) {
+    if (!this.options.branch) {
+      this.options.branch = "master";
+    }
     this.git = Git(this.options.workingDirectory).silent(true);
     this.checkRepo();
   }
@@ -35,7 +39,9 @@ export class RepoService {
   }
 
   public async pull() {
-    await this.git.pull();
+    await this.git.pull(this.options.repoURL, this.options.branch, {
+      "--force": null
+    });
     return true;
   }
 
@@ -49,7 +55,9 @@ export class RepoService {
     }
     await this.git.add(".");
     await this.git.commit("Update settings");
-    await this.git.push(this.options.repoURL, "master");
+    await this.git.push(this.options.repoURL, this.options.branch, {
+      "--force": null
+    });
     return true;
   }
 
