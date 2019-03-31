@@ -5,12 +5,18 @@ import { File } from "./fileService";
 import * as simplegit from "simple-git/promise";
 import { RemoteWithRefs } from "simple-git/typings/response";
 
+export enum UrlInfo {
+  NAME    = 2,
+  OWNER   = 3,
+  SERVICE = 4,
+};
+
 export class GitService {
   public remoteUrl: string = null;
   public git: simplegit.SimpleGit = null;
 
-  public static sshRegex: RegExp = /(^)git@(github|gitlab).com:[a-zA-Z0-9]+\/([a-zA-Z0-9\-]+).git($)/;
-  public static httpsRegex: RegExp = /(^)https:\/\/(www.)?(github|gitlab).com\/[a-zA-Z0-9]+\/([a-zA-Z0-9\-]+).git($)/;
+  public static sshRegex: RegExp = /(^)git@(github|gitlab).com:([a-zA-Z0-9]+)\/([a-zA-Z0-9\-]+).git($)/;
+  public static httpsRegex: RegExp = /(^)https:\/\/(www.)?(github|gitlab).com\/([a-zA-Z0-9]+)\/([a-zA-Z0-9\-]+).git($)/;
   public static servicesInfo: any = {
     "github": {
       id: "GitHub Repo",
@@ -38,7 +44,7 @@ export class GitService {
       }
       const updatedOrigin: RemoteWithRefs = await this.getOrigin();
       if (updatedOrigin && updatedOrigin.refs.push === this.remoteUrl)
-        return Promise.resolve(await GitService.ParseService(this.remoteUrl, 2));
+        return Promise.resolve(await GitService.ParseUrl(this.remoteUrl, UrlInfo.NAME));
     }
     return Promise.resolve(null);
   }
@@ -51,14 +57,15 @@ export class GitService {
     return this.git.getRemotes(true).then(remotes => remotes.filter(v => v.name === "origin").shift());
   }
 
-  public static async ParseService(repoUrl: string, regexPos: number = 3): Promise<string> {
+  public static async ParseUrl(repoUrl: string, regexPos: UrlInfo = UrlInfo.SERVICE): Promise<string> {
     const matchedString: string[] =
       repoUrl.match(this.httpsRegex) || repoUrl.match(this.sshRegex);
     if (!matchedString) {
       return Promise.resolve(null);
     }
     // -2 is reponame
-    // -3 is service name
+    // -3 is owner name
+    // -4 is service name
     // Guaranteed as regex must match to get here
     return Promise.resolve(matchedString[matchedString.length - regexPos]);
   }

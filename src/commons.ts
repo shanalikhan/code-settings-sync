@@ -4,7 +4,7 @@ import * as vscode from "vscode";
 import { Environment } from "./environmentPath";
 import localize from "./localize";
 import * as lockfile from "./lockfile";
-import { GitService } from "./service/gitService";
+import { UrlInfo, GitService } from "./service/gitService";
 import { File, FileService } from "./service/fileService";
 import { ExtensionInformation } from "./service/pluginService";
 import { CustomSettings, ExtensionConfig, LocalConfig } from "./setting";
@@ -263,7 +263,7 @@ export default class Commons {
 
       if (cusSettings.syncMode === "git") {
         const repoUrl: string = await this.GetGitRepoAndSave(extSettings);
-        const repoService: string = await GitService.ParseService(repoUrl);
+        const repoService: string = await GitService.ParseUrl(repoUrl, UrlInfo.SERVICE);
         if (!repoService) {
           const msg: string = localize("common.error.noRepoServiceFound");
           vscode.window.showErrorMessage(msg);
