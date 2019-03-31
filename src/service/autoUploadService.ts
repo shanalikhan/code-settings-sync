@@ -44,7 +44,7 @@ export class AutoUploadService {
 
     this.watcher.addListener("all", async (event: string, path: string) => {
       console.log(
-        `Sync: ${FileService.ExtractFileName(path)} triggered event ${event}`
+        `Sync: ${FileService.ExtractFileName(path)} triggered event: ${event}`
       );
       if (await lockfile.Check(this.options.en.FILE_SYNC_LOCK)) {
         return;
@@ -58,7 +58,6 @@ export class AutoUploadService {
           const fileType: string = path
             .substring(path.lastIndexOf("."), path.length)
             .slice(1);
-          console.log(fileType);
           if (
             customSettings.gistSettings.supportedFileExtensions.indexOf(
               fileType
