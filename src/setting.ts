@@ -13,26 +13,34 @@ export class CloudSetting {
   public extensionVersion: string = "v" + Environment.getVersion();
 }
 
+export class CustomFile {
+  public filename: string;
+  public path: string;
+}
+
+export class GistSettings {
+  public gist: string = "";
+  public customFiles: CustomFile[] = [];
+  public githubEnterpriseUrl: string = "";
+  public askGistName: boolean = false;
+  public downloadPublicGist: boolean = false;
+  public token: string = "";
+  public supportedFileExtensions: string[] = ["json", "code-snippets"];
+  public openTokenLink: boolean = true;
+  public gistDescription: string = "Visual Studio Code Settings Sync Gist";
+  public lastUpload: Date = null;
+  public lastDownload: Date = null;
+}
+
+export class RepoSettings {
+  public repo: string = "";
+  public token: string = "";
+  public username: string = "";
+}
+
 export class CustomSettings {
-  public repoSettings = {
-    repo: "",
-    token: "",
-    username: ""
-  };
-  public gistSettings = {
-    gist: "",
-    customFiles: [],
-    githubEnterpriseUrl: null,
-    askGistName: false,
-    downloadPublicGist: false,
-    token: "",
-    supportedFileExtensions: ["json", "code-snippets"],
-    openTokenLink: true,
-    gistDescription: "Visual Studio Code Settings Sync Gist",
-    lastUpload: null,
-    lastDownload: null,
-    ignoreUploadSettings: []
-  };
+  public repoSettings = new RepoSettings();
+  public gistSettings = new GistSettings();
   public ignoredItems = [
     ".git",
     "syncLocalSettings.json",
