@@ -182,10 +182,7 @@ export class Sync {
       );
 
       // var remoteList = ExtensionInformation.fromJSONList(file.content);
-      // var deletedList = PluginService.GetDeletedExtensions(uploadedExtensions);
-      if (customSettings.syncExtensions) {
-        allSettingFiles.push(getExtensions(customSettings));
-      }
+      // var deletedList = PluginService.GetDeletedExtensions(uploadedExt\ensions);
 
       let contentFiles = await FileServiceAsync.ListFiles(
         env.USER_FOLDER,
@@ -212,6 +209,7 @@ export class Sync {
           }
         });
       }
+
       contentFiles.forEach(snippetFile => {
         if (snippetFile.filename !== env.FILE_KEYBINDING_MAC) {
           if (snippetFile.content !== "") {
@@ -221,22 +219,25 @@ export class Sync {
                   ? env.FILE_KEYBINDING_MAC
                   : env.FILE_KEYBINDING_DEFAULT;
             }
+            if (snippetFile.filename === env.FILE_SETTING_NAME) {
+              try {
+                snippetFile.content = PragmaUtil.processBeforeUpload(
+                  snippetFile.content
+                );
+              } catch (e) {
+                Commons.LogException(null, e.message, true);
+                console.error(e);
+                return;
+              }
+            }
             allSettingFiles.push(snippetFile);
           }
         }
-
-        if (snippetFile.filename === env.FILE_SETTING_NAME) {
-          try {
-            snippetFile.content = PragmaUtil.processBeforeUpload(
-              snippetFile.content
-            );
-          } catch (e) {
-            Commons.LogException(null, e.message, true);
-            console.error(e);
-            return;
-          }
-        }
       });
+
+      if (customSettings.syncExtensions) {
+        allSettingFiles.push(getExtensions(customSettings));
+      }
 
       const extProp = new CloudSetting();
       extProp.lastUpload = dateNow;
