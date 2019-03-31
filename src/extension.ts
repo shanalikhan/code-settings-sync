@@ -38,7 +38,7 @@ export async function activate(context: vscode.ExtensionContext) {
   context.subscriptions.push(
     vscode.commands.registerCommand(
       "extension.otherOptions",
-      sync.advance.bind(sync)
+      sync.otherOptions.bind(sync)
     )
   );
 }
