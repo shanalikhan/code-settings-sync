@@ -28,6 +28,8 @@
   "cmd.updateSettings.error.newGistCreateFail": "Sync : Unable to create Gist.",
   "cmd.updateSettings.error.readGistFail": "Sync :  GIST ID : {0} UNABLE TO READ.",
   "cmd.updateSettings.error.gistNotSave": "Sync : GIST NOT SAVED",
+  "cmd.updateSettings.error.gitNotOwner": "Sync : Git has different owner ids between url and auth token. Please recheck your settings.",
+  "cmd.updateSettings.error.gitNoPushPermissions": "Sync : Git cannot push to specified repository. Please recheck your settings.",
   "cmd.downloadSettings.title": "Sync : Download Settings",
   "cmd.downloadSettings.info.downloaded": "Sync : Download Complete.",
   "cmd.downloadSettings.info.readdingOnline": "Sync : Reading Settings Online.",

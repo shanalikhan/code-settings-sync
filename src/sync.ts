@@ -8,7 +8,7 @@ import localize from "./localize";
 import * as lockfile from "./lockfile";
 import { File, FileService } from "./service/fileService";
 import { GitHubService } from "./service/githubService";
-import { GitService } from "./service/gitService";
+import { GitService, UrlInfo } from "./service/gitService";
 import { ExtensionInformation, PluginService } from "./service/pluginService";
 import {
   CloudSetting,
@@ -93,9 +93,22 @@ export class Sync {
           localConfig.customConfig.repoServiceTokens.github,
           localConfig.customConfig.githubEnterpriseUrl
         );
-        const repoName: string = await git.initialize(localConfig.extConfig.repoUrl);
-        console.log("my repo name that's connected to git is %s", repoName);
-        await github.Authenticate();
+        const repoUrl: string = localConfig.extConfig.repoUrl;
+        await Promise.all([git.initialize(repoUrl), github.Authenticate()]);
+
+        const repoName: string = await GitService.ParseUrl(repoUrl, UrlInfo.NAME);
+        const repoOwner: string = await GitService.ParseUrl(repoUrl, UrlInfo.OWNER);
+        const repoInfo: any = await github.GetRepo(repoOwner, repoName);
+
+        if (repoInfo) {
+          if (!repoInfo.data.permissions.push) {
+            throw new Error(localize("cmd.updateSettings.error.gitNoPushPermissions"));
+          }
+        } else if (repoOwner !== github.userName) {
+          throw new Error(localize("cmd.updateSettings.error.gitNotOwner"));
+        } else {
+          await github.CreateRepo(repoName);
+        }
       } else {
         github = new GitHubService(
           localConfig.customConfig.token,

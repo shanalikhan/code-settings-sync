@@ -81,8 +81,41 @@ export class GitHubService {
       })
       .catch(err => {
         console.error(err);
-        return Promise.resolve(false);
+        throw new Error(err);
       });
+  }
+
+  public async GetRepo(owner: string, repoName: string): Promise<GitHubApi.Response<GitHubApi.ReposGetResponse>> {
+    const params: any = {
+      "owner": owner,
+      "repo": repoName
+    };
+    return this.github.repos.get(params).then(res => {
+      console.log(res);
+      return Promise.resolve(res);
+    }).catch(err => {
+      if (err.toString().indexOf("Not Found") !== -1) {
+        return null;
+      }
+      throw new Error(err);
+    });
+  }
+
+  public async CreateRepo(repoName: string, isPrivate: boolean=true, description: string=""): Promise<boolean> {
+    // Octokit for some reason no longer has .repo.create api or I just can't find it.
+    // Have to settle for the lower level .request() to manually interact with the api
+    // https://developer.github.com/v3/repos/#create
+    return this.github.request("POST /user/repos", {
+      "name": repoName,
+      "private": isPrivate,
+      "description": description
+    }).then(info => {
+      console.log(info);
+      return Promise.resolve(true);
+    }).catch(err => {
+      console.error(err);
+      throw new Error(err);
+    });
   }
 
   public AddFile(list: File[], GIST_JSON_B: any) {

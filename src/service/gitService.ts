@@ -32,7 +32,7 @@ export class GitService {
     this.git = simplegit(workspace);
   }
 
-  public async initialize(repoUrl: string): Promise<string> {
+  public async initialize(repoUrl: string): Promise<boolean> {
     await this.git.init();
     if (repoUrl) {
       this.remoteUrl = repoUrl;
@@ -43,10 +43,9 @@ export class GitService {
         await this.git.raw(['remote', 'set-url', 'origin', this.remoteUrl]);
       }
       const updatedOrigin: RemoteWithRefs = await this.getOrigin();
-      if (updatedOrigin && updatedOrigin.refs.push === this.remoteUrl)
-        return Promise.resolve(await GitService.ParseUrl(this.remoteUrl, UrlInfo.NAME));
+      return Promise.resolve(updatedOrigin && updatedOrigin.refs.push === this.remoteUrl);
     }
-    return Promise.resolve(null);
+    return Promise.resolve(false);
   }
 
   public async addFile(file: File): Promise<void> {
