@@ -20,6 +20,7 @@ export class GistService {
       workingDirectory: string;
       username?: string;
       name?: string;
+      enterpriseURL?: string;
     }
   ) {
     const gistAPIConfig: GitHubApi.Options = {};
@@ -28,13 +29,15 @@ export class GistService {
       vscode.workspace.getConfiguration("http").get("proxy") ||
       (process.env as IEnv).http_proxy ||
       (process.env as IEnv).HTTP_PROXY;
-    gistAPIConfig.baseUrl = this.options.workingDirectory;
-
+    gistAPIConfig.baseUrl =
+      this.options.enterpriseURL && this.options.enterpriseURL !== ""
+        ? "https://api.github.com"
+        : this.options.enterpriseURL;
     if (proxyURL) {
       gistAPIConfig.agent = new HttpsProxyAgent(proxyURL);
     }
 
-    if (this.options.token && this.options.token !== "") {
+    if (this.options.token !== "") {
       gistAPIConfig.auth = `token ${this.options.token}`;
       try {
         this.gistAPI = new GitHubApi(gistAPIConfig);
@@ -43,7 +46,7 @@ export class GistService {
       }
 
       this.gistAPI.users
-        .getAuthenticated()
+        .getAuthenticated({})
         .then(res => {
           this.options.username = res.data.login;
           this.options.name = res.data.name;
@@ -103,15 +106,9 @@ export class GistService {
     return gistObject;
   }
 
-  public async SaveGist(
-    gistObject: GitHubApi.Response<GitHubApi.GistsGetResponse>
-  ): Promise<boolean> {
-    const params: GitHubApi.GistsUpdateParams = {
-      gist_id: gistObject.data.id,
-      description: gistObject.data.description,
-      files: gistObject.data.files as GitHubApi.GistsUpdateParamsFiles
-    };
-    await this.gistAPI.gists.update(params);
+  public async SaveGist(gistObject: any): Promise<boolean> {
+    gistObject.gist_id = gistObject.id;
+    await this.gistAPI.gists.update(gistObject);
     return true;
   }
 }
