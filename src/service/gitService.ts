@@ -7,8 +7,8 @@ import * as simplegit from "simple-git/promise";
 export class GitService {
   public git: simplegit.SimpleGit = null;
 
-  public static sshRegex: RegExp = /(^)git@(github|gitlab).com:[a-zA-Z0-9]+\/[a-zA-Z0-9\-]+.git($)/;
-  public static httpsRegex: RegExp = /(^)https:\/\/(www.)?(github|gitlab).com\/[a-zA-Z0-9]+\/[a-zA-Z0-9\-]+.git($)/;
+  public static sshRegex: RegExp = /(^)git@(github|gitlab).com:[a-zA-Z0-9]+\/([a-zA-Z0-9\-]+).git($)/;
+  public static httpsRegex: RegExp = /(^)https:\/\/(www.)?(github|gitlab).com\/[a-zA-Z0-9]+\/([a-zA-Z0-9\-]+).git($)/;
   public static servicesInfo: any = {
     "github": {
       id: "GitHub Repo",
@@ -34,15 +34,16 @@ export class GitService {
     return this.git.add(file.filePath);
   }
 
-  public static async ParseService(repoUrl: string): Promise<string> {
+  public static async ParseService(repoUrl: string, regexPos: number = 3): Promise<string> {
     const matchedString: string[] =
       repoUrl.match(this.httpsRegex) || repoUrl.match(this.sshRegex);
     if (!matchedString) {
       return Promise.resolve(null);
     }
-    // The 2nd to last group in the regex is specifies which service we are using
-    // Guaranteed to be either github or gitlab as regex must match to get here
-    return Promise.resolve(matchedString[matchedString.length - 2]);
+    // -2 is reponame
+    // -3 is service name
+    // Guaranteed as regex must match to get here
+    return Promise.resolve(matchedString[matchedString.length - regexPos]);
   }
 
   public static async GetServiceId(repoService: string): Promise<string> {
