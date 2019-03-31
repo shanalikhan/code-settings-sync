@@ -135,6 +135,12 @@ export class Sync {
           Commons.LogException(err, globalCommonService.ERROR_MESSAGE, true);
         }
         return;
+      } else {
+        vscode.commands.executeCommand(
+          "vscode.open",
+          vscode.Uri.parse("https://github.com/settings/tokens")
+        );
+        return globalCommonService.OpenSettingsPage();
       }
     }
 
