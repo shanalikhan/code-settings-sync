@@ -1,125 +1,80 @@
-import { FSWatcher, watch } from "chokidar";
+import { watch } from "chokidar";
+import { resolve } from "path";
 import * as vscode from "vscode";
 import Commons from "../commons";
 import { Environment } from "../environmentPath";
 import lockfile from "../lockfile";
-import { CustomSettings, ExtensionConfig } from "../setting";
+import { CustomSettings } from "../setting";
+import { FileService } from "./fileService";
 
 export class AutoUploadService {
-  private watcher: FSWatcher;
+  private watcher = watch(this.options.en.USER_FOLDER, {
+    depth: 2,
+    ignored: this.options.commons.GetCustomSettings().ignoredItems.map(item => {
+      if (FileService.IsDirectory(resolve(this.options.en.USER_FOLDER, item))) {
+        return `**/${item}/**`;
+      } else {
+        return `**/${item}`;
+      }
+    })
+  });
+
   constructor(private options: { en: Environment; commons: Commons }) {}
 
-  public StartWatching() {
+  public async StartWatching() {
+    this.StopWatching();
     vscode.extensions.onDidChange(async () => {
       if (await lockfile.Check(this.options.en.FILE_SYNC_LOCK)) {
-        return lockfile.Unlock(this.options.en.FILE_SYNC_LOCK);
+        return;
       }
-
       await lockfile.Lock(this.options.en.FILE_SYNC_LOCK);
-      const settings: ExtensionConfig = this.options.commons.GetSettings();
       const customSettings: CustomSettings = await this.options.commons.GetCustomSettings();
-      if (customSettings == null) {
-        return lockfile.Unlock(this.options.en.FILE_SYNC_LOCK);
+      if (customSettings) {
+        await this.InitiateAutoUpload();
       }
-
-      const requiredFileChanged: boolean = true;
-
-      console.log("Sync: Folder Change Detected");
-
-      if (requiredFileChanged) {
-        if (settings.autoUpload) {
-          console.log("Sync: Initiating Auto-upload");
-          this.InitiateAutoUpload()
-            .then(() => {
-              return lockfile.Unlock(this.options.en.FILE_SYNC_LOCK);
-            })
-            .catch(() => {
-              return lockfile.Unlock(this.options.en.FILE_SYNC_LOCK);
-            });
-        }
-      } else {
-        await lockfile.Unlock(this.options.en.FILE_SYNC_LOCK);
-      }
+      return await lockfile.Unlock(this.options.en.FILE_SYNC_LOCK);
     });
 
-    this.watcher = watch(`${this.options.en.PATH}/User/`, {
-      ignoreInitial: true,
-      depth: 2
-    });
-    this.watcher.on("change", async (path: string) => {
-      // check sync is locking
+    this.watcher.addListener("all", async (event: string, path: string) => {
+      console.log(
+        `Sync: ${FileService.ExtractFileName(path)} triggered event ${event}`
+      );
       if (await lockfile.Check(this.options.en.FILE_SYNC_LOCK)) {
-        return lockfile.Unlock(this.options.en.FILE_SYNC_LOCK);
+        return;
+      } else {
+        await lockfile.Lock(this.options.en.FILE_SYNC_LOCK);
       }
 
-      await lockfile.Lock(this.options.en.FILE_SYNC_LOCK);
-      const settings: ExtensionConfig = this.options.commons.GetSettings();
       const customSettings: CustomSettings = await this.options.commons.GetCustomSettings();
-      if (customSettings == null) {
-        return lockfile.Unlock(this.options.en.FILE_SYNC_LOCK);
-      }
-
-      let requiredFileChanged: boolean = false;
-      if (
-        customSettings.gistSettings.ignoreUploadFolders.indexOf(
-          "workspaceStorage"
-        ) === -1
-      ) {
-        requiredFileChanged =
-          path.indexOf(this.options.en.FILE_SYNC_LOCK_NAME) === -1 &&
-          path.indexOf(".DS_Store") === -1 &&
-          path.indexOf(this.options.en.FILE_CUSTOMIZEDSETTINGS_NAME) === -1;
-      } else {
-        requiredFileChanged =
-          path.indexOf(this.options.en.FILE_SYNC_LOCK_NAME) === -1 &&
-          path.indexOf("workspaceStorage") === -1 &&
-          path.indexOf(".DS_Store") === -1 &&
-          path.indexOf(this.options.en.FILE_CUSTOMIZEDSETTINGS_NAME) === -1;
-      }
-
-      console.log("Sync: File Change Detected On : " + path);
-
-      if (requiredFileChanged) {
-        if (settings.autoUpload) {
+      if (customSettings) {
+        if (customSettings.syncMethod === "gist") {
+          const fileType: string = path
+            .substring(path.lastIndexOf("."), path.length)
+            .slice(1);
+          console.log(fileType);
           if (
-            customSettings.gistSettings.ignoreUploadFolders.indexOf(
-              "workspaceStorage"
-            ) > -1
+            customSettings.gistSettings.supportedFileExtensions.indexOf(
+              fileType
+            ) !== -1
           ) {
-            const fileType: string = path.substring(
-              path.lastIndexOf("."),
-              path.length
-            );
-            if (fileType.indexOf("json") === -1) {
-              console.log(
-                "Sync: Cannot Initiate Auto-upload on This File (Not JSON)."
-              );
-              return lockfile.Unlock(this.options.en.FILE_SYNC_LOCK);
-            }
+            await this.InitiateAutoUpload();
           }
-
-          console.log("Sync: Initiating Auto-upload For File : " + path);
-          this.InitiateAutoUpload()
-            .then(() => {
-              return lockfile.Unlock(this.options.en.FILE_SYNC_LOCK);
-            })
-            .catch(() => {
-              return lockfile.Unlock(this.options.en.FILE_SYNC_LOCK);
-            });
+        } else {
+          await this.InitiateAutoUpload();
         }
-      } else {
-        await lockfile.Unlock(this.options.en.FILE_SYNC_LOCK);
       }
+      await lockfile.Unlock(this.options.en.FILE_SYNC_LOCK);
+      return;
     });
   }
 
   public StopWatching() {
     if (this.watcher) {
-      this.watcher.close();
+      this.watcher.removeAllListeners();
     }
   }
 
   private async InitiateAutoUpload() {
-    return;
+    vscode.commands.executeCommand("extension.updateSettings", "forceUpdate");
   }
 }
