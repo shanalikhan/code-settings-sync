@@ -818,6 +818,9 @@ export class Sync {
       "cmd.otherOptions.joinCommunity",
       "cmd.otherOptions.openIssue",
       "cmd.otherOptions.releaseNotes",
+      "cmd.otherOptions.editGitBranch",
+      "cmd.otherOptions.toggleForcePush",
+      "cmd.otherOptions.toggleForcePull",
       "cmd.otherOptions.toggleSyncMode"
     ].map(localize);
 
@@ -1025,6 +1028,62 @@ export class Sync {
         );
       },
       13: async () => {
+        // change git branch
+        const validator: RegExp = /^[a-zA-Z0-9]+[a-zA-Z0-9\-]*$/;
+        const options: vscode.InputBoxOptions = {
+          "password": false,
+          "prompt": localize("cmd.otherOptions.editGitBranch.prompt"),
+          "placeHolder": localize("cmd.otherOptions.editGitBranch.placeholder"),
+          "value": customSettings.gitBranch,
+        };
+        const newBranch: string = await vscode.window.showInputBox(options);
+        if (!newBranch) {
+          vscode.window.showInformationMessage(
+            localize("cmd.otherOptions.editGitBranch.noSet")
+          );
+          return;
+        }
+        if (!validator.test(newBranch)) {
+          vscode.window.showErrorMessage(
+            localize("cmd.otherOptions.editGitBranch.invalidBranchName")
+          );
+          return;
+        }
+        customSettings.gitBranch = newBranch;
+        const done: boolean = await common.SetCustomSettings(customSettings);
+        if (done) {
+          vscode.window.showInformationMessage(
+            localize("cmd.otherOptions.editGitBranch.set", customSettings.gitBranch)
+          );
+        }
+      },
+      14: async () => {
+        // toggle force push
+        customSettings.forcePush = !customSettings.forcePush;
+        const done: boolean = await common.SetCustomSettings(customSettings);
+        if (done) {
+          const message = customSettings.forcePush
+            ? "cmd.otherOptions.toggleForcePush.on"
+            : "cmd.otherOptions.toggleForcePush.off"
+          vscode.window.showInformationMessage(
+            localize(message)
+          );
+        }
+      },
+      15: async () => {
+        // toggle force pull
+        customSettings.forcePull = !customSettings.forcePull;
+        const done: boolean = await common.SetCustomSettings(customSettings);
+        if (done) {
+          const message = customSettings.forcePull
+            ? "cmd.otherOptions.toggleForcePull.on"
+            : "cmd.otherOptions.toggleForcePull.off"
+          vscode.window.showInformationMessage(
+            localize(message)
+          );
+        }
+      },
+      16: async () => {
         // toggle sync mode
         customSettings.syncMode = customSettings.syncMode === "gist" ? "git" : "gist";
         const done: boolean = await common.SetCustomSettings(customSettings);

@@ -60,4 +60,7 @@ export class CustomSettings {
   public customFiles: { [key: string]: string } = {};
   public hostName: string = null;
   public syncMode: "gist" | "git" = "gist";
+  public gitBranch: string = "master";
+  public forcePush: boolean = true;
+  public forcePull: boolean = true;
 }
