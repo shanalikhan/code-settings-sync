@@ -13,12 +13,12 @@ export class ExtensionInformation {
   public static async fromJSON(text: string) {
     try {
       const obj = JSON.parse(text);
-      const meta = new ExtensionMetadata(obj.meta);
+      const meta = new ExtensionMetadata(obj.info.meta);
       const item = new ExtensionInformation({
         meta,
-        name: obj.name,
-        publisher: obj.publisher,
-        version: obj.version
+        name: obj.info.name,
+        publisher: obj.info.publisher,
+        version: obj.info.version
       });
       return item;
     } catch (e) {
@@ -30,12 +30,12 @@ export class ExtensionInformation {
     const extList: ExtensionInformation[] = [];
     try {
       JSON.parse(text).forEach(obj => {
-        const meta = new ExtensionMetadata(obj.metadata);
+        const meta = new ExtensionMetadata(obj.info.metadata);
         const item = new ExtensionInformation({
           meta,
-          name: obj.name,
-          publisher: obj.publisher,
-          version: obj.version
+          name: obj.info.name,
+          publisher: obj.info.publisher,
+          version: obj.info.version
         });
 
         if (item.info.name !== "code-settings-sync") {
