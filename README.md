@@ -83,21 +83,13 @@ Repo:
 
 ## Setup
 
-This extension requires a Personal Access Token from your GitHub account. You can create one by simply following the steps shown in the pictures below. Make sure you add **Gist** and/or **Repo** in scope, depending on which one you want to use.
+This extension requires a Personal Access Token from your Git service. You can create one by simply following the guides linked below specific to your service. Make sure you add **Gist** and/or **Repo** in scope, depending on which sync method you want to use.
 
-**Go to [Settings](https://github.com/settings) / [Developer settings](https://github.com/settings/tokens) / [Personal access tokens](https://github.com/settings/tokens) / Generate New Token**
+- [GitHub](https://help.github.com/en/articles/creating-a-personal-access-token-for-the-command-line#creating-a-token)
+- [BitBucket](https://confluence.atlassian.com/bitbucket/app-passwords-828781300.html#Apppasswords-Createanapppassword)
+- [GitLab](https://docs.gitlab.com/ee/user/profile/personal_access_tokens.html#creating-a-personal-access-token)
 
-![Goto Settings / Developer settings / Personal Access Tokens](https://shanalikhan.github.io/img/github1.PNG)
-
-**Select `Gist` and/or `Repo` From Scopes.**
-
-![Select Scopes](https://shanalikhan.github.io/img/github2.PNG)
-
-**Get an Access Token.**
-
-![Get Access Token](https://shanalikhan.github.io/img/github3.PNG)
-
-> Save the Token somewhere for future use (i.e. to upload from other machines).
+> Save this token somewhere for future use (i.e. to upload from other machines).
 
 ### Gist
 
@@ -111,11 +103,17 @@ This extension requires a Personal Access Token from your GitHub account. You ca
 
 **Create a new GitHub repository**
 
-1. Go to [GitHub](https://github.com) and create a new private repository
-2. Get the repository's url without 'https://' (e.g. github.com/user/repo.git)
+1. Create a new private repository in whichever service you want to use (i.e. GitHub, BitBucket, GitLab)
+2. Get the repository's url without "https://" (i.e. "github.com/user/repo.git")
 
-**Insert the GitHub Repo URL, GitHub Token, and your GitHub Username into their appropriate fields under `Repo Settings` in Settings**
-![Insert the Access Token into the Token field in Settings](https://i.imgur.com/te6wKtl.jpg)
+**Insert the Repo URL, Personal Access Token, and your username into their appropriate fields under `Repo Settings` in Settings**
+![Insert the Access Token into the Token field in Settings](https://i.imgur.com/7Pt83lC.jpg)
+
+Note: you should enter different values for username depending on the service you are using.
+
+- GitHub: your username
+- GitLab: "oauth2"
+- BitBucket: your username
 
 ## Reset Settings
 

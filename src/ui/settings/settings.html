@@ -261,32 +261,34 @@
         <hr class="my-4" />
         <form>
           <div class="form-group">
-            <label for="setting:repoSettings:repo">GitHub Repo</label>
+            <label for="setting:repoSettings:repo">Repo URL</label>
             <input
               type="text"
               class="form-control text"
               id="setting:repoSettings:repo"
-              placeholder="Enter Git Repo URL (e.g. github.com/username/repo.git)"
+              placeholder="Enter your Git Repo URL (e.g. github.com/username/repo.git)"
               setting="repoSettings.repo"
             />
           </div>
           <div class="form-group">
-            <label for="setting:repoSettings:token">GitHub Token</label>
+            <label for="setting:repoSettings:token"
+              >Personal Access Token / App Password</label
+            >
             <input
               type="text"
               class="form-control text"
               id="setting:repoSettings:token"
-              placeholder="Enter GitHub Token"
+              placeholder="Enter your Personal Access Token for use with git"
               setting="repoSettings.token"
             />
           </div>
           <div class="form-group">
-            <label for="setting:repoSettings:username">GitHub Username</label>
+            <label for="setting:repoSettings:username">Username</label>
             <input
               type="text"
               class="form-control text"
               id="setting:repoSettings:username"
-              placeholder="Enter GitHub Username"
+              placeholder="Enter the username to use for git"
               setting="repoSettings.username"
             />
           </div>
