@@ -27,13 +27,13 @@
         <hr class="my-4" />
         <form>
           <div class="form-group">
-            <label for="setting:hostName">Host name</label>
+            <label for="setting:hostname">Host name</label>
             <input
               type="text"
               class="form-control text"
-              id="setting:hostName"
+              id="setting:hostname"
               placeholder="Enter Hostname"
-              setting="hostName"
+              setting="hostname"
             />
           </div>
           <div class="form-group">
@@ -48,15 +48,92 @@
             </select>
           </div>
           <div class="form-group">
+            <label for="setting:ignoredItems">Ignored Items</label>
+            <textarea
+              class="form-control textarea"
+              id="setting:ignoredItems"
+              rows="7"
+              data-min-rows="7"
+              placeholder="Enter one file or folder per line"
+              setting="ignoredItems"
+            ></textarea>
+          </div>
+          <div class="form-group">
             <label for="setting:ignoredExtensions">Ignored Extensions</label>
             <textarea
               class="form-control textarea"
               id="setting:ignoredExtensions"
-              rows="3"
-              data-min-rows="3"
+              rows="4"
+              data-min-rows="4"
               placeholder="Enter one extension per line (full name)"
               setting="ignoredExtensions"
             ></textarea>
+          </div>
+          <div class="custom-control custom-checkbox my-1 mr-sm-2">
+            <input
+              class="custom-control-input checkbox"
+              type="checkbox"
+              id="setting:autoDownload"
+              setting="autoDownload"
+            />
+            <label for="setting:autoDownload" class="custom-control-label">
+              Auto Download
+            </label>
+          </div>
+          <div class="custom-control custom-checkbox my-1 mr-sm-2">
+            <input
+              class="custom-control-input checkbox"
+              type="checkbox"
+              id="setting:autoUpload"
+              setting="autoUpload"
+            />
+            <label for="setting:autoUpload" class="custom-control-label">
+              Auto Upload
+            </label>
+          </div>
+          <div class="custom-control custom-checkbox my-1 mr-sm-2">
+            <input
+              class="custom-control-input checkbox"
+              type="checkbox"
+              id="setting:forceDownload"
+              setting="forceDownload"
+            />
+            <label for="setting:forceDownload" class="custom-control-label">
+              Force Download
+            </label>
+          </div>
+          <div class="custom-control custom-checkbox my-1 mr-sm-2">
+            <input
+              class="custom-control-input checkbox"
+              type="checkbox"
+              id="setting:quietSync"
+              setting="quietSync"
+            />
+            <label for="setting:quietSync" class="custom-control-label">
+              Quiet Sync
+            </label>
+          </div>
+          <div class="custom-control custom-checkbox my-1 mr-sm-2">
+            <input
+              class="custom-control-input checkbox"
+              type="checkbox"
+              id="setting:removeExtensions"
+              setting="removeExtensions"
+            />
+            <label for="setting:removeExtensions" class="custom-control-label">
+              Remove Extensions
+            </label>
+          </div>
+          <div class="custom-control custom-checkbox my-1 mr-sm-2">
+            <input
+              class="custom-control-input checkbox"
+              type="checkbox"
+              id="setting:syncExtensions"
+              setting="syncExtensions"
+            />
+            <label for="setting:syncExtensions" class="custom-control-label">
+              Sync Extensions
+            </label>
           </div>
           <div class="custom-control custom-checkbox my-1 mr-sm-2">
             <input
@@ -165,45 +242,6 @@
             </label>
           </div>
           <div class="form-group">
-            <label for="setting:gistSettings:ignoreUploadFiles"
-              >Ignored Files</label
-            >
-            <textarea
-              class="form-control textarea"
-              id="setting:gistSettings:ignoreUploadFiles"
-              rows="3"
-              data-min-rows="3"
-              placeholder="Enter one file per line"
-              setting="gistSettings.ignoreUploadFiles"
-            ></textarea>
-          </div>
-          <div class="form-group">
-            <label for="setting:gistSettings:ignoreUploadFolders"
-              >Ignored Folders</label
-            >
-            <textarea
-              class="form-control textarea"
-              id="setting:gistSettings:ignoreUploadFolders"
-              rows="3"
-              data-min-rows="3"
-              placeholder="Enter one folder per line"
-              setting="gistSettings.ignoreUploadFolders"
-            ></textarea>
-          </div>
-          <div class="form-group">
-            <label for="setting:gistSettings:ignoreUploadSettings"
-              >Ignored Settings</label
-            >
-            <textarea
-              class="form-control textarea"
-              id="setting:gistSettings:ignoreUploadSettings"
-              rows="3"
-              data-min-rows="3"
-              placeholder="Enter one setting per line"
-              setting="gistSettings.ignoreUploadSettings"
-            ></textarea>
-          </div>
-          <div class="form-group">
             <label for="setting:gistSettings:supportedFileExtensions"
               >Supported File Extensions</label
             >
@@ -251,17 +289,6 @@
               placeholder="Enter GitHub Username"
               setting="repoSettings.username"
             />
-          </div>
-          <div class="form-group">
-            <label for="setting:repoSettings:ignoredItems">Ignored Items</label>
-            <textarea
-              class="form-control textarea"
-              id="setting:repoSettings:ignoredItems"
-              rows="3"
-              data-min-rows="3"
-              placeholder="Enter one file or folder per line"
-              setting="repoSettings.ignoredItems"
-            ></textarea>
           </div>
         </form>
       </div>
