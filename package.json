@@ -95,52 +95,7 @@
         "key": "alt+shift+d",
         "command": "extension.downloadSettings"
       }
-    ],
-    "configuration": {
-      "properties": {
-        "sync.gist": {
-          "type": "string",
-          "default": "",
-          "description": "%ext.config.gist%"
-        },
-        "sync.autoDownload": {
-          "type": "boolean",
-          "default": false,
-          "description": "%ext.config.autoDownload%"
-        },
-        "sync.autoUpload": {
-          "type": "boolean",
-          "default": false,
-          "description": "%ext.config.autoUpload%"
-        },
-        "sync.forceDownload": {
-          "type": "boolean",
-          "default": false,
-          "description": "%ext.config.forceDownload%"
-        },
-        "sync.quietSync": {
-          "type": "boolean",
-          "default": false,
-          "description": "%ext.config.quietSync%"
-        },
-        "sync.askGistName": {
-          "type": "boolean",
-          "default": false,
-          "description": "%ext.config.askGistName%"
-        },
-        "sync.removeExtensions": {
-          "type": "boolean",
-          "default": true,
-          "description": "%ext.config.removeExtensions%"
-        },
-        "sync.syncExtensions": {
-          "type": "boolean",
-          "default": true,
-          "description": "%ext.config.syncExtensions%"
-        }
-      },
-      "title": "%ext.config.title%"
-    }
+    ]
   },
   "scripts": {
     "vscode:prepublish": "npm run tslint-check && webpack --mode production",
@@ -152,6 +107,7 @@
     "test": "npm run tslint-check && tsc -p ./ && mocha --recursive \"./out/test/**/*.js\""
   },
   "devDependencies": {
+    "@types/anymatch": "^1.3.1",
     "@types/chai": "4.1.7",
     "@types/chokidar": "^2.1.3",
     "@types/fs-extra": "^5.0.5",
@@ -175,6 +131,7 @@
   "dependencies": {
     "@octokit/rest": "^16.16.4",
     "adm-zip": "^0.4.13",
+    "anymatch": "^2.0.0",
     "chokidar": "^2.1.5",
     "fs-extra": "^7.0.1",
     "https-proxy-agent": "^2.2.1",
