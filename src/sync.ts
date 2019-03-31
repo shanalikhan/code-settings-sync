@@ -1,27 +1,24 @@
 import * as fs from "fs-extra";
 import * as vscode from "vscode";
 
+import * as anymatch from "anymatch";
 import Commons from "./commons";
 import { OsType } from "./enums";
 import { Environment } from "./environmentPath";
 import localize from "./localize";
 import * as lockfile from "./lockfile";
-import { File, FileService } from "./service/fileService";
+import { File, FileService, FileServiceAsync } from "./service/fileService";
 import { GistService } from "./service/gistService";
 import { ExtensionInformation, PluginService } from "./service/pluginService";
 import { RepoService } from "./service/repoService";
-import {
-  CloudSetting,
-  CustomSettings,
-  ExtensionConfig,
-  LocalConfig
-} from "./setting";
+import { CloudSetting, CustomSettings, LocalConfig } from "./setting";
 
 let repoService: RepoService;
 let gistService: GistService;
 let env: Environment;
 let globalCommonService: Commons;
 
+import { resolve } from "path";
 import PragmaUtil from "./pragmaUtil";
 
 export class Sync {
@@ -44,10 +41,9 @@ export class Sync {
     }
 
     await globalCommonService.StartMigrationProcess();
-    const startUpSetting = await globalCommonService.GetSettings();
     const startUpCustomSetting = await globalCommonService.GetCustomSettings();
 
-    if (startUpSetting) {
+    if (startUpCustomSetting) {
       if (startUpCustomSetting.syncMethod === "repo") {
         const rs = startUpCustomSetting.repoSettings;
         const configured =
@@ -56,15 +52,15 @@ export class Sync {
           repoService = new RepoService({
             workingDirectory: env.USER_FOLDER,
             repoURL: `https://${rs.username}:${rs.token}@${rs.repo}`,
-            ignored: startUpCustomSetting.repoSettings.ignoredItems
+            ignored: startUpCustomSetting.ignoredItems
           });
 
-          if (startUpSetting.autoDownload === true) {
+          if (startUpCustomSetting.autoDownload === true) {
             vscode.commands.executeCommand("extension.downloadSettings");
           }
 
-          if (startUpSetting.autoUpload) {
-            return globalCommonService.StartWatch();
+          if (startUpCustomSetting.autoUpload) {
+            return globalCommonService.autoUploadService.StartWatching();
           }
         } else {
           return globalCommonService.OpenSettingsPage();
@@ -76,14 +72,15 @@ export class Sync {
         if (configured) {
           gistService = new GistService({
             token: gs.token,
-            workingDirectory: env.USER_FOLDER
+            workingDirectory: env.USER_FOLDER,
+            enterpriseURL: gs.githubEnterpriseUrl
           });
 
-          if (startUpSetting.autoDownload === true) {
+          if (startUpCustomSetting.autoDownload === true) {
             vscode.commands.executeCommand("extension.downloadSettings");
           }
-          if (startUpSetting.autoUpload) {
-            return globalCommonService.StartWatch();
+          if (startUpCustomSetting.autoUpload) {
+            return globalCommonService.autoUploadService.StartWatching();
           }
         } else {
           return globalCommonService.OpenSettingsPage();
@@ -96,12 +93,11 @@ export class Sync {
    */
 
   public async upload(): Promise<void> {
-    const localConfig: LocalConfig = globalCommonService.InitalizeSettings();
+    const localConfig: LocalConfig = await globalCommonService.InitalizeSettings();
     const allSettingFiles: File[] = [];
     let uploadedExtensions: ExtensionInformation[] = [];
     const ignoredExtensions: ExtensionInformation[] = [];
     const dateNow = new Date();
-    globalCommonService.CloseWatch();
 
     if (localConfig.customConfig.syncMethod === "repo") {
       const configured =
@@ -109,86 +105,75 @@ export class Sync {
         localConfig.customConfig.repoSettings.token !== "" &&
         localConfig.customConfig.repoSettings.username !== "";
       if (configured) {
-        if (localConfig.extConfig.syncExtensions) {
-          uploadedExtensions = PluginService.CreateExtensionList();
-          if (
-            localConfig.customConfig.ignoredExtensions &&
-            localConfig.customConfig.ignoredExtensions.length > 0
-          ) {
-            uploadedExtensions = uploadedExtensions.filter(extension => {
-              if (
-                localConfig.customConfig.ignoredExtensions.includes(
-                  extension.info.name
-                )
-              ) {
-                ignoredExtensions.push(extension);
-                return false;
-              }
-              return true;
-            });
-          }
-          uploadedExtensions.sort((a, b) =>
-            a.info.name.localeCompare(b.info.name)
-          );
-          const extensionFilePath = env.FILE_EXTENSION;
-          const extensionFileContent = JSON.stringify(
-            uploadedExtensions,
-            undefined,
-            2
-          );
-          fs.writeFileSync(extensionFilePath, extensionFileContent);
+        globalCommonService.autoUploadService.StopWatching();
+        if (localConfig.customConfig.syncExtensions) {
+          const file = getExtensions(localConfig.customConfig);
+          fs.writeFileSync(file.path, file.content);
         }
+        vscode.window.setStatusBarMessage(
+          localize("cmd.updateSettings.info.uploading"),
+          2000
+        );
+        await repoService.push();
+        vscode.window.setStatusBarMessage(
+          localize("cmd.updateSettings.info.uploadingSuccess"),
+          5000
+        );
       } else {
-        globalCommonService.StartWatch();
         return globalCommonService.OpenSettingsPage();
       }
-
-      vscode.window.setStatusBarMessage(
-        localize("cmd.updateSettings.info.uploading"),
-        2000
-      );
-      await repoService.push();
-      vscode.window.setStatusBarMessage(
-        localize("cmd.updateSettings.info.uploadingSuccess"),
-        5000
-      );
-      return globalCommonService.StartWatch();
+      return globalCommonService.autoUploadService.StartWatching();
     } else {
       const configured =
         localConfig.customConfig.gistSettings.gist !== "" &&
         localConfig.customConfig.gistSettings.token !== "";
       if (configured) {
+        globalCommonService.autoUploadService.StopWatching();
         try {
-          await startUploadingToGist(
-            localConfig.extConfig,
-            localConfig.customConfig
-          );
+          await startUploadingToGist(localConfig.customConfig);
         } catch (err) {
           Commons.LogException(err, globalCommonService.ERROR_MESSAGE, true);
         }
-        return globalCommonService.StartWatch();
-      } else {
-        return globalCommonService.StartWatch();
+        return;
       }
     }
 
-    async function startUploadingToGist(
-      syncSetting: ExtensionConfig,
-      customSettings: CustomSettings
-    ) {
+    function getExtensions(customSettings: CustomSettings) {
+      uploadedExtensions = PluginService.CreateExtensionList();
+      if (
+        customSettings.ignoredExtensions &&
+        customSettings.ignoredExtensions.length > 0
+      ) {
+        uploadedExtensions = uploadedExtensions.filter(extension => {
+          if (customSettings.ignoredExtensions.includes(extension.info.name)) {
+            ignoredExtensions.push(extension);
+            return false;
+          }
+          return true;
+        });
+      }
+      uploadedExtensions.sort((a, b) => a.info.name.localeCompare(b.info.name));
+      const extensionFileName = env.FILE_EXTENSION_NAME;
+      const extensionFilePath = env.FILE_EXTENSION;
+      const extensionFileContent = JSON.stringify(
+        uploadedExtensions,
+        undefined,
+        2
+      );
+      const extensionFile: File = new File(
+        extensionFileName,
+        extensionFileContent,
+        extensionFilePath,
+        extensionFileName
+      );
+      return extensionFile;
+    }
+
+    async function startUploadingToGist(customSettings: CustomSettings) {
       vscode.window.setStatusBarMessage(
         localize("cmd.updateSettings.info.uploading"),
         2000
       );
-
-      if (customSettings.gistSettings.downloadPublicGist) {
-        if (customSettings.gistSettings.token === "") {
-          vscode.window.showInformationMessage(
-            localize("cmd.updateSettings.warning.noToken")
-          );
-          return globalCommonService.OpenSettingsPage();
-        }
-      }
 
       customSettings.gistSettings.lastUpload = dateNow;
       vscode.window.setStatusBarMessage(
@@ -198,96 +183,39 @@ export class Sync {
 
       // var remoteList = ExtensionInformation.fromJSONList(file.content);
       // var deletedList = PluginService.GetDeletedExtensions(uploadedExtensions);
-      if (syncSetting.syncExtensions) {
-        uploadedExtensions = PluginService.CreateExtensionList();
-        if (
-          customSettings.ignoredExtensions &&
-          customSettings.ignoredExtensions.length > 0
-        ) {
-          uploadedExtensions = uploadedExtensions.filter(extension => {
-            if (
-              customSettings.ignoredExtensions.includes(extension.info.name)
-            ) {
-              ignoredExtensions.push(extension);
-              return false;
-            }
-            return true;
-          });
-        }
-        uploadedExtensions.sort((a, b) =>
-          a.info.name.localeCompare(b.info.name)
-        );
-        const extensionFileName = env.FILE_EXTENSION_NAME;
-        const extensionFilePath = env.FILE_EXTENSION;
-        const extensionFileContent = JSON.stringify(
-          uploadedExtensions,
-          undefined,
-          2
-        );
-        const extensionFile: File = new File(
-          extensionFileName,
-          extensionFileContent,
-          extensionFilePath,
-          extensionFileName
-        );
-        allSettingFiles.push(extensionFile);
+      if (customSettings.syncExtensions) {
+        allSettingFiles.push(getExtensions(customSettings));
       }
 
-      let contentFiles: File[] = [];
-      contentFiles = await FileService.ListFiles(
+      let contentFiles = await FileServiceAsync.ListFiles(
         env.USER_FOLDER,
         0,
         2,
         customSettings.gistSettings.supportedFileExtensions
       );
 
-      const customExist: boolean = await FileService.FileExists(
-        env.FILE_CUSTOMIZEDSETTINGS
+      const matcher = customSettings.ignoredItems.map(item => {
+        if (FileService.IsDirectory(resolve(env.USER_FOLDER, item))) {
+          return `**/${item}/**`;
+        } else {
+          return `**/${item}`;
+        }
+      });
+
+      contentFiles = contentFiles.filter(cf => !anymatch(matcher, cf.path));
+
+      const customFiles = Object.values(
+        customSettings.gistSettings.customFiles
       );
-      if (customExist) {
-        contentFiles = contentFiles.filter(
-          contentFile =>
-            contentFile.filename !== env.FILE_CUSTOMIZEDSETTINGS_NAME
-        );
-
-        if (customSettings.gistSettings.ignoreUploadFiles.length > 0) {
-          contentFiles = contentFiles.filter(contentFile => {
-            const isMatch: boolean =
-              customSettings.gistSettings.ignoreUploadFiles.indexOf(
-                contentFile.filename
-              ) === -1 &&
-              contentFile.filename !== env.FILE_CUSTOMIZEDSETTINGS_NAME;
-            return isMatch;
-          });
-        }
-        if (customSettings.gistSettings.ignoreUploadFolders.length > 0) {
-          contentFiles = contentFiles.filter((contentFile: File) => {
-            const matchedFolders = customSettings.gistSettings.ignoreUploadFolders.filter(
-              folder => {
-                return contentFile.path.indexOf(folder) === -1;
-              }
-            );
-            return matchedFolders.length > 0;
-          });
-        }
-        const customFileKeys: string[] = Object.keys(
-          customSettings.gistSettings.customFiles
-        );
-        if (customFileKeys.length > 0) {
-          for (const key of customFileKeys) {
-            const val = customSettings.gistSettings.customFiles[key];
-            const customFile: File = FileService.GetCustomFile(val);
-            if (customFile !== null) {
-              allSettingFiles.push(customFile);
-            }
+      if (customFiles.length > 0) {
+        customFiles.forEach(async value => {
+          const customFile = await FileService.GetCustomFile(value);
+          if (customFile) {
+            allSettingFiles.push(customFile);
           }
-        }
-      } else {
-        Commons.LogException(null, globalCommonService.ERROR_MESSAGE, true);
-        return;
+        });
       }
-
-      for (const snippetFile of contentFiles) {
+      contentFiles.forEach(snippetFile => {
         if (snippetFile.filename !== env.FILE_KEYBINDING_MAC) {
           if (snippetFile.content !== "") {
             if (snippetFile.filename === env.FILE_KEYBINDING_NAME) {
@@ -311,17 +239,17 @@ export class Sync {
             return;
           }
         }
-      }
+      });
 
-      const extProp: CloudSetting = new CloudSetting();
+      const extProp = new CloudSetting();
       extProp.lastUpload = dateNow;
-      const fileName: string = env.FILE_CLOUDSETTINGS_NAME;
-      const fileContent: string = JSON.stringify(extProp);
-      const file: File = new File(fileName, fileContent, "", fileName);
+      const fileName = env.FILE_CLOUDSETTINGS_NAME;
+      const fileContent = JSON.stringify(extProp);
+      const file = new File(fileName, fileContent, "", fileName);
       allSettingFiles.push(file);
 
-      let completed: boolean = false;
-      let newGIST: boolean = false;
+      let completed = false;
+      let newGIST = false;
       try {
         if (customSettings.gistSettings.gist === "") {
           if (customSettings.gistSettings.askGistName) {
@@ -403,13 +331,10 @@ export class Sync {
 
       if (completed) {
         try {
-          const settingsUpdated = await globalCommonService.SaveSettings(
-            syncSetting
-          );
           const customSettingsUpdated = await globalCommonService.SetCustomSettings(
             customSettings
           );
-          if (settingsUpdated && customSettingsUpdated) {
+          if (customSettingsUpdated) {
             if (newGIST) {
               vscode.window.showInformationMessage(
                 localize(
@@ -425,7 +350,7 @@ export class Sync {
               );
             }
 
-            if (!syncSetting.quietSync) {
+            if (!customSettings.quietSync) {
               globalCommonService.ShowSummaryOutput(
                 true,
                 allSettingFiles,
@@ -442,8 +367,8 @@ export class Sync {
                 5000
               );
             }
-            if (syncSetting.autoUpload) {
-              globalCommonService.StartWatch();
+            if (customSettings.autoUpload) {
+              globalCommonService.autoUploadService.StartWatching();
             }
           }
         } catch (err) {
@@ -456,36 +381,38 @@ export class Sync {
    * Download setting from github gist
    */
   public async download(): Promise<void> {
-    const common = new Commons(env, this.context);
-    let localSettings: LocalConfig = new LocalConfig();
-    common.CloseWatch();
+    const localSettings: LocalConfig = await globalCommonService.InitalizeSettings();
 
-    if (repoService) {
+    if (localSettings.customConfig.syncMethod === "repo") {
+      globalCommonService.autoUploadService.StopWatching();
       vscode.window.setStatusBarMessage(
         localize("cmd.downloadSettings.info.readdingOnline"),
         2000
       );
       await repoService.pull();
-      common.StartWatch();
+      if (localSettings.customConfig.autoUpload) {
+        globalCommonService.autoUploadService.StartWatching();
+      }
+
       vscode.window.setStatusBarMessage(
         localize("cmd.downloadSettings.info.downloaded"),
         5000
       );
       return;
-    }
-
-    try {
-      localSettings = await common.InitalizeSettings();
-      await StartDownload(localSettings.extConfig, localSettings.customConfig);
-    } catch (err) {
-      Commons.LogException(err, common.ERROR_MESSAGE, true);
+    } else {
+      globalCommonService.autoUploadService.StopWatching();
+      try {
+        await StartDownload(localSettings.customConfig);
+        if (localSettings.customConfig.autoUpload) {
+          globalCommonService.autoUploadService.StartWatching();
+        }
+      } catch (err) {
+        Commons.LogException(err, globalCommonService.ERROR_MESSAGE, true);
+      }
       return;
     }
 
-    async function StartDownload(
-      syncSetting: ExtensionConfig,
-      customSettings: CustomSettings
-    ) {
+    async function StartDownload(customSettings: CustomSettings) {
       vscode.window.setStatusBarMessage("").dispose();
       vscode.window.setStatusBarMessage(
         localize("cmd.downloadSettings.info.readdingOnline"),
@@ -540,7 +467,7 @@ export class Sync {
               new Date(cloudSett.lastUpload).getTime();
         }
 
-        if (!syncSetting.forceDownload) {
+        if (!customSettings.forceDownload) {
           if (upToDate) {
             vscode.window.setStatusBarMessage("").dispose();
             vscode.window.setStatusBarMessage(
@@ -603,8 +530,8 @@ export class Sync {
 
         if (content !== "") {
           if (file.gistName === env.FILE_EXTENSION_NAME) {
-            if (syncSetting.syncExtensions) {
-              if (syncSetting.removeExtensions) {
+            if (customSettings.syncExtensions) {
+              if (customSettings.removeExtensions) {
                 try {
                   deletedExtensions = await PluginService.DeleteExtensions(
                     content,
@@ -626,7 +553,7 @@ export class Sync {
                   .get("autoUpdate");
                 useCli = autoUpdate && !env.isCoderCom;
                 if (useCli) {
-                  if (!syncSetting.quietSync) {
+                  if (!customSettings.quietSync) {
                     Commons.outputChannel = vscode.window.createOutputChannel(
                       "Code Settings Sync"
                     );
@@ -647,7 +574,7 @@ export class Sync {
                   env.OsType,
                   env.isInsiders,
                   (message: string, dispose: boolean) => {
-                    if (!syncSetting.quietSync) {
+                    if (!customSettings.quietSync) {
                       Commons.outputChannel.appendLine(message);
                     } else {
                       console.log(message);
@@ -698,24 +625,23 @@ export class Sync {
                   localContent,
                   content,
                   env.OsType,
-                  localSettings.customConfig.hostName
+                  localSettings.customConfig.hostname
                 );
               }
 
-              actionList.push(FileService.WriteFile(filePath, content));
+              actionList.push(await FileService.WriteFile(filePath, content));
             }
           }
         }
       }
 
       await Promise.all(actionList);
-      const settingsUpdated = await common.SaveSettings(syncSetting);
-      const customSettingsUpdated = await common.SetCustomSettings(
+      const customSettingsUpdated = await globalCommonService.SetCustomSettings(
         customSettings
       );
-      if (settingsUpdated && customSettingsUpdated) {
-        if (!syncSetting.quietSync) {
-          common.ShowSummaryOutput(
+      if (customSettingsUpdated) {
+        if (!customSettings.quietSync) {
+          globalCommonService.ShowSummaryOutput(
             false,
             updatedFiles,
             deletedExtensions,
@@ -739,9 +665,6 @@ export class Sync {
             5000
           );
         }
-        if (syncSetting.autoUpload) {
-          common.StartWatch();
-        }
       } else {
         vscode.window.showErrorMessage(
           localize("cmd.downloadSettings.error.unableSave")
@@ -753,7 +676,6 @@ export class Sync {
    * Reset the setting to Sync
    */
   public async reset(): Promise<void> {
-    let extSettings: ExtensionConfig = null;
     let localSettings: CustomSettings = null;
 
     vscode.window.setStatusBarMessage(
@@ -764,10 +686,8 @@ export class Sync {
     try {
       const common: Commons = new Commons(env, this.context);
 
-      extSettings = new ExtensionConfig();
       localSettings = new CustomSettings();
 
-      const extSaved: boolean = await common.SaveSettings(extSettings);
       const customSaved: boolean = await common.SetCustomSettings(
         localSettings
       );
@@ -784,7 +704,7 @@ export class Sync {
         await lockfile.Unlock(env.FILE_SYNC_LOCK);
       }
 
-      if (extSaved && customSaved) {
+      if (customSaved) {
         vscode.window.showInformationMessage(
           localize("cmd.resetSettings.info.settingClear")
         );
@@ -805,11 +725,9 @@ export class Sync {
       )
     );
   }
-  public async advance() {
-    const common: Commons = new Commons(env, this.context);
-    const setting: ExtensionConfig = await common.GetSettings();
-    const customSettings: CustomSettings = await common.GetCustomSettings();
-    if (customSettings == null) {
+  public async otherOptions() {
+    const customSettings: CustomSettings = await globalCommonService.GetCustomSettings();
+    if (!customSettings) {
       vscode.window
         .showInformationMessage(
           localize("cmd.otherOptions.triggerReset"),
@@ -822,22 +740,11 @@ export class Sync {
         });
     }
     const localSetting: LocalConfig = new LocalConfig();
-    const tokenAvailable: boolean =
-      customSettings.gistSettings.token != null &&
-      customSettings.gistSettings.token !== "";
-    const gistAvailable: boolean =
-      customSettings.gistSettings.gist != null &&
-      customSettings.gistSettings.gist !== "";
 
     const items: string[] = [
+      "cmd.otherOptions.openSettings",
       "cmd.otherOptions.editLocalSetting",
       "cmd.otherOptions.shareSetting",
-      "cmd.otherOptions.downloadSetting",
-      "cmd.otherOptions.toggleForceDownload",
-      "cmd.otherOptions.toggleAutoUpload",
-      "cmd.otherOptions.toggleAutoDownload",
-      "cmd.otherOptions.toggleSummaryPage",
-      "cmd.otherOptions.preserve",
       "cmd.otherOptions.customizedSync",
       "cmd.otherOptions.downloadCustomFile",
       "cmd.otherOptions.joinCommunity",
@@ -845,8 +752,8 @@ export class Sync {
       "cmd.otherOptions.releaseNotes"
     ].map(localize);
 
-    let selectedItem: number = 0;
-    let settingChanged: boolean = false;
+    let selectedItem = 0;
+    let settingChanged = false;
 
     const item = await vscode.window.showQuickPick(items);
 
@@ -857,8 +764,13 @@ export class Sync {
 
     const index = items.findIndex(v => v === item);
 
-    const handlerMap = {
-      0: async () => {
+    const handlers = [
+      async () => {
+        // Open Settings Page
+        globalCommonService.OpenSettingsPage();
+      },
+      async () => {
+        // Edit syncLocalSettings.json
         const file: vscode.Uri = vscode.Uri.file(env.FILE_CUSTOMIZEDSETTINGS);
         fs.openSync(file.fsPath, "r");
         const document = await vscode.workspace.openTextDocument(file);
@@ -868,8 +780,8 @@ export class Sync {
           true
         );
       },
-      1: async () => {
-        // share public gist
+      async () => {
+        // Share public gist
         const answer = await vscode.window.showInformationMessage(
           localize("cmd.otherOptions.shareSetting.beforeConfirm"),
           "Yes"
@@ -881,56 +793,11 @@ export class Sync {
           customSettings.gistSettings.gist = "";
           selectedItem = 1;
           customSettings.gistSettings.downloadPublicGist = false;
-          await common.SetCustomSettings(customSettings);
+          await globalCommonService.SetCustomSettings(customSettings);
         }
       },
-      2: async () => {
-        // Download Settings from Public GIST
-        selectedItem = 2;
-        customSettings.gistSettings.downloadPublicGist = true;
-        settingChanged = true;
-        await common.SetCustomSettings(customSettings);
-      },
-      3: async () => {
-        // toggle force download
-        selectedItem = 3;
-        settingChanged = true;
-        setting.forceDownload = !setting.forceDownload;
-      },
-      4: async () => {
-        // toggle auto upload
-        selectedItem = 4;
-        settingChanged = true;
-        setting.autoUpload = !setting.autoUpload;
-      },
-      5: async () => {
-        // auto download on startup
-        selectedItem = 5;
-        settingChanged = true;
-        if (!setting) {
-          vscode.commands.executeCommand("extension.HowSettings");
-          return;
-        }
-        if (!gistAvailable) {
-          vscode.commands.executeCommand("extension.HowSettings");
-          return;
-        }
-
-        setting.autoDownload = !setting.autoDownload;
-      },
-      6: async () => {
-        // page summary toggle
-        selectedItem = 6;
-        settingChanged = true;
-
-        if (!tokenAvailable || !gistAvailable) {
-          vscode.commands.executeCommand("extension.HowSettings");
-          return;
-        }
-        setting.quietSync = !setting.quietSync;
-      },
-      7: async () => {
-        // add customized sync file
+      async () => {
+        // Add customized sync file
         const options: vscode.InputBoxOptions = {
           ignoreFocusOut: true,
           placeHolder: localize("cmd.otherOptions.customizedSync.placeholder"),
@@ -944,7 +811,9 @@ export class Sync {
             return;
           }
           customSettings.gistSettings.customFiles[fileName] = input;
-          const done: boolean = await common.SetCustomSettings(customSettings);
+          const done: boolean = await globalCommonService.SetCustomSettings(
+            customSettings
+          );
           if (done) {
             vscode.window.showInformationMessage(
               localize("cmd.otherOptions.customizedSync.done", fileName)
@@ -952,7 +821,7 @@ export class Sync {
           }
         }
       },
-      8: async () => {
+      async () => {
         // Import customized sync file to workspace
         const customFiles = await this.getCustomFilesFromGist(customSettings);
         if (customFiles.length < 1) {
@@ -993,7 +862,8 @@ export class Sync {
           }
         }
       },
-      9: async () => {
+      async () => {
+        // Join community
         vscode.commands.executeCommand(
           "vscode.open",
           vscode.Uri.parse(
@@ -1001,7 +871,8 @@ export class Sync {
           )
         );
       },
-      10: async () => {
+      async () => {
+        // Open an issue
         vscode.commands.executeCommand(
           "vscode.open",
           vscode.Uri.parse(
@@ -1009,61 +880,35 @@ export class Sync {
           )
         );
       },
-      11: async () => {
+      async () => {
+        // View release notes
         vscode.commands.executeCommand(
           "vscode.open",
           vscode.Uri.parse(
-            "http://shanalikhan.github.io/2016/05/14/Visual-studio-code-sync-settings-release-notes.html"
+            "https://github.com/shanalikhan/code-settings-sync/blob/master/CHANGELOG.md" // Probably the most up to date copy of release notes
           )
         );
       }
-    };
+    ];
 
     try {
-      await handlerMap[index]();
+      await handlers[index]();
       if (settingChanged) {
-        if (selectedItem === 1) {
-          common.CloseWatch();
-        }
-        const added = common.SaveSettings(setting);
+        const added = globalCommonService.SetCustomSettings(customSettings);
         if (added) {
-          const callbackMap = {
-            1: async () => {
+          const callbackMap = [
+            async () => {
               return await vscode.commands.executeCommand(
                 "extension.updateSettings",
                 "publicGIST"
               );
             },
-            2: async () => {
+            async () => {
               return await vscode.window.showInformationMessage(
                 localize("cmd.otherOptions.warning.tokenNotRequire")
               );
-            },
-            3: async () => {
-              const message = setting.forceDownload
-                ? "cmd.otherOptions.toggleForceDownload.on"
-                : "cmd.otherOptions.toggleForceDownload.off";
-              return vscode.window.showInformationMessage(localize(message));
-            },
-            4: async () => {
-              const message = setting.autoUpload
-                ? "cmd.otherOptions.toggleAutoUpload.on"
-                : "cmd.otherOptions.toggleAutoUpload.off";
-              return vscode.window.showInformationMessage(localize(message));
-            },
-            5: async () => {
-              const message = setting.autoDownload
-                ? "cmd.otherOptions.toggleAutoDownload.on"
-                : "cmd.otherOptions.toggleAutoDownload.off";
-              return vscode.window.showInformationMessage(localize(message));
-            },
-            6: async () => {
-              const message = setting.quietSync
-                ? "cmd.otherOptions.quietSync.on"
-                : "cmd.otherOptions.quietSync.off";
-              return vscode.window.showInformationMessage(localize(message));
             }
-          };
+          ];
 
           if (callbackMap[selectedItem]) {
             return callbackMap[selectedItem]();
