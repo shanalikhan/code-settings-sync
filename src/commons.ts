@@ -143,11 +143,9 @@ export default class Commons {
 
   public SetCustomSettings(setting: CustomSettings): boolean {
     try {
-      const json = { ...setting };
-      delete json.gistSettings.ignoredSettings;
       FileService.WriteFile(
         this.en.FILE_CUSTOMIZEDSETTINGS,
-        JSON.stringify(json, null, 2)
+        JSON.stringify(setting, null, 2)
       );
       return true;
     } catch (e) {
