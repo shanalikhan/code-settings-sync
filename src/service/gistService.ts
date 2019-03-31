@@ -102,13 +102,32 @@ export class GistService {
     gistObject: GitHubApi.Response<GitHubApi.GistsGetResponse>,
     files: File[]
   ) {
+    Object.keys(gistObject.data.files).forEach(filename => {
+      let exists = false;
+
+      files.forEach(f => {
+        if (f.gistName === filename) {
+          exists = true;
+        }
+      });
+
+      if (!exists && !filename.startsWith("keybindings")) {
+        gistObject.data.files[filename] = null;
+      }
+    });
     gistObject.data = this.PopulateGist(files, gistObject.data);
     return gistObject;
   }
 
-  public async SaveGist(gistObject: any): Promise<boolean> {
-    gistObject.gist_id = gistObject.id;
-    await this.gistAPI.gists.update(gistObject);
+  public async SaveGist(
+    gistData: GitHubApi.GistsGetResponse
+  ): Promise<boolean> {
+    const params: GitHubApi.GistsUpdateParams = {
+      gist_id: gistData.id,
+      description: gistData.description,
+      files: gistData.files as GitHubApi.GistsUpdateParamsFiles
+    };
+    await this.gistAPI.gists.update(params);
     return true;
   }
 }
