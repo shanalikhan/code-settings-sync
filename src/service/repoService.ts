@@ -1,4 +1,4 @@
-import { appendFile, existsSync, writeFile } from "fs-extra";
+import { appendFile, writeFile } from "fs-extra";
 import * as Git from "simple-git/promise";
 import * as vscode from "vscode";
 import localize from "../localize";
@@ -22,10 +22,7 @@ export class RepoService {
     if (!isRepo) {
       await this.initRepo();
     }
-    if (!existsSync(gitignorePath)) {
-      await this.updateGitignore(gitignorePath);
-      await this.push();
-    }
+    await this.updateGitignore(gitignorePath);
     return true;
   }
 
@@ -52,7 +49,8 @@ export class RepoService {
       );
       return;
     }
-    await this.git.commit("Update settings", ".");
+    await this.git.add(".");
+    await this.git.commit("Update settings");
     await this.git.push(this.options.repoURL, "master");
     return;
   }
