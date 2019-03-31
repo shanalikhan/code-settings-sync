@@ -62,7 +62,7 @@ export class CustomSettings {
   public autoDownload: boolean = false;
   public autoUpload: boolean = false;
   public forceDownload: boolean = false;
-  public quietSync: boolean = true;
+  public quietSync: boolean = false;
   public removeExtensions: boolean = true;
   public syncExtensions: boolean = true;
   public disableUpdateMessage: boolean = true;
