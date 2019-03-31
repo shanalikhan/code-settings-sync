@@ -204,12 +204,9 @@ export class Sync {
 
       contentFiles = contentFiles.filter(cf => !anymatch(matcher, cf.path));
 
-      const customFiles = Object.values(
-        customSettings.gistSettings.customFiles
-      );
-      if (customFiles.length > 0) {
-        customFiles.forEach(async value => {
-          const customFile = await FileService.GetCustomFile(value);
+      if (customSettings.gistSettings.customFiles.length > 0) {
+        customSettings.gistSettings.customFiles.forEach(cf => {
+          const customFile = FileService.GetCustomFile(cf.path);
           if (customFile) {
             allSettingFiles.push(customFile);
           }
@@ -390,6 +387,13 @@ export class Sync {
         2000
       );
       await repoService.pull();
+      await installExtensions(
+        localSettings.customConfig,
+        [],
+        localSettings.customConfig.ignoredExtensions,
+        [],
+        FileService.ReadFile(resolve(env.USER_FOLDER, "extensions.json"))
+      );
       if (localSettings.customConfig.autoUpload) {
         globalCommonService.autoUploadService.StartWatching();
       }
@@ -412,6 +416,74 @@ export class Sync {
       return;
     }
 
+    async function installExtensions(
+      customSettings: CustomSettings,
+      deletedExtensions: ExtensionInformation[],
+      ignoredExtensions: string[],
+      addedExtensions: ExtensionInformation[],
+      content: any
+    ) {
+      if (customSettings.syncExtensions) {
+        if (customSettings.removeExtensions) {
+          try {
+            deletedExtensions = await PluginService.DeleteExtensions(
+              content,
+              env.ExtensionFolder,
+              ignoredExtensions
+            );
+          } catch (uncompletedExtensions) {
+            vscode.window.showErrorMessage(
+              localize("cmd.downloadSettings.error.removeExtFail")
+            );
+            deletedExtensions = uncompletedExtensions;
+          }
+        }
+
+        try {
+          let useCli = true;
+          const autoUpdate: boolean = vscode.workspace
+            .getConfiguration("extensions")
+            .get("autoUpdate");
+          useCli = autoUpdate && !env.isCoderCom;
+          if (useCli) {
+            if (!customSettings.quietSync) {
+              Commons.outputChannel = vscode.window.createOutputChannel(
+                "Code Settings Sync"
+              );
+              Commons.outputChannel.clear();
+              Commons.outputChannel.appendLine(
+                `COMMAND LINE EXTENSION DOWNLOAD SUMMARY`
+              );
+              Commons.outputChannel.appendLine(`--------------------`);
+              Commons.outputChannel.show();
+            }
+          }
+
+          addedExtensions = await PluginService.InstallExtensions(
+            content,
+            env.ExtensionFolder,
+            useCli,
+            ignoredExtensions,
+            env.OsType,
+            env.isInsiders,
+            (message: string, dispose: boolean) => {
+              if (!customSettings.quietSync) {
+                Commons.outputChannel.appendLine(message);
+              } else {
+                console.log(message);
+                if (dispose) {
+                  vscode.window.setStatusBarMessage("Sync: " + message, 3000);
+                }
+              }
+            }
+          );
+          return deletedExtensions.length + addedExtensions.length;
+        } catch (extensions) {
+          addedExtensions = extensions;
+        }
+      }
+    }
+
     async function StartDownload(customSettings: CustomSettings) {
       vscode.window.setStatusBarMessage("").dispose();
       vscode.window.setStatusBarMessage(
@@ -426,8 +498,8 @@ export class Sync {
         return;
       }
 
-      let addedExtensions: ExtensionInformation[] = [];
-      let deletedExtensions: ExtensionInformation[] = [];
+      const addedExtensions: ExtensionInformation[] = [];
+      const deletedExtensions: ExtensionInformation[] = [];
       const ignoredExtensions: string[] =
         customSettings.ignoredExtensions || new Array<string>();
       const updatedFiles: File[] = [];
@@ -486,14 +558,16 @@ export class Sync {
             const prefix = FileService.CUSTOMIZED_SYNC_PREFIX;
             if (gistName.indexOf(prefix) > -1) {
               const fileName = gistName.split(prefix).join(""); // |customized_sync|.htmlhintrc => .htmlhintrc
-              if (!(fileName in customSettings.gistSettings.customFiles)) {
-                // syncLocalSettings.json > customFiles doesn't have key
+              if (customSettings.gistSettings.customFiles.length === 0) {
+                // syncLocalSettings.json > customFiles doesn't have any files
                 return;
               }
               const f: File = new File(
                 fileName,
                 res.data.files[gistName].content,
-                customSettings.gistSettings.customFiles[fileName],
+                customSettings.gistSettings.customFiles.filter(
+                  cf => cf.filename === fileName
+                )[0].path,
                 gistName
               );
               updatedFiles.push(f);
@@ -530,67 +604,13 @@ export class Sync {
 
         if (content !== "") {
           if (file.gistName === env.FILE_EXTENSION_NAME) {
-            if (customSettings.syncExtensions) {
-              if (customSettings.removeExtensions) {
-                try {
-                  deletedExtensions = await PluginService.DeleteExtensions(
-                    content,
-                    env.ExtensionFolder,
-                    ignoredExtensions
-                  );
-                } catch (uncompletedExtensions) {
-                  vscode.window.showErrorMessage(
-                    localize("cmd.downloadSettings.error.removeExtFail")
-                  );
-                  deletedExtensions = uncompletedExtensions;
-                }
-              }
-
-              try {
-                let useCli = true;
-                const autoUpdate: boolean = vscode.workspace
-                  .getConfiguration("extensions")
-                  .get("autoUpdate");
-                useCli = autoUpdate && !env.isCoderCom;
-                if (useCli) {
-                  if (!customSettings.quietSync) {
-                    Commons.outputChannel = vscode.window.createOutputChannel(
-                      "Code Settings Sync"
-                    );
-                    Commons.outputChannel.clear();
-                    Commons.outputChannel.appendLine(
-                      `COMMAND LINE EXTENSION DOWNLOAD SUMMARY`
-                    );
-                    Commons.outputChannel.appendLine(`--------------------`);
-                    Commons.outputChannel.show();
-                  }
-                }
-
-                addedExtensions = await PluginService.InstallExtensions(
-                  content,
-                  env.ExtensionFolder,
-                  useCli,
-                  ignoredExtensions,
-                  env.OsType,
-                  env.isInsiders,
-                  (message: string, dispose: boolean) => {
-                    if (!customSettings.quietSync) {
-                      Commons.outputChannel.appendLine(message);
-                    } else {
-                      console.log(message);
-                      if (dispose) {
-                        vscode.window.setStatusBarMessage(
-                          "Sync: " + message,
-                          3000
-                        );
-                      }
-                    }
-                  }
-                );
-              } catch (extensions) {
-                addedExtensions = extensions;
-              }
-            }
+            installExtensions(
+              customSettings,
+              deletedExtensions,
+              ignoredExtensions,
+              addedExtensions,
+              content
+            );
           } else {
             writeFile = true;
             if (
@@ -810,7 +830,10 @@ export class Sync {
           if (fileName === "") {
             return;
           }
-          customSettings.gistSettings.customFiles[fileName] = input;
+          customSettings.gistSettings.customFiles.push({
+            filename: fileName,
+            path: input
+          });
           const done: boolean = await globalCommonService.SetCustomSettings(
             customSettings
           );
