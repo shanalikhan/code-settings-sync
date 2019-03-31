@@ -90,12 +90,19 @@ export class Sync {
       if (localConfig.customConfig.syncMode === "git") {
         git = new GitService(env.USER_FOLDER);
         await git.initialize();
+        github = new GitHubService(
+          localConfig.customConfig.repoServiceTokens.github,
+          localConfig.customConfig.githubEnterpriseUrl
+        );
+        await github.Authenticate();
+      } else {
+        github = new GitHubService(
+          localConfig.customConfig.token,
+          localConfig.customConfig.githubEnterpriseUrl
+        );
+        await github.Authenticate();
       }
 
-      github = new GitHubService(
-        localConfig.customConfig.token,
-        localConfig.customConfig.githubEnterpriseUrl
-      );
       // ignoreSettings = await common.GetIgnoredSettings(localConfig.customConfig.ignoreUploadSettings);
       await startGitProcess(localConfig.extConfig, localConfig.customConfig);
       // await common.SetIgnoredSettings(ignoreSettings);

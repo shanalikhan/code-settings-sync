@@ -65,20 +65,24 @@ export class GitHubService {
       } catch (err) {
         console.error(err);
       }
-
-      this.github.users
-        .getAuthenticated({})
-        .then(res => {
-          this.userName = res.data.login;
-          this.name = res.data.name;
-          console.log(
-            "Sync : Connected with user : " + "'" + this.userName + "'"
-          );
-        })
-        .catch(err => {
-          console.error(err);
-        });
     }
+  }
+
+  public async Authenticate(): Promise<boolean> {
+    return this.github.users
+      .getAuthenticated({})
+      .then(res => {
+        this.userName = res.data.login;
+        this.name = res.data.name;
+        console.log(
+          "Sync : Connected with user : " + "'" + this.userName + "'"
+        );
+        return Promise.resolve(true);
+      })
+      .catch(err => {
+        console.error(err);
+        return Promise.resolve(false);
+      });
   }
 
   public AddFile(list: File[], GIST_JSON_B: any) {
