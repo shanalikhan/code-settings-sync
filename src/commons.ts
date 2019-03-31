@@ -31,8 +31,11 @@ export default class Commons {
       } else if (error.message) {
         message = error.message;
         if (message.indexOf("spawn git ENOENT") !== -1) {
-            msgBox = true;
-            message = localize("common.error.noGit");
+          msgBox = true;
+          message = localize("common.error.noGit");
+        } else if (message.indexOf("Bad credentials") !== -1) {
+          msgBox = true;
+          message = localize("common.error.authError");
         }
         try {
           message = JSON.parse(error.message).message;
