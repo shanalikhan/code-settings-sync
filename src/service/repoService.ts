@@ -1,4 +1,4 @@
-import { appendFile, writeFile } from "fs-extra";
+import { existsSync, writeFileSync } from "fs-extra";
 import * as Git from "simple-git/promise";
 import * as vscode from "vscode";
 import localize from "../localize";
@@ -22,7 +22,9 @@ export class RepoService {
     if (!isRepo) {
       await this.initRepo();
     }
-    await this.updateGitignore(gitignorePath);
+    if (!existsSync(gitignorePath)) {
+      this.updateGitignore(gitignorePath);
+    }
     return true;
   }
 
@@ -32,12 +34,8 @@ export class RepoService {
     return true;
   }
 
-  public async pull(options?: { force: boolean }) {
-    if (options && options.force) {
-      await this.git.pull(this.options.repoURL, "master", { "--force": null });
-      return true;
-    }
-    await this.git.pull(this.options.repoURL, "master");
+  public async pull() {
+    await this.git.pull();
     return true;
   }
 
@@ -47,19 +45,18 @@ export class RepoService {
         localize("cmd.updateSettings.info.noChanges"),
         2000
       );
-      return;
+      return false;
     }
     await this.git.add(".");
     await this.git.commit("Update settings");
     await this.git.push(this.options.repoURL, "master");
-    return;
+    return true;
   }
 
   public async updateGitignore(path: string) {
-    await writeFile(path, "");
-    this.options.ignored.forEach(
-      async item => await appendFile(path, item + "\n")
-    );
+    let str = "";
+    this.options.ignored.forEach(async item => (str = str + item + "\n"));
+    writeFileSync(path, str);
     return true;
   }
 }
