@@ -3,8 +3,10 @@
 
 import { File } from "./fileService";
 import * as simplegit from "simple-git/promise";
+import { RemoteWithRefs } from "simple-git/typings/response";
 
 export class GitService {
+  public remoteUrl: string = null;
   public git: simplegit.SimpleGit = null;
 
   public static sshRegex: RegExp = /(^)git@(github|gitlab).com:[a-zA-Z0-9]+\/([a-zA-Z0-9\-]+).git($)/;
@@ -24,14 +26,29 @@ export class GitService {
     this.git = simplegit(workspace);
   }
 
-  public async initialize(): Promise<void> {
-    // Simple git has a built in error checking so we have to
-    // catch it first before throwing to use our own error check
-    return this.git.init().catch((err: Error) => { throw err; });
+  public async initialize(repoUrl: string): Promise<string> {
+    await this.git.init();
+    if (repoUrl) {
+      this.remoteUrl = repoUrl;
+      const remote: RemoteWithRefs = await this.getOrigin();
+      if (!remote) {
+        await this.git.addRemote("origin", this.remoteUrl);
+      } else if (remote.refs.push !== this.remoteUrl) {
+        await this.git.raw(['remote', 'set-url', 'origin', this.remoteUrl]);
+      }
+      const updatedOrigin: RemoteWithRefs = await this.getOrigin();
+      if (updatedOrigin && updatedOrigin.refs.push === this.remoteUrl)
+        return Promise.resolve(await GitService.ParseService(this.remoteUrl, 2));
+    }
+    return Promise.resolve(null);
   }
 
   public async addFile(file: File): Promise<void> {
     return this.git.add(file.filePath);
+  }
+
+  public async getOrigin(): Promise<RemoteWithRefs> {
+    return this.git.getRemotes(true).then(remotes => remotes.filter(v => v.name === "origin").shift());
   }
 
   public static async ParseService(repoUrl: string, regexPos: number = 3): Promise<string> {

@@ -89,11 +89,12 @@ export class Sync {
 
       if (localConfig.customConfig.syncMode === "git") {
         git = new GitService(env.USER_FOLDER);
-        await git.initialize();
         github = new GitHubService(
           localConfig.customConfig.repoServiceTokens.github,
           localConfig.customConfig.githubEnterpriseUrl
         );
+        const repoName: string = await git.initialize(localConfig.extConfig.repoUrl);
+        console.log("my repo name that's connected to git is %s", repoName);
         await github.Authenticate();
       } else {
         github = new GitHubService(
