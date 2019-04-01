@@ -274,10 +274,25 @@ export class Sync {
       }
 
       if (customSettings.syncMode === "git") {
+        vscode.window.setStatusBarMessage(
+          localize("cmd.updateSettings.info.addingFile"),
+          1000
+        );
+        console.log("Adding Files...");
         await git.Add(allSettingFiles);
 
+        vscode.window.setStatusBarMessage(
+          localize("cmd.updateSettings.info.committing"),
+          1000
+        );
+        console.log("Commiting...");
         await git.Commit(dateNow.toString());
 
+        vscode.window.setStatusBarMessage(
+          localize("cmd.updateSettings.info.pushing"),
+          1000
+        );
+        console.log("Pushing to repository...");
         await git.Push();
 
         const status: any = await git.status();

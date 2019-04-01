@@ -95,6 +95,7 @@ export class GitHubService {
       return Promise.resolve(res);
     }).catch(err => {
       if (err.toString().indexOf("Not Found") !== -1) {
+        console.log("No Repo Exists...");
         return null;
       }
       throw new Error(err);
@@ -105,6 +106,7 @@ export class GitHubService {
     // Octokit for some reason no longer has .repo.create api or I just can't find it.
     // Have to settle for the lower level .request() to manually interact with the api
     // https://developer.github.com/v3/repos/#create
+    console.log("Creating Repo on Github...");
     return this.github.request("POST /user/repos", {
       "name": repoName,
       "private": isPrivate,
