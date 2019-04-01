@@ -1,14 +1,11 @@
 "use strict";
-import { watch } from "chokidar";
-import * as fs from "fs-extra";
 import * as vscode from "vscode";
 import { Environment } from "./environmentPath";
 import localize from "./localize";
-import * as lockfile from "./lockfile";
+import { AutoUploadService } from "./service/autoUploadService";
 import { File, FileService } from "./service/fileService";
 import { ExtensionInformation } from "./service/pluginService";
 import { CustomSettings, ExtensionConfig, LocalConfig } from "./setting";
-import { Util } from "./util";
 
 export default class Commons {
   public static outputChannel: vscode.OutputChannel = null;
@@ -73,203 +70,18 @@ export default class Commons {
     }
   }
 
-  private static configWatcher = null;
+  public autoUploadService = new AutoUploadService({
+    en: this.en,
+    commons: this
+  });
 
   public ERROR_MESSAGE: string = localize("common.error.message");
 
   constructor(
     private en: Environment,
     private context: vscode.ExtensionContext
-  ) {}
-
-  public async StartWatch(): Promise<void> {
-    const lockExist: boolean = await FileService.FileExists(
-      this.en.FILE_SYNC_LOCK
-    );
-    if (!lockExist) {
-      fs.closeSync(fs.openSync(this.en.FILE_SYNC_LOCK, "w"));
-    }
-
-    // check is sync locking
-    if (await lockfile.Check(this.en.FILE_SYNC_LOCK)) {
-      await lockfile.Unlock(this.en.FILE_SYNC_LOCK);
-    }
-
-    let uploadStopped: boolean = true;
-    Commons.configWatcher = watch(`${this.en.PATH}/User/`, {
-      ignoreInitial: true,
-      depth: 2
-    });
-
-    // TODO : Uncomment the following lines when code allows feature to update Issue in github code repo - #14444
-
-    // Commons.extensionWatcher.on('addDir', (path, stat)=> {
-    //     if (uploadStopped) {
-    //         uploadStopped = false;
-    //         this.InitiateAutoUpload().then((resolve) => {
-    //             uploadStopped = resolve;
-    //         }, (reject) => {
-    //             uploadStopped = reject;
-    //         });
-    //     }
-    //     else {
-    //         vscode.window.setStatusBarMessage("");
-    //         vscode.window.setStatusBarMessage("Sync : Updating In Progres... Please Wait.", 3000);
-    //     }
-    // });
-    // Commons.extensionWatcher.on('unlinkDir', (path)=> {
-    //     if (uploadStopped) {
-    //         uploadStopped = false;
-    //         this.InitiateAutoUpload().then((resolve) => {
-    //             uploadStopped = resolve;
-    //         }, (reject) => {
-    //             uploadStopped = reject;
-    //         });
-    //     }
-    //     else {
-    //         vscode.window.setStatusBarMessage("");
-    //         vscode.window.setStatusBarMessage("Sync : Updating In Progres... Please Wait.", 3000);
-    //     }
-    // });
-
-    vscode.extensions.onDidChange(async () => {
-      if (await lockfile.Check(this.en.FILE_SYNC_LOCK)) {
-        uploadStopped = false;
-      }
-
-      if (!uploadStopped) {
-        vscode.window.setStatusBarMessage("").dispose();
-        vscode.window.setStatusBarMessage(
-          localize("common.info.updating"),
-          3000
-        );
-        return false;
-      }
-      uploadStopped = false;
-      await lockfile.Lock(this.en.FILE_SYNC_LOCK);
-      const settings: ExtensionConfig = this.GetSettings();
-      const customSettings: CustomSettings = await this.GetCustomSettings();
-      if (customSettings == null) {
-        return lockfile.Unlock(this.en.FILE_SYNC_LOCK);
-      }
-
-      const requiredFileChanged: boolean = true;
-
-      console.log("Sync : Folder Change Detected");
-
-      if (requiredFileChanged) {
-        if (settings.autoUpload) {
-          console.log("Sync : Initiating Auto-upload");
-          this.InitiateAutoUpload()
-            .then(isDone => {
-              uploadStopped = isDone;
-              return lockfile.Unlock(this.en.FILE_SYNC_LOCK);
-            })
-            .catch(() => {
-              uploadStopped = true;
-              return lockfile.Unlock(this.en.FILE_SYNC_LOCK);
-            });
-        }
-      } else {
-        uploadStopped = true;
-        await lockfile.Unlock(this.en.FILE_SYNC_LOCK);
-      }
-    });
-
-    Commons.configWatcher.on("change", async (path: string) => {
-      // check sync is locking
-      if (await lockfile.Check(this.en.FILE_SYNC_LOCK)) {
-        uploadStopped = false;
-      }
-
-      if (!uploadStopped) {
-        vscode.window.setStatusBarMessage("").dispose();
-        vscode.window.setStatusBarMessage(
-          localize("common.info.updating"),
-          3000
-        );
-        return false;
-      }
-      uploadStopped = false;
-      await lockfile.Lock(this.en.FILE_SYNC_LOCK);
-      const settings: ExtensionConfig = this.GetSettings();
-      const customSettings: CustomSettings = await this.GetCustomSettings();
-      if (customSettings == null) {
-        return lockfile.Unlock(this.en.FILE_SYNC_LOCK);
-      }
-
-      let requiredFileChanged: boolean = false;
-      if (
-        customSettings.ignoreUploadFolders.indexOf("workspaceStorage") === -1
-      ) {
-        requiredFileChanged =
-          path.indexOf(this.en.FILE_SYNC_LOCK_NAME) === -1 &&
-          path.indexOf(".DS_Store") === -1 &&
-          path.indexOf(this.en.FILE_CUSTOMIZEDSETTINGS_NAME) === -1;
-      } else {
-        requiredFileChanged =
-          path.indexOf(this.en.FILE_SYNC_LOCK_NAME) === -1 &&
-          path.indexOf("workspaceStorage") === -1 &&
-          path.indexOf(".DS_Store") === -1 &&
-          path.indexOf(this.en.FILE_CUSTOMIZEDSETTINGS_NAME) === -1;
-      }
-
-      console.log("Sync : File Change Detected On : " + path);
-
-      if (requiredFileChanged) {
-        if (settings.autoUpload) {
-          if (
-            customSettings.ignoreUploadFolders.indexOf("workspaceStorage") > -1
-          ) {
-            const fileType: string = path.substring(
-              path.lastIndexOf("."),
-              path.length
-            );
-            if (fileType.indexOf("json") === -1) {
-              console.log(
-                "Sync : Cannot Initiate Auto-upload on This File (Not JSON)."
-              );
-              uploadStopped = true;
-              return lockfile.Unlock(this.en.FILE_SYNC_LOCK);
-            }
-          }
-
-          console.log("Sync : Initiating Auto-upload For File : " + path);
-          this.InitiateAutoUpload()
-            .then(isDone => {
-              uploadStopped = isDone;
-              return lockfile.Unlock(this.en.FILE_SYNC_LOCK);
-            })
-            .catch(() => {
-              uploadStopped = true;
-              return lockfile.Unlock(this.en.FILE_SYNC_LOCK);
-            });
-        }
-      } else {
-        uploadStopped = true;
-        await lockfile.Unlock(this.en.FILE_SYNC_LOCK);
-      }
-    });
-  }
-
-  public async InitiateAutoUpload(): Promise<boolean> {
-    vscode.window.setStatusBarMessage("").dispose();
-    vscode.window.setStatusBarMessage(
-      localize("common.info.initAutoUpload"),
-      5000
-    );
-
-    await Util.Sleep(3000);
-
-    vscode.commands.executeCommand("extension.updateSettings", "forceUpdate");
-
-    return true;
-  }
-
-  public CloseWatch(): void {
-    if (Commons.configWatcher) {
-      Commons.configWatcher.close();
-    }
+  ) {
+    //
   }
 
   public async InitalizeSettings(
@@ -318,14 +130,14 @@ export default class Commons {
     return settings;
   }
 
-  public async GetCustomSettings(): Promise<CustomSettings> {
+  public GetCustomSettings(): CustomSettings {
     let customSettings: CustomSettings = new CustomSettings();
     try {
-      const customExist: boolean = await FileService.FileExists(
+      const customExist: boolean = FileService.FileExists(
         this.en.FILE_CUSTOMIZEDSETTINGS
       );
       if (customExist) {
-        const customSettingStr: string = await FileService.ReadFile(
+        const customSettingStr: string = FileService.ReadFile(
           this.en.FILE_CUSTOMIZEDSETTINGS
         );
         const tempObj: {
@@ -342,9 +154,9 @@ export default class Commons {
     } catch (e) {
       Commons.LogException(
         e,
-        "Sync : Unable to read " +
-          this.en.FILE_CUSTOMIZEDSETTINGS_NAME +
-          ". Make sure its Valid JSON.",
+        `Sync : Unable to read ${
+        this.en.FILE_CUSTOMIZEDSETTINGS_NAME
+        }. Make sure its Valid JSON.`,
         true
       );
       vscode.commands.executeCommand(
@@ -677,9 +489,9 @@ export default class Commons {
 
     outputChannel.appendLine(`Files ${upload ? "Upload" : "Download"}ed:`);
     files
-      .filter(item => item.fileName.indexOf(".") > 0)
+      .filter(item => item.filename.indexOf(".") > 0)
       .forEach(item => {
-        outputChannel.appendLine(`  ${item.fileName} > ${item.gistName}`);
+        outputChannel.appendLine(`  ${item.filename} > ${item.gistName}`);
       });
 
     outputChannel.appendLine(``);
