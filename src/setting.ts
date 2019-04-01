@@ -24,10 +24,6 @@ export class CloudSetting {
   public extensionVersion: string = "v" + Environment.getVersion();
 }
 
-export class KeyValue<T, S> {
-  constructor(public Key: T, public Value: S) {}
-}
-
 export class CustomSettings {
   public ignoreUploadFiles: string[] = [
     "projects.json",
@@ -39,6 +35,20 @@ export class CustomSettings {
   ];
   public ignoreUploadFolders: string[] = ["workspaceStorage"];
   public ignoreExtensions: string[] = [];
+  public ignoredItems = [
+    ".git",
+    "syncLocalSettings.json",
+    "sync.lock",
+    "workspaceStorage",
+    "globalStorage/state.vscdb",
+    "globalStorage/state.vscdb.backup",
+    "projects.json",
+    "projects_cache_vscode.json",
+    "projects_cache_git.json",
+    "projects_cache_svn.json",
+    "gpm_projects.json",
+    "gpm-recentItems.json"
+  ];
   public ignoreUploadSettings: string[] = [];
   public replaceCodeSettings: { [key: string]: any } = {};
   public gistDescription: string = "Visual Studio Code Settings Sync Gist";
