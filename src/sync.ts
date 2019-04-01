@@ -184,10 +184,10 @@ export class Sync {
           contentFiles = contentFiles.filter((contentFile: File) => {
             const matchedFolders = customSettings.ignoreUploadFolders.filter(
               folder => {
-                return contentFile.filePath.indexOf(folder) === -1;
+                return contentFile.filePath.indexOf(folder) !== -1;
               }
             );
-            return matchedFolders.length > 0;
+            return matchedFolders.length === 0;
           });
         }
         const customFileKeys: string[] = Object.keys(
