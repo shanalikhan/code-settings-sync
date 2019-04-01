@@ -93,7 +93,11 @@ export class GitService {
     // return this.git.raw([...pushOpts, remoteUrl]);
   }
 
-  public async addFile(file: File): Promise<void> {
+  public async Add(files: File[]) {
+    await Promise.all(files.map(file => this.addFile(file)));
+  }
+
+  public async addFile(file: File) {
     return this.git.add(file.filePath);
   }
 

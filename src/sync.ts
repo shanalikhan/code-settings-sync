@@ -274,13 +274,10 @@ export class Sync {
       }
 
       if (customSettings.syncMode === "git") {
-        let actionList: Promise<void>[] = [];
-        for (const settingFile of allSettingFiles) {
-          actionList.push(git.addFile(settingFile));
-        }
-        await Promise.all(actionList);
+        await git.Add(allSettingFiles);
 
         await git.Commit(dateNow.toString());
+
         await git.Push();
 
         const status: any = await git.status();
