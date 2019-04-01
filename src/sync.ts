@@ -506,6 +506,12 @@ export class Sync {
       syncSetting: ExtensionConfig,
       customSettings: CustomSettings
     ) {
+      if (customSettings.syncMode === "git") {
+        await git.Pull();
+        console.log(await git.status());
+        return;
+      }
+
       vscode.window.setStatusBarMessage("").dispose();
       vscode.window.setStatusBarMessage(
         localize("cmd.downloadSettings.info.readdingOnline"),

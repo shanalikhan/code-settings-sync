@@ -37,13 +37,13 @@ export class GitService {
 
   constructor (workspace: string) {
     this.git = simplegit(workspace);
+    this.git.silent(true);
   }
 
   // public async initialize(repoUrl: string, token: string, forcePush?: boolean, forcePull?: boolean): Promise<boolean> {
   public async initialize(token: string, repoUrl: string, branch?: string, forcePush?: boolean, forcePull?: boolean): Promise<boolean> {
     await this.git.init();
     if (!repoUrl) return Promise.resolve(false);
-    // this.token    = token;
     this.token = token;
     this.repoUrl  = repoUrl;
     this.repoName = await GitService.ParseUrl(repoUrl, UrlInfo.NAME);
@@ -56,7 +56,7 @@ export class GitService {
 
     const remote: RemoteWithRefs = await this.getOrigin();
     if (!remote) {
-      await this.git.addRemote("origin", this.repoUrl);
+      await this.git.addRemote('origin', this.repoUrl);
     } else if (remote.refs.push !== this.repoUrl) {
       await this.git.raw(['remote', 'set-url', 'origin', this.repoUrl]);
     }
@@ -65,7 +65,9 @@ export class GitService {
 
     let currentBranch: string = await this.GetCurrentBranch();
     if (currentBranch !== this.branch) {
-      await this.git.checkout(["-B", this.branch]);
+      // Slightly dangerous this checkout -B does reset the branch
+      // However, since we only checkout if we are not on the current branch, this should be safe
+      await this.git.checkout(['-B', this.branch]);
       currentBranch = await this.GetCurrentBranch();
     }
     return Promise.resolve(currentBranch === this.branch);
@@ -96,6 +98,23 @@ export class GitService {
     await this.git.raw([...pushOpts, remoteUrl]);
   }
 
+  public async Pull() {
+    // Fetching will give a refspec error if the branch does not exist allowing a clean exit from pulling
+    // Maybe change the error message to make it more clear?
+    console.log("Fetching...");
+    await this.git.fetch('origin', this.branch);
+    if (this.forcePull) {
+      console.log("Force Pull is ON...downloading...")
+      await this.git.raw(['reset', '--hard', `origin/${this.branch}`]);
+    } else {
+      // Haven't really testing not forcing the pull yet.
+      // Not sure if it will correctly track the remote origin if it doesn't reset based off of
+      // the remote branch...
+      console.log("Force Pull is OFF...downloading...");
+      await this.git.pull();
+    }
+  }
+
   public async Add(files: File[]) {
     await Promise.all(files.map(file => this.addFile(file)));
   }
@@ -114,9 +133,6 @@ export class GitService {
     if (!matchedString) {
       return Promise.resolve(null);
     }
-    // -2 is reponame
-    // -3 is owner name
-    // -4 is service name
     // Guaranteed as regex must match to get here
     return Promise.resolve(matchedString[matchedString.length - regexPos]);
   }
