@@ -455,11 +455,47 @@ export class Sync {
   public async download(): Promise<void> {
     const env = new Environment(this.context);
     const common = new Commons(env, this.context);
+    let git: GitService = null;
+    let github: GitHubService = null;
     let localSettings: LocalConfig = new LocalConfig();
     common.CloseWatch();
 
     try {
       localSettings = await common.InitalizeSettings(true, true);
+
+      if (localSettings.customConfig.syncMode === "git") {
+        const repoUrl: string = localSettings.extConfig.repoUrl;
+        const token: string = localSettings.customConfig.repoServiceTokens.github;
+        git = new GitService(env.USER_FOLDER);
+        github = new GitHubService(
+          token,
+          localSettings.customConfig.githubEnterpriseUrl
+        );
+        await Promise.all([
+          github.Authenticate(),
+          git.initialize(
+            token,
+            repoUrl,
+            localSettings.customConfig.gitBranch,
+            localSettings.customConfig.forcePush,
+            localSettings.customConfig.forcePull
+          )
+        ]);
+
+        const repoInfo: any = await github.GetRepo(git.owner, git.repoName);
+        if (!repoInfo) {
+          throw new Error(localize("cmd.downloadSettings.error.noGitRepo"));
+        } else if (!repoInfo.data.permissions.pull) {
+          throw new Error(localize("cmd.downloadSettings.error.noPullPermission"));
+        }
+      } else {
+        github = new GitHubService(
+          localSettings.customConfig.token,
+          localSettings.customConfig.githubEnterpriseUrl
+        );
+        await github.Authenticate();
+      }
+
       await StartDownload(localSettings.extConfig, localSettings.customConfig);
     } catch (err) {
       Commons.LogException(err, common.ERROR_MESSAGE, true);
@@ -470,10 +506,6 @@ export class Sync {
       syncSetting: ExtensionConfig,
       customSettings: CustomSettings
     ) {
-      const github = new GitHubService(
-        customSettings.token,
-        customSettings.githubEnterpriseUrl
-      );
       vscode.window.setStatusBarMessage("").dispose();
       vscode.window.setStatusBarMessage(
         localize("cmd.downloadSettings.info.readdingOnline"),

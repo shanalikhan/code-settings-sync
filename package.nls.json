@@ -38,6 +38,8 @@
   "cmd.downloadSettings.info.downloaded": "Sync : Download Complete.",
   "cmd.downloadSettings.info.readdingOnline": "Sync : Reading Settings Online.",
   "cmd.downloadSettings.info.gotLatestVersion": "Sync : You already have the latest version of saved settings.",
+  "cmd.downloadSettings.error.noGitRepo": "Sync : No Git Repo to download settings.",
+  "cmd.downloadSettings.error.noPullPermission": "Sync : No Permission to pull from the repo. Please double check your token permissions.",
   "cmd.downloadSettings.error.removeExtFail": "Sync : Unable to remove some extensions.",
   "cmd.downloadSettings.error.unableSave": "Sync : Unable to save extension settings file.",
   "cmd.resetSettings.title": "Sync : Reset Extension Settings",
