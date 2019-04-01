@@ -506,17 +506,24 @@ export class Sync {
       syncSetting: ExtensionConfig,
       customSettings: CustomSettings
     ) {
-      if (customSettings.syncMode === "git") {
-        await git.Pull();
-        console.log(await git.status());
-        return;
-      }
-
       vscode.window.setStatusBarMessage("").dispose();
       vscode.window.setStatusBarMessage(
         localize("cmd.downloadSettings.info.readdingOnline"),
         2000
       );
+
+      if (customSettings.syncMode === "git") {
+        await git.Pull();
+        const extensionFile: File = await FileService.GetFile(env.FILE_EXTENSION, env.FILE_EXTENSION_NAME);
+        const ignoredExtensions: string[] = customSettings.ignoreExtensions || new Array<string>();
+
+        if (extensionFile && syncSetting.syncExtensions) {
+          await PluginService.UpdateExtensions(
+            env, extensionFile.content, ignoredExtensions, syncSetting.removeExtensions, syncSetting.quietSync
+          );
+        }
+        return;
+      }
 
       const res = await github.ReadGist(syncSetting.gist);
 
@@ -630,65 +637,9 @@ export class Sync {
         if (content !== "") {
           if (file.gistName === env.FILE_EXTENSION_NAME) {
             if (syncSetting.syncExtensions) {
-              if (syncSetting.removeExtensions) {
-                try {
-                  deletedExtensions = await PluginService.DeleteExtensions(
-                    content,
-                    env.ExtensionFolder,
-                    ignoredExtensions
-                  );
-                } catch (uncompletedExtensions) {
-                  vscode.window.showErrorMessage(
-                    localize("cmd.downloadSettings.error.removeExtFail")
-                  );
-                  deletedExtensions = uncompletedExtensions;
-                }
-              }
-
-              try {
-                let useCli = true;
-                const autoUpdate: boolean = vscode.workspace
-                  .getConfiguration("extensions")
-                  .get("autoUpdate");
-                useCli = autoUpdate && !env.isCoderCom;
-                if (useCli) {
-                  if (!syncSetting.quietSync) {
-                    Commons.outputChannel = vscode.window.createOutputChannel(
-                      "Code Settings Sync"
-                    );
-                    Commons.outputChannel.clear();
-                    Commons.outputChannel.appendLine(
-                      `COMMAND LINE EXTENSION DOWNLOAD SUMMARY`
-                    );
-                    Commons.outputChannel.appendLine(`--------------------`);
-                    Commons.outputChannel.show();
-                  }
-                }
-
-                addedExtensions = await PluginService.InstallExtensions(
-                  content,
-                  env.ExtensionFolder,
-                  useCli,
-                  ignoredExtensions,
-                  env.OsType,
-                  env.isInsiders,
-                  (message: string, dispose: boolean) => {
-                    if (!syncSetting.quietSync) {
-                      Commons.outputChannel.appendLine(message);
-                    } else {
-                      console.log(message);
-                      if (dispose) {
-                        vscode.window.setStatusBarMessage(
-                          "Sync : " + message,
-                          3000
-                        );
-                      }
-                    }
-                  }
-                );
-              } catch (extensions) {
-                addedExtensions = extensions;
-              }
+              [addedExtensions, deletedExtensions] = await PluginService.UpdateExtensions(
+                env, content, ignoredExtensions, syncSetting.removeExtensions, syncSetting.quietSync
+              );
             }
           } else {
             writeFile = true;

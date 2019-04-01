@@ -5,6 +5,9 @@ import * as vscode from "vscode";
 
 import { OsType } from "../enums";
 import * as util from "../util";
+import Commons from "../commons";
+import localize from "../localize";
+import { Environment } from "../environmentPath";
 
 const apiPath =
   "https://marketplace.visualstudio.com/_apis/public/gallery/extensionquery";
@@ -80,6 +83,79 @@ export class ExtensionMetadata {
 }
 
 export class PluginService {
+  public static async UpdateExtensions(
+    env: Environment,
+    content: string,
+    ignoredExtensions: string[],
+    removeExtensions: boolean,
+    quietSync: boolean
+  ): Promise<ExtensionInformation[][]> {
+    let addedExtensions: ExtensionInformation[] = [];
+    let deletedExtensions: ExtensionInformation[] = [];
+
+    if (removeExtensions) {
+      try {
+        deletedExtensions = await PluginService.DeleteExtensions(
+          content,
+          env.ExtensionFolder,
+          ignoredExtensions
+        );
+      } catch (uncompletedExtensions) {
+        vscode.window.showErrorMessage(
+          localize("cmd.downloadSettings.error.removeExtFail")
+        );
+        deletedExtensions = uncompletedExtensions;
+      }
+    }
+
+    try {
+      let useCli = true;
+      const autoUpdate: boolean = vscode.workspace
+        .getConfiguration("extensions")
+        .get("autoUpdate");
+      useCli = autoUpdate && !env.isCoderCom;
+      if (useCli) {
+        if (!quietSync) {
+          Commons.outputChannel = vscode.window.createOutputChannel(
+            "Code Settings Sync"
+          );
+          Commons.outputChannel.clear();
+          Commons.outputChannel.appendLine(
+            `COMMAND LINE EXTENSION DOWNLOAD SUMMARY`
+          );
+          Commons.outputChannel.appendLine(`--------------------`);
+          Commons.outputChannel.show();
+        }
+      }
+
+      addedExtensions = await PluginService.InstallExtensions(
+        content,
+        env.ExtensionFolder,
+        useCli,
+        ignoredExtensions,
+        env.OsType,
+        env.isInsiders,
+        (message: string, dispose: boolean) => {
+          if (!quietSync) {
+            Commons.outputChannel.appendLine(message);
+          } else {
+            console.log(message);
+            if (dispose) {
+              vscode.window.setStatusBarMessage(
+                "Sync : " + message,
+                3000
+              );
+            }
+          }
+        }
+      );
+    } catch (extensions) {
+      addedExtensions = extensions;
+    }
+
+    return Promise.resolve([addedExtensions, deletedExtensions]);
+  }
+
   public static GetMissingExtensions(
     remoteExt: string,
     ignoredExtensions: string[]
