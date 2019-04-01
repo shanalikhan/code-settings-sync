@@ -62,9 +62,12 @@ export class GitService {
     const updatedOrigin: RemoteWithRefs = await this.getOrigin();
     if (!updatedOrigin || updatedOrigin.refs.push !== this.repoUrl) return Promise.resolve(false);
 
-    await this.git.checkout(["-B", branch]);
-    const currentBranch: string = await this.git.raw(["rev-parse", "--abbrev-ref", "HEAD"]);
-    return Promise.resolve(currentBranch === branch);
+    let currentBranch: string = await this.GetCurrentBranch();
+    if (currentBranch !== this.branch) {
+      await this.git.checkout(["-B", this.branch]);
+      currentBranch = await this.GetCurrentBranch();
+    }
+    return Promise.resolve(currentBranch === this.branch);
   }
 
   public async Commit(message: string): Promise<CommitSummary> {
@@ -109,6 +112,10 @@ export class GitService {
     // -4 is service name
     // Guaranteed as regex must match to get here
     return Promise.resolve(matchedString[matchedString.length - regexPos]);
+  }
+
+  public async GetCurrentBranch(): Promise<string> {
+    return this.git.raw(['rev-parse', '--abbrev-ref', 'HEAD']);
   }
 
   public async GetCommitID(): Promise<string> {
