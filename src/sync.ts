@@ -98,6 +98,7 @@ export class Sync {
         await Promise.all([
           github.Authenticate(),
           git.initialize(
+            token,
             repoUrl,
             localConfig.customConfig.gitBranch,
             localConfig.customConfig.forcePush,

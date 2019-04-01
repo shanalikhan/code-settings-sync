@@ -33,17 +33,18 @@ export class GitService {
       tokenUrl: "https://gitlab.com/profile/personal_access_tokens"
     }
   };
-  // private token: string = null;
+  private token: string = null;
 
   constructor (workspace: string) {
     this.git = simplegit(workspace);
   }
 
   // public async initialize(repoUrl: string, token: string, forcePush?: boolean, forcePull?: boolean): Promise<boolean> {
-  public async initialize(repoUrl: string, branch?: string, forcePush?: boolean, forcePull?: boolean): Promise<boolean> {
+  public async initialize(token: string, repoUrl: string, branch?: string, forcePush?: boolean, forcePull?: boolean): Promise<boolean> {
     await this.git.init();
     if (!repoUrl) return Promise.resolve(false);
     // this.token    = token;
+    this.token = token;
     this.repoUrl  = repoUrl;
     this.repoName = await GitService.ParseUrl(repoUrl, UrlInfo.NAME);
     this.owner    = await GitService.ParseUrl(repoUrl, UrlInfo.OWNER);
@@ -74,23 +75,25 @@ export class GitService {
     return this.git.commit(message);
   }
 
-  public async Push(): Promise<void> {
-    /* For some reason, the repo gave back a fatal: error cannot find username. Device not configured...
-     * when using simplegit's regular push method. However, this is no longer the case though
-     * I'm not entirely sure what fixed it. Though, as long as the user is still using https, there is a
-     * possibility of error? Leaving the raw method with token at the bottom just in case.
+  public async Push() {
+    /* For some reason, the repo gave back a fatal: error could not read Username. Device not configured...
+     * when using simplegit's regular push method. The fix requres the user to change the url to be ssh.
+     * In order to circumvent that, we set the push url to the specific service website defaulting to https
+     * and repository as stated in git-push documentation: https://git-scm.com/docs/git-push#URLS
+     * Resources:
      * https://github.com/github/hub/issues/1644
      * https://stackoverflow.com/questions/22147574/fatal-could-not-read-username-for-https-github-com-no-such-file-or-directo
      */
-    let pushOpts: any = {'--set-upstream': null};
-    if (this.forcePush) pushOpts['--force'] = null;
+    // let pushOpts: any = {'--set-upstream': null};
+    // if (this.forcePush) pushOpts['--force'] = null;
+    // return this.git.push('origin', this.branch, pushOpts);
 
-    return this.git.push('origin', this.branch, pushOpts);
+    // TODO: Check if theres a better way to build the remote url
+    const remoteUrl: string = `https://${this.owner}:${this.token}@${this.service}.com/${this.owner}/${this.repoName}`
 
-    // let pushOpts: string[] = ['push', '--set-upstream'];
-    // if (this.forcePush) pushOpts.push('--force');
-    // const remoteUrl: string = `https://${this.owner}:${this.token}@${this.service}.com/${this.owner}/${this.repoName}`
-    // return this.git.raw([...pushOpts, remoteUrl]);
+    let pushOpts: string[] = ['push', '--set-upstream'];
+    if (this.forcePush) pushOpts.push('--force');
+    await this.git.raw([...pushOpts, remoteUrl]);
   }
 
   public async Add(files: File[]) {
