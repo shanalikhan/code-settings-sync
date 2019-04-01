@@ -1,4 +1,5 @@
 "use strict";
+import { openSync } from "fs";
 import { has, set } from "lodash";
 import * as vscode from "vscode";
 import { Environment } from "./environmentPath";
@@ -167,9 +168,19 @@ export default class Commons {
   public async OpenSettingsPage() {
     const customSettings = await this.GetCustomSettings();
     const content: string = SettingsView.replace(
-      "@CURRENT_DATA",
+      new RegExp("@CURRENT_DATA", "g"),
       JSON.stringify(customSettings)
-    ).replace("@SETTINGS_MAP", JSON.stringify(this.customizableSettings));
+    )
+      .replace(
+        new RegExp("@SETTINGS_MAP", "g"),
+        JSON.stringify(this.customizableSettings)
+      )
+      .replace(
+        new RegExp("@PWD", "g"),
+        vscode.Uri.file(this.context.extensionPath).with({
+          scheme: "vscode-resource"
+        })
+      );
     const settingsPanel = vscode.window.createWebviewPanel(
       "syncSettings",
       "Sync Settings",
@@ -218,14 +229,45 @@ export default class Commons {
       }
     );
     landingPanel.webview.html = content;
-    landingPanel.webview.onDidReceiveMessage(() => {
-      new GitHubOAuthService(54321, this).StartProcess();
-      vscode.commands.executeCommand(
-        "vscode.open",
-        vscode.Uri.parse(
-          "https://github.com/login/oauth/authorize?scope=gist%20read:user&client_id=cfd96460d8b110e2351b&redirect_uri=http://localhost:54321/callback"
-        )
-      );
+    landingPanel.webview.onDidReceiveMessage(async message => {
+      switch (message.command) {
+        case "loginWithGitHub":
+          new GitHubOAuthService(54321, this).StartProcess();
+          vscode.commands.executeCommand(
+            "vscode.open",
+            vscode.Uri.parse(
+              "https://github.com/login/oauth/authorize?scope=gist%20read:user&client_id=cfd96460d8b110e2351b&redirect_uri=http://localhost:54321/callback"
+            )
+          );
+          break;
+        case "editGlobalSettings":
+          const file: vscode.Uri = vscode.Uri.file(
+            this.en.FILE_CUSTOMIZEDSETTINGS
+          );
+          openSync(file.fsPath, "r");
+          const document = await vscode.workspace.openTextDocument(file);
+          await vscode.window.showTextDocument(
+            document,
+            vscode.ViewColumn.One,
+            true
+          );
+          break;
+        case "editEnvironmentSettings":
+          // TODO: Possibly open to sync section of the GUI editor
+          const settingsFile: vscode.Uri = vscode.Uri.file(
+            `${this.en.USER_FOLDER}/settings.json`
+          );
+          openSync(settingsFile.fsPath, "r");
+          const settingsJSONDocument = await vscode.workspace.openTextDocument(
+            settingsFile
+          );
+          await vscode.window.showTextDocument(
+            settingsJSONDocument,
+            vscode.ViewColumn.One,
+            true
+          );
+          break;
+      }
     });
   }
 

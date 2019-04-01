@@ -1,4 +1,30 @@
 {
-  "changes": ["Fixing Extensions Sync on Windows"],
-  "currentVersion": "v3.2.7"
+  "changes": [
+    {
+      "details": "Auto upload doesn't work when make change on settings",
+      "type": "Fix",
+      "color": "danger"
+    },
+    {
+      "details": "Disable change detection for workspace storage folder",
+      "type": "Fix",
+      "color": "danger"
+    },
+    {
+      "details": "Pretiffy Custom Settings JSON",
+      "type": "New",
+      "color": "success"
+    },
+    {
+      "details": "Transition from manual vsix package installation to using the CLI",
+      "type": "New",
+      "color": "success"
+    },
+    {
+      "details": "Remove replaceCodeSettings from Settings Sync configurations",
+      "type": "New",
+      "color": "success"
+    }
+  ],
+  "currentVersion": "v3.2.8"
 }

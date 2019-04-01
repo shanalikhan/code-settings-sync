@@ -1,7 +1,10 @@
 // @ts-nocheck
 const vscode = acquireVsCodeApi();
-function logInWithGitHub() {
-  vscode.postMessage({});
+
+function sendCommand(args) {
+  vscode.postMessage({
+    command: args
+  });
 }
 
 function appendHTML(parent, html) {
@@ -13,13 +16,14 @@ function appendHTML(parent, html) {
   div.remove();
 }
 
-const releaseNoteTemplate = `<h5 class="change text-white-50 mx-auto mt-2 mb-3">
-@NOTE
-</h5>`;
+const releaseNoteTemplate = `<h5 class="change text-white-50 mx-auto mt-3 mb-3"><span class="badge badge-@COLOR mr-2">@TYPE</span>@NOTE</h5>`;
 
 const notesElement = document.getElementById("notes");
 releaseNotes.changes.forEach(change => {
-  const html = releaseNoteTemplate.replace(new RegExp("@NOTE", "g"), change);
+  const html = releaseNoteTemplate
+    .replace(new RegExp("@NOTE", "g"), change.details)
+    .replace(new RegExp("@TYPE", "g"), change.type)
+    .replace(new RegExp("@COLOR", "g"), change.color);
   appendHTML(notesElement, html);
 });
 

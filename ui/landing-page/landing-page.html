@@ -16,13 +16,13 @@
       href="https://fonts.googleapis.com/css?family=Roboto:400,900"
       rel="stylesheet"
     />
-    <link rel="stylesheet" href="@PWD/ui/landing-page/landing-page.css" />
+    <link rel="stylesheet" href="@PWD/ui/shared/styles.css" />
   </head>
   <body>
     <header class="masthead">
       <div class="container d-flex h-100 align-items-center">
         <div class="mx-auto text-center">
-          <h1 class="mx-auto mb-4 text-white-50 atext-uppercase">
+          <h1 class="mx-auto mb-4 text-white-50">
             Settings Sync
           </h1>
           <h4 class="text-white-50 mx-auto mt-2 mb-3">
@@ -36,33 +36,50 @@
             <div class="col-sm">
               <div id="release-notes">
                 <h3 class="text-white-50 mx-auto mt-2 mb-3">
-                  Release Notes
-                </h3>
-                <h4 class="text-white-50 mx-auto mt-2 mb-3">
+                  What's new in
                   <a
                     id="current-version"
                     href="https://github.com/shanalikhan/code-settings-sync/blob/master/CHANGELOG.md"
                     >vX.X.X</a
                   >
-                </h4>
-                <div id="notes"></div>
+                </h3>
+                <div class="text-left" id="notes"></div>
               </div>
             </div>
             <div class="col-sm">
+              <h3 class="text-white-50 mx-auto mt-2 mb-3">
+                Getting Started
+              </h3>
               <a
                 href="#"
-                onclick="logInWithGitHub()"
-                title="Log in with GitHub"
+                onclick="sendCommand('loginWithGitHub')"
+                title="Login with GitHub"
                 class="btn btn-primary mb-2"
                 style="width: 60%;"
-                >Log in with GitHub</a
+                >Login with GitHub</a
               >
               <a
-                href="https://github.com/shanalikhan/code-settings-sync/blob/master/README.md"
-                title="Read the Docs"
+                href="#"
+                onclick="sendCommand('editGlobalSettings')"
+                title="Edit Global Settings"
                 class="btn btn-primary mt-2 mb-2"
                 style="width: 60%;"
-                >Read the Docs</a
+                >Edit Global Settings</a
+              >
+              <a
+                href="#"
+                onclick="sendCommand('editEnvironmentSettings')"
+                title="Edit Environment Settings"
+                class="btn btn-primary mt-2 mb-2"
+                style="width: 60%;"
+                >Edit Environment Settings</a
+              >
+              <a
+                href="https://opencollective.com/code-settings-sync"
+                title="Become a Sponsor"
+                class="btn btn-primary mt-2 mb-2"
+                style="width: 60%;"
+                >Become a Sponsor</a
               >
             </div>
           </div>

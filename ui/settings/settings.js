@@ -17,7 +17,7 @@ function appendHTML(parent, html) {
 const vscode = acquireVsCodeApi();
 
 const textInputTemplate = `<div class="form-group">
-            <label for="setting:@correspondingSetting"
+            <label for="setting:@correspondingSetting" class="text-white-50"
               >@name</label
             >
             <input
@@ -36,20 +36,21 @@ const checkboxTemplate = `<div class="custom-control custom-checkbox my-1 mr-sm-
               id="setting:@correspondingSetting"
               setting="@correspondingSetting"
             />
-            <label for="setting:@correspondingSetting" class="custom-control-label">
-              @name
-            </label>
+            <label
+              for="setting:@correspondingSetting"
+              class="custom-control-label text-white-50"
+            >@name</label>
           </div>`;
 
 const textareaTemplate = `<div class="form-group">
-            <label for="setting:@correspondingSetting"
-              >@name</label
-            >
+            <label
+              for="setting:@correspondingSetting"
+              class="text-white-50"
+              >@name</label>
             <textarea
               class="form-control textarea"
               id="setting:@correspondingSetting"
-              rows="3"
-              data-min-rows="3"
+              data-min-rows="1"
               placeholder="@placeholder"
               setting="@correspondingSetting"
             ></textarea>
@@ -102,10 +103,10 @@ $(document).ready(function() {
   $(".textarea")
     .each((i, el) => {
       let str = "";
-      _.get(settings, $(el).attr("setting")).forEach(
-        item => (str += item + "\n")
-      );
-      $(el).val(str);
+      const items = _.get(settings, $(el).attr("setting"));
+      items.forEach(item => (str += item + "\n"));
+      $(el).val(str.slice(0, -1));
+      $(el).prop("rows", items.length);
     })
     .change(function() {
       let val = [];
