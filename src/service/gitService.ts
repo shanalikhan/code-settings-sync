@@ -6,9 +6,11 @@ import * as simplegit from "simple-git/promise";
 import { RemoteWithRefs, CommitSummary } from "simple-git/typings/response";
 
 export enum UrlInfo {
-  NAME    = 1,
-  OWNER   = 2,
-  SERVICE = 3,
+  FULL     = 0,
+  PROTOCOL = 1,
+  SERVICE  = 2,
+  OWNER    = 3,
+  REPONAME = 4,
 };
 
 export class GitService {
@@ -16,13 +18,14 @@ export class GitService {
   public service: string = null;
   public repoUrl: string = null;
   public repoName: string = null;
+  public protocol: string = null;
   public forcePush: boolean = false;
   public forcePull: boolean = false;
   public branch: string = 'master';
   public git: simplegit.SimpleGit = null;
 
-  public static sshRegex: RegExp = /^git@(github|gitlab).com:([a-zA-Z0-9]+)\/([a-zA-Z0-9\-]+).git$/;
-  public static httpsRegex: RegExp = /^https:\/\/(?:www.)?(github|gitlab).com\/([a-zA-Z0-9]+)\/([a-zA-Z0-9\-]+).git$/;
+  public static sshRegex: RegExp = /^(git)@(github|gitlab).com:([a-zA-Z0-9]+)\/([a-zA-Z0-9\-]+).git$/;
+  public static httpsRegex: RegExp = /^(https):\/\/(?:www.)?(github|gitlab).com\/([a-zA-Z0-9]+)\/([a-zA-Z0-9\-]+).git$/;
   public static servicesInfo: any = {
     "github": {
       id: "GitHub Repo",
@@ -46,7 +49,7 @@ export class GitService {
     if (!repoUrl) return Promise.resolve(false);
     this.token = token;
     this.repoUrl  = repoUrl;
-    this.repoName = await GitService.ParseUrl(repoUrl, UrlInfo.NAME);
+    this.repoName = await GitService.ParseUrl(repoUrl, UrlInfo.REPONAME);
     this.owner    = await GitService.ParseUrl(repoUrl, UrlInfo.OWNER);
     this.service  = await GitService.ParseUrl(repoUrl, UrlInfo.SERVICE);
     this.remoteUrl = `https://${this.owner}:${this.token}@${this.service}.com/${this.owner}/${this.repoName}.git`
@@ -83,8 +86,9 @@ export class GitService {
     /* For some reason, the repo gave back a fatal: error could not read Username. Device not configured...
      * when using simplegit's regular push method. This is probably due to the local git not being properly configured
      * with the correct credentials. In order to circumvent that, we set the push url including username and token password
-     * to the specific service website defaulting to https (TODO: Change protocol based on url) and repository as
-     * stated in git-push documentation: https://git-scm.com/docs/git-push#URLS
+     * to the specific service website defaulting using https (TOKEN PUSHING ONLY WORKS THROUGH HTTPS) and repository
+     * as stated in git-push documentation:
+     * https://git-scm.com/docs/git-push#URLS
      * Resources:
      * https://github.com/github/hub/issues/1644
      * https://stackoverflow.com/questions/22147574/fatal-could-not-read-username-for-https-github-com-no-such-file-or-directo
@@ -156,7 +160,7 @@ export class GitService {
       return Promise.resolve(null);
     }
     // Guaranteed as regex must match to get here
-    return Promise.resolve(matchedString[matchedString.length - regexPos]);
+    return Promise.resolve(matchedString[regexPos]);
   }
 
   public async GetCurrentBranch(): Promise<string> {
