@@ -8,7 +8,7 @@ import localize from "./localize";
 import * as lockfile from "./lockfile";
 import { File, FileService } from "./service/fileService";
 import { GitHubService } from "./service/githubService";
-import { GitService } from "./service/gitService";
+import { GitService, UrlInfo } from "./service/gitService";
 import { ExtensionInformation, PluginService } from "./service/pluginService";
 import {
   CloudSetting,
@@ -88,31 +88,38 @@ export class Sync {
       }
 
       if (localConfig.customConfig.syncMode === "git") {
-        git = new GitService(env.USER_FOLDER);
-        github = new GitHubService(
-          localConfig.customConfig.repoServiceTokens.github,
-          localConfig.customConfig.githubEnterpriseUrl
-        );
-        await Promise.all([
-          github.Authenticate(),
-          git.initialize(
-            localConfig.customConfig.repoServiceTokens.github,
-            localConfig.extConfig.repoUrl,
-            localConfig.customConfig.gitBranch,
-            localConfig.customConfig.forcePush,
-            localConfig.customConfig.forcePull
-          )
-        ]);
+        const repoUrl: string = localConfig.extConfig.repoUrl;
+        const repoService: string = await GitService.ParseUrl(repoUrl, UrlInfo.SERVICE);
 
-        const repoInfo: any = await github.GetRepo(git.owner, git.repoName);
-        if (repoInfo) {
-          if (!repoInfo.data.permissions.push) {
-            throw new Error(localize("cmd.updateSettings.error.gitNoPushPermissions"));
+        git = new GitService(env.USER_FOLDER);
+        await git.initialize(
+          localConfig.customConfig.repoServiceTokens[repoService],
+          localConfig.extConfig.repoUrl,
+          localConfig.customConfig.gitBranch,
+          localConfig.customConfig.forcePush,
+          localConfig.customConfig.forcePull
+        );
+
+        if (repoService === "github") {
+          github = new GitHubService(
+            localConfig.customConfig.repoServiceTokens.github,
+            localConfig.customConfig.githubEnterpriseUrl
+          );
+          await github.Authenticate();
+
+          const repoInfo: any = await github.GetRepo(git.owner, git.repoName);
+          if (repoInfo) {
+            if (!repoInfo.data.permissions.push) {
+              throw new Error(localize("cmd.updateSettings.error.gitNoPushPermissions"));
+            }
+          } else if (git.owner !== github.userName) {
+            throw new Error(localize("cmd.updateSettings.error.gitNotOwner"));
+          } else {
+            await github.CreateRepo(git.repoName);
           }
-        } else if (git.owner !== github.userName) {
-          throw new Error(localize("cmd.updateSettings.error.gitNotOwner"));
         } else {
-          await github.CreateRepo(git.repoName);
+          // Creating Repository on Gitlab is not configured yet. However, pushing and pulling should work
+          // throw new Error("Gitlab not configured yet");
         }
       } else {
         github = new GitHubService(
@@ -455,44 +462,52 @@ export class Sync {
     const common = new Commons(env, this.context);
     let git: GitService = null;
     let github: GitHubService = null;
-    let localSettings: LocalConfig = new LocalConfig();
+    let localConfig: LocalConfig = new LocalConfig();
     common.CloseWatch();
 
     try {
-      localSettings = await common.InitalizeSettings(true, true);
+       localConfig = await common.InitalizeSettings(true, true);
 
-      if (localSettings.customConfig.syncMode === "git") {
+      if (localConfig.customConfig.syncMode === "git") {
+        const repoUrl: string = localConfig.extConfig.repoUrl;
+        const repoService: string = await GitService.ParseUrl(repoUrl, UrlInfo.SERVICE);
+
         git = new GitService(env.USER_FOLDER);
-        github = new GitHubService(
-          localSettings.customConfig.repoServiceTokens.github,
-          localSettings.customConfig.githubEnterpriseUrl
+        await git.initialize(
+          localConfig.customConfig.repoServiceTokens[repoService],
+          localConfig.extConfig.repoUrl,
+          localConfig.customConfig.gitBranch,
+          localConfig.customConfig.forcePush,
+          localConfig.customConfig.forcePull
         );
-        await Promise.all([
-          github.Authenticate(),
-          git.initialize(
-            localSettings.customConfig.repoServiceTokens.github,
-            localSettings.extConfig.repoUrl,
-            localSettings.customConfig.gitBranch,
-            localSettings.customConfig.forcePush,
-            localSettings.customConfig.forcePull
-          )
-        ]);
 
-        const repoInfo: any = await github.GetRepo(git.owner, git.repoName);
-        if (!repoInfo) {
-          throw new Error(localize("cmd.downloadSettings.error.noGitRepo"));
-        } else if (!repoInfo.data.permissions.pull) {
-          throw new Error(localize("cmd.downloadSettings.error.noPullPermission"));
+        if (repoService === "github") {
+          github = new GitHubService(
+            localConfig.customConfig.repoServiceTokens.github,
+            localConfig.customConfig.githubEnterpriseUrl
+          );
+          await github.Authenticate();
+
+          const repoInfo: any = await github.GetRepo(git.owner, git.repoName);
+          if (!repoInfo) {
+            throw new Error(localize("cmd.downloadSettings.error.noGitRepo"));
+          } else if (!repoInfo.data.permissions.pull) {
+            throw new Error(localize("cmd.downloadSettings.error.noPullPermission"));
+          }
+        } else {
+          // Repository checking on Gitlab is not configured yet. However, pushing and pulling should work
+          // throw new Error("Gitlab not configured yet");
         }
+
       } else {
         github = new GitHubService(
-          localSettings.customConfig.token,
-          localSettings.customConfig.githubEnterpriseUrl
+          localConfig.customConfig.token,
+          localConfig.customConfig.githubEnterpriseUrl
         );
         await github.Authenticate();
       }
 
-      await StartDownload(localSettings.extConfig, localSettings.customConfig);
+      await StartDownload(localConfig.extConfig, localConfig.customConfig);
     } catch (err) {
       Commons.LogException(err, common.ERROR_MESSAGE, true);
       return;
@@ -536,7 +551,7 @@ export class Sync {
       const actionList: Array<Promise<void | boolean>> = [];
 
       if (res.data.public === true) {
-        localSettings.publicGist = true;
+        localConfig.publicGist = true;
       }
       const keys = Object.keys(res.data.files);
       if (keys.indexOf(env.FILE_CLOUDSETTINGS_NAME) > -1) {
@@ -671,7 +686,7 @@ export class Sync {
                   localContent,
                   content,
                   env.OsType,
-                  localSettings.customConfig.hostName
+                  localConfig.customConfig.hostName
                 );
               }
 
@@ -703,7 +718,7 @@ export class Sync {
             deletedExtensions,
             addedExtensions,
             null,
-            localSettings
+            localConfig
           );
           const message = await vscode.window.showInformationMessage(
             localize("common.prompt.restartCode"),
