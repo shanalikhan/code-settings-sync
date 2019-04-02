@@ -34,6 +34,7 @@ export class GitService {
     }
   };
   private token: string = null;
+  private remoteUrl: string = null;
 
   constructor (workspace: string) {
     this.git = simplegit(workspace);
@@ -49,6 +50,7 @@ export class GitService {
     this.repoName = await GitService.ParseUrl(repoUrl, UrlInfo.NAME);
     this.owner    = await GitService.ParseUrl(repoUrl, UrlInfo.OWNER);
     this.service  = await GitService.ParseUrl(repoUrl, UrlInfo.SERVICE);
+    this.remoteUrl = `https://${this.owner}:${this.token}@${this.service}.com/${this.owner}/${this.repoName}.git`
 
     if (branch) this.branch = branch;
     if (forcePush) this.forcePush = forcePush;
@@ -65,7 +67,8 @@ export class GitService {
 
     let currentBranch: string = await this.GetCurrentBranch();
     if (currentBranch !== this.branch) {
-      // Slightly dangerous this checkout -B does reset the branch
+      console.log("Changing current branch...");
+      // Slightly dangerous since -B does reset the branch
       // However, since we only checkout if we are not on the current branch, this should be safe
       await this.git.checkout(['-B', this.branch]);
       currentBranch = await this.GetCurrentBranch();
@@ -91,20 +94,29 @@ export class GitService {
     // return this.git.push('origin', this.branch, pushOpts);
 
     // TODO: Check if theres a better way to build the remote url
-    const remoteUrl: string = `https://${this.owner}:${this.token}@${this.service}.com/${this.owner}/${this.repoName}`
 
     let pushOpts: string[] = ['push', '--set-upstream'];
     if (this.forcePush) pushOpts.push('--force');
-    await this.git.raw([...pushOpts, remoteUrl]);
+    await this.git.raw([...pushOpts, this.remoteUrl, this.branch]);
   }
 
   public async Pull() {
+    try {
+      // Due to the issue stated in the push method, we need to authenticate with the remote repo
+      // before being able to do any push / pulling using refs like origin instead of the actual url.
+      // While pushing is able to send along the username and token, we are calling reset --hard when downloading
+      // Thus not sending along proper authentication and will fail.
+      console.log("Authenticating...");
+      console.log(await this.git.fetch(this.remoteUrl, this.branch));
+    } catch (err) {
+      console.error(err);
+    }
     // Fetching will give a refspec error if the branch does not exist allowing a clean exit from pulling
     // Maybe change the error message to make it more clear?
     console.log("Fetching...");
-    await this.git.fetch('origin', this.branch);
+    await this.git.fetch();
     if (this.forcePull) {
-      console.log("Force Pull is ON...downloading...")
+      console.log("Force Pull is ON...resetting...")
       await this.git.raw(['reset', '--hard', `origin/${this.branch}`]);
     } else {
       // Haven't really testing not forcing the pull yet.
@@ -112,6 +124,16 @@ export class GitService {
       // the remote branch...
       console.log("Force Pull is OFF...downloading...");
       await this.git.pull();
+    }
+    try {
+      // If there has been no commits yet, or the repo has not been updated, setting the branch
+      // to track will always fail until we have successfully downloaded at least 1 time.
+      // Thus, always just manually set the upstream right after pulling to guarantee it correctly
+      // tracks the right branch
+      console.log("Setting upstream branch...");
+      console.log(await this.git.raw(['branch', '-u', `origin/${this.branch}`]));
+    } catch(err) {
+      console.error(err);
     }
   }
 
