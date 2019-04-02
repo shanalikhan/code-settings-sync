@@ -1,5 +1,4 @@
 import { watch } from "chokidar";
-import { resolve } from "path";
 import * as vscode from "vscode";
 import Commons from "../commons";
 import { Environment } from "../environmentPath";
