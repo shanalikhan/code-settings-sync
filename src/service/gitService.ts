@@ -41,7 +41,6 @@ export class GitService {
     this.git.silent(true);
   }
 
-  // public async initialize(repoUrl: string, token: string, forcePush?: boolean, forcePull?: boolean): Promise<boolean> {
   public async initialize(token: string, repoUrl: string, branch?: string, forcePush?: boolean, forcePull?: boolean): Promise<boolean> {
     await this.git.init();
     if (!repoUrl) return Promise.resolve(false);
@@ -82,38 +81,38 @@ export class GitService {
 
   public async Push() {
     /* For some reason, the repo gave back a fatal: error could not read Username. Device not configured...
-     * when using simplegit's regular push method. The fix requres the user to change the url to be ssh.
-     * In order to circumvent that, we set the push url to the specific service website defaulting to https
-     * and repository as stated in git-push documentation: https://git-scm.com/docs/git-push#URLS
+     * when using simplegit's regular push method. This is probably due to the local git not being properly configured
+     * with the correct credentials. In order to circumvent that, we set the push url including username and token password
+     * to the specific service website defaulting to https (TODO: Change protocol based on url) and repository as
+     * stated in git-push documentation: https://git-scm.com/docs/git-push#URLS
      * Resources:
      * https://github.com/github/hub/issues/1644
      * https://stackoverflow.com/questions/22147574/fatal-could-not-read-username-for-https-github-com-no-such-file-or-directo
      */
-    // let pushOpts: any = {'--set-upstream': null};
-    // if (this.forcePush) pushOpts['--force'] = null;
-    // return this.git.push('origin', this.branch, pushOpts);
-
-    // TODO: Check if theres a better way to build the remote url
-
-    let pushOpts: string[] = ['push', '--set-upstream'];
+    // Setting the upstream when pushing to the url does not work since the origin ref is not techincally the same as
+    // the remote url. (remote url contains the username and token, so cannot set it as remote or it represents a security issue which
+    // anyone would be able to see the token if the do a remote -v)
+    let pushOpts: string[] = ['push'];
     if (this.forcePush) pushOpts.push('--force');
     await this.git.raw([...pushOpts, this.remoteUrl, this.branch]);
   }
 
   public async Pull() {
     try {
-      // Due to the issue stated in the push method, we need to authenticate with the remote repo
-      // before being able to do any push / pulling using refs like origin instead of the actual url.
-      // While pushing is able to send along the username and token, we are calling reset --hard when downloading
-      // Thus not sending along proper authentication and will fail.
-      console.log("Authenticating...");
+      // Due to the issue stated in the push method, we cannot use refspecs like origin to do any of
+      // the pulling, forcing us to use the actual url. While pushing is able to send along
+      // the username and token, we are calling reset --hard on the ref origin/branch when downloading to force changes.
+      // Therefore, we also have to fetch the data from the url and it's specific branch. This also serves as a branch
+      // check for the remote since it'll error out if the branch does not exist on the specific repo.
+      console.log("Updating refs...");
       console.log(await this.git.fetch(this.remoteUrl, this.branch));
     } catch (err) {
       console.error(err);
+      throw new Error(err);
     }
-    // Fetching will give a refspec error if the branch does not exist allowing a clean exit from pulling
-    // Maybe change the error message to make it more clear?
-    console.log("Fetching...");
+    // While fetching with the url updates the refs if it points to another url, for some reason it doesn't actually
+    // update the data contained in the refs, so calling a reset without the default fetch would just use the old refs
+    // to update the local repo regardless of any url changes. This makes sure the correct files are being used.
     await this.git.fetch();
     if (this.forcePull) {
       console.log("Force Pull is ON...resetting...")
@@ -129,7 +128,8 @@ export class GitService {
       // If there has been no commits yet, or the repo has not been updated, setting the branch
       // to track will always fail until we have successfully downloaded at least 1 time.
       // Thus, always just manually set the upstream right after pulling to guarantee it correctly
-      // tracks the right branch
+      // tracks the right branch. However, I'm not too sure if this is even really necessary since we're fetching
+      // the specific branch anyways at the beginning of the method.
       console.log("Setting upstream branch...");
       console.log(await this.git.raw(['branch', '-u', `origin/${this.branch}`]));
     } catch(err) {
@@ -161,6 +161,9 @@ export class GitService {
 
   public async GetCurrentBranch(): Promise<string> {
     // Current branch always defaults to master because that's the branch git init defaults too
+    // If there are no current commits on the specific branch, it will error out the when trying to parse,
+    // so defaulting to master allows us to circumvent a problem when the user initializes for the first time but
+    // wants to download or upload to a different branch than master
     let currentBranch: string = 'master';
     try {
       currentBranch = await this.git.raw(['rev-parse', '--abbrev-ref', 'HEAD']);
