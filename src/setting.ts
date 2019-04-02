@@ -30,6 +30,8 @@ export class KeyValue<T, S> {
 
 export class CustomSettings {
   public ignoreUploadFiles: string[] = [
+    "state.vscdb",
+    "state.vscdb.backup",
     "syncLocalSettings.json",
     "projects.json",
     "projects_cache_vscode.json",
