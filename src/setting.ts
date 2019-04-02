@@ -30,6 +30,7 @@ export class KeyValue<T, S> {
 
 export class CustomSettings {
   public ignoreUploadFiles: string[] = [
+    "syncLocalSettings.json",
     "projects.json",
     "projects_cache_vscode.json",
     "projects_cache_git.json",
