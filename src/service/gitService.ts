@@ -48,7 +48,10 @@ export class GitService {
     await this.git.init();
     if (!repoUrl) return Promise.resolve(false);
     this.token = token;
-    this.repoUrl  = repoUrl;
+    // Pushing / Pulling does not work with ssh as it requires the local config to already have ssh properly configured.
+    // It would also break the token pushing currently implemented. Thus, default all ssh urls to https to make everything
+    // use the same protocol.
+    this.repoUrl  = repoUrl.replace('git@', 'https://').replace('.com:','.com/');
     this.repoName = await GitService.ParseUrl(repoUrl, UrlInfo.REPONAME);
     this.owner    = await GitService.ParseUrl(repoUrl, UrlInfo.OWNER);
     this.service  = await GitService.ParseUrl(repoUrl, UrlInfo.SERVICE);
