@@ -11,13 +11,7 @@ export class AutoUploadService {
   public watching = false;
   private watcher = watch(this.options.en.USER_FOLDER, {
     depth: 2,
-    ignored: this.options.commons.GetCustomSettings().ignoredItems.map(item => {
-      if (FileService.IsDirectory(resolve(this.options.en.USER_FOLDER, item))) {
-        return `**/${item}/**`;
-      } else {
-        return `**/${item}`;
-      }
-    })
+    ignored: this.GetIgnoredItems()
   });
 
   constructor(private options: { en: Environment; commons: Commons }) {
@@ -35,6 +29,17 @@ export class AutoUploadService {
         return await lockfile.Unlock(this.options.en.FILE_SYNC_LOCK);
       }
     });
+  }
+
+  public GetIgnoredItems() {
+    const ignoredItems = [];
+    this.options.commons.GetCustomSettings().then(customSettings => {
+      ignoredItems.push(
+        customSettings.ignoreUploadFolders.map(folder => `**/${folder}/**`),
+        customSettings.ignoreUploadFiles.map(file => `**/${file}`)
+      );
+    });
+    return ignoredItems;
   }
 
   public async StartWatching() {
