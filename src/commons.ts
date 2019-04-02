@@ -70,17 +70,27 @@ export default class Commons {
     }
   }
 
-  public autoUploadService = new AutoUploadService({
-    en: this.en,
-    commons: this
-  });
+  public autoUploadService: AutoUploadService;
 
   public ERROR_MESSAGE: string = localize("common.error.message");
 
   constructor(
     private en: Environment,
     private context: vscode.ExtensionContext
-  ) {}
+  ) {
+    this.InitializeAutoUpload();
+  }
+
+  public async InitializeAutoUpload() {
+    const ignored = await AutoUploadService.GetIgnoredItems(
+      await this.GetCustomSettings()
+    );
+    this.autoUploadService = new AutoUploadService({
+      en: this.en,
+      commons: this,
+      ignored
+    });
+  }
 
   public async InitalizeSettings(
     askToken: boolean,

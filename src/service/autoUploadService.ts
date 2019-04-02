@@ -7,13 +7,23 @@ import { CustomSettings } from "../setting";
 import { FileService } from "./fileService";
 
 export class AutoUploadService {
+  public static GetIgnoredItems(customSettings: CustomSettings) {
+    return [
+      ...customSettings.ignoreUploadFolders.map(folder => `**/${folder}/**`),
+      ...customSettings.ignoreUploadFiles.map(file => `**/${file}`)
+    ];
+  }
+
   public watching = false;
+
   private watcher = watch(this.options.en.USER_FOLDER, {
     depth: 2,
-    ignored: this.GetIgnoredItems()
+    ignored: this.options.ignored
   });
 
-  constructor(private options: { en: Environment; commons: Commons }) {
+  constructor(
+    private options: { en: Environment; commons: Commons; ignored: string[] }
+  ) {
     vscode.extensions.onDidChange(async () => {
       if (this.watching) {
         console.log("Sync: Extensions changed");
@@ -30,43 +40,32 @@ export class AutoUploadService {
     });
   }
 
-  public GetIgnoredItems() {
-    const ignoredItems = [];
-    this.options.commons.GetCustomSettings().then(customSettings => {
-      ignoredItems.push(
-        customSettings.ignoreUploadFolders.map(folder => `**/${folder}/**`),
-        customSettings.ignoreUploadFiles.map(file => `**/${file}`)
-      );
-    });
-    return ignoredItems;
-  }
-
   public async StartWatching() {
     this.StopWatching();
 
     this.watching = true;
 
-    this.watcher.addListener("all", async (event: string, path: string) => {
-      console.log(
-        `Sync: ${FileService.ExtractFileName(path)} triggered event: ${event}`
-      );
-      if (await lockfile.Check(this.options.en.FILE_SYNC_LOCK)) {
-        return;
-      } else {
-        await lockfile.Lock(this.options.en.FILE_SYNC_LOCK);
-      }
-
-      const customSettings: CustomSettings = await this.options.commons.GetCustomSettings();
-      if (customSettings) {
-        const fileType: string = path
-          .substring(path.lastIndexOf("."), path.length)
-          .slice(1);
-        if (customSettings.supportedFileExtensions.indexOf(fileType) !== -1) {
-          await this.InitiateAutoUpload();
+    this.watcher.addListener("change", async (path: string) => {
+      if (this.watching) {
+        console.log(`Sync: ${FileService.ExtractFileName(path)} changed`);
+        if (await lockfile.Check(this.options.en.FILE_SYNC_LOCK)) {
+          return;
+        } else {
+          await lockfile.Lock(this.options.en.FILE_SYNC_LOCK);
         }
+
+        const customSettings: CustomSettings = await this.options.commons.GetCustomSettings();
+        if (customSettings) {
+          const fileType: string = path
+            .substring(path.lastIndexOf("."), path.length)
+            .slice(1);
+          if (customSettings.supportedFileExtensions.indexOf(fileType) !== -1) {
+            await this.InitiateAutoUpload();
+          }
+        }
+        await lockfile.Unlock(this.options.en.FILE_SYNC_LOCK);
+        return;
       }
-      await lockfile.Unlock(this.options.en.FILE_SYNC_LOCK);
-      return;
     });
   }
 
