@@ -29,6 +29,14 @@ export class KeyValue<T, S> {
   constructor(public Key: T, public Value: S) {}
 }
 
+export class GistSettings {
+  public token: string = "";
+  public hostName: string = null;
+  public askGistName: boolean = false;
+  public downloadPublicGist: boolean = false;
+  public gistDescription: string = "Visual Studio Code Settings Sync Gist";
+}
+
 export class CustomSettings {
   public ignoreUploadFiles: string[] = [
     "projects.json",
@@ -42,23 +50,19 @@ export class CustomSettings {
   public ignoreExtensions: string[] = [];
   public ignoreUploadSettings: string[] = [];
   public replaceCodeSettings: { [key: string]: any } = {};
-  public gistDescription: string = "Visual Studio Code Settings Sync Gist";
   public version: number = Environment.CURRENT_VERSION;
-  public token: string = "";
+  public gistSettings: GistSettings = new GistSettings();
   public repoServiceTokens: any = {
     "github": "",
     "gitlab": ""
   };
-  public downloadPublicGist: boolean = false;
   public supportedFileExtensions: string[] = ["json", "code-snippets"];
   public openTokenLink: boolean = true;
   public disableUpdateMessage: boolean = false;
   public lastUpload: Date = null;
   public lastDownload: Date = null;
   public githubEnterpriseUrl: string = null;
-  public askGistName: boolean = false;
   public customFiles: { [key: string]: string } = {};
-  public hostName: string = null;
   public syncMode: "gist" | "git" = "gist";
   public gitBranch: string = "master";
   public forcePush: boolean = true;

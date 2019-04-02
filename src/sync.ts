@@ -44,7 +44,7 @@ export class Sync {
 
     if (startUpSetting) {
       const tokenAvailable: boolean =
-        startUpCustomSetting.token != null && startUpCustomSetting.token !== "";
+        startUpCustomSetting.gistSettings.token != null && startUpCustomSetting.gistSettings.token !== "";
       const gistAvailable: boolean =
         startUpSetting.gist != null && startUpSetting.gist !== "";
 
@@ -123,7 +123,7 @@ export class Sync {
         }
       } else {
         github = new GitHubService(
-          localConfig.customConfig.token,
+          localConfig.customConfig.gistSettings.token,
           localConfig.customConfig.githubEnterpriseUrl
         );
         await github.Authenticate();
@@ -146,8 +146,8 @@ export class Sync {
         2000
       );
 
-      if (customSettings.syncMode === "gist" && customSettings.downloadPublicGist) {
-        if (customSettings.token == null || customSettings.token === "") {
+      if (customSettings.syncMode === "gist" && customSettings.gistSettings.downloadPublicGist) {
+        if (customSettings.gistSettings.token == null || customSettings.gistSettings.token === "") {
           vscode.window.showInformationMessage(
             localize("cmd.updateSettings.warning.noToken")
           );
@@ -333,13 +333,13 @@ export class Sync {
       let newGIST: boolean = false;
       try {
         if (syncSetting.gist == null || syncSetting.gist === "") {
-          if (customSettings.askGistName) {
-            customSettings.gistDescription = await common.AskGistName();
+          if (customSettings.gistSettings.askGistName) {
+            customSettings.gistSettings.gistDescription = await common.AskGistName();
           }
           newGIST = true;
           const gistID = await github.CreateEmptyGIST(
             localConfig.publicGist,
-            customSettings.gistDescription
+            customSettings.gistSettings.gistDescription
           );
           if (gistID) {
             syncSetting.gist = gistID;
@@ -501,7 +501,7 @@ export class Sync {
 
       } else {
         github = new GitHubService(
-          localConfig.customConfig.token,
+          localConfig.customConfig.gistSettings.token,
           localConfig.customConfig.githubEnterpriseUrl
         );
         await github.Authenticate();
@@ -686,7 +686,7 @@ export class Sync {
                   localContent,
                   content,
                   env.OsType,
-                  localConfig.customConfig.hostName
+                  localConfig.customConfig.gistSettings.hostName
                 );
               }
 
@@ -833,7 +833,7 @@ export class Sync {
     }
     const localSetting: LocalConfig = new LocalConfig();
     const tokenAvailable: boolean =
-      customSettings.token != null && customSettings.token !== "";
+      customSettings.gistSettings.token != null && customSettings.gistSettings.token !== "";
     const gistAvailable: boolean = setting.gist != null && setting.gist !== "";
 
     const items: string[] = [
@@ -891,14 +891,14 @@ export class Sync {
           settingChanged = true;
           setting.gist = "";
           selectedItem = 1;
-          customSettings.downloadPublicGist = false;
+          customSettings.gistSettings.downloadPublicGist = false;
           await common.SetCustomSettings(customSettings);
         }
       },
       2: async () => {
         // Download Settings from Public GIST
         selectedItem = 2;
-        customSettings.downloadPublicGist = true;
+        customSettings.gistSettings.downloadPublicGist = true;
         settingChanged = true;
         await common.SetCustomSettings(customSettings);
       },
@@ -1215,7 +1215,7 @@ export class Sync {
     syncSetting: ExtensionConfig
   ): Promise<File[]> {
     const github = new GitHubService(
-      customSettings.token,
+      customSettings.gistSettings.token,
       customSettings.githubEnterpriseUrl
     );
     const res = await github.ReadGist(syncSetting.gist);

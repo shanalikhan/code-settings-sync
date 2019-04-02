@@ -261,7 +261,7 @@ export default class Commons {
       // Set for gist defaults when trying to save token
       let tokenId: string = "gist";
       let serviceId: string = "GitHub";
-      let tokenValue: string = cusSettings.token;
+      let tokenValue: string = cusSettings.gistSettings.token;
       let tokenUrl: string = await GitService.GetTokenUrl(serviceId.toLowerCase());
 
       if (cusSettings.syncMode === "git") {
@@ -277,7 +277,7 @@ export default class Commons {
         tokenUrl = await GitService.GetTokenUrl(repoService);
         serviceId = await GitService.GetServiceId(repoService);
       } else {
-        askToken = !cusSettings.downloadPublicGist;
+        askToken = !cusSettings.gistSettings.downloadPublicGist;
       }
 
       if (askToken && !tokenValue) {
@@ -330,7 +330,7 @@ export default class Commons {
           tempObj.ignoreUploadSettings = [];
         }
         Object.assign(customSettings, tempObj);
-        customSettings.token = customSettings.token.trim();
+        customSettings.gistSettings.token = customSettings.gistSettings.token.trim();
         return customSettings;
       }
     } catch (e) {
@@ -411,7 +411,7 @@ export default class Commons {
       if (this.context.globalState.get("synctoken")) {
         const token = this.context.globalState.get("synctoken");
         if (token !== "") {
-          customSettings.token = String(token);
+          customSettings.gistSettings.token = String(token);
           this.context.globalState.update("synctoken", "");
           vscode.window.showInformationMessage(
             localize("common.info.setToken")
@@ -555,7 +555,7 @@ export default class Commons {
     if (tokenValue) {
       switch(tokenId) {
         case "gist":
-          sett.token = tokenValue;
+          sett.gistSettings.token = tokenValue;
           break;
         case "github":
         case "gitlab":
@@ -720,14 +720,14 @@ export default class Commons {
     outputChannel.appendLine(`Version: ${Environment.getVersion()}`);
     outputChannel.appendLine(`--------------------`);
     outputChannel.appendLine(
-      `GitHub Token: ${syncSettings.customConfig.token || "Anonymous"}`
+      `GitHub Token: ${syncSettings.customConfig.gistSettings.token || "Anonymous"}`
     );
     outputChannel.appendLine(`GitHub Gist: ${syncSettings.extConfig.gist}`);
     outputChannel.appendLine(
       `GitHub Gist Type: ${syncSettings.publicGist ? "Public" : "Secret"}`
     );
     outputChannel.appendLine(``);
-    if (!syncSettings.customConfig.token) {
+    if (!syncSettings.customConfig.gistSettings.token) {
       outputChannel.appendLine(
         `Anonymous Gist cannot be edited, the extension will always create a new one during upload.`
       );
