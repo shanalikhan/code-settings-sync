@@ -37,6 +37,18 @@ export class GistSettings {
   public gistDescription: string = "Visual Studio Code Settings Sync Gist";
 }
 
+export class GitSettings {
+  public github: RepoServiceSettings = new RepoServiceSettings();
+  public gitlab: RepoServiceSettings = new RepoServiceSettings();
+}
+
+export class RepoServiceSettings {
+  public token: string = "";
+  public forcePush: boolean = true;
+  public forcePull: boolean = true;
+  public gitBranch: string = "master";
+}
+
 export class CustomSettings {
   public ignoreUploadFiles: string[] = [
     "projects.json",
@@ -52,10 +64,7 @@ export class CustomSettings {
   public replaceCodeSettings: { [key: string]: any } = {};
   public version: number = Environment.CURRENT_VERSION;
   public gistSettings: GistSettings = new GistSettings();
-  public repoServiceTokens: any = {
-    "github": "",
-    "gitlab": ""
-  };
+  public gitSettings: GitSettings = new GitSettings();
   public supportedFileExtensions: string[] = ["json", "code-snippets"];
   public openTokenLink: boolean = true;
   public disableUpdateMessage: boolean = false;
@@ -64,7 +73,4 @@ export class CustomSettings {
   public githubEnterpriseUrl: string = null;
   public customFiles: { [key: string]: string } = {};
   public syncMode: "gist" | "git" = "gist";
-  public gitBranch: string = "master";
-  public forcePush: boolean = true;
-  public forcePull: boolean = true;
 }

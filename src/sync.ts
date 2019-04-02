@@ -93,16 +93,16 @@ export class Sync {
 
         git = new GitService(env.USER_FOLDER);
         await git.initialize(
-          localConfig.customConfig.repoServiceTokens[repoService],
+          localConfig.customConfig.gitSettings[repoService].token,
           localConfig.extConfig.repoUrl,
-          localConfig.customConfig.gitBranch,
-          localConfig.customConfig.forcePush,
-          localConfig.customConfig.forcePull
+          localConfig.customConfig.gitSettings[repoService].gitBranch,
+          localConfig.customConfig.gitSettings[repoService].forcePush,
+          localConfig.customConfig.gitSettings[repoService].forcePull
         );
 
         if (repoService === "github") {
           github = new GitHubService(
-            localConfig.customConfig.repoServiceTokens.github,
+            localConfig.customConfig.gitSettings[repoService].token,
             localConfig.customConfig.githubEnterpriseUrl
           );
           await github.Authenticate();
@@ -474,16 +474,16 @@ export class Sync {
 
         git = new GitService(env.USER_FOLDER);
         await git.initialize(
-          localConfig.customConfig.repoServiceTokens[repoService],
+          localConfig.customConfig.gitSettings[repoService].token,
           localConfig.extConfig.repoUrl,
-          localConfig.customConfig.gitBranch,
-          localConfig.customConfig.forcePush,
-          localConfig.customConfig.forcePull
+          localConfig.customConfig.gitSettings[repoService].gitBranch,
+          localConfig.customConfig.gitSettings[repoService].forcePush,
+          localConfig.customConfig.gitSettings[repoService].forcePull
         );
 
         if (repoService === "github") {
           github = new GitHubService(
-            localConfig.customConfig.repoServiceTokens.github,
+            localConfig.customConfig.gitSettings[repoService].token,
             localConfig.customConfig.githubEnterpriseUrl
           );
           await github.Authenticate();
@@ -1061,15 +1061,22 @@ export class Sync {
       },
       13: async () => {
         // change git branch
+        const repoService: string =
+          await GitService.ParseUrl(setting.repoUrl, UrlInfo.SERVICE) ||
+          await vscode.window.showQuickPick(Object.keys(customSettings.gitSettings));
+        if (!repoService) {
+          return;
+        }
+
         const validator: RegExp = /^[a-zA-Z0-9]+[a-zA-Z0-9\-]*$/;
         const options: vscode.InputBoxOptions = {
           "password": false,
           "prompt": localize("cmd.otherOptions.editGitBranch.prompt"),
           "placeHolder": localize("cmd.otherOptions.editGitBranch.placeholder"),
-          "value": customSettings.gitBranch,
+          "value": customSettings.gitSettings[repoService].gitBranch,
           "ignoreFocusOut": true,
         };
-        const newBranch: string = await vscode.window.showInputBox(options);
+        const newBranch: string = ((await vscode.window.showInputBox(options)) || "").trim();
         if (!newBranch) {
           vscode.window.showInformationMessage(
             localize("cmd.otherOptions.editGitBranch.noSet")
@@ -1082,37 +1089,49 @@ export class Sync {
           );
           return;
         }
-        customSettings.gitBranch = newBranch;
+        customSettings.gitSettings[repoService].gitBranch = newBranch;
         const done: boolean = await common.SetCustomSettings(customSettings);
         if (done) {
           vscode.window.showInformationMessage(
-            localize("cmd.otherOptions.editGitBranch.set", customSettings.gitBranch)
+            localize("cmd.otherOptions.editGitBranch.set",
+            repoService[0].toUpperCase() + repoService.slice(1),
+            customSettings.gitSettings[repoService].gitBranch)
           );
         }
       },
       14: async () => {
         // toggle force push
-        customSettings.forcePush = !customSettings.forcePush;
+        const repoService: string =
+          await GitService.ParseUrl(setting.repoUrl, UrlInfo.SERVICE) ||
+          await vscode.window.showQuickPick(Object.keys(customSettings.gitSettings));
+        if (!repoService) {
+          return;
+        }
+        customSettings.gitSettings[repoService].forcePush = !customSettings.gitSettings[repoService].forcePush;
         const done: boolean = await common.SetCustomSettings(customSettings);
         if (done) {
-          const message = customSettings.forcePush
+          const message = customSettings.gitSettings[repoService].forcePush
             ? "cmd.otherOptions.toggleForcePush.on"
             : "cmd.otherOptions.toggleForcePush.off"
           vscode.window.showInformationMessage(
-            localize(message)
+            localize(message, repoService[0].toUpperCase() + repoService.slice(1))
           );
         }
       },
       15: async () => {
         // toggle force pull
-        customSettings.forcePull = !customSettings.forcePull;
+        const repoService: string =
+          await GitService.ParseUrl(setting.repoUrl, UrlInfo.SERVICE) ||
+          await vscode.window.showQuickPick(Object.keys(customSettings.gitSettings));
+
+        customSettings.gitSettings[repoService].forcePull = !customSettings.gitSettings[repoService].forcePull;
         const done: boolean = await common.SetCustomSettings(customSettings);
         if (done) {
-          const message = customSettings.forcePull
+          const message = customSettings.gitSettings[repoService].forcePull
             ? "cmd.otherOptions.toggleForcePull.on"
             : "cmd.otherOptions.toggleForcePull.off"
           vscode.window.showInformationMessage(
-            localize(message)
+            localize(message, repoService[0].toUpperCase() + repoService.slice(1))
           );
         }
       },

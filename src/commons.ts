@@ -273,7 +273,7 @@ export default class Commons {
           throw new Error(msg);
         }
         tokenId = repoService;
-        tokenValue = cusSettings.repoServiceTokens[repoService];
+        tokenValue = cusSettings.gitSettings[repoService].token;
         tokenUrl = await GitService.GetTokenUrl(repoService);
         serviceId = await GitService.GetServiceId(repoService);
       } else {
@@ -559,7 +559,7 @@ export default class Commons {
           break;
         case "github":
         case "gitlab":
-          sett.repoServiceTokens[tokenId] = tokenValue;
+          sett.gitSettings[tokenId].token = tokenValue;
           break;
         default:
           const message: string = localize("common.error.invalidTokenId");
