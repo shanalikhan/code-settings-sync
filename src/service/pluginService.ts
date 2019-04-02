@@ -155,8 +155,6 @@ export class PluginService {
     const list: ExtensionInformation[] = [];
 
     for (const ext of vscode.extensions.all) {
-      console.log(ext.extensionPath);
-
       if (ext.packageJSON.isBuiltin === true) {
         continue;
       }
