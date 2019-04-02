@@ -296,7 +296,7 @@ export class Sync {
         console.log("Pushing to repository...");
         await git.Push();
 
-        const status: any = await git.status();
+        const status: any = await git.Status();
         console.log(status);
 
         const settingsUpdated = await common.SaveSettings(syncSetting);
@@ -1105,6 +1105,7 @@ export class Sync {
           "prompt": localize("cmd.otherOptions.editGitBranch.prompt"),
           "placeHolder": localize("cmd.otherOptions.editGitBranch.placeholder"),
           "value": customSettings.gitBranch,
+          "ignoreFocusOut": true,
         };
         const newBranch: string = await vscode.window.showInputBox(options);
         if (!newBranch) {

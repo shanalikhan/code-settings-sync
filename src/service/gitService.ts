@@ -160,7 +160,14 @@ export class GitService {
   }
 
   public async GetCurrentBranch(): Promise<string> {
-    return this.git.raw(['rev-parse', '--abbrev-ref', 'HEAD']);
+    // Current branch always defaults to master because that's the branch git init defaults too
+    let currentBranch: string = 'master';
+    try {
+      currentBranch = await this.git.raw(['rev-parse', '--abbrev-ref', 'HEAD']);
+    } catch (err) {
+      console.log("Current branch has no commits...defaulting to master");
+    }
+    return Promise.resolve(currentBranch);
   }
 
   public async GetCommitID(): Promise<string> {
@@ -179,7 +186,7 @@ export class GitService {
     return this.sshRegex.test(repoUrl) || this.httpsRegex.test(repoUrl);
   }
 
-  public async status () {
+  public async Status () {
     let statusSummary = null;
     try {
       statusSummary = await this.git.status();
