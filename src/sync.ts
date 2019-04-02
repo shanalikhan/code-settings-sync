@@ -88,18 +88,16 @@ export class Sync {
       }
 
       if (localConfig.customConfig.syncMode === "git") {
-        const repoUrl: string = localConfig.extConfig.repoUrl;
-        const token: string = localConfig.customConfig.repoServiceTokens.github;
         git = new GitService(env.USER_FOLDER);
         github = new GitHubService(
-          token,
+          localConfig.customConfig.repoServiceTokens.github,
           localConfig.customConfig.githubEnterpriseUrl
         );
         await Promise.all([
           github.Authenticate(),
           git.initialize(
-            token,
-            repoUrl,
+            localConfig.customConfig.repoServiceTokens.github,
+            localConfig.extConfig.repoUrl,
             localConfig.customConfig.gitBranch,
             localConfig.customConfig.forcePush,
             localConfig.customConfig.forcePull
@@ -464,18 +462,16 @@ export class Sync {
       localSettings = await common.InitalizeSettings(true, true);
 
       if (localSettings.customConfig.syncMode === "git") {
-        const repoUrl: string = localSettings.extConfig.repoUrl;
-        const token: string = localSettings.customConfig.repoServiceTokens.github;
         git = new GitService(env.USER_FOLDER);
         github = new GitHubService(
-          token,
+          localSettings.customConfig.repoServiceTokens.github,
           localSettings.customConfig.githubEnterpriseUrl
         );
         await Promise.all([
           github.Authenticate(),
           git.initialize(
-            token,
-            repoUrl,
+            localSettings.customConfig.repoServiceTokens.github,
+            localSettings.extConfig.repoUrl,
             localSettings.customConfig.gitBranch,
             localSettings.customConfig.forcePush,
             localSettings.customConfig.forcePull
