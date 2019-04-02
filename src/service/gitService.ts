@@ -22,7 +22,7 @@ export class GitService {
   public git: simplegit.SimpleGit = null;
 
   public static sshRegex: RegExp = /^git@(github|gitlab).com:([a-zA-Z0-9]+)\/([a-zA-Z0-9\-]+).git$/;
-  public static httpsRegex: RegExp = /^https:\/\/(www.)?(github|gitlab).com\/([a-zA-Z0-9]+)\/([a-zA-Z0-9\-]+).git$/;
+  public static httpsRegex: RegExp = /^https:\/\/(?:www.)?(github|gitlab).com\/([a-zA-Z0-9]+)\/([a-zA-Z0-9\-]+).git$/;
   public static servicesInfo: any = {
     "github": {
       id: "GitHub Repo",
