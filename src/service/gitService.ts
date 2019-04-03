@@ -145,11 +145,7 @@ export class GitService {
   }
 
   public async Add(files: File[]) {
-    await Promise.all(files.map(file => this.addFile(file)));
-  }
-
-  public async addFile(file: File) {
-    return this.git.add(file.filePath);
+    await Promise.all(files.map(file => this.git.add(file.filePath)));
   }
 
   public async getOrigin(): Promise<RemoteWithRefs> {
