@@ -49,11 +49,24 @@ export class Sync {
       const gistAvailable: boolean =
         startUpSetting.gist != null && startUpSetting.gist !== "";
 
-      if (gistAvailable === true && startUpSetting.autoDownload === true) {
-        vscode.commands.executeCommand("extension.downloadSettings");
-      }
-      if (startUpSetting.autoUpload && tokenAvailable && gistAvailable) {
-        return globalCommonService.autoUploadService.StartWatching();
+      if (gistAvailable) {
+        if (startUpSetting.autoDownload) {
+          vscode.commands
+            .executeCommand("extension.downloadSettings")
+            .then(() => {
+              if (
+                startUpSetting.autoUpload &&
+                tokenAvailable &&
+                gistAvailable
+              ) {
+                return globalCommonService.autoUploadService.StartWatching();
+              }
+            });
+        } else {
+          if (startUpSetting.autoUpload && tokenAvailable && gistAvailable) {
+            return globalCommonService.autoUploadService.StartWatching();
+          }
+        }
       }
     }
   }
