@@ -33,6 +33,8 @@ export class CustomSettings {
     "state.vscdb",
     "state.vscdb.backup",
     "syncLocalSettings.json",
+    ".DS_Store",
+    "sync.lock",
     "projects.json",
     "projects_cache_vscode.json",
     "projects_cache_git.json",
