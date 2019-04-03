@@ -2,10 +2,12 @@
 "use strict";
 
 import * as vscode from "vscode";
-import { File } from "./fileService";
+import { File, FileService } from "./fileService";
 import * as simplegit from "simple-git/promise";
 import { RemoteWithRefs, CommitSummary } from "simple-git/typings/response";
 import localize from "../localize";
+import { Environment } from "../environmentPath";
+import { PluginService } from "./pluginService";
 
 export enum UrlInfo {
   FULL     = 0,
@@ -47,6 +49,7 @@ export class GitService {
   }
 
   public async initialize(repoUrl: string, token: string, branch?: string, forcePush?: boolean, forcePull?: boolean): Promise<boolean> {
+    console.log("Git Initializing...");
     await this.git.init();
     if (!repoUrl) return Promise.resolve(false);
     this.token = token;
@@ -170,6 +173,21 @@ export class GitService {
 
     const status: any = await this.Status();
     console.log(status);
+  }
+
+  public async Download(env: Environment, syncExtensions: boolean, removeExtensions: boolean, quietSync: boolean, ignoreExtensions: string[]) {
+    await this.Pull();
+
+    const extensionFile: File = await FileService.GetFile(env.FILE_EXTENSION, env.FILE_EXTENSION_NAME);
+    const ignoredExtensions: string[] = ignoreExtensions || new Array<string>();
+
+    if (extensionFile && syncExtensions) {
+      console.log("Syncing Extensions...");
+      await PluginService.UpdateExtensions(
+        env, extensionFile.content, ignoredExtensions, removeExtensions, quietSync
+      );
+    }
+    console.log("download finished");
   }
 
   public async Add(files: File[]) {

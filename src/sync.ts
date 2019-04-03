@@ -486,15 +486,13 @@ export class Sync {
       );
 
       if (customSettings.syncMode.type === "git") {
-        await git.Pull();
-        const extensionFile: File = await FileService.GetFile(env.FILE_EXTENSION, env.FILE_EXTENSION_NAME);
-        const ignoredExtensions: string[] = customSettings.ignoreExtensions || new Array<string>();
-
-        if (extensionFile && syncSetting.syncExtensions) {
-          await PluginService.UpdateExtensions(
-            env, extensionFile.content, ignoredExtensions, syncSetting.removeExtensions, syncSetting.quietSync
-          );
-        }
+        await git.Download(
+          env,
+          syncSetting.syncExtensions,
+          syncSetting.removeExtensions,
+          syncSetting.quietSync,
+          customSettings.ignoreExtensions
+        );
         return;
       }
 
