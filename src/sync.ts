@@ -753,6 +753,7 @@ export class Sync {
     const gistAvailable: boolean = setting.gist != null && setting.gist !== "";
 
     const items: string[] = [
+      "cmd.otherOptions.openSettings",
       "cmd.otherOptions.editLocalSetting",
       "cmd.otherOptions.shareSetting",
       "cmd.otherOptions.downloadSetting",
@@ -782,6 +783,9 @@ export class Sync {
 
     const handlerMap = {
       0: async () => {
+        common.OpenSettingsPage();
+      },
+      1: async () => {
         const file: vscode.Uri = vscode.Uri.file(env.FILE_CUSTOMIZEDSETTINGS);
         fs.openSync(file.fsPath, "r");
         const document = await vscode.workspace.openTextDocument(file);
@@ -791,7 +795,7 @@ export class Sync {
           true
         );
       },
-      1: async () => {
+      2: async () => {
         // share public gist
         const answer = await vscode.window.showInformationMessage(
           localize("cmd.otherOptions.shareSetting.beforeConfirm"),
@@ -807,26 +811,26 @@ export class Sync {
           await common.SetCustomSettings(customSettings);
         }
       },
-      2: async () => {
+      3: async () => {
         // Download Settings from Public GIST
         selectedItem = 2;
         customSettings.downloadPublicGist = true;
         settingChanged = true;
         await common.SetCustomSettings(customSettings);
       },
-      3: async () => {
+      4: async () => {
         // toggle force download
         selectedItem = 3;
         settingChanged = true;
         setting.forceDownload = !setting.forceDownload;
       },
-      4: async () => {
+      5: async () => {
         // toggle auto upload
         selectedItem = 4;
         settingChanged = true;
         setting.autoUpload = !setting.autoUpload;
       },
-      5: async () => {
+      6: async () => {
         // auto download on startup
         selectedItem = 5;
         settingChanged = true;
@@ -841,7 +845,7 @@ export class Sync {
 
         setting.autoDownload = !setting.autoDownload;
       },
-      6: async () => {
+      7: async () => {
         // page summary toggle
         selectedItem = 6;
         settingChanged = true;
@@ -852,7 +856,7 @@ export class Sync {
         }
         setting.quietSync = !setting.quietSync;
       },
-      7: async () => {
+      8: async () => {
         // preserve
         const options: vscode.InputBoxOptions = {
           ignoreFocusOut: true,
@@ -880,7 +884,7 @@ export class Sync {
           }
         }
       },
-      8: async () => {
+      9: async () => {
         // add customized sync file
         const options: vscode.InputBoxOptions = {
           ignoreFocusOut: true,
@@ -903,7 +907,7 @@ export class Sync {
           }
         }
       },
-      9: async () => {
+      10: async () => {
         // Import customized sync file to workspace
         const customFiles = await this.getCustomFilesFromGist(
           customSettings,
@@ -947,7 +951,7 @@ export class Sync {
           }
         }
       },
-      10: async () => {
+      11: async () => {
         vscode.commands.executeCommand(
           "vscode.open",
           vscode.Uri.parse(
@@ -955,7 +959,7 @@ export class Sync {
           )
         );
       },
-      11: async () => {
+      12: async () => {
         vscode.commands.executeCommand(
           "vscode.open",
           vscode.Uri.parse(
@@ -963,7 +967,7 @@ export class Sync {
           )
         );
       },
-      12: async () => {
+      13: async () => {
         vscode.commands.executeCommand(
           "vscode.open",
           vscode.Uri.parse(
