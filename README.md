@@ -257,9 +257,6 @@ You can customize the sync:
     "ignoreExtensions": [
         "ignored_extension_name"
     ],
-    "replaceCodeSettings": {
-        "http.proxy": "http://my.proxy.address:8080"
-    },
     "gistDescription": "Visual Studio Code Settings Sync Gist",
     "version": 310,
     "token": "YOUR_GITHUB_TOKEN_HERE",

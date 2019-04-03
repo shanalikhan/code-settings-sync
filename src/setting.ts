@@ -45,7 +45,6 @@ export class CustomSettings {
   public ignoreUploadFolders: string[] = ["workspaceStorage"];
   public ignoreExtensions: string[] = [];
   public ignoreUploadSettings: string[] = [];
-  public replaceCodeSettings: { [key: string]: any } = {};
   public gistDescription: string = "Visual Studio Code Settings Sync Gist";
   public version: number = Environment.CURRENT_VERSION;
   public token: string = "";

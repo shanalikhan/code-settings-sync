@@ -667,17 +667,6 @@ export class Sync {
             5000
           );
         }
-        if (Object.keys(customSettings.replaceCodeSettings).length > 0) {
-          const config = vscode.workspace.getConfiguration();
-          const keysDefined: string[] = Object.keys(
-            customSettings.replaceCodeSettings
-          );
-          for (const key of keysDefined) {
-            const value: string = customSettings.replaceCodeSettings[key];
-            const c: any = value === "" ? undefined : value;
-            config.update(key, c, true);
-          }
-        }
         if (syncSetting.autoUpload) {
           globalCommonService.autoUploadService.StartWatching();
         }
@@ -775,7 +764,6 @@ export class Sync {
       "cmd.otherOptions.toggleAutoUpload",
       "cmd.otherOptions.toggleAutoDownload",
       "cmd.otherOptions.toggleSummaryPage",
-      "cmd.otherOptions.preserve",
       "cmd.otherOptions.customizedSync",
       "cmd.otherOptions.downloadCustomFile",
       "cmd.otherOptions.joinCommunity",
@@ -868,34 +856,6 @@ export class Sync {
         setting.quietSync = !setting.quietSync;
       },
       7: async () => {
-        // preserve
-        const options: vscode.InputBoxOptions = {
-          ignoreFocusOut: true,
-          placeHolder: localize("cmd.otherOptions.preserve.placeholder"),
-          prompt: localize("cmd.otherOptions.preserve.prompt")
-        };
-        const input = await vscode.window.showInputBox(options);
-
-        if (input) {
-          const settingKey: string = input;
-          const a = vscode.workspace.getConfiguration();
-          const val: string = a.get<string>(settingKey);
-          customSettings.replaceCodeSettings[input] = val;
-          const done: boolean = await common.SetCustomSettings(customSettings);
-          if (done) {
-            if (val === "") {
-              vscode.window.showInformationMessage(
-                localize("cmd.otherOptions.preserve.info.done1", input)
-              );
-            } else {
-              vscode.window.showInformationMessage(
-                localize("cmd.otherOptions.preserve.info.done2", input, val)
-              );
-            }
-          }
-        }
-      },
-      8: async () => {
         // add customized sync file
         const options: vscode.InputBoxOptions = {
           ignoreFocusOut: true,
@@ -918,7 +878,7 @@ export class Sync {
           }
         }
       },
-      9: async () => {
+      8: async () => {
         // Import customized sync file to workspace
         const customFiles = await this.getCustomFilesFromGist(
           customSettings,
@@ -962,7 +922,7 @@ export class Sync {
           }
         }
       },
-      10: async () => {
+      9: async () => {
         vscode.commands.executeCommand(
           "vscode.open",
           vscode.Uri.parse(
@@ -970,7 +930,7 @@ export class Sync {
           )
         );
       },
-      11: async () => {
+      10: async () => {
         vscode.commands.executeCommand(
           "vscode.open",
           vscode.Uri.parse(
@@ -978,7 +938,7 @@ export class Sync {
           )
         );
       },
-      12: async () => {
+      11: async () => {
         vscode.commands.executeCommand(
           "vscode.open",
           vscode.Uri.parse(
