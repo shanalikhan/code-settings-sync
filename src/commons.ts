@@ -1,5 +1,6 @@
 "use strict";
 import * as fs from "fs-extra";
+import { has, set } from "lodash";
 import * as vscode from "vscode";
 import { Environment } from "./environmentPath";
 import localize from "./localize";
@@ -11,7 +12,16 @@ import { CustomSettings, ExtensionConfig, LocalConfig } from "./setting";
 import { Util } from "./util";
 
 // tslint:disable-next-line: no-var-requires
+const SettingsView = require("html-loader!./ui/settings/settings.html");
+
+// tslint:disable-next-line: no-var-requires
 const LandingPageView = require("html-loader!../ui/landing-page/landing-page.html");
+
+enum SettingType {
+  TextInput,
+  Checkbox,
+  TextArea
+}
 
 export default class Commons {
   public static outputChannel: vscode.OutputChannel = null;
@@ -81,10 +91,115 @@ export default class Commons {
 
   public ERROR_MESSAGE: string = localize("common.error.message");
 
+  private customizableSettings = [
+    {
+      name: "Hostname (optional)",
+      placeholder: "Enter Hostname",
+      type: SettingType.TextInput,
+      correspondingSetting: "hostName"
+    },
+    {
+      name: "Ignored Files",
+      placeholder: "Enter one file per line",
+      type: SettingType.TextArea,
+      correspondingSetting: "ignoreUploadFiles"
+    },
+    {
+      name: "Ignored Folders",
+      placeholder: "Enter one folder per line",
+      type: SettingType.TextArea,
+      correspondingSetting: "ignoreUploadFolders"
+    },
+    {
+      name: "Ignored Extensions",
+      placeholder: "Enter one extension per line (full name)",
+      type: SettingType.TextArea,
+      correspondingSetting: "ignoreExtensions"
+    },
+    {
+      name: "Supported File Extensions",
+      placeholder: "Enter one file extension per line",
+      type: SettingType.TextArea,
+      correspondingSetting: "supportedFileExtensions"
+    },
+    {
+      name: "Access Token",
+      placeholder: "Enter Token",
+      type: SettingType.TextInput,
+      correspondingSetting: "token"
+    },
+    {
+      name: "Gist Description",
+      placeholder: "Enter Gist Description",
+      type: SettingType.TextInput,
+      correspondingSetting: "gistDescription"
+    },
+    {
+      name: "GitHub Enterprise URL (optional)",
+      placeholder: "Enter GitHub Enterprise URL",
+      type: SettingType.TextInput,
+      correspondingSetting: "githubEnterpriseUrl"
+    },
+    {
+      name: "Ask Gist Name",
+      placeholder: "",
+      type: SettingType.Checkbox,
+      correspondingSetting: "askGistName"
+    },
+    {
+      name: "Download Public Gist",
+      placeholder: "",
+      type: SettingType.Checkbox,
+      correspondingSetting: "downloadPublicGist"
+    },
+    {
+      name: "Open Token Link",
+      placeholder: "",
+      type: SettingType.Checkbox,
+      correspondingSetting: "openTokenLink"
+    }
+  ];
+
   constructor(
     private en: Environment,
     private context: vscode.ExtensionContext
   ) {}
+  
+  public async OpenSettingsPage() {
+    const customSettings = await this.GetCustomSettings();
+    const content: string = SettingsView.replace(
+      "@CURRENT_DATA",
+      JSON.stringify(customSettings)
+    ).replace("@SETTINGS_MAP", JSON.stringify(this.customizableSettings));
+    const settingsPanel = vscode.window.createWebviewPanel(
+      "syncSettings",
+      "Sync Settings",
+      vscode.ViewColumn.One,
+      {
+        retainContextWhenHidden: true,
+        enableScripts: true
+      }
+    );
+    settingsPanel.webview.html = content;
+    settingsPanel.webview.onDidReceiveMessage(message =>
+      this.ReceiveSettingChange(message)
+    );
+  }
+
+  public async ReceiveSettingChange(message: {
+    command: string;
+    text: string;
+  }) {
+    let value: any = message.text;
+    if (message.text === "true" || message.text === "false") {
+      value = message.text === "true";
+    }
+    const customSettings = await this.GetCustomSettings();
+    if (has(customSettings, message.command)) {
+      set(customSettings, message.command, value);
+      this.SetCustomSettings(customSettings);
+    }
+  }
 
   public async OpenLandingPage() {
     const content: string = LandingPageView.replace(
