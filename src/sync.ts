@@ -357,6 +357,7 @@ export class Sync {
     const common = new Commons(env, this.context);
     let git: GitService = null;
     let github: GitHubService = null;
+    let githubGistService: GitHubGistService = null;
     let localConfig: LocalConfig = new LocalConfig();
     common.CloseWatch();
 
@@ -395,11 +396,11 @@ export class Sync {
         }
 
       } else {
-        github = new GitHubService(
+        githubGistService = new GitHubGistService(
           localConfig.customConfig.gistSettings.token,
           localConfig.customConfig.githubEnterpriseUrl
         );
-        await github.Authenticate();
+        await githubGistService.Authenticate();
       }
 
       await StartDownload(localConfig.extConfig, localConfig.customConfig);
@@ -418,192 +419,36 @@ export class Sync {
         2000
       );
 
+      let returnedMessage: any = null;
       if (customSettings.syncMode.type === "git") {
-        await git.Download(
+        returnedMessage = await git.Download(
           env,
-          syncSetting.syncExtensions,
-          syncSetting.removeExtensions,
-          syncSetting.quietSync,
-          customSettings.ignoreExtensions
+          syncSetting,
+          customSettings,
+          localConfig,
+          common
         );
-        return;
+      } else {
+        returnedMessage = await githubGistService.Download(
+          env,
+          syncSetting,
+          customSettings,
+          localConfig,
+          common
+        );
       }
+      if (!returnedMessage) return;
 
-      const res = await github.ReadGist(syncSetting.gist);
-
-      if (!res) {
-        Commons.LogException(res, "Sync : Unable to Read Gist.", true);
-        return;
-      }
-
+      let updatedFiles: File[] = [];
       let addedExtensions: ExtensionInformation[] = [];
       let deletedExtensions: ExtensionInformation[] = [];
-      const ignoredExtensions: string[] =
-        customSettings.ignoreExtensions || new Array<string>();
-      const updatedFiles: File[] = [];
-      const actionList: Array<Promise<void | boolean>> = [];
 
-      if (res.data.public === true) {
-        localConfig.publicGist = true;
-      }
-      const keys = Object.keys(res.data.files);
-      if (keys.indexOf(env.FILE_CLOUDSETTINGS_NAME) > -1) {
-        const cloudSettGist: object = JSON.parse(
-          res.data.files[env.FILE_CLOUDSETTINGS_NAME].content
-        );
-        const cloudSett: CloudSetting = Object.assign(
-          new CloudSetting(),
-          cloudSettGist
-        );
+      [updatedFiles, addedExtensions, deletedExtensions] = returnedMessage;
 
-        const lastUploadStr: string = customSettings.lastUpload
-          ? customSettings.lastUpload.toString()
-          : "";
-        const lastDownloadStr: string = customSettings.lastDownload
-          ? customSettings.lastDownload.toString()
-          : "";
-
-        let upToDate: boolean = false;
-        if (lastDownloadStr !== "") {
-          upToDate =
-            new Date(lastDownloadStr).getTime() ===
-            new Date(cloudSett.lastUpload).getTime();
-        }
-
-        if (lastUploadStr !== "") {
-          upToDate =
-            upToDate ||
-            new Date(lastUploadStr).getTime() ===
-              new Date(cloudSett.lastUpload).getTime();
-        }
-
-        if (!syncSetting.forceDownload) {
-          if (upToDate) {
-            vscode.window.setStatusBarMessage("").dispose();
-            vscode.window.setStatusBarMessage(
-              localize("cmd.downloadSettings.info.gotLatestVersion"),
-              5000
-            );
-            return;
-          }
-        }
-        customSettings.lastDownload = cloudSett.lastUpload;
-      }
-
-      keys.forEach(gistName => {
-        if (res.data.files[gistName]) {
-          if (res.data.files[gistName].content) {
-            const prefix = FileService.CUSTOMIZED_SYNC_PREFIX;
-            if (gistName.indexOf(prefix) > -1) {
-              const fileName = gistName.split(prefix).join(""); // |customized_sync|.htmlhintrc => .htmlhintrc
-              if (!(fileName in customSettings.customFiles)) {
-                // syncLocalSettings.json > customFiles doesn't have key
-                return;
-              }
-              const f: File = new File(
-                fileName,
-                res.data.files[gistName].content,
-                customSettings.customFiles[fileName],
-                gistName
-              );
-              updatedFiles.push(f);
-            } else if (gistName.indexOf(".") > -1) {
-              if (
-                env.OsType === OsType.Mac &&
-                gistName === env.FILE_KEYBINDING_DEFAULT
-              ) {
-                return;
-              }
-              if (
-                env.OsType !== OsType.Mac &&
-                gistName === env.FILE_KEYBINDING_MAC
-              ) {
-                return;
-              }
-              const f: File = new File(
-                gistName,
-                res.data.files[gistName].content,
-                null,
-                gistName
-              );
-              updatedFiles.push(f);
-            }
-          }
-        } else {
-          console.log(gistName + " key in response is empty.");
-        }
-      });
-
-      for (const file of updatedFiles) {
-        let writeFile: boolean = false;
-        let content: string = file.content;
-
-        if (content !== "") {
-          if (file.gistName === env.FILE_EXTENSION_NAME) {
-            if (syncSetting.syncExtensions) {
-              [addedExtensions, deletedExtensions] = await PluginService.UpdateExtensions(
-                env, content, ignoredExtensions, syncSetting.removeExtensions, syncSetting.quietSync
-              );
-            }
-          } else {
-            writeFile = true;
-            if (
-              file.gistName === env.FILE_KEYBINDING_DEFAULT ||
-              file.gistName === env.FILE_KEYBINDING_MAC
-            ) {
-              let test: string = "";
-              env.OsType === OsType.Mac
-                ? (test = env.FILE_KEYBINDING_MAC)
-                : (test = env.FILE_KEYBINDING_DEFAULT);
-              if (file.gistName !== test) {
-                writeFile = false;
-              }
-            }
-            if (writeFile) {
-              if (file.gistName === env.FILE_KEYBINDING_MAC) {
-                file.fileName = env.FILE_KEYBINDING_DEFAULT;
-              }
-              let filePath: string = "";
-              if (file.filePath !== null) {
-                filePath = await FileService.CreateCustomDirTree(file.filePath);
-              } else {
-                filePath = await FileService.CreateDirTree(
-                  env.USER_FOLDER,
-                  file.fileName
-                );
-              }
-
-              if (file.gistName === env.FILE_SETTING_NAME) {
-                const localContent = await FileService.ReadFile(filePath);
-                content = PragmaUtil.processBeforeWrite(
-                  localContent,
-                  content,
-                  env.OsType,
-                  localConfig.customConfig.gistSettings.hostName
-                );
-              }
-
-              actionList.push(
-                FileService.WriteFile(filePath, content)
-                  .then(() => {
-                    // TODO : add Name attribute in File and show information message here with name , when required.
-                  })
-                  .catch(err => {
-                    Commons.LogException(err, common.ERROR_MESSAGE, true);
-                    return;
-                  })
-              );
-            }
-          }
-        }
-      }
-
-      await Promise.all(actionList);
-      const settingsUpdated = await common.SaveSettings(syncSetting);
       const customSettingsUpdated = await common.SetCustomSettings(
         customSettings
       );
-      if (settingsUpdated && customSettingsUpdated) {
+      if (customSettingsUpdated) {
         if (!syncSetting.quietSync) {
           common.ShowSummaryOutput(
             false,

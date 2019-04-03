@@ -7,7 +7,7 @@ import * as simplegit from "simple-git/promise";
 import { RemoteWithRefs, CommitSummary } from "simple-git/typings/response";
 import localize from "../localize";
 import { Environment } from "../environmentPath";
-import { PluginService } from "./pluginService";
+import { PluginService, ExtensionInformation } from "./pluginService";
 import { ExtensionConfig, CustomSettings, LocalConfig } from "../setting";
 import Commons from "../commons";
 
@@ -186,19 +186,29 @@ export class GitService {
     return this.GetCommitID();
   }
 
-  public async Download(env: Environment, syncExtensions: boolean, removeExtensions: boolean, quietSync: boolean, ignoreExtensions: string[]) {
+  public async Download(
+    env: Environment,
+    syncSetting: ExtensionConfig,
+    customSettings: CustomSettings,
+    localConfig?: LocalConfig,
+    common?: Commons
+  ): Promise<any> {
     await this.Pull();
 
     const extensionFile: File = await FileService.GetFile(env.FILE_EXTENSION, env.FILE_EXTENSION_NAME);
-    const ignoredExtensions: string[] = ignoreExtensions || new Array<string>();
+    const ignoredExtensions: string[] = customSettings.ignoreExtensions || new Array<string>();
 
-    if (extensionFile && syncExtensions) {
+    let addedExtensions: ExtensionInformation[] = [];
+    let deletedExtensions: ExtensionInformation[] = [];
+    if (extensionFile && syncSetting.syncExtensions) {
       console.log("Syncing Extensions...");
-      await PluginService.UpdateExtensions(
-        env, extensionFile.content, ignoredExtensions, removeExtensions, quietSync
+      [addedExtensions, deletedExtensions] = await PluginService.UpdateExtensions(
+        env, extensionFile.content, ignoredExtensions, syncSetting.removeExtensions, syncSetting.quietSync
       );
     }
     console.log("download finished");
+    // TODO: Get updated files list for download
+    return Promise.resolve([[], addedExtensions, deletedExtensions]);
   }
 
   public async Add(files: File[]) {
