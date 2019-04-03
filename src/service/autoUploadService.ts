@@ -2,8 +2,10 @@ import { watch } from "chokidar";
 import * as vscode from "vscode";
 import Commons from "../commons";
 import { Environment } from "../environmentPath";
+import localize from "../localize";
 import lockfile from "../lockfile";
 import { CustomSettings } from "../setting";
+import { Util } from "../util";
 import { FileService } from "./fileService";
 
 export class AutoUploadService {
@@ -29,13 +31,15 @@ export class AutoUploadService {
         console.log("Sync: Extensions changed");
         if (await lockfile.Check(this.options.en.FILE_SYNC_LOCK)) {
           return;
+        } else {
+          await lockfile.Lock(this.options.en.FILE_SYNC_LOCK);
         }
-        await lockfile.Lock(this.options.en.FILE_SYNC_LOCK);
         const customSettings: CustomSettings = await this.options.commons.GetCustomSettings();
         if (customSettings) {
           await this.InitiateAutoUpload();
         }
-        return await lockfile.Unlock(this.options.en.FILE_SYNC_LOCK);
+        await lockfile.Unlock(this.options.en.FILE_SYNC_LOCK);
+        return;
       }
     });
   }
@@ -77,6 +81,14 @@ export class AutoUploadService {
   }
 
   private async InitiateAutoUpload() {
+    vscode.window.setStatusBarMessage("").dispose();
+    vscode.window.setStatusBarMessage(
+      localize("common.info.initAutoUpload"),
+      5000
+    );
+
+    await Util.Sleep(5000);
+
     vscode.commands.executeCommand("extension.updateSettings", "forceUpdate");
   }
 }
