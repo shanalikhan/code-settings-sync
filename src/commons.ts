@@ -148,13 +148,8 @@ export default class Commons {
         const customSettingStr: string = await FileService.ReadFile(
           this.en.FILE_CUSTOMIZEDSETTINGS
         );
-        const tempObj: {
-          [key: string]: any;
-          ignoreUploadSettings: string[];
-        } = JSON.parse(customSettingStr);
-        if (!Array.isArray(tempObj.ignoreUploadSettings)) {
-          tempObj.ignoreUploadSettings = [];
-        }
+        const tempObj = JSON.parse(customSettingStr);
+
         Object.assign(customSettings, tempObj);
         customSettings.token = customSettings.token.trim();
         return customSettings;
@@ -180,13 +175,9 @@ export default class Commons {
 
   public async SetCustomSettings(setting: CustomSettings): Promise<boolean> {
     try {
-      const json: { [key: string]: any; ignoreUploadSettings: string[] } = {
-        ...setting
-      };
-      delete json.ignoreUploadSettings;
       await FileService.WriteFile(
         this.en.FILE_CUSTOMIZEDSETTINGS,
-        JSON.stringify(json, null, 4)
+        JSON.stringify(setting, null, 4)
       );
       return true;
     } catch (e) {
@@ -234,6 +225,14 @@ export default class Commons {
         });
     } else if (customSettings.version < Environment.CURRENT_VERSION) {
       fileChanged = true;
+      // #TODO : Remove this in new update
+      const newIgnoredList = new CustomSettings().ignoreUploadFiles;
+      newIgnoredList.forEach(m => {
+        if (customSettings.ignoreUploadFiles.indexOf(m) === -1) {
+          customSettings.ignoreUploadFiles.push(m);
+        }
+      });
+
       if (this.context.globalState.get("synctoken")) {
         const token = this.context.globalState.get("synctoken");
         if (token !== "") {

@@ -97,9 +97,7 @@ export class Sync {
         localConfig.customConfig.token,
         localConfig.customConfig.githubEnterpriseUrl
       );
-      // ignoreSettings = await common.GetIgnoredSettings(localConfig.customConfig.ignoreUploadSettings);
       await startGitProcess(localConfig.extConfig, localConfig.customConfig);
-      // await common.SetIgnoredSettings(ignoreSettings);
     } catch (error) {
       Commons.LogException(error, globalCommonService.ERROR_MESSAGE, true);
       return;
