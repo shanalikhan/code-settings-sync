@@ -93,8 +93,8 @@ export class Sync {
 
         git = new GitService(env.USER_FOLDER);
         await git.initialize(
-          localConfig.customConfig.gitSettings[repoService].token,
           localConfig.extConfig.repoUrl,
+          localConfig.customConfig.gitSettings[repoService].token,
           localConfig.customConfig.gitSettings[repoService].gitBranch,
           localConfig.customConfig.gitSettings[repoService].forcePush,
           localConfig.customConfig.gitSettings[repoService].forcePull
@@ -474,8 +474,8 @@ export class Sync {
 
         git = new GitService(env.USER_FOLDER);
         await git.initialize(
-          localConfig.customConfig.gitSettings[repoService].token,
           localConfig.extConfig.repoUrl,
+          localConfig.customConfig.gitSettings[repoService].token,
           localConfig.customConfig.gitSettings[repoService].gitBranch,
           localConfig.customConfig.gitSettings[repoService].forcePush,
           localConfig.customConfig.gitSettings[repoService].forcePull

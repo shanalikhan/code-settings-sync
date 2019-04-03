@@ -44,7 +44,7 @@ export class GitService {
     this.git.silent(true);
   }
 
-  public async initialize(token: string, repoUrl: string, branch?: string, forcePush?: boolean, forcePull?: boolean): Promise<boolean> {
+  public async initialize(repoUrl: string, token: string, branch?: string, forcePush?: boolean, forcePull?: boolean): Promise<boolean> {
     await this.git.init();
     if (!repoUrl) return Promise.resolve(false);
     this.token = token;
