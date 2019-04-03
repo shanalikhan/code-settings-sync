@@ -49,6 +49,11 @@ export class RepoServiceSettings {
   public gitBranch: string = "master";
 }
 
+export class SyncMode {
+  public type: "gist" | "git" = "gist";
+  public gitClient: "github" | "gitlab" = "github";
+}
+
 export class CustomSettings {
   public ignoreUploadFiles: string[] = [
     "projects.json",
@@ -72,5 +77,5 @@ export class CustomSettings {
   public lastDownload: Date = null;
   public githubEnterpriseUrl: string = null;
   public customFiles: { [key: string]: string } = {};
-  public syncMode: "gist" | "git" = "gist";
+  public syncMode: SyncMode = new SyncMode();
 }

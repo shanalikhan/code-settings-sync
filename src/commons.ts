@@ -264,7 +264,7 @@ export default class Commons {
       let tokenValue: string = cusSettings.gistSettings.token;
       let tokenUrl: string = await GitService.GetTokenUrl(serviceId.toLowerCase());
 
-      if (cusSettings.syncMode === "git") {
+      if (cusSettings.syncMode.type === "git") {
         const repoUrl: string = await this.GetGitRepoAndSave(extSettings);
         const repoService: string = await GitService.ParseUrl(repoUrl, UrlInfo.SERVICE);
         if (!repoService) {
@@ -296,7 +296,7 @@ export default class Commons {
       }
     }
 
-    if (cusSettings.syncMode === "gist" &&  extSettings.gist === "") {
+    if (cusSettings.syncMode.type === "gist" &&  extSettings.gist === "") {
       if (askGist) {
         const gistTemp: string = await this.GetGistAndSave(extSettings);
         if (!gistTemp) {

@@ -87,7 +87,7 @@ export class Sync {
         }
       }
 
-      if (localConfig.customConfig.syncMode === "git") {
+      if (localConfig.customConfig.syncMode.type === "git") {
         const repoUrl: string = localConfig.extConfig.repoUrl;
         const repoService: string = await GitService.ParseUrl(repoUrl, UrlInfo.SERVICE);
 
@@ -146,7 +146,7 @@ export class Sync {
         2000
       );
 
-      if (customSettings.syncMode === "gist" && customSettings.gistSettings.downloadPublicGist) {
+      if (customSettings.syncMode.type === "gist" && customSettings.gistSettings.downloadPublicGist) {
         if (customSettings.gistSettings.token == null || customSettings.gistSettings.token === "") {
           vscode.window.showInformationMessage(
             localize("cmd.updateSettings.warning.noToken")
@@ -279,7 +279,7 @@ export class Sync {
         }
       }
 
-      if (customSettings.syncMode === "git") {
+      if (customSettings.syncMode.type === "git") {
         vscode.window.setStatusBarMessage(
           localize("cmd.updateSettings.info.addingFile"),
           1000
@@ -468,7 +468,7 @@ export class Sync {
     try {
        localConfig = await common.InitalizeSettings(true, true);
 
-      if (localConfig.customConfig.syncMode === "git") {
+      if (localConfig.customConfig.syncMode.type === "git") {
         const repoUrl: string = localConfig.extConfig.repoUrl;
         const repoService: string = await GitService.ParseUrl(repoUrl, UrlInfo.SERVICE);
 
@@ -523,7 +523,7 @@ export class Sync {
         2000
       );
 
-      if (customSettings.syncMode === "git") {
+      if (customSettings.syncMode.type === "git") {
         await git.Pull();
         const extensionFile: File = await FileService.GetFile(env.FILE_EXTENSION, env.FILE_EXTENSION_NAME);
         const ignoredExtensions: string[] = customSettings.ignoreExtensions || new Array<string>();
@@ -1137,10 +1137,10 @@ export class Sync {
       },
       16: async () => {
         // toggle sync mode
-        customSettings.syncMode = customSettings.syncMode === "gist" ? "git" : "gist";
+        customSettings.syncMode.type = customSettings.syncMode.type === "gist" ? "git" : "gist";
         const done: boolean = await common.SetCustomSettings(customSettings);
         if (done) {
-          const message = customSettings.syncMode === "git"
+          const message = customSettings.syncMode.type === "git"
             ? "cmd.otherOptions.toggleSyncMode.git"
             : "cmd.otherOptions.toggleSyncMode.gist"
           vscode.window.showInformationMessage(
