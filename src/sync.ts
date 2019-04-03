@@ -554,8 +554,6 @@ export class Sync {
 
                 addedExtensions = await PluginService.InstallExtensions(
                   content,
-                  env.ExtensionFolder,
-                  useCli,
                   ignoredExtensions,
                   env.OsType,
                   env.isInsiders,

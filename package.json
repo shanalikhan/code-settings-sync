@@ -46,7 +46,7 @@
     "email": "shanalikhan@hotmail.com"
   },
   "engines": {
-    "vscode": "^1.31.1"
+    "vscode": "^1.32.3"
   },
   "categories": [
     "Other"
@@ -165,13 +165,12 @@
     "tslint": "^5.13.1",
     "tslint-plugin-prettier": "^2.0.1",
     "typescript": "^3.3.3333",
-    "vscode": "^1.1.30",
+    "vscode": "^1.1.33",
     "webpack": "^4.29.6",
     "webpack-cli": "^3.2.3"
   },
   "dependencies": {
     "@octokit/rest": "^16.16.4",
-    "adm-zip": "^0.4.13",
     "chokidar": "^2.1.5",
     "fs-extra": "^7.0.1",
     "https-proxy-agent": "^2.2.1",
