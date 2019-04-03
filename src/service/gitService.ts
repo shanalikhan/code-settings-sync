@@ -1,9 +1,11 @@
 
 "use strict";
 
+import * as vscode from "vscode";
 import { File } from "./fileService";
 import * as simplegit from "simple-git/promise";
 import { RemoteWithRefs, CommitSummary } from "simple-git/typings/response";
+import localize from "../localize";
 
 export enum UrlInfo {
   FULL     = 0,
@@ -142,6 +144,32 @@ export class GitService {
     } catch(err) {
       console.error(err);
     }
+  }
+
+  public async Upload(allSettingFiles: File[], date: Date) {
+    vscode.window.setStatusBarMessage(
+      localize("cmd.updateSettings.info.addingFile"),
+      1000
+    );
+    console.log("Adding Files...");
+    await this.Add(allSettingFiles);
+
+    vscode.window.setStatusBarMessage(
+      localize("cmd.updateSettings.info.committing"),
+      1000
+    );
+    console.log("Commiting...");
+    await this.Commit(date.toString());
+
+    vscode.window.setStatusBarMessage(
+      localize("cmd.updateSettings.info.pushing"),
+      1000
+    );
+    console.log("Pushing to repository...");
+    await this.Push();
+
+    const status: any = await this.Status();
+    console.log(status);
   }
 
   public async Add(files: File[]) {

@@ -280,45 +280,7 @@ export class Sync {
       }
 
       if (customSettings.syncMode.type === "git") {
-        vscode.window.setStatusBarMessage(
-          localize("cmd.updateSettings.info.addingFile"),
-          1000
-        );
-        console.log("Adding Files...");
-        await git.Add(allSettingFiles);
-
-        vscode.window.setStatusBarMessage(
-          localize("cmd.updateSettings.info.committing"),
-          1000
-        );
-        console.log("Commiting...");
-        await git.Commit(dateNow.toString());
-
-        vscode.window.setStatusBarMessage(
-          localize("cmd.updateSettings.info.pushing"),
-          1000
-        );
-        console.log("Pushing to repository...");
-        await git.Push();
-
-        const status: any = await git.Status();
-        console.log(status);
-
-        const settingsUpdated = await common.SaveSettings(syncSetting);
-        const customSettingsUpdated = await common.SetCustomSettings(
-          customSettings
-        );
-
-        if (settingsUpdated && customSettingsUpdated) {
-          const commitID: string = await git.GetCommitID();
-          vscode.window.showInformationMessage(
-            localize(
-              "cmd.updateSettings.info.uploadingDone.git",
-              commitID
-            )
-          );
-        }
-        if(syncSetting.autoUpload) common.StartWatch();
+        await git.Upload(allSettingFiles, dateNow);
         return;
       }
 
