@@ -18,6 +18,8 @@ import {
 
 import PragmaUtil from "./pragmaUtil";
 
+let globalCommonService: Commons;
+
 export class Sync {
   constructor(private context: vscode.ExtensionContext) {}
   /**
@@ -25,7 +27,7 @@ export class Sync {
    */
   public async bootstrap(): Promise<void> {
     const env = new Environment(this.context);
-    const globalCommonService = new Commons(env, this.context);
+    globalCommonService = new Commons(env, this.context);
     // if lock file not exist
     // then create it
     if (!(await FileService.FileExists(env.FILE_SYNC_LOCK))) {
@@ -47,17 +49,24 @@ export class Sync {
       const gistAvailable: boolean =
         startUpSetting.gist != null && startUpSetting.gist !== "";
 
-      if (gistAvailable === true && startUpSetting.autoDownload === true) {
-        vscode.commands
-          .executeCommand("extension.downloadSettings")
-          .then(() => {
-            if (startUpSetting.autoUpload && tokenAvailable && gistAvailable) {
-              return globalCommonService.StartWatch();
-            }
-          });
-      }
-      if (startUpSetting.autoUpload && tokenAvailable && gistAvailable) {
-        return globalCommonService.StartWatch();
+      if (gistAvailable) {
+        if (startUpSetting.autoDownload) {
+          vscode.commands
+            .executeCommand("extension.downloadSettings")
+            .then(() => {
+              if (
+                startUpSetting.autoUpload &&
+                tokenAvailable &&
+                gistAvailable
+              ) {
+                return globalCommonService.autoUploadService.StartWatching();
+              }
+            });
+        } else {
+          if (startUpSetting.autoUpload && tokenAvailable && gistAvailable) {
+            return globalCommonService.autoUploadService.StartWatching();
+          }
+        }
       }
     }
   }
@@ -67,17 +76,16 @@ export class Sync {
   public async upload(): Promise<void> {
     const args = arguments;
     const env = new Environment(this.context);
-    const common = new Commons(env, this.context);
     let github: GitHubService = null;
     let localConfig: LocalConfig = new LocalConfig();
     const allSettingFiles: File[] = [];
     let uploadedExtensions: ExtensionInformation[] = [];
     const ignoredExtensions: ExtensionInformation[] = [];
     const dateNow = new Date();
-    common.CloseWatch();
+    globalCommonService.autoUploadService.StopWatching();
 
     try {
-      localConfig = await common.InitalizeSettings(true, false);
+      localConfig = await globalCommonService.InitalizeSettings(true, false);
       localConfig.publicGist = false;
       if (args.length > 0) {
         if (args[0] === "publicGIST") {
@@ -93,7 +101,7 @@ export class Sync {
       await startGitProcess(localConfig.extConfig, localConfig.customConfig);
       // await common.SetIgnoredSettings(ignoreSettings);
     } catch (error) {
-      Commons.LogException(error, common.ERROR_MESSAGE, true);
+      Commons.LogException(error, globalCommonService.ERROR_MESSAGE, true);
       return;
     }
 
@@ -203,7 +211,7 @@ export class Sync {
           }
         }
       } else {
-        Commons.LogException(null, common.ERROR_MESSAGE, true);
+        Commons.LogException(null, globalCommonService.ERROR_MESSAGE, true);
         return;
       }
 
@@ -245,7 +253,7 @@ export class Sync {
       try {
         if (syncSetting.gist == null || syncSetting.gist === "") {
           if (customSettings.askGistName) {
-            customSettings.gistDescription = await common.AskGistName();
+            customSettings.gistDescription = await globalCommonService.AskGistName();
           }
           newGIST = true;
           const gistID = await github.CreateEmptyGIST(
@@ -312,14 +320,16 @@ export class Sync {
           return;
         }
       } catch (err) {
-        Commons.LogException(err, common.ERROR_MESSAGE, true);
+        Commons.LogException(err, globalCommonService.ERROR_MESSAGE, true);
         return;
       }
 
       if (completed) {
         try {
-          const settingsUpdated = await common.SaveSettings(syncSetting);
-          const customSettingsUpdated = await common.SetCustomSettings(
+          const settingsUpdated = await globalCommonService.SaveSettings(
+            syncSetting
+          );
+          const customSettingsUpdated = await globalCommonService.SetCustomSettings(
             customSettings
           );
           if (settingsUpdated && customSettingsUpdated) {
@@ -339,7 +349,7 @@ export class Sync {
             }
 
             if (!syncSetting.quietSync) {
-              common.ShowSummaryOutput(
+              globalCommonService.ShowSummaryOutput(
                 true,
                 allSettingFiles,
                 null,
@@ -356,11 +366,11 @@ export class Sync {
               );
             }
             if (syncSetting.autoUpload) {
-              common.StartWatch();
+              globalCommonService.autoUploadService.StartWatching();
             }
           }
         } catch (err) {
-          Commons.LogException(err, common.ERROR_MESSAGE, true);
+          Commons.LogException(err, globalCommonService.ERROR_MESSAGE, true);
         }
       }
     }
@@ -370,15 +380,14 @@ export class Sync {
    */
   public async download(): Promise<void> {
     const env = new Environment(this.context);
-    const common = new Commons(env, this.context);
     let localSettings: LocalConfig = new LocalConfig();
-    common.CloseWatch();
+    globalCommonService.autoUploadService.StopWatching();
 
     try {
-      localSettings = await common.InitalizeSettings(true, true);
+      localSettings = await globalCommonService.InitalizeSettings(true, true);
       await StartDownload(localSettings.extConfig, localSettings.customConfig);
     } catch (err) {
-      Commons.LogException(err, common.ERROR_MESSAGE, true);
+      Commons.LogException(err, globalCommonService.ERROR_MESSAGE, true);
       return;
     }
 
@@ -612,7 +621,11 @@ export class Sync {
                     // TODO : add Name attribute in File and show information message here with name , when required.
                   })
                   .catch(err => {
-                    Commons.LogException(err, common.ERROR_MESSAGE, true);
+                    Commons.LogException(
+                      err,
+                      globalCommonService.ERROR_MESSAGE,
+                      true
+                    );
                     return;
                   })
               );
@@ -622,13 +635,15 @@ export class Sync {
       }
 
       await Promise.all(actionList);
-      const settingsUpdated = await common.SaveSettings(syncSetting);
-      const customSettingsUpdated = await common.SetCustomSettings(
+      const settingsUpdated = await globalCommonService.SaveSettings(
+        syncSetting
+      );
+      const customSettingsUpdated = await globalCommonService.SetCustomSettings(
         customSettings
       );
       if (settingsUpdated && customSettingsUpdated) {
         if (!syncSetting.quietSync) {
-          common.ShowSummaryOutput(
+          globalCommonService.ShowSummaryOutput(
             false,
             updatedFiles,
             deletedExtensions,
@@ -664,7 +679,7 @@ export class Sync {
           }
         }
         if (syncSetting.autoUpload) {
-          common.StartWatch();
+          globalCommonService.autoUploadService.StartWatching();
         }
       } else {
         vscode.window.showErrorMessage(
@@ -977,7 +992,7 @@ export class Sync {
       await handlerMap[index]();
       if (settingChanged) {
         if (selectedItem === 1) {
-          common.CloseWatch();
+          globalCommonService.autoUploadService.StopWatching();
         }
         await common
           .SaveSettings(setting)
