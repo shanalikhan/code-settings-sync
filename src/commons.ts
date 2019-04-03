@@ -5,9 +5,13 @@ import { Environment } from "./environmentPath";
 import localize from "./localize";
 import * as lockfile from "./lockfile";
 import { File, FileService } from "./service/fileService";
+import { GitHubOAuthService } from "./service/oauthService";
 import { ExtensionInformation } from "./service/pluginService";
 import { CustomSettings, ExtensionConfig, LocalConfig } from "./setting";
 import { Util } from "./util";
+
+// tslint:disable-next-line: no-var-requires
+const LandingPageView = require("html-loader!../ui/landing-page/landing-page.html");
 
 export default class Commons {
   public static outputChannel: vscode.OutputChannel = null;
@@ -81,6 +85,34 @@ export default class Commons {
     private en: Environment,
     private context: vscode.ExtensionContext
   ) {}
+
+  public async OpenLandingPage() {
+    const content: string = LandingPageView.replace(
+      new RegExp("@PWD", "g"),
+      vscode.Uri.file(this.context.extensionPath).with({
+        scheme: "vscode-resource"
+      })
+    );
+    const landingPanel = vscode.window.createWebviewPanel(
+      "landingPage",
+      "Welcome to Settings Sync",
+      vscode.ViewColumn.One,
+      {
+        retainContextWhenHidden: true,
+        enableScripts: true
+      }
+    );
+    landingPanel.webview.html = content;
+    landingPanel.webview.onDidReceiveMessage(() => {
+      new GitHubOAuthService(54321, this).StartProcess();
+      vscode.commands.executeCommand(
+        "vscode.open",
+        vscode.Uri.parse(
+          "https://github.com/login/oauth/authorize?client_id=cfd96460d8b110e2351b&redirect_uri=http://localhost:54321/callback?scope=gist"
+        )
+      );
+    });
+  }
 
   public async StartWatch(): Promise<void> {
     const lockExist: boolean = await FileService.FileExists(
