@@ -4,10 +4,6 @@ import * as path from "path";
 import * as vscode from "vscode";
 
 import { OsType } from "../enums";
-import * as util from "../util";
-
-const apiPath =
-  "https://marketplace.visualstudio.com/_apis/public/gallery/extensionquery";
 
 export class ExtensionInformation {
   public static fromJSON(text: string) {
