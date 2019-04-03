@@ -26,6 +26,7 @@ export class Sync {
   public async bootstrap(): Promise<void> {
     const env = new Environment(this.context);
     const globalCommonService = new Commons(env, this.context);
+
     // if lock file not exist
     // then create it
     if (!(await FileService.FileExists(env.FILE_SYNC_LOCK))) {
