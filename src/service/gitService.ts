@@ -8,6 +8,8 @@ import { RemoteWithRefs, CommitSummary } from "simple-git/typings/response";
 import localize from "../localize";
 import { Environment } from "../environmentPath";
 import { PluginService } from "./pluginService";
+import { ExtensionConfig, CustomSettings, LocalConfig } from "../setting";
+import Commons from "../commons";
 
 export enum UrlInfo {
   FULL     = 0,
@@ -149,7 +151,15 @@ export class GitService {
     }
   }
 
-  public async Upload(allSettingFiles: File[], date: Date) {
+  public async Upload(
+    allSettingFiles: File[],
+    dateNow: Date,
+    env?: Environment,
+    common?: Commons,
+    localConfig?: LocalConfig,
+    syncSetting?: ExtensionConfig,
+    customSettings?: CustomSettings
+  ): Promise<string> {
     vscode.window.setStatusBarMessage(
       localize("cmd.updateSettings.info.addingFile"),
       1000
@@ -162,7 +172,7 @@ export class GitService {
       1000
     );
     console.log("Commiting...");
-    await this.Commit(date.toString());
+    await this.Commit(dateNow.toString());
 
     vscode.window.setStatusBarMessage(
       localize("cmd.updateSettings.info.pushing"),
@@ -173,6 +183,7 @@ export class GitService {
 
     const status: any = await this.Status();
     console.log(status);
+    return this.GetCommitID();
   }
 
   public async Download(env: Environment, syncExtensions: boolean, removeExtensions: boolean, quietSync: boolean, ignoreExtensions: string[]) {

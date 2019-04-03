@@ -11,13 +11,13 @@ import { GitHubService } from "./service/githubService";
 import { GitService, UrlInfo } from "./service/gitService";
 import { ExtensionInformation, PluginService } from "./service/pluginService";
 import {
-  CloudSetting,
   CustomSettings,
   ExtensionConfig,
   LocalConfig
 } from "./setting";
 
 import PragmaUtil from "./pragmaUtil";
+import { GitHubGistService } from "./service/githubGistService";
 
 export class Sync {
   constructor(private context: vscode.ExtensionContext) {}
@@ -71,6 +71,7 @@ export class Sync {
     const common = new Commons(env, this.context);
     let git: GitService = null;
     let github: GitHubService = null;
+    let githubGist: GitHubGistService = null;
     let localConfig: LocalConfig = new LocalConfig();
     const allSettingFiles: File[] = [];
     let uploadedExtensions: ExtensionInformation[] = [];
@@ -122,11 +123,11 @@ export class Sync {
           // throw new Error("Gitlab not configured yet");
         }
       } else {
-        github = new GitHubService(
+        githubGist = new GitHubGistService(
           localConfig.customConfig.gistSettings.token,
           localConfig.customConfig.githubEnterpriseUrl
         );
-        await github.Authenticate();
+        await githubGist.Authenticate();
       }
 
       // ignoreSettings = await common.GetIgnoredSettings(localConfig.customConfig.ignoreUploadSettings);
@@ -279,111 +280,43 @@ export class Sync {
         }
       }
 
+      let uploadID: string = null;
       if (customSettings.syncMode.type === "git") {
-        await git.Upload(allSettingFiles, dateNow);
-        return;
-      }
-
-      const extProp: CloudSetting = new CloudSetting();
-      extProp.lastUpload = dateNow;
-      const fileName: string = env.FILE_CLOUDSETTINGS_NAME;
-      const fileContent: string = JSON.stringify(extProp);
-      const file: File = new File(fileName, fileContent, "", fileName);
-      allSettingFiles.push(file);
-
-      let completed: boolean = false;
-      let newGIST: boolean = false;
-      try {
-        if (syncSetting.gist == null || syncSetting.gist === "") {
-          if (customSettings.gistSettings.askGistName) {
-            customSettings.gistSettings.gistDescription = await common.AskGistName();
-          }
-          newGIST = true;
-          const gistID = await github.CreateEmptyGIST(
-            localConfig.publicGist,
-            customSettings.gistSettings.gistDescription
-          );
-          if (gistID) {
-            syncSetting.gist = gistID;
-            vscode.window.setStatusBarMessage(
-              localize("cmd.updateSettings.info.newGistCreated"),
-              2000
-            );
-          } else {
-            vscode.window.showInformationMessage(
-              localize("cmd.updateSettings.error.newGistCreateFail")
-            );
-            return;
-          }
-        }
-        let gistObj = await github.ReadGist(syncSetting.gist);
-        if (!gistObj) {
-          vscode.window.showErrorMessage(
-            localize("cmd.updateSettings.error.readGistFail", syncSetting.gist)
-          );
-          return;
-        }
-
-        if (gistObj.data.owner !== null) {
-          const gistOwnerName: string = gistObj.data.owner.login.trim();
-          if (github.userName != null) {
-            const userName: string = github.userName.trim();
-            if (gistOwnerName !== userName) {
-              Commons.LogException(
-                null,
-                "Sync : You cant edit GIST for user : " +
-                  gistObj.data.owner.login,
-                true,
-                () => {
-                  console.log("Sync : Current User : " + "'" + userName + "'");
-                  console.log(
-                    "Sync : Gist Owner User : " + "'" + gistOwnerName + "'"
-                  );
-                }
-              );
-              return;
-            }
-          }
-        }
-
-        if (gistObj.public === true) {
-          localConfig.publicGist = true;
-        }
-
-        vscode.window.setStatusBarMessage(
-          localize("cmd.updateSettings.info.uploadingFile"),
-          3000
+        uploadID = await git.Upload(
+          allSettingFiles,
+          dateNow,
+          env,
+          common,
+          localConfig,
+          syncSetting,
+          customSettings
         );
-        gistObj = github.UpdateGIST(gistObj, allSettingFiles);
-        completed = await github.SaveGIST(gistObj.data);
-        if (!completed) {
-          vscode.window.showErrorMessage(
-            localize("cmd.updateSettings.error.gistNotSave")
-          );
-          return;
-        }
-      } catch (err) {
-        Commons.LogException(err, common.ERROR_MESSAGE, true);
-        return;
+      } else {
+        uploadID = await githubGist.Upload(
+          allSettingFiles,
+          dateNow,
+          env,
+          common,
+          localConfig,
+          syncSetting,
+          customSettings
+        );
       }
 
-      if (completed) {
+      if (uploadID) {
         try {
-          const settingsUpdated = await common.SaveSettings(syncSetting);
           const customSettingsUpdated = await common.SetCustomSettings(
             customSettings
           );
-          if (settingsUpdated && customSettingsUpdated) {
-            if (newGIST) {
-              vscode.window.showInformationMessage(
-                localize(
-                  "cmd.updateSettings.info.uploadingDone",
-                  syncSetting.gist
-                )
-              );
-            }
+          if (customSettingsUpdated) {
+            const message: string = customSettings.syncMode.type === "gist"
+              ? "cmd.updateSettings.info.uploadingDone.gist"
+              : "cmd.updateSettings.info.uploadingDone.git";
+            vscode.window.showInformationMessage(
+              localize(message, uploadID)
+            );
 
-            if (localConfig.publicGist) {
+            if (customSettings.syncMode.type === "gist" && localConfig.publicGist) {
               vscode.window.showInformationMessage(
                 localize("cmd.updateSettings.info.shareGist")
               );
