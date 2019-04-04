@@ -209,12 +209,13 @@ export default class Commons {
   }
 
   public async OpenLandingPage() {
+    const releaseNotes = require("../release-notes.json");
     const content: string = LandingPageView.replace(
       new RegExp("@PWD", "g"),
       vscode.Uri.file(this.context.extensionPath).with({
         scheme: "vscode-resource"
       })
-    );
+    ).replace("@RELEASE_NOTES", JSON.stringify(releaseNotes));
     const landingPanel = vscode.window.createWebviewPanel(
       "landingPage",
       "Welcome to Settings Sync",
