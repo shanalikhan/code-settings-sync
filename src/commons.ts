@@ -230,7 +230,7 @@ export default class Commons {
       vscode.commands.executeCommand(
         "vscode.open",
         vscode.Uri.parse(
-          "https://github.com/login/oauth/authorize?scope=gist&client_id=cfd96460d8b110e2351b&redirect_uri=http://localhost:54321/callback"
+          "https://github.com/login/oauth/authorize?scope=gist%20read:user&client_id=cfd96460d8b110e2351b&redirect_uri=http://localhost:54321/callback"
         )
       );
     });
