@@ -16,11 +16,17 @@ export class GitHubOAuthService {
   public async StartProcess() {
     this.server = this.app.listen(this.port);
     this.app.get("/callback", async (req, res) => {
-      const token = await this.getToken(req.param("code"));
-      const params = new URLSearchParams(await token.text());
-      this.saveToken(params.get("access_token"));
-      res.send("Token saved! You may now close this tab.");
+      const tokenres = await this.getToken(req.param("code"));
+      const params = new URLSearchParams(await tokenres.text());
+
+      res.send("<script>window.close();</script>");
       this.server.close();
+
+      const token = params.get("access_token");
+      this.saveToken(token);
+
+      const gistId = await this.getGistId(token);
+      this.saveGistId(gistId);
     });
   }
 
@@ -36,9 +42,29 @@ export class GitHubOAuthService {
     });
   }
 
+  public async getGistId(token: string) {
+    const user = "arnohovhannisyan";
+    const res = await fetch(`https://api.github.com/users/${user}/gists`, {
+      method: "GET",
+      headers: { Authorization: `token ${token}` }
+    });
+    const json = await res.json();
+    const gistsWithCloudSettings = json.filter(
+      gist => gist.files.cloudSettings !== undefined
+    );
+    const gistId = gistsWithCloudSettings ? gistsWithCloudSettings[0].id : "";
+    return gistId;
+  }
+
   public async saveToken(token: string) {
     const currentSettings = await this.commons.GetCustomSettings();
     currentSettings.token = token;
     this.commons.SetCustomSettings(currentSettings);
+  }
+
+  public async saveGistId(gistId: string) {
+    const extSettings = await this.commons.GetSettings();
+    extSettings.gist = gistId;
+    this.commons.SaveSettings(extSettings);
   }
 }
