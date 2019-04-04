@@ -12,7 +12,7 @@ import { CustomSettings, ExtensionConfig, LocalConfig } from "./setting";
 import { Util } from "./util";
 
 // tslint:disable-next-line: no-var-requires
-const SettingsView = require("html-loader!./ui/settings/settings.html");
+const SettingsView = require("html-loader!../ui/settings/settings.html");
 
 // tslint:disable-next-line: no-var-requires
 const LandingPageView = require("html-loader!../ui/landing-page/landing-page.html");
@@ -164,13 +164,20 @@ export default class Commons {
     private en: Environment,
     private context: vscode.ExtensionContext
   ) {}
-  
+
   public async OpenSettingsPage() {
     const customSettings = await this.GetCustomSettings();
     const content: string = SettingsView.replace(
       "@CURRENT_DATA",
       JSON.stringify(customSettings)
-    ).replace("@SETTINGS_MAP", JSON.stringify(this.customizableSettings));
+    )
+      .replace("@SETTINGS_MAP", JSON.stringify(this.customizableSettings))
+      .replace(
+        new RegExp("@PWD", "g"),
+        vscode.Uri.file(this.context.extensionPath).with({
+          scheme: "vscode-resource"
+        })
+      );
     const settingsPanel = vscode.window.createWebviewPanel(
       "syncSettings",
       "Sync Settings",
@@ -223,7 +230,7 @@ export default class Commons {
       vscode.commands.executeCommand(
         "vscode.open",
         vscode.Uri.parse(
-          "https://github.com/login/oauth/authorize?client_id=cfd96460d8b110e2351b&redirect_uri=http://localhost:54321/callback?scope=gist"
+          "https://github.com/login/oauth/authorize?scope=gist&client_id=cfd96460d8b110e2351b&redirect_uri=http://localhost:54321/callback"
         )
       );
     });
@@ -387,47 +394,15 @@ export default class Commons {
     }
   }
 
-  public async InitalizeSettings(
-    askToken: boolean,
-    askGist: boolean
-  ): Promise<LocalConfig> {
+  public async InitalizeSettings(): Promise<LocalConfig> {
     const settings: LocalConfig = new LocalConfig();
     const extSettings: ExtensionConfig = this.GetSettings();
     const cusSettings: CustomSettings = await this.GetCustomSettings();
 
-    if (cusSettings.token === "") {
-      if (askToken === true) {
-        askToken = !cusSettings.downloadPublicGist;
-      }
-
-      if (askToken) {
-        if (cusSettings.openTokenLink) {
-          vscode.commands.executeCommand(
-            "vscode.open",
-            vscode.Uri.parse("https://github.com/settings/tokens")
-          );
-        }
-        const tokTemp: string = await this.GetTokenAndSave(cusSettings);
-        if (!tokTemp) {
-          const msg = localize("common.error.tokenNotSave");
-          vscode.window.showErrorMessage(msg);
-          throw new Error(msg);
-        }
-        cusSettings.token = tokTemp;
-      }
+    if (cusSettings.token === "" || extSettings.gist === "") {
+      this.OpenLandingPage();
     }
 
-    if (extSettings.gist === "") {
-      if (askGist) {
-        const gistTemp: string = await this.GetGistAndSave(extSettings);
-        if (!gistTemp) {
-          const msg = localize("common.error.gistNotSave");
-          vscode.window.showErrorMessage(msg);
-          throw new Error(msg);
-        }
-        extSettings.gist = gistTemp;
-      }
-    }
     settings.customConfig = cusSettings;
     settings.extConfig = extSettings;
     return settings;
