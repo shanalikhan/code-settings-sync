@@ -1,9 +1,8 @@
-
 "use strict";
 
 const path = require("path");
-const CleanWebpackPlugin = require("clean-webpack-plugin");
-
+const CleanWebpackPlugin = require("clean-webpack-plugin").default;
+const webpack = require("webpack");
 
 /** @type WebpackOptions */
 const config = {
@@ -36,8 +35,10 @@ const config = {
     fsevents: "commonjs fsevents",
     "original-fs": "commonjs original-fs"
   },
-  devtool: "source-map",
-  plugins: [new CleanWebpackPlugin()]
+  plugins: [new CleanWebpackPlugin()],
+  optimization: {
+    minimize: true
+  }
 };
 
 module.exports = config;
