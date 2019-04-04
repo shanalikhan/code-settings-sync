@@ -18,6 +18,8 @@ import {
 
 import PragmaUtil from "./pragmaUtil";
 
+let globalCommonService: Commons;
+
 export class Sync {
   constructor(private context: vscode.ExtensionContext) {}
   /**
@@ -25,7 +27,7 @@ export class Sync {
    */
   public async bootstrap(): Promise<void> {
     const env = new Environment(this.context);
-    const globalCommonService = new Commons(env, this.context);
+    globalCommonService = new Commons(env, this.context);
     // if lock file not exist
     // then create it
     if (!(await FileService.FileExists(env.FILE_SYNC_LOCK))) {
@@ -47,17 +49,24 @@ export class Sync {
       const gistAvailable: boolean =
         startUpSetting.gist != null && startUpSetting.gist !== "";
 
-      if (gistAvailable === true && startUpSetting.autoDownload === true) {
-        vscode.commands
-          .executeCommand("extension.downloadSettings")
-          .then(() => {
-            if (startUpSetting.autoUpload && tokenAvailable && gistAvailable) {
-              return globalCommonService.StartWatch();
-            }
-          });
-      }
-      if (startUpSetting.autoUpload && tokenAvailable && gistAvailable) {
-        return globalCommonService.StartWatch();
+      if (gistAvailable) {
+        if (startUpSetting.autoDownload) {
+          vscode.commands
+            .executeCommand("extension.downloadSettings")
+            .then(() => {
+              if (
+                startUpSetting.autoUpload &&
+                tokenAvailable &&
+                gistAvailable
+              ) {
+                return globalCommonService.autoUploadService.StartWatching();
+              }
+            });
+        } else {
+          if (startUpSetting.autoUpload && tokenAvailable && gistAvailable) {
+            return globalCommonService.autoUploadService.StartWatching();
+          }
+        }
       }
     }
   }
@@ -65,19 +74,19 @@ export class Sync {
    * Upload setting to github gist
    */
   public async upload(): Promise<void> {
+    // @ts-ignore
     const args = arguments;
     const env = new Environment(this.context);
-    const common = new Commons(env, this.context);
     let github: GitHubService = null;
     let localConfig: LocalConfig = new LocalConfig();
     const allSettingFiles: File[] = [];
     let uploadedExtensions: ExtensionInformation[] = [];
     const ignoredExtensions: ExtensionInformation[] = [];
     const dateNow = new Date();
-    common.CloseWatch();
+    globalCommonService.autoUploadService.StopWatching();
 
     try {
-      localConfig = await common.InitalizeSettings(true, false);
+      localConfig = await globalCommonService.InitalizeSettings(true, false);
       localConfig.publicGist = false;
       if (args.length > 0) {
         if (args[0] === "publicGIST") {
@@ -89,11 +98,9 @@ export class Sync {
         localConfig.customConfig.token,
         localConfig.customConfig.githubEnterpriseUrl
       );
-      // ignoreSettings = await common.GetIgnoredSettings(localConfig.customConfig.ignoreUploadSettings);
       await startGitProcess(localConfig.extConfig, localConfig.customConfig);
-      // await common.SetIgnoredSettings(ignoreSettings);
     } catch (error) {
-      Commons.LogException(error, common.ERROR_MESSAGE, true);
+      Commons.LogException(error, globalCommonService.ERROR_MESSAGE, true);
       return;
     }
 
@@ -184,10 +191,10 @@ export class Sync {
           contentFiles = contentFiles.filter((contentFile: File) => {
             const matchedFolders = customSettings.ignoreUploadFolders.filter(
               folder => {
-                return contentFile.filePath.indexOf(folder) === -1;
+                return contentFile.filePath.indexOf(folder) !== -1;
               }
             );
-            return matchedFolders.length > 0;
+            return matchedFolders.length === 0;
           });
         }
         const customFileKeys: string[] = Object.keys(
@@ -203,7 +210,7 @@ export class Sync {
           }
         }
       } else {
-        Commons.LogException(null, common.ERROR_MESSAGE, true);
+        Commons.LogException(null, globalCommonService.ERROR_MESSAGE, true);
         return;
       }
 
@@ -245,7 +252,7 @@ export class Sync {
       try {
         if (syncSetting.gist == null || syncSetting.gist === "") {
           if (customSettings.askGistName) {
-            customSettings.gistDescription = await common.AskGistName();
+            customSettings.gistDescription = await globalCommonService.AskGistName();
           }
           newGIST = true;
           const gistID = await github.CreateEmptyGIST(
@@ -312,14 +319,16 @@ export class Sync {
           return;
         }
       } catch (err) {
-        Commons.LogException(err, common.ERROR_MESSAGE, true);
+        Commons.LogException(err, globalCommonService.ERROR_MESSAGE, true);
         return;
       }
 
       if (completed) {
         try {
-          const settingsUpdated = await common.SaveSettings(syncSetting);
-          const customSettingsUpdated = await common.SetCustomSettings(
+          const settingsUpdated = await globalCommonService.SaveSettings(
+            syncSetting
+          );
+          const customSettingsUpdated = await globalCommonService.SetCustomSettings(
             customSettings
           );
           if (settingsUpdated && customSettingsUpdated) {
@@ -339,7 +348,7 @@ export class Sync {
             }
 
             if (!syncSetting.quietSync) {
-              common.ShowSummaryOutput(
+              globalCommonService.ShowSummaryOutput(
                 true,
                 allSettingFiles,
                 null,
@@ -356,11 +365,11 @@ export class Sync {
               );
             }
             if (syncSetting.autoUpload) {
-              common.StartWatch();
+              globalCommonService.autoUploadService.StartWatching();
             }
           }
         } catch (err) {
-          Commons.LogException(err, common.ERROR_MESSAGE, true);
+          Commons.LogException(err, globalCommonService.ERROR_MESSAGE, true);
         }
       }
     }
@@ -370,15 +379,14 @@ export class Sync {
    */
   public async download(): Promise<void> {
     const env = new Environment(this.context);
-    const common = new Commons(env, this.context);
     let localSettings: LocalConfig = new LocalConfig();
-    common.CloseWatch();
+    globalCommonService.autoUploadService.StopWatching();
 
     try {
-      localSettings = await common.InitalizeSettings(true, true);
+      localSettings = await globalCommonService.InitalizeSettings(true, true);
       await StartDownload(localSettings.extConfig, localSettings.customConfig);
     } catch (err) {
-      Commons.LogException(err, common.ERROR_MESSAGE, true);
+      Commons.LogException(err, globalCommonService.ERROR_MESSAGE, true);
       return;
     }
 
@@ -545,8 +553,6 @@ export class Sync {
 
                 addedExtensions = await PluginService.InstallExtensions(
                   content,
-                  env.ExtensionFolder,
-                  useCli,
                   ignoredExtensions,
                   env.OsType,
                   env.isInsiders,
@@ -612,7 +618,11 @@ export class Sync {
                     // TODO : add Name attribute in File and show information message here with name , when required.
                   })
                   .catch(err => {
-                    Commons.LogException(err, common.ERROR_MESSAGE, true);
+                    Commons.LogException(
+                      err,
+                      globalCommonService.ERROR_MESSAGE,
+                      true
+                    );
                     return;
                   })
               );
@@ -622,13 +632,15 @@ export class Sync {
       }
 
       await Promise.all(actionList);
-      const settingsUpdated = await common.SaveSettings(syncSetting);
-      const customSettingsUpdated = await common.SetCustomSettings(
+      const settingsUpdated = await globalCommonService.SaveSettings(
+        syncSetting
+      );
+      const customSettingsUpdated = await globalCommonService.SetCustomSettings(
         customSettings
       );
       if (settingsUpdated && customSettingsUpdated) {
         if (!syncSetting.quietSync) {
-          common.ShowSummaryOutput(
+          globalCommonService.ShowSummaryOutput(
             false,
             updatedFiles,
             deletedExtensions,
@@ -652,19 +664,8 @@ export class Sync {
             5000
           );
         }
-        if (Object.keys(customSettings.replaceCodeSettings).length > 0) {
-          const config = vscode.workspace.getConfiguration();
-          const keysDefined: string[] = Object.keys(
-            customSettings.replaceCodeSettings
-          );
-          for (const key of keysDefined) {
-            const value: string = customSettings.replaceCodeSettings[key];
-            const c: any = value === "" ? undefined : value;
-            config.update(key, c, true);
-          }
-        }
         if (syncSetting.autoUpload) {
-          common.StartWatch();
+          globalCommonService.autoUploadService.StartWatching();
         }
       } else {
         vscode.window.showErrorMessage(
@@ -760,7 +761,6 @@ export class Sync {
       "cmd.otherOptions.toggleAutoUpload",
       "cmd.otherOptions.toggleAutoDownload",
       "cmd.otherOptions.toggleSummaryPage",
-      "cmd.otherOptions.preserve",
       "cmd.otherOptions.customizedSync",
       "cmd.otherOptions.downloadCustomFile",
       "cmd.otherOptions.joinCommunity",
@@ -853,34 +853,6 @@ export class Sync {
         setting.quietSync = !setting.quietSync;
       },
       7: async () => {
-        // preserve
-        const options: vscode.InputBoxOptions = {
-          ignoreFocusOut: true,
-          placeHolder: localize("cmd.otherOptions.preserve.placeholder"),
-          prompt: localize("cmd.otherOptions.preserve.prompt")
-        };
-        const input = await vscode.window.showInputBox(options);
-
-        if (input) {
-          const settingKey: string = input;
-          const a = vscode.workspace.getConfiguration();
-          const val: string = a.get<string>(settingKey);
-          customSettings.replaceCodeSettings[input] = val;
-          const done: boolean = await common.SetCustomSettings(customSettings);
-          if (done) {
-            if (val === "") {
-              vscode.window.showInformationMessage(
-                localize("cmd.otherOptions.preserve.info.done1", input)
-              );
-            } else {
-              vscode.window.showInformationMessage(
-                localize("cmd.otherOptions.preserve.info.done2", input, val)
-              );
-            }
-          }
-        }
-      },
-      8: async () => {
         // add customized sync file
         const options: vscode.InputBoxOptions = {
           ignoreFocusOut: true,
@@ -903,7 +875,7 @@ export class Sync {
           }
         }
       },
-      9: async () => {
+      8: async () => {
         // Import customized sync file to workspace
         const customFiles = await this.getCustomFilesFromGist(
           customSettings,
@@ -947,7 +919,7 @@ export class Sync {
           }
         }
       },
-      10: async () => {
+      9: async () => {
         vscode.commands.executeCommand(
           "vscode.open",
           vscode.Uri.parse(
@@ -955,7 +927,7 @@ export class Sync {
           )
         );
       },
-      11: async () => {
+      10: async () => {
         vscode.commands.executeCommand(
           "vscode.open",
           vscode.Uri.parse(
@@ -963,7 +935,7 @@ export class Sync {
           )
         );
       },
-      12: async () => {
+      11: async () => {
         vscode.commands.executeCommand(
           "vscode.open",
           vscode.Uri.parse(
@@ -977,7 +949,7 @@ export class Sync {
       await handlerMap[index]();
       if (settingChanged) {
         if (selectedItem === 1) {
-          common.CloseWatch();
+          globalCommonService.autoUploadService.StopWatching();
         }
         await common
           .SaveSettings(setting)

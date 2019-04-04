@@ -1,13 +1,11 @@
 "use strict";
-import * as fs from "fs-extra";
 import * as vscode from "vscode";
 import { Environment } from "./environmentPath";
 import localize from "./localize";
-import * as lockfile from "./lockfile";
+import { AutoUploadService } from "./service/autoUploadService";
 import { File, FileService } from "./service/fileService";
 import { ExtensionInformation } from "./service/pluginService";
 import { CustomSettings, ExtensionConfig, LocalConfig } from "./setting";
-import { Util } from "./util";
 
 export default class Commons {
   public static outputChannel: vscode.OutputChannel = null;
@@ -35,7 +33,7 @@ export default class Commons {
             message = localize("common.error.invalidGistId");
           }
         } catch (error) {
-          // message = error.message;
+          //  message = error.message;
         }
       }
     }
@@ -72,172 +70,26 @@ export default class Commons {
     }
   }
 
-  private static configWatcher = null;
-  private static extensionWatcher = null;
+  public autoUploadService: AutoUploadService;
 
   public ERROR_MESSAGE: string = localize("common.error.message");
 
   constructor(
     private en: Environment,
     private context: vscode.ExtensionContext
-  ) {}
+  ) {
+    this.InitializeAutoUpload();
+  }
 
-  public async StartWatch(): Promise<void> {
-    const lockExist: boolean = await FileService.FileExists(
-      this.en.FILE_SYNC_LOCK
+  public async InitializeAutoUpload() {
+    const ignored = await AutoUploadService.GetIgnoredItems(
+      await this.GetCustomSettings()
     );
-    if (!lockExist) {
-      fs.closeSync(fs.openSync(this.en.FILE_SYNC_LOCK, "w"));
-    }
-
-    // check is sync locking
-    if (await lockfile.Check(this.en.FILE_SYNC_LOCK)) {
-      await lockfile.Unlock(this.en.FILE_SYNC_LOCK);
-    }
-
-    let uploadStopped: boolean = true;
-    Commons.extensionWatcher = vscode.workspace.createFileSystemWatcher(
-      this.en.ExtensionFolder + "*"
-    );
-    Commons.configWatcher = vscode.workspace.createFileSystemWatcher(
-      this.en.PATH + "/User/" + "{*,*/*,*/*/*}" // depth: 2
-    );
-
-    // TODO : Uncomment the following lines when code allows feature to update Issue in github code repo - #14444
-
-    // Commons.extensionWatcher.on('addDir', (path, stat)=> {
-    //     if (uploadStopped) {
-    //         uploadStopped = false;
-    //         this.InitiateAutoUpload().then((resolve) => {
-    //             uploadStopped = resolve;
-    //         }, (reject) => {
-    //             uploadStopped = reject;
-    //         });
-    //     }
-    //     else {
-    //         vscode.window.setStatusBarMessage("");
-    //         vscode.window.setStatusBarMessage("Sync : Updating In Progres... Please Wait.", 3000);
-    //     }
-    // });
-    // Commons.extensionWatcher.on('unlinkDir', (path)=> {
-    //     if (uploadStopped) {
-    //         uploadStopped = false;
-    //         this.InitiateAutoUpload().then((resolve) => {
-    //             uploadStopped = resolve;
-    //         }, (reject) => {
-    //             uploadStopped = reject;
-    //         });
-    //     }
-    //     else {
-    //         vscode.window.setStatusBarMessage("");
-    //         vscode.window.setStatusBarMessage("Sync : Updating In Progres... Please Wait.", 3000);
-    //     }
-    // });
-
-    Commons.configWatcher.onDidChange(async (uri: vscode.Uri) => {
-      const path: string = uri.path;
-
-      // check sync is locking
-      if (await lockfile.Check(this.en.FILE_SYNC_LOCK)) {
-        uploadStopped = false;
-      }
-
-      if (!uploadStopped) {
-        vscode.window.setStatusBarMessage("").dispose();
-        vscode.window.setStatusBarMessage(
-          localize("common.info.updating"),
-          3000
-        );
-        return false;
-      }
-
-      uploadStopped = false;
-      await lockfile.Lock(this.en.FILE_SYNC_LOCK);
-      const settings: ExtensionConfig = this.GetSettings();
-      const customSettings: CustomSettings = await this.GetCustomSettings();
-      if (customSettings == null) {
-        return;
-      }
-
-      let requiredFileChanged: boolean = false;
-      if (
-        customSettings.ignoreUploadFolders.indexOf("workspaceStorage") === -1
-      ) {
-        requiredFileChanged =
-          path.indexOf(this.en.FILE_SYNC_LOCK_NAME) === -1 &&
-          path.indexOf(".DS_Store") === -1 &&
-          path.indexOf(this.en.FILE_CUSTOMIZEDSETTINGS_NAME) === -1;
-      } else {
-        requiredFileChanged =
-          path.indexOf(this.en.FILE_SYNC_LOCK_NAME) === -1 &&
-          path.indexOf("workspaceStorage") === -1 &&
-          path.indexOf(".DS_Store") === -1 &&
-          path.indexOf(this.en.FILE_CUSTOMIZEDSETTINGS_NAME) === -1;
-      }
-
-      console.log("Sync : File Change Detected On : " + path);
-
-      if (requiredFileChanged) {
-        if (settings.autoUpload) {
-          if (
-            customSettings.ignoreUploadFolders.indexOf("workspaceStorage") > -1
-          ) {
-            const fileType: string = path.substring(
-              path.lastIndexOf("."),
-              path.length
-            );
-            if (fileType.indexOf("json") === -1) {
-              console.log(
-                "Sync : Cannot Initiate Auto-upload on This File (Not JSON)."
-              );
-              uploadStopped = true;
-              return;
-            }
-          }
-
-          console.log("Sync : Initiating Auto-upload For File : " + path);
-          this.InitiateAutoUpload(path)
-            .then(isDone => {
-              uploadStopped = isDone;
-              return lockfile.Unlock(this.en.FILE_SYNC_LOCK);
-            })
-            .catch(() => {
-              uploadStopped = true;
-              return lockfile.Unlock(this.en.FILE_SYNC_LOCK);
-            });
-        }
-      } else {
-        uploadStopped = true;
-        await lockfile.Unlock(this.en.FILE_SYNC_LOCK);
-      }
+    this.autoUploadService = new AutoUploadService({
+      en: this.en,
+      commons: this,
+      ignored
     });
-  }
-
-  public async InitiateAutoUpload(path: string): Promise<boolean> {
-    vscode.window.setStatusBarMessage("").dispose();
-    vscode.window.setStatusBarMessage(
-      localize("common.info.initAutoUpload"),
-      5000
-    );
-
-    await Util.Sleep(3000);
-
-    vscode.commands.executeCommand(
-      "extension.updateSettings",
-      "forceUpdate",
-      path
-    );
-
-    return true;
-  }
-
-  public CloseWatch(): void {
-    if (Commons.configWatcher != null) {
-      Commons.configWatcher.dispose();
-    }
-    if (Commons.extensionWatcher != null) {
-      Commons.extensionWatcher.dispose();
-    }
   }
 
   public async InitalizeSettings(
@@ -296,13 +148,8 @@ export default class Commons {
         const customSettingStr: string = await FileService.ReadFile(
           this.en.FILE_CUSTOMIZEDSETTINGS
         );
-        const tempObj: {
-          [key: string]: any;
-          ignoreUploadSettings: string[];
-        } = JSON.parse(customSettingStr);
-        if (!Array.isArray(tempObj.ignoreUploadSettings)) {
-          tempObj.ignoreUploadSettings = [];
-        }
+        const tempObj = JSON.parse(customSettingStr);
+
         Object.assign(customSettings, tempObj);
         customSettings.token = customSettings.token.trim();
         return customSettings;
@@ -328,13 +175,9 @@ export default class Commons {
 
   public async SetCustomSettings(setting: CustomSettings): Promise<boolean> {
     try {
-      const json: { [key: string]: any; ignoreUploadSettings: string[] } = {
-        ...setting
-      };
-      delete json.ignoreUploadSettings;
       await FileService.WriteFile(
         this.en.FILE_CUSTOMIZEDSETTINGS,
-        JSON.stringify(json)
+        JSON.stringify(setting, null, 4)
       );
       return true;
     } catch (e) {
@@ -382,6 +225,14 @@ export default class Commons {
         });
     } else if (customSettings.version < Environment.CURRENT_VERSION) {
       fileChanged = true;
+      // #TODO : Remove this in new update
+      const newIgnoredList = new CustomSettings().ignoreUploadFiles;
+      newIgnoredList.forEach(m => {
+        if (customSettings.ignoreUploadFiles.indexOf(m) === -1) {
+          customSettings.ignoreUploadFiles.push(m);
+        }
+      });
+
       if (this.context.globalState.get("synctoken")) {
         const token = this.context.globalState.get("synctoken");
         if (token !== "") {

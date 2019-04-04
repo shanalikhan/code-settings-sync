@@ -1,13 +1,11 @@
 "use strict";
 
-import * as adm_zip from "adm-zip";
 import * as fs from "fs-extra";
 import * as http from "http";
 import * as https from "https";
 import * as HttpsProxyAgent from "https-proxy-agent";
 import * as _temp from "temp";
 import * as url from "url";
-import { promisify } from "util";
 import * as vscode from "vscode";
 
 interface IHeaders {
@@ -139,13 +137,6 @@ export class Util {
     const tempFile: string = temp.path();
     await fs.writeFile(tempFile, content);
     return tempFile;
-  }
-
-  public static async Extract(filePath: string) {
-    const zip = new adm_zip(filePath);
-    const dirName = await promisify(temp.mkdir)(undefined);
-    zip.extractAllTo(dirName, /*overwrite*/ true);
-    return dirName;
   }
 
   public static async Sleep(ms: number): Promise<number> {
