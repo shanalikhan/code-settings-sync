@@ -12,3 +12,16 @@ function appendHTML(parent, html) {
   }
   div.remove();
 }
+
+const releaseNoteTemplate = `<h5 class="change text-white-50 mx-auto mt-2 mb-3">
+@NOTE
+</h5>`;
+
+const notesElement = document.getElementById("notes");
+releaseNotes.changes.forEach(change => {
+  const html = releaseNoteTemplate.replace(new RegExp("@NOTE", "g"), change);
+  appendHTML(notesElement, html);
+});
+
+const currentVersionElement = document.getElementById("current-version");
+currentVersionElement.innerHTML = releaseNotes.currentVersion;
