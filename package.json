@@ -171,6 +171,7 @@
   },
   "dependencies": {
     "@octokit/rest": "^16.16.4",
+    "adm-zip": "^0.4.13",
     "chokidar": "^2.1.5",
     "fs-extra": "^7.0.1",
     "https-proxy-agent": "^2.2.1",
