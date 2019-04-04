@@ -239,63 +239,13 @@ export class GistSyncService extends GitHubService implements ISyncService {
       if (content !== "") {
         if (file.gistName === env.FILE_EXTENSION_NAME) {
           if (syncSetting.syncExtensions) {
-            if (syncSetting.removeExtensions) {
-              try {
-                deletedExtensions = await PluginService.DeleteExtensions(
-                  content,
-                  env.ExtensionFolder,
-                  ignoredExtensions
-                );
-              } catch (uncompletedExtensions) {
-                vscode.window.showErrorMessage(
-                  localize("cmd.downloadSettings.error.removeExtFail")
-                );
-                deletedExtensions = uncompletedExtensions;
-              }
-            }
-
-            try {
-              let useCli = true;
-              const autoUpdate: boolean = vscode.workspace
-                .getConfiguration("extensions")
-                .get("autoUpdate");
-              useCli = autoUpdate && !env.isCoderCom;
-              if (useCli) {
-                if (!syncSetting.quietSync) {
-                  Commons.outputChannel = vscode.window.createOutputChannel(
-                    "Code Settings Sync"
-                  );
-                  Commons.outputChannel.clear();
-                  Commons.outputChannel.appendLine(
-                    `COMMAND LINE EXTENSION DOWNLOAD SUMMARY`
-                  );
-                  Commons.outputChannel.appendLine(`--------------------`);
-                  Commons.outputChannel.show();
-                }
-              }
-
-              addedExtensions = await PluginService.InstallExtensions(
-                content,
-                ignoredExtensions,
-                env.OsType,
-                env.isInsiders,
-                (message: string, dispose: boolean) => {
-                  if (!syncSetting.quietSync) {
-                    Commons.outputChannel.appendLine(message);
-                  } else {
-                    console.log(message);
-                    if (dispose) {
-                      vscode.window.setStatusBarMessage(
-                        "Sync : " + message,
-                        3000
-                      );
-                    }
-                  }
-                }
-              );
-            } catch (extensions) {
-              addedExtensions = extensions;
-            }
+            [addedExtensions, deletedExtensions] = await PluginService.UpdateExtensions(
+              env,
+              content,
+              ignoredExtensions,
+              syncSetting.removeExtensions,
+              syncSetting.quietSync
+            );
           }
         } else {
           writeFile = true;
