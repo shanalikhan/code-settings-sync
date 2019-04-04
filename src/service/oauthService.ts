@@ -25,7 +25,9 @@ export class GitHubOAuthService {
       const token = params.get("access_token");
       this.saveToken(token);
 
-      const gistId = await this.getGistId(token);
+      const user = await this.getUser(token);
+
+      const gistId = await this.getGistId(token, user);
       this.saveGistId(gistId);
     });
   }
@@ -42,8 +44,7 @@ export class GitHubOAuthService {
     });
   }
 
-  public async getGistId(token: string) {
-    const user = "arnohovhannisyan";
+  public async getGistId(token: string, user: string) {
     const res = await fetch(`https://api.github.com/users/${user}/gists`, {
       method: "GET",
       headers: { Authorization: `token ${token}` }
@@ -66,5 +67,14 @@ export class GitHubOAuthService {
     const extSettings = await this.commons.GetSettings();
     extSettings.gist = gistId;
     this.commons.SaveSettings(extSettings);
+  }
+
+  public async getUser(token: string) {
+    const res = await fetch("https://api.github.com/user", {
+      method: "GET",
+      headers: { Authorization: `token ${token}` }
+    });
+    const json = await res.json();
+    return json.login;
   }
 }
