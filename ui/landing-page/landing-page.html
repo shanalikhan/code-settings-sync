@@ -36,12 +36,13 @@
             <div class="col-sm">
               <div id="release-notes">
                 <h3 class="text-white-50 mx-auto mt-2 mb-3">
-                  Changelog - New in
+                  Changelog -
                   <a
                     href="https://github.com/shanalikhan/code-settings-sync/blob/master/CHANGELOG.md#v327---march-062019"
                     >v3.2.7</a
                   >
                 </h3>
+
                 <h5 class="change text-white-50 mx-auto mt-2 mb-3">
                   Fixed Extension Sync on Windows
                 </h5>
@@ -52,8 +53,16 @@
                 href="#"
                 onclick="logInWithGitHub()"
                 title="Log in with GitHub"
-                class="btn btn-primary"
+                class="btn btn-primary mb-2"
+                style="width: 60%;"
                 >Log in with GitHub</a
+              >
+              <a
+                href="https://github.com/shanalikhan/code-settings-sync/blob/master/README.md"
+                title="Read the Docs"
+                class="btn btn-primary mt-2 mb-2"
+                style="width: 60%;"
+                >Read the Docs</a
               >
             </div>
           </div>
@@ -78,6 +87,9 @@
       integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
       crossorigin="anonymous"
     ></script>
+    <script>
+      const changelog = JSON.parse("@CHANGELOG_DATA");
+    </script>
     <script defer src="@PWD/ui/landing-page/landing-page.js"></script>
   </body>
 </html>
