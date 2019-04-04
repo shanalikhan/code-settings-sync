@@ -48,6 +48,11 @@ export class Sync {
       const gistAvailable: boolean =
         startUpSetting.gist != null && startUpSetting.gist !== "";
 
+      if (!tokenAvailable) {
+        globalCommonService.OpenLandingPage();
+        return;
+      }
+
       if (gistAvailable === true && startUpSetting.autoDownload === true) {
         vscode.commands
           .executeCommand("extension.downloadSettings")
@@ -78,7 +83,7 @@ export class Sync {
     common.CloseWatch();
 
     try {
-      localConfig = await common.InitalizeSettings(true, false);
+      localConfig = await common.InitalizeSettings();
       localConfig.publicGist = false;
       if (args.length > 0) {
         if (args[0] === "publicGIST") {
@@ -376,7 +381,7 @@ export class Sync {
     common.CloseWatch();
 
     try {
-      localSettings = await common.InitalizeSettings(true, true);
+      localSettings = await common.InitalizeSettings();
       await StartDownload(localSettings.extConfig, localSettings.customConfig);
     } catch (err) {
       Commons.LogException(err, common.ERROR_MESSAGE, true);
