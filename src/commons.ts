@@ -156,14 +156,14 @@ export default class Commons {
       correspondingSetting: "openTokenLink"
     }
   ];
-  
+
   constructor(
     private en: Environment,
     private context: vscode.ExtensionContext
   ) {
     this.InitializeAutoUpload();
   }
-  
+
   public async OpenSettingsPage() {
     const customSettings = await this.GetCustomSettings();
     const content: string = SettingsView.replace(
@@ -185,7 +185,7 @@ export default class Commons {
     );
   }
 
-   public async ReceiveSettingChange(message: {
+  public async ReceiveSettingChange(message: {
     command: string;
     text: string;
   }) {
@@ -199,7 +199,7 @@ export default class Commons {
       this.SetCustomSettings(customSettings);
     }
   }
-  
+
   public async OpenLandingPage() {
     const releaseNotes = require("../release-notes.json");
     const content: string = LandingPageView.replace(

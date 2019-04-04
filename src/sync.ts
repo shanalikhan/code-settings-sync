@@ -788,6 +788,9 @@ export class Sync {
 
     const handlerMap = {
       0: async () => {
+        common.OpenSettingsPage();
+      },
+      1: async () => {
         const file: vscode.Uri = vscode.Uri.file(env.FILE_CUSTOMIZEDSETTINGS);
         fs.openSync(file.fsPath, "r");
         const document = await vscode.workspace.openTextDocument(file);
@@ -797,7 +800,7 @@ export class Sync {
           true
         );
       },
-      1: async () => {
+      2: async () => {
         // share public gist
         const answer = await vscode.window.showInformationMessage(
           localize("cmd.otherOptions.shareSetting.beforeConfirm"),
@@ -813,26 +816,26 @@ export class Sync {
           await common.SetCustomSettings(customSettings);
         }
       },
-      2: async () => {
+      3: async () => {
         // Download Settings from Public GIST
         selectedItem = 2;
         customSettings.downloadPublicGist = true;
         settingChanged = true;
         await common.SetCustomSettings(customSettings);
       },
-      3: async () => {
+      4: async () => {
         // toggle force download
         selectedItem = 3;
         settingChanged = true;
         setting.forceDownload = !setting.forceDownload;
       },
-      4: async () => {
+      5: async () => {
         // toggle auto upload
         selectedItem = 4;
         settingChanged = true;
         setting.autoUpload = !setting.autoUpload;
       },
-      5: async () => {
+      6: async () => {
         // auto download on startup
         selectedItem = 5;
         settingChanged = true;
@@ -847,7 +850,7 @@ export class Sync {
 
         setting.autoDownload = !setting.autoDownload;
       },
-      6: async () => {
+      7: async () => {
         // page summary toggle
         selectedItem = 6;
         settingChanged = true;
@@ -857,34 +860,6 @@ export class Sync {
           return;
         }
         setting.quietSync = !setting.quietSync;
-      },
-      7: async () => {
-        // preserve
-        const options: vscode.InputBoxOptions = {
-          ignoreFocusOut: true,
-          placeHolder: localize("cmd.otherOptions.preserve.placeholder"),
-          prompt: localize("cmd.otherOptions.preserve.prompt")
-        };
-        const input = await vscode.window.showInputBox(options);
-
-        if (input) {
-          const settingKey: string = input;
-          const a = vscode.workspace.getConfiguration();
-          const val: string = a.get<string>(settingKey);
-          customSettings.replaceCodeSettings[input] = val;
-          const done: boolean = await common.SetCustomSettings(customSettings);
-          if (done) {
-            if (val === "") {
-              vscode.window.showInformationMessage(
-                localize("cmd.otherOptions.preserve.info.done1", input)
-              );
-            } else {
-              vscode.window.showInformationMessage(
-                localize("cmd.otherOptions.preserve.info.done2", input, val)
-              );
-            }
-          }
-        }
       },
       8: async () => {
         // add customized sync file
