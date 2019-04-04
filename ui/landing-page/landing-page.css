@@ -1,10 +1,14 @@
 html,
 body {
-  background-color: rgb(37, 37, 37);
+  background-color: rgb(10, 1, 15);
   font-family: "Roboto", sans-serif !important;
 }
 .jumbotron > .display-4 {
   font-weight: 900;
+}
+.animated-logo {
+  -webkit-filter: opacity(0.5);
+  filter: opacity(0.5);
 }
 #mainNav {
   min-height: 56px;
@@ -96,6 +100,7 @@ body {
 .masthead h1 {
   font-size: 2.5rem;
   line-height: 2.5rem;
+  font-weight: 900;
 }
 .masthead h2 {
   max-width: 20rem;
