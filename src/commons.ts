@@ -647,42 +647,6 @@ export default class Commons {
     return settings;
   }
 
-  public async GetTokenAndSave(sett: CustomSettings): Promise<string> {
-    const opt = Commons.GetInputBox(true);
-
-    const token = ((await vscode.window.showInputBox(opt)) || "").trim();
-
-    if (token && token !== "esc") {
-      sett.token = token;
-      const saved = await this.SetCustomSettings(sett);
-      if (saved) {
-        vscode.window.setStatusBarMessage(
-          localize("common.info.tokenSaved"),
-          1000
-        );
-      }
-    }
-
-    return token;
-  }
-  public async GetGistAndSave(sett: ExtensionConfig): Promise<string> {
-    const opt = Commons.GetInputBox(false);
-
-    const gist = ((await vscode.window.showInputBox(opt)) || "").trim();
-
-    if (gist && gist !== "esc") {
-      sett.gist = gist;
-      const saved = await this.SaveSettings(sett);
-      if (saved) {
-        vscode.window.setStatusBarMessage(
-          localize("common.info.gistSaved"),
-          1000
-        );
-      }
-      return gist;
-    }
-  }
-
   /**
    * IgnoreSettings
    */
