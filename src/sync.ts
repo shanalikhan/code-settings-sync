@@ -65,6 +65,7 @@ export class Sync {
    * Upload setting to github gist
    */
   public async upload(): Promise<void> {
+    // @ts-ignore
     const args = arguments;
     const env = new Environment(this.context);
     const common = new Commons(env, this.context);

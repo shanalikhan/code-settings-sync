@@ -35,7 +35,7 @@ export default class Commons {
             message = localize("common.error.invalidGistId");
           }
         } catch (error) {
-          // message = error.message;
+          //  message = error.message;
         }
       }
     }
