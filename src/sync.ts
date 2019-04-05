@@ -91,7 +91,8 @@ export class Sync {
         }
       }
 
-      gistSync = new GistSyncService(
+      gistSync = new GistSyncService(env, globalCommonService);
+      await gistSync.connect(
         localConfig.customConfig.token,
         localConfig.customConfig.githubEnterpriseUrl
       );
@@ -135,9 +136,7 @@ export class Sync {
       const res: UploadResponse = await gistSync.upload(
         allSettingFiles.files,
         dateNow,
-        env,
-        localConfig,
-        globalCommonService
+        localConfig
       );
 
       if (res) {
@@ -191,12 +190,20 @@ export class Sync {
    */
   public async download(): Promise<void> {
     const env = new Environment(this.context);
+    let gistSync: GistSyncService = null;
     let localSettings: LocalConfig = new LocalConfig();
     await globalCommonService.HandleStopWatching();
 
     try {
       localSettings = await globalCommonService.InitalizeSettings(true, true);
-      await StartDownload(localSettings.extConfig, localSettings.customConfig);
+
+      gistSync = new GistSyncService(env, globalCommonService);
+      await gistSync.connect(
+        localSettings.customConfig.token,
+        localSettings.customConfig.githubEnterpriseUrl
+      );
+
+      await StartDownload(localSettings.extConfig);
     } catch (err) {
       Commons.LogException(err, globalCommonService.ERROR_MESSAGE, true);
       return;
@@ -204,12 +211,7 @@ export class Sync {
 
     async function StartDownload(
       syncSetting: ExtensionConfig,
-      customSettings: CustomSettings
     ) {
-      const gistSync = new GistSyncService(
-        customSettings.token,
-        customSettings.githubEnterpriseUrl
-      );
       vscode.window.setStatusBarMessage("").dispose();
       vscode.window.setStatusBarMessage(
         localize("cmd.downloadSettings.info.readdingOnline"),
@@ -217,9 +219,7 @@ export class Sync {
       );
 
       const res: DownloadResponse = await gistSync.download(
-        env,
-        localSettings,
-        globalCommonService
+        localSettings
       );
 
       if (res) {
@@ -622,7 +622,8 @@ export class Sync {
     customSettings: CustomSettings,
     syncSetting: ExtensionConfig
   ): Promise<File[]> {
-    const github = new GitHubService(
+    const github = new GitHubService();
+    await github.Authenticate(
       customSettings.token,
       customSettings.githubEnterpriseUrl
     );
