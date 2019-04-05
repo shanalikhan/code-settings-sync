@@ -11,6 +11,9 @@ body {
   overflow-y: auto;
   height: 25rem;
 }
+#root {
+  margin-bottom: 4rem;
+}
 .badge-danger {
   color: #fff;
   background-color: #ce4f59;
@@ -105,6 +108,7 @@ body {
   background-repeat: no-repeat;
   background-attachment: scroll;
   background-size: cover;
+  margin-top: 4rem;
 }
 .masthead h1 {
   font-size: 2.5rem;
