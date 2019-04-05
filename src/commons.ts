@@ -1,5 +1,5 @@
 "use strict";
-import { openSync } from "fs";
+import { openSync, readFileSync } from "fs";
 import { has, set } from "lodash";
 import * as vscode from "vscode";
 import { Environment } from "./environmentPath";
@@ -9,12 +9,6 @@ import { File, FileService } from "./service/fileService";
 import { GitHubOAuthService } from "./service/oauthService";
 import { ExtensionInformation } from "./service/pluginService";
 import { CustomSettings, ExtensionConfig, LocalConfig } from "./setting";
-
-// tslint:disable-next-line: no-var-requires
-const SettingsView = require("html-loader!../ui/settings/settings.html");
-
-// tslint:disable-next-line: no-var-requires
-const LandingPageView = require("html-loader!../ui/landing-page/landing-page.html");
 
 enum SettingType {
   TextInput,
@@ -84,6 +78,9 @@ export default class Commons {
       return options;
     }
   }
+
+  public SettingsView: string;
+  public LandingPageView: string;
 
   public autoUploadService: AutoUploadService;
 
@@ -158,28 +155,93 @@ export default class Commons {
     }
   ];
 
+  private extensionSettings = [
+    {
+      name: "Gist ID",
+      placeholder: "Enter Gist ID",
+      type: SettingType.TextInput,
+      correspondingSetting: "gist"
+    },
+    {
+      name: "Auto Download",
+      placeholder: "",
+      type: SettingType.Checkbox,
+      correspondingSetting: "autoDownload"
+    },
+    {
+      name: "Auto Upload",
+      placeholder: "",
+      type: SettingType.Checkbox,
+      correspondingSetting: "autoUpload"
+    },
+    {
+      name: "Force Download",
+      placeholder: "",
+      type: SettingType.Checkbox,
+      correspondingSetting: "forceDownload"
+    },
+    {
+      name: "Quiet Sync",
+      placeholder: "",
+      type: SettingType.Checkbox,
+      correspondingSetting: "quietSync"
+    },
+    {
+      name: "Remove Extensions",
+      placeholder: "",
+      type: SettingType.Checkbox,
+      correspondingSetting: "removeExtensions"
+    },
+    {
+      name: "Sync Extensions",
+      placeholder: "",
+      type: SettingType.Checkbox,
+      correspondingSetting: "syncExtensions"
+    }
+  ];
+
   constructor(
     private en: Environment,
     private context: vscode.ExtensionContext
   ) {
     this.InitializeAutoUpload();
+    this.SettingsView = readFileSync(
+      `${this.context.extensionPath}/ui/settings/settings.html`,
+      {
+        encoding: "utf8"
+      }
+    );
+    this.LandingPageView = readFileSync(
+      `${this.context.extensionPath}/ui/landing-page/landing-page.html`,
+      {
+        encoding: "utf8"
+      }
+    );
   }
 
   public async OpenSettingsPage() {
     const customSettings = await this.GetCustomSettings();
-    const content: string = SettingsView.replace(
-      new RegExp("@CURRENT_DATA", "g"),
+    const extSettings = await this.GetSettings();
+    const content: string = this.SettingsView.replace(
+      new RegExp("@GLOBAL_DATA", "g"),
       JSON.stringify(customSettings)
     )
+      .replace(new RegExp("@ENV_DATA", "g"), JSON.stringify(extSettings))
       .replace(
-        new RegExp("@SETTINGS_MAP", "g"),
+        new RegExp("@GLOBAL_MAP", "g"),
         JSON.stringify(this.customizableSettings)
       )
       .replace(
+        new RegExp("@ENV_MAP", "g"),
+        JSON.stringify(this.extensionSettings)
+      )
+      .replace(
         new RegExp("@PWD", "g"),
-        vscode.Uri.file(this.context.extensionPath).with({
-          scheme: "vscode-resource"
-        })
+        vscode.Uri.file(this.context.extensionPath)
+          .with({
+            scheme: "vscode-resource"
+          })
+          .toString()
       );
     const settingsPanel = vscode.window.createWebviewPanel(
       "syncSettings",
@@ -199,25 +261,34 @@ export default class Commons {
   public async ReceiveSettingChange(message: {
     command: string;
     text: string;
+    type: string;
   }) {
     let value: any = message.text;
     if (message.text === "true" || message.text === "false") {
       value = message.text === "true";
     }
-    const customSettings = await this.GetCustomSettings();
-    if (has(customSettings, message.command)) {
-      set(customSettings, message.command, value);
-      this.SetCustomSettings(customSettings);
+    if (message.type === "global") {
+      const customSettings = await this.GetCustomSettings();
+      if (has(customSettings, message.command)) {
+        set(customSettings, message.command, value);
+        this.SetCustomSettings(customSettings);
+      }
+    } else {
+      const extSettings = await this.GetSettings();
+      extSettings[message.command] = message.text;
+      this.SaveSettings(extSettings);
     }
   }
 
   public async OpenLandingPage() {
     const releaseNotes = require("../release-notes.json");
-    const content: string = LandingPageView.replace(
+    const content: string = this.LandingPageView.replace(
       new RegExp("@PWD", "g"),
-      vscode.Uri.file(this.context.extensionPath).with({
-        scheme: "vscode-resource"
-      })
+      vscode.Uri.file(this.context.extensionPath)
+        .with({
+          scheme: "vscode-resource"
+        })
+        .toString()
     ).replace("@RELEASE_NOTES", JSON.stringify(releaseNotes));
     const landingPanel = vscode.window.createWebviewPanel(
       "landingPage",
@@ -240,7 +311,7 @@ export default class Commons {
             )
           );
           break;
-        case "editGlobalSettings":
+        case "editConfiguration":
           const file: vscode.Uri = vscode.Uri.file(
             this.en.FILE_CUSTOMIZEDSETTINGS
           );
@@ -248,21 +319,6 @@ export default class Commons {
           const document = await vscode.workspace.openTextDocument(file);
           await vscode.window.showTextDocument(
             document,
-            vscode.ViewColumn.One,
-            true
-          );
-          break;
-        case "editEnvironmentSettings":
-          // TODO: Possibly open to sync section of the GUI editor
-          const settingsFile: vscode.Uri = vscode.Uri.file(
-            `${this.en.USER_FOLDER}/settings.json`
-          );
-          openSync(settingsFile.fsPath, "r");
-          const settingsJSONDocument = await vscode.workspace.openTextDocument(
-            settingsFile
-          );
-          await vscode.window.showTextDocument(
-            settingsJSONDocument,
             vscode.ViewColumn.One,
             true
           );
