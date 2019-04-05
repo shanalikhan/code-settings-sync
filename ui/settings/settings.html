@@ -23,13 +23,38 @@
       <div class="container d-flex h-100">
         <div class="mx-auto text-center">
           <h1 class="mx-auto mb-4 text-white-50">
+            <img
+              src="https://i.imgur.com/eypxaJl.png?2"
+              width="128"
+              class="opacity-50 my-auto logo"
+              alt="Settings Sync"
+            />
             Settings Sync
           </h1>
-          <h4 class="text-white-50 mx-auto mt-2 mb-3">
-            Global Settings
-          </h4>
-          <i class="far fa-paper-plane fa-2x mb-2 text-white"></i>
-          <form class="text-left" id="root"></form>
+          <h2 class="mx-auto mt-2 mb-3 text-left text-white-50">
+            Synchronize Settings, Snippets, Themes, File Icons, Launch,
+            Keybindings, Workspaces and Extensions Across Multiple Machines
+            Using GitHub Gist
+          </h2>
+          <h2 class="mx-auto mt-2 mb-4 text-left text-white-50">
+            by <a href="https://github.com/shanalikhan">@shanalikhan</a>
+          </h2>
+          <div class="row">
+            <div class="col text-left">
+              <h3 class="mx-auto mt-2 mb-3 text-white-50">
+                Environment Settings
+              </h3>
+              <i class="far fa-paper-plane fa-2x mb-2 text-white"></i>
+              <form class="text-left" id="environmentSettings"></form>
+            </div>
+            <div class="col text-left">
+              <h3 class="mx-auto mt-2 mb-3 text-white-50">
+                Global Settings
+              </h3>
+              <i class="far fa-paper-plane fa-2x mb-2 text-white"></i>
+              <form class="text-left" id="globalSettings"></form>
+            </div>
+          </div>
         </div>
       </div>
     </header>
@@ -56,8 +81,10 @@
       crossorigin="anonymous"
     ></script>
     <script defer>
-      const settings = JSON.parse(`@CURRENT_DATA`);
-      const settingsMap = JSON.parse(`@SETTINGS_MAP`);
+      const globalData = JSON.parse(`@GLOBAL_DATA`);
+      const envData = JSON.parse(`@ENV_DATA`);
+      const globalMap = JSON.parse(`@GLOBAL_MAP`);
+      const envMap = JSON.parse(`@ENV_MAP`);
     </script>
     <script defer src="@PWD/ui/settings/settings.js"></script>
   </body>

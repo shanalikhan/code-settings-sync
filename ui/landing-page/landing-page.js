@@ -16,7 +16,7 @@ function appendHTML(parent, html) {
   div.remove();
 }
 
-const releaseNoteTemplate = `<h5 class="change text-white-50 mx-auto mt-3 mb-3"><span class="badge badge-@COLOR mr-2">@TYPE</span>@NOTE</h5>`;
+const releaseNoteTemplate = `<h5 class="change text-white-50 mx-auto mt-2 mb-2"><span class="badge badge-@COLOR mr-2">@TYPE</span>@NOTE</h5>`;
 
 const notesElement = document.getElementById("notes");
 releaseNotes.changes.forEach(change => {
