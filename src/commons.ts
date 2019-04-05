@@ -319,6 +319,13 @@ export default class Commons {
     return true;
   }
 
+  public async SaveConfig(localConfig: LocalConfig): Promise<boolean> {
+    let savePromise: Promise<boolean>[] = [];
+    savePromise.push(this.SaveSettings(localConfig.extConfig));
+    savePromise.push(this.SetCustomSettings(localConfig.customConfig));
+    return Promise.all(savePromise).then(values => values.every(saved => saved));
+  }
+
   public async SaveSettings(setting: ExtensionConfig): Promise<boolean> {
     const config = vscode.workspace.getConfiguration("sync");
     const allKeysUpdated = new Array<Thenable<void>>();

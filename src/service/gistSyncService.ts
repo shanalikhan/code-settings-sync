@@ -32,15 +32,11 @@ export class GistSyncService extends GitHubService implements ISyncService {
     allSettingFiles.push(file);
 
     let gistID: string = syncSetting.gist;
-    let settingsUpdated: boolean = false;
     try {
-      let newGIST: boolean = false;
-      let completed: boolean = false;
       if (syncSetting.gist == null || syncSetting.gist === "") {
         if (customSettings.askGistName) {
           customSettings.gistDescription = await globalCommonService.AskGistName();
         }
-        newGIST = true;
         gistID = await this.CreateEmptyGIST(
           localConfig.publicGist,
           customSettings.gistDescription
@@ -97,19 +93,12 @@ export class GistSyncService extends GitHubService implements ISyncService {
         3000
       );
       gistObj = this.UpdateGIST(gistObj, allSettingFiles);
-      completed = await this.SaveGIST(gistObj.data);
+      const completed = await this.SaveGIST(gistObj.data);
       if (!completed) {
         vscode.window.showErrorMessage(
           localize("cmd.updateSettings.error.gistNotSave")
         );
         return null;
-      }
-
-      settingsUpdated = await globalCommonService.SaveSettings(syncSetting);
-      if (settingsUpdated) {
-        if (newGIST) {
-          gistID = syncSetting.gist;
-        }
       }
     } catch (err) {
       Commons.LogException(err, globalCommonService.ERROR_MESSAGE, true);
@@ -310,13 +299,6 @@ export class GistSyncService extends GitHubService implements ISyncService {
     }
 
     await Promise.all(actionList);
-    const settingsUpdated: boolean = await globalCommonService.SaveSettings(
-      syncSetting
-    );
-    if (!settingsUpdated) {
-      return null;
-    }
-
     const response: DownloadResponse = new DownloadResponse(
       updatedFiles,
       addedExtensions,

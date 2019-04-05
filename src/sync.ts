@@ -253,10 +253,8 @@ export class Sync {
 
       if (res) {
         try {
-          const customSettingsUpdated = await globalCommonService.SetCustomSettings(
-            customSettings
-          );
-          if (customSettingsUpdated) {
+          const saved: boolean = await globalCommonService.SaveConfig(localConfig);
+          if (saved) {
             if (res.uploadID) {
               vscode.window.showInformationMessage(
                 localize(
@@ -334,38 +332,41 @@ export class Sync {
         localSettings,
         globalCommonService
       );
-      if (!res) {
-        console.log("No Download Response...");
-        return;
-      }
 
-      const customSettingsUpdated = await globalCommonService.SetCustomSettings(
-        customSettings
-      );
-      if (customSettingsUpdated) {
-        if (!syncSetting.quietSync) {
-          globalCommonService.ShowSummaryOutput(
-            false,
-            res.updatedFiles,
-            res.deletedExtensions,
-            res.addedExtensions,
-            null,
-            localSettings
-          );
-          const message = await vscode.window.showInformationMessage(
-            localize("common.prompt.restartCode"),
-            "Yes"
-          );
+      if (res) {
+        const saved: boolean = await globalCommonService.SaveConfig(localSettings);
+        if (saved) {
+          if (!syncSetting.quietSync) {
+            globalCommonService.ShowSummaryOutput(
+              false,
+              res.updatedFiles,
+              res.deletedExtensions,
+              res.addedExtensions,
+              null,
+              localSettings
+            );
+            const message = await vscode.window.showInformationMessage(
+              localize("common.prompt.restartCode"),
+              "Yes"
+            );
 
-          if (message === "Yes") {
-            vscode.commands.executeCommand("workbench.action.reloadWindow");
+            if (message === "Yes") {
+              vscode.commands.executeCommand("workbench.action.reloadWindow");
+            }
+            vscode.window.setStatusBarMessage("").dispose();
+          } else {
+            vscode.window.setStatusBarMessage("").dispose();
+            vscode.window.setStatusBarMessage(
+              localize("cmd.downloadSettings.info.downloaded"),
+              5000
+            );
           }
-          vscode.window.setStatusBarMessage("").dispose();
+          if (syncSetting.autoUpload) {
+            globalCommonService.autoUploadService.StartWatching();
+          }
         } else {
-          vscode.window.setStatusBarMessage("").dispose();
-          vscode.window.setStatusBarMessage(
-            localize("cmd.downloadSettings.info.downloaded"),
-            5000
+          vscode.window.showErrorMessage(
+            localize("cmd.downloadSettings.error.unableSave")
           );
         }
         if (syncSetting.autoUpload) {
