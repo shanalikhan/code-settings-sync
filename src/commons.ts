@@ -3,9 +3,11 @@ import * as vscode from "vscode";
 import { Environment } from "./environmentPath";
 import localize from "./localize";
 import { AutoUploadService } from "./service/autoUploadService";
-import { File, FileService } from "./service/fileService";
-import { ExtensionInformation } from "./service/pluginService";
+import { File, FileService, AllSettingFiles } from "./service/fileService";
+import { ExtensionInformation, PluginService } from "./service/pluginService";
 import { CustomSettings, ExtensionConfig, LocalConfig } from "./setting";
+import PragmaUtil from "./pragmaUtil";
+import { OsType } from "./enums";
 
 export default class Commons {
   public static outputChannel: vscode.OutputChannel = null;
@@ -154,6 +156,131 @@ export default class Commons {
     settings.customConfig = cusSettings;
     settings.extConfig = extSettings;
     return settings;
+  }
+
+  public async CreateAllSettingFiles(
+    syncSetting: ExtensionConfig,
+    customSettings: CustomSettings
+  ): Promise<AllSettingFiles> {
+    const files: File[] = [];
+    let ignoredExtensions: ExtensionInformation[] = [];
+    let uploadedExtensions: ExtensionInformation[] = [];
+
+    if (syncSetting.syncExtensions) {
+      uploadedExtensions = PluginService.CreateExtensionList();
+      if (
+        customSettings.ignoreExtensions &&
+        customSettings.ignoreExtensions.length > 0
+      ) {
+        uploadedExtensions = uploadedExtensions.filter(extension => {
+          if (customSettings.ignoreExtensions.includes(extension.name)) {
+            ignoredExtensions.push(extension);
+            return false;
+          }
+          return true;
+        });
+      }
+      uploadedExtensions.sort((a, b) => a.name.localeCompare(b.name));
+      const extensionFileName = this.en.FILE_EXTENSION_NAME;
+      const extensionFilePath = this.en.FILE_EXTENSION;
+      const extensionFileContent = JSON.stringify(
+        uploadedExtensions,
+        undefined,
+        2
+      );
+      const extensionFile: File = new File(
+        extensionFileName,
+        extensionFileContent,
+        extensionFilePath,
+        extensionFileName
+      );
+      files.push(extensionFile);
+    }
+
+    let contentFiles: File[] = [];
+    contentFiles = await FileService.ListFiles(
+      this.en.USER_FOLDER,
+      0,
+      2,
+      customSettings.supportedFileExtensions
+    );
+
+    const customExist: boolean = await FileService.FileExists(
+      this.en.FILE_CUSTOMIZEDSETTINGS
+    );
+    if (customExist) {
+      contentFiles = contentFiles.filter(
+        contentFile =>
+          contentFile.fileName !== this.en.FILE_CUSTOMIZEDSETTINGS_NAME
+      );
+
+      if (customSettings.ignoreUploadFiles.length > 0) {
+        contentFiles = contentFiles.filter(contentFile => {
+          const isMatch: boolean =
+            customSettings.ignoreUploadFiles.indexOf(contentFile.fileName) ===
+              -1 && contentFile.fileName !== this.en.FILE_CUSTOMIZEDSETTINGS_NAME;
+          return isMatch;
+        });
+      }
+      if (customSettings.ignoreUploadFolders.length > 0) {
+        contentFiles = contentFiles.filter((contentFile: File) => {
+          const matchedFolders = customSettings.ignoreUploadFolders.filter(
+            folder => {
+              return contentFile.filePath.indexOf(folder) !== -1;
+            }
+          );
+          return matchedFolders.length === 0;
+        });
+      }
+      const customFileKeys: string[] = Object.keys(
+        customSettings.customFiles
+      );
+      if (customFileKeys.length > 0) {
+        for (const key of customFileKeys) {
+          const val = customSettings.customFiles[key];
+          const customFile: File = await FileService.GetCustomFile(val, key);
+          if (customFile !== null) {
+            files.push(customFile);
+          }
+        }
+      }
+    } else {
+      Commons.LogException(null, this.ERROR_MESSAGE, true);
+      return null;
+    }
+
+    for (const snippetFile of contentFiles) {
+      if (snippetFile.fileName !== this.en.FILE_KEYBINDING_MAC) {
+        if (snippetFile.content !== "") {
+          if (snippetFile.fileName === this.en.FILE_KEYBINDING_NAME) {
+            snippetFile.gistName =
+              this.en.OsType === OsType.Mac
+                ? this.en.FILE_KEYBINDING_MAC
+                : this.en.FILE_KEYBINDING_DEFAULT;
+          }
+          files.push(snippetFile);
+        }
+      }
+
+      if (snippetFile.fileName === this.en.FILE_SETTING_NAME) {
+        try {
+          snippetFile.content = PragmaUtil.processBeforeUpload(
+            snippetFile.content
+          );
+        } catch (e) {
+          Commons.LogException(null, e.message, true);
+          console.error(e);
+          return null;
+        }
+      }
+    }
+
+    const allSettingFiles: AllSettingFiles = new AllSettingFiles(
+      files,
+      ignoredExtensions,
+      uploadedExtensions
+    );
+    return Promise.resolve(allSettingFiles);
   }
 
   public async GetCustomSettings(): Promise<CustomSettings> {

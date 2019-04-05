@@ -2,6 +2,7 @@
 
 import * as fs from "fs-extra";
 import * as path from "path";
+import { ExtensionInformation } from "./pluginService";
 
 export class File {
   constructor(
@@ -11,6 +12,15 @@ export class File {
     public gistName: string
   ) {}
 }
+
+export class AllSettingFiles {
+  constructor(
+    public files: File[],
+    public ignoredExtensions: ExtensionInformation[],
+    public uploadedExtensions: ExtensionInformation[]
+  ) {}
+}
+
 export class FileService {
   public static CUSTOMIZED_SYNC_PREFIX = "|customized_sync|";
 

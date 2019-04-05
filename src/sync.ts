@@ -2,20 +2,17 @@ import * as fs from "fs-extra";
 import * as vscode from "vscode";
 
 import Commons from "./commons";
-import { OsType } from "./enums";
 import { Environment } from "./environmentPath";
 import localize from "./localize";
 import * as lockfile from "./lockfile";
-import { File, FileService } from "./service/fileService";
+import { File, FileService, AllSettingFiles } from "./service/fileService";
 import { GitHubService } from "./service/githubService";
-import { ExtensionInformation, PluginService } from "./service/pluginService";
 import {
   CustomSettings,
   ExtensionConfig,
   LocalConfig
 } from "./setting";
 
-import PragmaUtil from "./pragmaUtil";
 import { GistSyncService } from "./service/gistSyncService";
 import { DownloadResponse, UploadResponse } from "./service/syncService";
 
@@ -82,9 +79,6 @@ export class Sync {
     const env = new Environment(this.context);
     let gistSync: GistSyncService = null;
     let localConfig: LocalConfig = new LocalConfig();
-    const allSettingFiles: File[] = [];
-    let uploadedExtensions: ExtensionInformation[] = [];
-    const ignoredExtensions: ExtensionInformation[] = [];
     const dateNow = new Date();
     await globalCommonService.HandleStopWatching();
 
@@ -132,119 +126,14 @@ export class Sync {
         2000
       );
 
-      // var remoteList = ExtensionInformation.fromJSONList(file.content);
-      // var deletedList = PluginService.GetDeletedExtensions(uploadedExtensions);
-      if (syncSetting.syncExtensions) {
-        uploadedExtensions = PluginService.CreateExtensionList();
-        if (
-          customSettings.ignoreExtensions &&
-          customSettings.ignoreExtensions.length > 0
-        ) {
-          uploadedExtensions = uploadedExtensions.filter(extension => {
-            if (customSettings.ignoreExtensions.includes(extension.name)) {
-              ignoredExtensions.push(extension);
-              return false;
-            }
-            return true;
-          });
-        }
-        uploadedExtensions.sort((a, b) => a.name.localeCompare(b.name));
-        const extensionFileName = env.FILE_EXTENSION_NAME;
-        const extensionFilePath = env.FILE_EXTENSION;
-        const extensionFileContent = JSON.stringify(
-          uploadedExtensions,
-          undefined,
-          2
-        );
-        const extensionFile: File = new File(
-          extensionFileName,
-          extensionFileContent,
-          extensionFilePath,
-          extensionFileName
-        );
-        allSettingFiles.push(extensionFile);
-      }
-
-      let contentFiles: File[] = [];
-      contentFiles = await FileService.ListFiles(
-        env.USER_FOLDER,
-        0,
-        2,
-        customSettings.supportedFileExtensions
+      const allSettingFiles: AllSettingFiles =
+        await globalCommonService.CreateAllSettingFiles(
+          syncSetting,
+          customSettings
       );
-
-      const customExist: boolean = await FileService.FileExists(
-        env.FILE_CUSTOMIZEDSETTINGS
-      );
-      if (customExist) {
-        contentFiles = contentFiles.filter(
-          contentFile =>
-            contentFile.fileName !== env.FILE_CUSTOMIZEDSETTINGS_NAME
-        );
-
-        if (customSettings.ignoreUploadFiles.length > 0) {
-          contentFiles = contentFiles.filter(contentFile => {
-            const isMatch: boolean =
-              customSettings.ignoreUploadFiles.indexOf(contentFile.fileName) ===
-                -1 && contentFile.fileName !== env.FILE_CUSTOMIZEDSETTINGS_NAME;
-            return isMatch;
-          });
-        }
-        if (customSettings.ignoreUploadFolders.length > 0) {
-          contentFiles = contentFiles.filter((contentFile: File) => {
-            const matchedFolders = customSettings.ignoreUploadFolders.filter(
-              folder => {
-                return contentFile.filePath.indexOf(folder) !== -1;
-              }
-            );
-            return matchedFolders.length === 0;
-          });
-        }
-        const customFileKeys: string[] = Object.keys(
-          customSettings.customFiles
-        );
-        if (customFileKeys.length > 0) {
-          for (const key of customFileKeys) {
-            const val = customSettings.customFiles[key];
-            const customFile: File = await FileService.GetCustomFile(val, key);
-            if (customFile !== null) {
-              allSettingFiles.push(customFile);
-            }
-          }
-        }
-      } else {
-        Commons.LogException(null, globalCommonService.ERROR_MESSAGE, true);
-        return;
-      }
-
-      for (const snippetFile of contentFiles) {
-        if (snippetFile.fileName !== env.FILE_KEYBINDING_MAC) {
-          if (snippetFile.content !== "") {
-            if (snippetFile.fileName === env.FILE_KEYBINDING_NAME) {
-              snippetFile.gistName =
-                env.OsType === OsType.Mac
-                  ? env.FILE_KEYBINDING_MAC
-                  : env.FILE_KEYBINDING_DEFAULT;
-            }
-            allSettingFiles.push(snippetFile);
-          }
-        }
-
-        if (snippetFile.fileName === env.FILE_SETTING_NAME) {
-          try {
-            snippetFile.content = PragmaUtil.processBeforeUpload(
-              snippetFile.content
-            );
-          } catch (e) {
-            Commons.LogException(null, e.message, true);
-            console.error(e);
-            return;
-          }
-        }
-      }
 
       const res: UploadResponse = await gistSync.upload(
-        allSettingFiles,
+        allSettingFiles.files,
         dateNow,
         env,
         localConfig,
@@ -273,10 +162,10 @@ export class Sync {
             if (!syncSetting.quietSync) {
               globalCommonService.ShowSummaryOutput(
                 true,
-                allSettingFiles,
+                allSettingFiles.files,
                 null,
-                uploadedExtensions,
-                ignoredExtensions,
+                allSettingFiles.uploadedExtensions,
+                allSettingFiles.ignoredExtensions,
                 localConfig
               );
               vscode.window.setStatusBarMessage("").dispose();
