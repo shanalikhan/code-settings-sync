@@ -17,7 +17,7 @@ import {
 
 import PragmaUtil from "./pragmaUtil";
 import { GistSyncService } from "./service/gistSyncService";
-import { DownloadResponse } from "./service/syncService";
+import { DownloadResponse, UploadResponse } from "./service/syncService";
 
 let globalCommonService: Commons;
 
@@ -243,7 +243,7 @@ export class Sync {
         }
       }
 
-      const uploadID: string = await gistSync.upload(
+      const res: UploadResponse = await gistSync.upload(
         allSettingFiles,
         dateNow,
         env,
@@ -251,17 +251,17 @@ export class Sync {
         globalCommonService
       );
 
-      if (uploadID) {
+      if (res) {
         try {
           const customSettingsUpdated = await globalCommonService.SetCustomSettings(
             customSettings
           );
           if (customSettingsUpdated) {
-            if (uploadID) {
+            if (res.uploadID) {
               vscode.window.showInformationMessage(
                 localize(
                   "cmd.updateSettings.info.uploadingDone",
-                  uploadID
+                  res.uploadID
                 )
               );
             }

@@ -1,7 +1,7 @@
 
 "use strict";
 
-import { ISyncService, DownloadResponse } from "./syncService"
+import { ISyncService, DownloadResponse, UploadResponse } from "./syncService"
 import { GitHubService } from "./githubService";
 import { File, FileService } from "./fileService";
 import { Environment } from "../environmentPath";
@@ -20,7 +20,7 @@ export class GistSyncService extends GitHubService implements ISyncService {
     env: Environment,
     localConfig: LocalConfig,
     globalCommonService: Commons
-  ): Promise<string> {
+  ): Promise<UploadResponse> {
     const syncSetting: ExtensionConfig = localConfig.extConfig;
     const customSettings: CustomSettings = localConfig.customConfig;
 
@@ -116,8 +116,13 @@ export class GistSyncService extends GitHubService implements ISyncService {
       return null;
     }
 
-    return Promise.resolve(gistID);
+    const response: UploadResponse = new UploadResponse(
+      gistID
+    );
+
+    return Promise.resolve(response);
   }
+
   public async download(
     env: Environment,
     localConfig: LocalConfig,
