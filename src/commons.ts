@@ -167,34 +167,18 @@ export default class Commons {
     let uploadedExtensions: ExtensionInformation[] = [];
 
     if (syncSetting.syncExtensions) {
-      uploadedExtensions = PluginService.CreateExtensionList();
-      if (
-        customSettings.ignoreExtensions &&
-        customSettings.ignoreExtensions.length > 0
-      ) {
-        uploadedExtensions = uploadedExtensions.filter(extension => {
-          if (customSettings.ignoreExtensions.includes(extension.name)) {
-            ignoredExtensions.push(extension);
-            return false;
-          }
-          return true;
-        });
-      }
-      uploadedExtensions.sort((a, b) => a.name.localeCompare(b.name));
-      const extensionFileName = this.en.FILE_EXTENSION_NAME;
-      const extensionFilePath = this.en.FILE_EXTENSION;
-      const extensionFileContent = JSON.stringify(
-        uploadedExtensions,
-        undefined,
-        2
+      const extensionList: ExtensionInformation[] = PluginService.CreateExtensionList();
+      [uploadedExtensions, ignoredExtensions] = await PluginService.FilterExtensions(
+        extensionList,
+        customSettings.ignoreExtensions
       );
-      const extensionFile: File = new File(
-        extensionFileName,
-        extensionFileContent,
-        extensionFilePath,
-        extensionFileName
+
+      const extensionFile: File = await PluginService.CreateExtensionFile(
+        this.en,
+        uploadedExtensions
       );
-      files.push(extensionFile);
+
+      await FileService.WriteFile(extensionFile.filePath, extensionFile.content);
     }
 
     let contentFiles: File[] = [];

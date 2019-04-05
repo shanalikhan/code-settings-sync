@@ -7,6 +7,7 @@ import { OsType } from "../enums";
 import { Environment } from "../environmentPath";
 import localize from "../localize";
 import Commons from "../commons";
+import { File } from "./fileService";
 
 export class ExtensionInformation {
   public static fromJSON(text: string) {
@@ -221,6 +222,27 @@ export class PluginService {
     return deletedList;
   }
 
+  public static async CreateExtensionFile(
+    env: Environment,
+    extensionList: ExtensionInformation[]
+  ): Promise<File> {
+    extensionList.sort((a, b) => a.name.localeCompare(b.name));
+    const extensionFileName = env.FILE_EXTENSION_NAME;
+    const extensionFilePath = env.FILE_EXTENSION;
+    const extensionFileContent = JSON.stringify(
+      extensionList,
+      undefined,
+      2
+    );
+    const extensionFile: File = new File(
+      extensionFileName,
+      extensionFileContent,
+      extensionFilePath,
+      extensionFileName
+    );
+    return Promise.resolve(extensionFile);
+  }
+
   public static CreateExtensionList() {
     const list: ExtensionInformation[] = [];
 
@@ -303,6 +325,24 @@ export class PluginService {
       }
     }
     return deletedExt;
+  }
+
+  public static async FilterExtensions(
+    extensionList: ExtensionInformation[],
+    ignoreList: string[]
+  ): Promise<ExtensionInformation[][]> {
+    let ignoredExtensions: ExtensionInformation[] = [];
+    let filteredExtensions: ExtensionInformation[] = [];
+    if (ignoreList && ignoreList.length > 0) {
+      filteredExtensions = extensionList.filter(extension => {
+        if (ignoreList.includes(extension.name)) {
+          ignoredExtensions.push(extension);
+          return false;
+        }
+        return true;
+      });
+    }
+    return Promise.resolve([filteredExtensions, ignoredExtensions]);
   }
 
   public static async InstallExtensions(
