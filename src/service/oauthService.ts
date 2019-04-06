@@ -84,8 +84,8 @@ export class GitHubOAuthService {
         .toString()
     );
     const gistSelectionPanel = vscode.window.createWebviewPanel(
-      "syncSettings",
-      "Sync Settings",
+      "selectGist",
+      "Select Your Existing Gist",
       vscode.ViewColumn.One,
       {
         retainContextWhenHidden: true,
