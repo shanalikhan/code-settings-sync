@@ -275,7 +275,7 @@ export default class Commons {
       }
     } else {
       const extSettings = await this.GetSettings();
-      extSettings[message.command] = message.text;
+      extSettings[message.command] = value;
       this.SaveSettings(extSettings);
     }
   }
@@ -303,7 +303,11 @@ export default class Commons {
     landingPanel.webview.onDidReceiveMessage(async message => {
       switch (message.command) {
         case "loginWithGitHub":
-          new GitHubOAuthService(54321, this).StartProcess();
+          new GitHubOAuthService(
+            54321,
+            this,
+            this.context.extensionPath
+          ).StartProcess();
           vscode.commands.executeCommand(
             "vscode.open",
             vscode.Uri.parse(
