@@ -15,6 +15,7 @@ const textInputTemplate = `<div class="form-group">
             <label for="setting:@correspondingSetting" class="text-white-50"
               >@name</label
             >
+            @tooltip
             <input
               type="text"
               class="form-control text"
@@ -37,6 +38,7 @@ const checkboxTemplate = `<div class="custom-control custom-checkbox my-1 mr-sm-
               for="setting:@correspondingSetting"
               class="custom-control-label text-white-50"
             >@name</label>
+            @tooltip
           </div>`;
 
 const textareaTemplate = `<div class="form-group">
@@ -44,6 +46,7 @@ const textareaTemplate = `<div class="form-group">
               for="setting:@correspondingSetting"
               class="text-white-50"
               >@name</label>
+              @tooltip
             <textarea
               class="form-control textarea"
               id="setting:@correspondingSetting"
@@ -78,6 +81,7 @@ globalMap.forEach(settingMap => {
       new RegExp("@correspondingSetting", "g"),
       settingMap.correspondingSetting
     )
+    .replace(new RegExp("@tooltip"), "")
     .replace(new RegExp("@settingType", "g"), "global");
   appendHTML(globalParent, html);
 });
@@ -93,23 +97,24 @@ envMap.forEach(envMap => {
       break;
   }
   const html = template
-    .replace(
-      new RegExp("@name", "g"),
-      envMap.name +
-        ` <a title="${
-          envMap.tooltip
-        }" class="text-decoration-none">&#x1F6C8;</a>`
-    )
+    .replace(new RegExp("@name", "g"), envMap.name)
     .replace(new RegExp("@placeholder", "g"), envMap.placeholder)
     .replace(
       new RegExp("@correspondingSetting", "g"),
       envMap.correspondingSetting
+    )
+    .replace(
+      new RegExp("@tooltip"),
+      `<a class="text-white-50 fas fa-info-circle" data-toggle="tooltip" data-placement="right" title="${
+        envMap.tooltip
+      }"></a>`
     )
     .replace(new RegExp("@settingType", "g"), "env");
   appendHTML(envParent, html);
 });
 
 $(document).ready(function() {
+  $('[data-toggle="tooltip"]').tooltip();
   $(".text")
     .each((i, el) => {
       if ($(el).attr("settingType") === "global") {
