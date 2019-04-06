@@ -1,5 +1,5 @@
 "use strict";
-import { openSync, readFileSync } from "fs";
+import { readFileSync } from "fs";
 import { has, set } from "lodash";
 import * as vscode from "vscode";
 import { Environment } from "./environmentPath";
@@ -312,16 +312,7 @@ export default class Commons {
           );
           break;
         case "editConfiguration":
-          const file: vscode.Uri = vscode.Uri.file(
-            this.en.FILE_CUSTOMIZEDSETTINGS
-          );
-          openSync(file.fsPath, "r");
-          const document = await vscode.workspace.openTextDocument(file);
-          await vscode.window.showTextDocument(
-            document,
-            vscode.ViewColumn.One,
-            true
-          );
+          this.OpenSettingsPage();
           break;
       }
     });
