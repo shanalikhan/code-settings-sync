@@ -160,43 +160,50 @@ export default class Commons {
       name: "Gist ID",
       placeholder: "Enter Gist ID",
       type: SettingType.TextInput,
-      correspondingSetting: "gist"
+      correspondingSetting: "gist",
+      tooltip: localize("ext.config.gist")
     },
     {
       name: "Auto Download",
       placeholder: "",
       type: SettingType.Checkbox,
-      correspondingSetting: "autoDownload"
+      correspondingSetting: "autoDownload",
+      tooltip: localize("ext.config.autoDownload")
     },
     {
       name: "Auto Upload",
       placeholder: "",
       type: SettingType.Checkbox,
-      correspondingSetting: "autoUpload"
+      correspondingSetting: "autoUpload",
+      tooltip: localize("ext.config.autoUpload")
     },
     {
       name: "Force Download",
       placeholder: "",
       type: SettingType.Checkbox,
-      correspondingSetting: "forceDownload"
+      correspondingSetting: "forceDownload",
+      tooltip: localize("ext.config.forceDownload")
     },
     {
       name: "Quiet Sync",
       placeholder: "",
       type: SettingType.Checkbox,
-      correspondingSetting: "quietSync"
+      correspondingSetting: "quietSync",
+      tooltip: localize("ext.config.quietSync")
     },
     {
       name: "Remove Extensions",
       placeholder: "",
       type: SettingType.Checkbox,
-      correspondingSetting: "removeExtensions"
+      correspondingSetting: "removeExtensions",
+      tooltip: localize("ext.config.removeExtensions")
     },
     {
       name: "Sync Extensions",
       placeholder: "",
       type: SettingType.Checkbox,
-      correspondingSetting: "syncExtensions"
+      correspondingSetting: "syncExtensions",
+      tooltip: localize("ext.config.syncExtensions")
     }
   ];
 

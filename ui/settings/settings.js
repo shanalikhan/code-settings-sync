@@ -93,7 +93,13 @@ envMap.forEach(envMap => {
       break;
   }
   const html = template
-    .replace(new RegExp("@name", "g"), envMap.name)
+    .replace(
+      new RegExp("@name", "g"),
+      envMap.name +
+        ` <a title="${
+          envMap.tooltip
+        }" class="text-decoration-none">&#x1F6C8;</a>`
+    )
     .replace(new RegExp("@placeholder", "g"), envMap.placeholder)
     .replace(
       new RegExp("@correspondingSetting", "g"),
