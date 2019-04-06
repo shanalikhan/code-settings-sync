@@ -3,7 +3,9 @@
   --btn-hover: #15496e;
   --btn-click: #0e3450;
 }
-
+#selectionContainer {
+  width: 60%;
+}
 html,
 body {
   background-color: rgb(10, 1, 15);

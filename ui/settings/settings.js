@@ -104,62 +104,68 @@ envMap.forEach(envMap => {
 });
 
 $(document).ready(function() {
-  $(".text").each((i, el) => {
-    if ($(el).attr("settingType") === "global") {
-      $(el).val(_.get(globalData, $(el).attr("setting")));
-    } else {
-      $(el).val(envData[$(el).attr("setting")]);
-    }
-  });
-  $(".checkbox").each((i, el) => {
-    if ($(el).attr("settingType") === "global") {
-      $(el).prop("checked", _.get(globalData, $(el).attr("setting")));
-    } else {
-      $(el).prop("checked", envData[$(el).attr("setting")]);
-    }
-  });
-  $(".textarea").each((i, el) => {
-    let str = "";
-    const items = _.get(globalData, $(el).attr("setting"));
-    items.forEach(item => (str += item + "\n"));
-    $(el).val(str.slice(0, -1));
-    $(el).prop("rows", items.length);
-  });
+  $(".text")
+    .each((i, el) => {
+      if ($(el).attr("settingType") === "global") {
+        $(el).val(_.get(globalData, $(el).attr("setting")));
+      } else {
+        $(el).val(envData[$(el).attr("setting")]);
+      }
+    })
+    .change(function() {
+      save();
+      let val = $(this).val();
+      vscode.postMessage({
+        command: $(this).attr("setting"),
+        text: val,
+        type: $(this).attr("settingType")
+      });
+    });
+  $(".checkbox")
+    .each((i, el) => {
+      if ($(el).attr("settingType") === "global") {
+        $(el).prop("checked", _.get(globalData, $(el).attr("setting")));
+      } else {
+        $(el).prop("checked", envData[$(el).attr("setting")]);
+      }
+    })
+    .change(function() {
+      save();
+      let val = $(this).is(":checked");
+      vscode.postMessage({
+        command: $(this).attr("setting"),
+        text: val,
+        type: $(this).attr("settingType")
+      });
+    });
+  $(".textarea")
+    .each((i, el) => {
+      let str = "";
+      const items = _.get(globalData, $(el).attr("setting"));
+      items.forEach(item => (str += item + "\n"));
+      $(el).val(str.slice(0, -1));
+      $(el).prop("rows", items.length);
+    })
+    .change(function() {
+      save();
+      let val = [];
+      $(this)
+        .val()
+        .split("\n")
+        .forEach(item => {
+          if (item !== "") {
+            val.push(item);
+          }
+        });
+      vscode.postMessage({
+        command: $(this).attr("setting"),
+        text: val,
+        type: "global"
+      });
+    });
 });
 
 function save() {
-  $(".text").each((i, el) => {
-    let val = $(el).val();
-    vscode.postMessage({
-      command: $(el).attr("setting"),
-      text: val,
-      type: $(el).attr("settingType")
-    });
-  });
-  $(".checkbox").each((i, el) => {
-    let val = $(el).is(":checked");
-    vscode.postMessage({
-      command: $(el).attr("setting"),
-      text: val,
-      type: $(el).attr("settingType")
-    });
-  });
-  $(".textarea").each((i, el) => {
-    let val = [];
-    $(el)
-      .val()
-      .split("\n")
-      .forEach(item => {
-        if (item !== "") {
-          val.push(item);
-        }
-      });
-    vscode.postMessage({
-      command: $(el).attr("setting"),
-      text: val,
-      type: "global"
-    });
-  });
   saveStatus.innerHTML = "Saved!";
   setTimeout(() => (saveStatus.innerHTML = ""), 2000);
 }
