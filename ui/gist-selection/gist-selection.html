@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, shrink-to-fit=no"
+    />
+    <link
+      rel="stylesheet"
+      href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+      integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T"
+      crossorigin="anonymous"
+    />
+    <link
+      href="https://fonts.googleapis.com/css?family=Roboto:400"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css?family=Open+Sans:700"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="@PWD/ui/shared/styles.css" />
+  </head>
+  <body>
+    <header class="masthead">
+      <div class="container d-flex h-100">
+        <div class="mx-auto text-center">
+          <h1 class="mx-auto mb-4 text-white-50">
+            <img
+              src="https://i.imgur.com/eypxaJl.png?2"
+              width="128"
+              class="opacity-50 my-auto logo"
+              alt="Settings Sync"
+            />
+            Settings Sync
+          </h1>
+          <h2 class="mx-auto mt-2 mb-3 text-left text-white-50">
+            Synchronize Settings, Snippets, Themes, File Icons, Launch,
+            Keybindings, Workspaces and Extensions Across Multiple Machines
+            Using GitHub Gist
+          </h2>
+          <h2 class="mx-auto mt-2 mb-4 text-left text-white-50">
+            by <a href="https://github.com/shanalikhan">@shanalikhan</a>
+          </h2>
+          <h3 class="mx-auto mt-2 mb-3 text-white-50">
+            Select Your Existing Gist
+          </h3>
+          <div id="selectionContainer" class="list-group mx-auto"></div>
+          <a
+            href="#"
+            onclick="vscode.postMessage({close: true});"
+            title="Create a new Gist"
+            class="btn btn-primary mt-4"
+            style="width: 40%;"
+            >Create a new Gist</a
+          >
+        </div>
+      </div>
+    </header>
+    <script
+      defer
+      src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
+      integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
+      crossorigin="anonymous"
+    ></script>
+    <script
+      defer
+      src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"
+      integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1"
+      crossorigin="anonymous"
+    ></script>
+    <script
+      defer
+      src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
+      integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
+      crossorigin="anonymous"
+    ></script>
+    <script defer>
+      const gists = JSON.parse(`@GISTS`);
+    </script>
+    <script defer src="@PWD/ui/gist-selection/gist-selection.js"></script>
+  </body>
+</html>
