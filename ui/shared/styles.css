@@ -6,6 +6,11 @@
 #selectionContainer {
   width: 60%;
 }
+.dock-bottom-left {
+  position: fixed;
+  bottom: 4rem;
+  left: 4rem;
+}
 html,
 body {
   background-color: rgb(10, 1, 15);

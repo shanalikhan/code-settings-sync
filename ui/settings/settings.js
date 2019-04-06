@@ -114,6 +114,7 @@ envMap.forEach(envMap => {
 });
 
 $(document).ready(function() {
+  save();
   $('[data-toggle="tooltip"]').tooltip();
   $(".text")
     .each((i, el) => {
@@ -177,6 +178,10 @@ $(document).ready(function() {
 });
 
 function save() {
-  saveStatus.innerHTML = "Saved!";
-  setTimeout(() => (saveStatus.innerHTML = ""), 2000);
+  saveStatus.innerHTML = `<i class="spinner-border dock-bottom-left"></i>`;
+  setTimeout(
+    () =>
+      (saveStatus.innerHTML = `<i class="fas fa-check dock-bottom-left"></i>`),
+    1000
+  );
 }
