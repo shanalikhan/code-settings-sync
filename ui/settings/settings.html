@@ -13,7 +13,11 @@
       crossorigin="anonymous"
     />
     <link
-      href="https://fonts.googleapis.com/css?family=Roboto:400,900"
+      href="https://fonts.googleapis.com/css?family=Roboto:400"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css?family=Open+Sans:700"
       rel="stylesheet"
     />
     <link rel="stylesheet" href="@PWD/ui/shared/styles.css" />
@@ -39,20 +43,36 @@
           <h2 class="mx-auto mt-2 mb-4 text-left text-white-50">
             by <a href="https://github.com/shanalikhan">@shanalikhan</a>
           </h2>
-          <div class="row">
-            <div class="col text-left">
+          <div class="row text-left">
+            <div class="col mt-2 scrollable">
               <h3 class="mx-auto mt-2 mb-3 text-white-50">
                 Environment Settings
               </h3>
-              <i class="far fa-paper-plane fa-2x mb-2 text-white"></i>
-              <form class="text-left" id="environmentSettings"></form>
+              <form id="environmentSettings"></form>
             </div>
-            <div class="col text-left">
+            <div class="col mt-2 scrollable">
               <h3 class="mx-auto mt-2 mb-3 text-white-50">
                 Global Settings
               </h3>
-              <i class="far fa-paper-plane fa-2x mb-2 text-white"></i>
-              <form class="text-left" id="globalSettings"></form>
+              <form id="globalSettings"></form>
+            </div>
+          </div>
+          <div class="row mt-4">
+            <div class="col"></div>
+            <div class="col text-right">
+              <p
+                id="saveStatus"
+                class="text-white-50 mr-2"
+                style="display: inline"
+              ></p>
+              <a
+                href="#"
+                onclick="save()"
+                title="Save Settings"
+                class="btn btn-primary mr-2"
+                style="width: 40%;"
+                >Save</a
+              >
             </div>
           </div>
         </div>
