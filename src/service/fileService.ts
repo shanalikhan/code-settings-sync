@@ -2,7 +2,6 @@
 
 import * as fs from "fs-extra";
 import * as path from "path";
-import { ExtensionInformation } from "./pluginService";
 
 export class File {
   constructor(
@@ -10,14 +9,6 @@ export class File {
     public content: string,
     public filePath: string,
     public gistName: string
-  ) {}
-}
-
-export class AllSettingFiles {
-  constructor(
-    public files: File[],
-    public ignoredExtensions: ExtensionInformation[],
-    public uploadedExtensions: ExtensionInformation[]
   ) {}
 }
 

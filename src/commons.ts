@@ -3,8 +3,8 @@ import * as vscode from "vscode";
 import { Environment } from "./environmentPath";
 import localize from "./localize";
 import { AutoUploadService } from "./service/autoUploadService";
-import { File, FileService, AllSettingFiles } from "./service/fileService";
-import { ExtensionInformation, PluginService } from "./service/pluginService";
+import { File, FileService } from "./service/fileService";
+import { ExtensionInformation } from "./service/pluginService";
 import { CustomSettings, ExtensionConfig, LocalConfig } from "./setting";
 import PragmaUtil from "./pragmaUtil";
 import { OsType } from "./enums";
@@ -159,27 +159,9 @@ export default class Commons {
   }
 
   public async CreateAllSettingFiles(
-    syncSetting: ExtensionConfig,
     customSettings: CustomSettings
-  ): Promise<AllSettingFiles> {
+  ): Promise<File[]> {
     const files: File[] = [];
-    let ignoredExtensions: ExtensionInformation[] = [];
-    let uploadedExtensions: ExtensionInformation[] = [];
-
-    if (syncSetting.syncExtensions) {
-      const extensionList: ExtensionInformation[] = PluginService.CreateExtensionList();
-      [uploadedExtensions, ignoredExtensions] = await PluginService.FilterExtensions(
-        extensionList,
-        customSettings.ignoreExtensions
-      );
-
-      const extensionFile: File = await PluginService.CreateExtensionFile(
-        this.en,
-        uploadedExtensions
-      );
-
-      await FileService.WriteFile(extensionFile.filePath, extensionFile.content);
-    }
 
     let contentFiles: File[] = [];
     contentFiles = await FileService.ListFiles(
@@ -259,12 +241,7 @@ export default class Commons {
       }
     }
 
-    const allSettingFiles: AllSettingFiles = new AllSettingFiles(
-      files,
-      ignoredExtensions,
-      uploadedExtensions
-    );
-    return Promise.resolve(allSettingFiles);
+    return Promise.resolve(files);
   }
 
   public async GetCustomSettings(): Promise<CustomSettings> {

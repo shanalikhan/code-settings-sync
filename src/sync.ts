@@ -5,7 +5,7 @@ import Commons from "./commons";
 import { Environment } from "./environmentPath";
 import localize from "./localize";
 import * as lockfile from "./lockfile";
-import { File, FileService, AllSettingFiles } from "./service/fileService";
+import { File, FileService } from "./service/fileService";
 import { GitHubService } from "./service/githubService";
 import {
   CustomSettings,
@@ -15,6 +15,7 @@ import {
 
 import { GistSyncService } from "./service/gistSyncService";
 import { DownloadResponse, UploadResponse } from "./service/syncService";
+import { ExtensionInformation, PluginService } from "./service/pluginService";
 
 let globalCommonService: Commons;
 
@@ -127,14 +128,31 @@ export class Sync {
         2000
       );
 
-      const allSettingFiles: AllSettingFiles =
+      let ignoredExtensions: ExtensionInformation[] = [];
+      let uploadedExtensions: ExtensionInformation[] = [];
+
+      if (syncSetting.syncExtensions) {
+        const extensionList: ExtensionInformation[] = PluginService.CreateExtensionList();
+        [uploadedExtensions, ignoredExtensions] = await PluginService.FilterExtensions(
+          extensionList,
+          customSettings.ignoreExtensions
+        );
+
+        const extensionFile: File = await PluginService.CreateExtensionFile(
+          env,
+          uploadedExtensions
+        );
+
+        await FileService.WriteFile(extensionFile.filePath, extensionFile.content);
+      }
+
+      const allSettingFiles: File[] =
         await globalCommonService.CreateAllSettingFiles(
-          syncSetting,
           customSettings
       );
 
       const res: UploadResponse = await gistSync.upload(
-        allSettingFiles.files,
+        allSettingFiles,
         dateNow,
         localConfig
       );
@@ -161,10 +179,10 @@ export class Sync {
             if (!syncSetting.quietSync) {
               globalCommonService.ShowSummaryOutput(
                 true,
-                allSettingFiles.files,
+                allSettingFiles,
                 null,
-                allSettingFiles.uploadedExtensions,
-                allSettingFiles.ignoredExtensions,
+                uploadedExtensions,
+                ignoredExtensions,
                 localConfig
               );
               vscode.window.setStatusBarMessage("").dispose();

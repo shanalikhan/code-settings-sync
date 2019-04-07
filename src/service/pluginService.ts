@@ -332,7 +332,7 @@ export class PluginService {
     ignoreList: string[]
   ): Promise<ExtensionInformation[][]> {
     let ignoredExtensions: ExtensionInformation[] = [];
-    let filteredExtensions: ExtensionInformation[] = [];
+    let filteredExtensions: ExtensionInformation[] = extensionList;
     if (ignoreList && ignoreList.length > 0) {
       filteredExtensions = extensionList.filter(extension => {
         if (ignoreList.includes(extension.name)) {
