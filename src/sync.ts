@@ -146,13 +146,7 @@ export class Sync {
         await FileService.WriteFile(extensionFile.filePath, extensionFile.content);
       }
 
-      const allSettingFiles: File[] =
-        await globalCommonService.CreateAllSettingFiles(
-          customSettings
-      );
-
       const res: UploadResponse = await gistSync.upload(
-        allSettingFiles,
         dateNow,
         localConfig
       );
@@ -179,7 +173,7 @@ export class Sync {
             if (!syncSetting.quietSync) {
               globalCommonService.ShowSummaryOutput(
                 true,
-                allSettingFiles,
+                res.updatedFiles,
                 null,
                 uploadedExtensions,
                 ignoredExtensions,

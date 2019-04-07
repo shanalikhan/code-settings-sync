@@ -7,7 +7,8 @@ import { ExtensionInformation } from "./pluginService";
 
 export class UploadResponse {
   constructor(
-    public uploadID: string
+    public uploadID: string,
+    public updatedFiles: File[]
   ) {}
 }
 
@@ -25,7 +26,6 @@ export interface ISyncService {
     baseUrl: string
   ): Promise<boolean>;
   upload(
-    allSettingFiles: File[],
     dateNow: Date,
     localConfig: LocalConfig
   ): Promise<UploadResponse>;

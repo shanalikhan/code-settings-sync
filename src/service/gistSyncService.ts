@@ -21,12 +21,16 @@ export class GistSyncService extends GitHubService implements ISyncService {
   }
 
   public async upload(
-    allSettingFiles: File[],
     dateNow: Date,
     localConfig: LocalConfig,
   ): Promise<UploadResponse> {
     const syncSetting: ExtensionConfig = localConfig.extConfig;
     const customSettings: CustomSettings = localConfig.customConfig;
+
+    const allSettingFiles: File[] =
+      await this.globalCommonService.CreateAllSettingFiles(
+        customSettings
+    );
 
     const extProp: CloudSetting = new CloudSetting();
     extProp.lastUpload = dateNow;
@@ -110,7 +114,8 @@ export class GistSyncService extends GitHubService implements ISyncService {
     }
 
     const response: UploadResponse = new UploadResponse(
-      gistID
+      gistID,
+      allSettingFiles
     );
 
     return Promise.resolve(response);
