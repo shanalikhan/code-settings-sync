@@ -1,15 +1,11 @@
-
 "use strict";
 
-import { File } from "./fileService";
 import { LocalConfig } from "../setting";
+import { File } from "./fileService";
 import { ExtensionInformation } from "./pluginService";
 
 export class UploadResponse {
-  constructor(
-    public uploadID: string,
-    public updatedFiles: File[]
-  ) {}
+  constructor(public uploadID: string, public updatedFiles: File[]) {}
 }
 
 export class DownloadResponse {
@@ -21,15 +17,7 @@ export class DownloadResponse {
 }
 
 export interface ISyncService {
-  connect(
-    token: string,
-    baseUrl: string
-  ): Promise<boolean>;
-  upload(
-    dateNow: Date,
-    localConfig: LocalConfig
-  ): Promise<UploadResponse>;
-  download(
-    localConfig: LocalConfig,
-  ): Promise<DownloadResponse>;
+  connect(token: string, baseUrl: string): Promise<boolean>;
+  upload(dateNow: Date, localConfig: LocalConfig): Promise<UploadResponse>;
+  download(localConfig: LocalConfig): Promise<DownloadResponse>;
 }

@@ -1,13 +1,13 @@
 "use strict";
 import * as vscode from "vscode";
+import { OsType } from "./enums";
 import { Environment } from "./environmentPath";
 import localize from "./localize";
+import PragmaUtil from "./pragmaUtil";
 import { AutoUploadService } from "./service/autoUploadService";
 import { File, FileService } from "./service/fileService";
 import { ExtensionInformation } from "./service/pluginService";
 import { CustomSettings, ExtensionConfig, LocalConfig } from "./setting";
-import PragmaUtil from "./pragmaUtil";
-import { OsType } from "./enums";
 
 export default class Commons {
   public static outputChannel: vscode.OutputChannel = null;
@@ -184,7 +184,8 @@ export default class Commons {
         contentFiles = contentFiles.filter(contentFile => {
           const isMatch: boolean =
             customSettings.ignoreUploadFiles.indexOf(contentFile.fileName) ===
-              -1 && contentFile.fileName !== this.en.FILE_CUSTOMIZEDSETTINGS_NAME;
+              -1 &&
+            contentFile.fileName !== this.en.FILE_CUSTOMIZEDSETTINGS_NAME;
           return isMatch;
         });
       }
@@ -198,9 +199,7 @@ export default class Commons {
           return matchedFolders.length === 0;
         });
       }
-      const customFileKeys: string[] = Object.keys(
-        customSettings.customFiles
-      );
+      const customFileKeys: string[] = Object.keys(customSettings.customFiles);
       if (customFileKeys.length > 0) {
         for (const key of customFileKeys) {
           const val = customSettings.customFiles[key];
@@ -408,10 +407,12 @@ export default class Commons {
   }
 
   public async SaveConfig(localConfig: LocalConfig): Promise<boolean> {
-    let savePromise: Promise<boolean>[] = [];
+    const savePromise: Array<Promise<boolean>> = [];
     savePromise.push(this.SaveSettings(localConfig.extConfig));
     savePromise.push(this.SetCustomSettings(localConfig.customConfig));
-    return Promise.all(savePromise).then(values => values.every(saved => saved));
+    return Promise.all(savePromise).then(values =>
+      values.every(saved => saved)
+    );
   }
 
   public async SaveSettings(setting: ExtensionConfig): Promise<boolean> {

@@ -3,10 +3,10 @@ import * as fs from "fs-extra";
 import * as path from "path";
 import * as vscode from "vscode";
 
+import Commons from "../commons";
 import { OsType } from "../enums";
 import { Environment } from "../environmentPath";
 import localize from "../localize";
-import Commons from "../commons";
 import { File } from "./fileService";
 
 export class ExtensionInformation {
@@ -136,10 +136,7 @@ export class PluginService {
           } else {
             console.log(message);
             if (dispose) {
-              vscode.window.setStatusBarMessage(
-                "Sync : " + message,
-                3000
-              );
+              vscode.window.setStatusBarMessage("Sync : " + message, 3000);
             }
           }
         }
@@ -229,11 +226,7 @@ export class PluginService {
     extensionList.sort((a, b) => a.name.localeCompare(b.name));
     const extensionFileName = env.FILE_EXTENSION_NAME;
     const extensionFilePath = env.FILE_EXTENSION;
-    const extensionFileContent = JSON.stringify(
-      extensionList,
-      undefined,
-      2
-    );
+    const extensionFileContent = JSON.stringify(extensionList, undefined, 2);
     const extensionFile: File = new File(
       extensionFileName,
       extensionFileContent,
@@ -331,7 +324,7 @@ export class PluginService {
     extensionList: ExtensionInformation[],
     ignoreList: string[]
   ): Promise<ExtensionInformation[][]> {
-    let ignoredExtensions: ExtensionInformation[] = [];
+    const ignoredExtensions: ExtensionInformation[] = [];
     let filteredExtensions: ExtensionInformation[] = extensionList;
     if (ignoreList && ignoreList.length > 0) {
       filteredExtensions = extensionList.filter(extension => {

@@ -1,35 +1,35 @@
-
 "use strict";
 
-import { ISyncService, DownloadResponse, UploadResponse } from "./syncService"
-import { GitHubService } from "./githubService";
-import { File, FileService } from "./fileService";
-import Commons from "../commons";
-import { LocalConfig, ExtensionConfig, CustomSettings, CloudSetting } from "../setting";
 import * as vscode from "vscode";
-import { ExtensionInformation, PluginService } from "./pluginService";
-import localize from "../localize";
+import Commons from "../commons";
 import { OsType } from "../enums";
+import localize from "../localize";
 import PragmaUtil from "../pragmaUtil";
+import {
+  CloudSetting,
+  CustomSettings,
+  ExtensionConfig,
+  LocalConfig
+} from "../setting";
+import { File, FileService } from "./fileService";
+import { GitHubService } from "./githubService";
+import { ExtensionInformation, PluginService } from "./pluginService";
+import { DownloadResponse, ISyncService, UploadResponse } from "./syncService";
 
 export class GistSyncService extends GitHubService implements ISyncService {
-  public async connect(
-    token: string,
-    baseUrl: string
-  ): Promise<boolean> {
+  public async connect(token: string, baseUrl: string): Promise<boolean> {
     return this.Authenticate(token, baseUrl);
   }
 
   public async upload(
     dateNow: Date,
-    localConfig: LocalConfig,
+    localConfig: LocalConfig
   ): Promise<UploadResponse> {
     const syncSetting: ExtensionConfig = localConfig.extConfig;
     const customSettings: CustomSettings = localConfig.customConfig;
 
-    const allSettingFiles: File[] =
-      await this.globalCommonService.CreateAllSettingFiles(
-        customSettings
+    const allSettingFiles: File[] = await this.globalCommonService.CreateAllSettingFiles(
+      customSettings
     );
 
     const extProp: CloudSetting = new CloudSetting();
@@ -121,10 +121,7 @@ export class GistSyncService extends GitHubService implements ISyncService {
     return Promise.resolve(response);
   }
 
-  public async download(
-    localConfig: LocalConfig,
-  ): Promise<DownloadResponse> {
-
+  public async download(localConfig: LocalConfig): Promise<DownloadResponse> {
     const syncSetting: ExtensionConfig = localConfig.extConfig;
     const customSettings: CustomSettings = localConfig.customConfig;
 
@@ -240,7 +237,10 @@ export class GistSyncService extends GitHubService implements ISyncService {
       if (content !== "") {
         if (file.gistName === this.env.FILE_EXTENSION_NAME) {
           if (syncSetting.syncExtensions) {
-            [addedExtensions, deletedExtensions] = await PluginService.UpdateExtensions(
+            [
+              addedExtensions,
+              deletedExtensions
+            ] = await PluginService.UpdateExtensions(
               this.env,
               content,
               ignoredExtensions,

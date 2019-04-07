@@ -3,9 +3,9 @@
 import * as GitHubApi from "@octokit/rest";
 import * as HttpsProxyAgent from "https-proxy-agent";
 import * as vscode from "vscode";
-import { File } from "./fileService";
-import { Environment } from "../environmentPath";
 import Commons from "../commons";
+import { Environment } from "../environmentPath";
+import { File } from "./fileService";
 
 interface IEnv {
   [key: string]: string | undefined;

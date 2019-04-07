@@ -1,3 +1,4 @@
+"use strict";
 import * as fs from "fs-extra";
 import * as vscode from "vscode";
 
@@ -7,15 +8,15 @@ import localize from "./localize";
 import * as lockfile from "./lockfile";
 import { File, FileService } from "./service/fileService";
 import { GitHubService } from "./service/githubService";
-import {
-  CustomSettings,
-  ExtensionConfig,
-  LocalConfig
-} from "./setting";
+import { CustomSettings, ExtensionConfig, LocalConfig } from "./setting";
 
 import { GistSyncService } from "./service/gistSyncService";
-import { DownloadResponse, UploadResponse, ISyncService } from "./service/syncService";
 import { ExtensionInformation, PluginService } from "./service/pluginService";
+import {
+  DownloadResponse,
+  ISyncService,
+  UploadResponse
+} from "./service/syncService";
 
 let globalCommonService: Commons;
 
@@ -133,7 +134,10 @@ export class Sync {
 
       if (syncSetting.syncExtensions) {
         const extensionList: ExtensionInformation[] = PluginService.CreateExtensionList();
-        [uploadedExtensions, ignoredExtensions] = await PluginService.FilterExtensions(
+        [
+          uploadedExtensions,
+          ignoredExtensions
+        ] = await PluginService.FilterExtensions(
           extensionList,
           customSettings.ignoreExtensions
         );
@@ -143,7 +147,10 @@ export class Sync {
           uploadedExtensions
         );
 
-        await FileService.WriteFile(extensionFile.filePath, extensionFile.content);
+        await FileService.WriteFile(
+          extensionFile.filePath,
+          extensionFile.content
+        );
       }
 
       const res: UploadResponse = await syncService.upload(
@@ -153,14 +160,13 @@ export class Sync {
 
       if (res) {
         try {
-          const saved: boolean = await globalCommonService.SaveConfig(localConfig);
+          const saved: boolean = await globalCommonService.SaveConfig(
+            localConfig
+          );
           if (saved) {
             if (res.uploadID) {
               vscode.window.showInformationMessage(
-                localize(
-                  "cmd.updateSettings.info.uploadingDone",
-                  res.uploadID
-                )
+                localize("cmd.updateSettings.info.uploadingDone", res.uploadID)
               );
             }
 
@@ -221,21 +227,19 @@ export class Sync {
       return;
     }
 
-    async function StartDownload(
-      syncSetting: ExtensionConfig,
-    ) {
+    async function StartDownload(syncSetting: ExtensionConfig) {
       vscode.window.setStatusBarMessage("").dispose();
       vscode.window.setStatusBarMessage(
         localize("cmd.downloadSettings.info.readdingOnline"),
         2000
       );
 
-      const res: DownloadResponse = await syncService.download(
-        localSettings
-      );
+      const res: DownloadResponse = await syncService.download(localSettings);
 
       if (res) {
-        const saved: boolean = await globalCommonService.SaveConfig(localSettings);
+        const saved: boolean = await globalCommonService.SaveConfig(
+          localSettings
+        );
         if (saved) {
           if (!syncSetting.quietSync) {
             globalCommonService.ShowSummaryOutput(
