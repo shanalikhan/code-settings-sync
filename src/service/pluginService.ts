@@ -150,10 +150,17 @@ export class PluginService {
     return deletedList;
   }
 
-  public static CreateExtensionList() {
+  public static CreateExtensionList(osType: OsType, isInsiders: boolean) {
     const list: ExtensionInformation[] = [];
+    const codeCli = Util.GetCodeCli(osType, isInsiders);
+    const { execSync } = require("child_process");
+    const allExtensions = execSync(`${codeCli} --list-extensions`)
+      .toString()
+      .split("\n");
+    const enabledExtensions = vscode.extensions.all;
+    const disabledExtensions = allExtensions;
 
-    for (const ext of vscode.extensions.all) {
+    for (const ext of enabledExtensions) {
       if (ext.packageJSON.isBuiltin === true) {
         continue;
       }
@@ -176,6 +183,24 @@ export class PluginService {
       info.name = ext.packageJSON.name;
       info.publisher = ext.packageJSON.publisher;
       info.version = ext.packageJSON.version;
+      list.push(info);
+
+      // Remove enabled extension from disabled extensions array
+      const extIndexOnArray = disabledExtensions.indexOf(ext.id);
+      disabledExtensions.splice(extIndexOnArray, 1);
+    }
+
+    for (const disabledExt of disabledExtensions) {
+      const [publisher, name] = disabledExt.split(".");
+
+      if (!name || !publisher) {
+        continue;
+      }
+
+      const info = new ExtensionInformation();
+      info.name = name;
+      info.publisher = publisher;
+      info.enabled = false;
       list.push(info);
     }
 
