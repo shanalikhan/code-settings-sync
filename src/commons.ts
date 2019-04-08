@@ -106,7 +106,7 @@ export default class Commons {
       this.autoUploadService.StopWatching();
     } else {
       await this.InitializeAutoUpload();
-      this.HandleStartWatching();
+      this.HandleStopWatching();
     }
   }
 
