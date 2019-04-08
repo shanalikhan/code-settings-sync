@@ -11,14 +11,16 @@ export class ExtensionInformation {
     // TODO: JSON.parse may throw error
     // Throw custom error should be more friendly
     const obj = JSON.parse(text);
-    const meta = new ExtensionMetadata(
-      obj.meta.galleryApiUrl,
-      obj.meta.id,
-      obj.meta.downloadUrl,
-      obj.meta.publisherId,
-      obj.meta.publisherDisplayName,
-      obj.meta.date
-    );
+    const meta = obj.meta
+      ? new ExtensionMetadata(
+          obj.meta.galleryApiUrl,
+          obj.meta.id,
+          obj.meta.downloadUrl,
+          obj.meta.publisherId,
+          obj.meta.publisherDisplayName,
+          obj.meta.date
+        )
+      : null;
     const item = new ExtensionInformation();
     item.metadata = meta;
     item.name = obj.name;
@@ -35,14 +37,16 @@ export class ExtensionInformation {
       // Throw custom error should be more friendly
       const list = JSON.parse(text);
       list.forEach(obj => {
-        const meta = new ExtensionMetadata(
-          obj.metadata.galleryApiUrl,
-          obj.metadata.id,
-          obj.metadata.downloadUrl,
-          obj.metadata.publisherId,
-          obj.metadata.publisherDisplayName,
-          obj.metadata.date
-        );
+        const meta = obj.metadata
+          ? new ExtensionMetadata(
+              obj.metadata.galleryApiUrl,
+              obj.metadata.id,
+              obj.metadata.downloadUrl,
+              obj.metadata.publisherId,
+              obj.metadata.publisherDisplayName,
+              obj.metadata.date
+            )
+          : null;
         const item = new ExtensionInformation();
         item.metadata = meta;
         item.name = obj.name;
