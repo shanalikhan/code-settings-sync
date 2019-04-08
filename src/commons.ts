@@ -82,7 +82,7 @@ export default class Commons {
   }
 
   public async InitializeAutoUpload() {
-    const ignored = await AutoUploadService.GetIgnoredItems(
+    const ignored = AutoUploadService.GetIgnoredItems(
       await this.GetCustomSettings()
     );
     this.autoUploadService = new AutoUploadService({
@@ -90,6 +90,24 @@ export default class Commons {
       commons: this,
       ignored
     });
+  }
+
+  public async HandleStartWatching() {
+    if (this.autoUploadService) {
+      this.autoUploadService.StartWatching();
+    } else {
+      await this.InitializeAutoUpload();
+      this.HandleStartWatching();
+    }
+  }
+
+  public async HandleStopWatching() {
+    if (this.autoUploadService) {
+      this.autoUploadService.StopWatching();
+    } else {
+      await this.InitializeAutoUpload();
+      this.HandleStartWatching();
+    }
   }
 
   public async InitalizeSettings(
