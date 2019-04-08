@@ -24,6 +24,7 @@ export class ExtensionInformation {
     item.name = obj.name;
     item.publisher = obj.publisher;
     item.version = obj.version;
+    item.enabled = obj.enabled;
     return item;
   }
 
@@ -333,6 +334,26 @@ export class PluginService {
               " INSTALLED.",
             true
           );
+          notificationCallBack("");
+
+          if (!missExt.enabled) {
+            const disabled = await new Promise<boolean>(res => {
+              const command = `${codeCli} --disable-extension ${name}`;
+              notificationCallBack(command);
+              exec(command, (err, stdout, stderr) => {
+                if (!stdout && (err || stderr)) {
+                  notificationCallBack(err || stderr);
+                  res(false);
+                }
+                notificationCallBack(stdout);
+                res(true);
+              });
+            });
+            if (disabled) {
+              notificationCallBack("EXTENSION DISABLED.");
+            }
+          }
+
           notificationCallBack("");
           notificationCallBack("");
           addedExtensions.push(missExt);
