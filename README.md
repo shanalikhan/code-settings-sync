@@ -146,9 +146,9 @@ Here is the gif of the complete process when you execute the Download command (M
 ![Download](https://media.giphy.com/media/xT9Iglsi3CS9noE8tW/source.gif)
 
 
-## Reset Token / Gist Settings
+## Reset Extension Settings
 
-> Type ">Sync" In Command Palette and select Reset Token and Gist Settings
+> Type ">Sync" In Command Palette and select Reset Extension Settings
 
 
 ## Toggle Auto Download

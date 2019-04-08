@@ -175,6 +175,7 @@
     "fs-extra": "^7.0.1",
     "https-proxy-agent": "^2.2.1",
     "lockfile": "^1.0.4",
-    "temp": "^0.9.0"
+    "temp": "^0.9.0",
+    "vscode-chokidar": "^1.6.5"
   }
 }
