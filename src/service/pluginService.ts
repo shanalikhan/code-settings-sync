@@ -47,6 +47,7 @@ export class ExtensionInformation {
         item.name = obj.name;
         item.publisher = obj.publisher;
         item.version = obj.version;
+        item.enabled = obj.enabled;
 
         if (item.name !== "code-settings-sync") {
           extList.push(item);
@@ -63,6 +64,7 @@ export class ExtensionInformation {
   public name: string;
   public version: string;
   public publisher: string;
+  public enabled: boolean = true;
 }
 
 export class ExtensionMetadata {
