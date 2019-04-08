@@ -508,7 +508,8 @@ export default class Commons {
       outputChannel.appendLine(`  No extensions ignored.`);
     } else {
       ignoredExtensions.forEach(extn => {
-        outputChannel.appendLine(`  ${extn.name} v${extn.version}`);
+        const version = extn.enabled ? `v${extn.version}` : "disabled";
+        outputChannel.appendLine(`  ${extn.name} ${version}`);
       });
     }
 
@@ -522,7 +523,8 @@ export default class Commons {
         outputChannel.appendLine(`  No extensions removed.`);
       } else {
         removedExtensions.forEach(extn => {
-          outputChannel.appendLine(`  ${extn.name} v${extn.version}`);
+          const version = extn.enabled ? `v${extn.version}` : "disabled";
+          outputChannel.appendLine(`  ${extn.name} ${version}`);
         });
       }
     }
@@ -536,7 +538,8 @@ export default class Commons {
       }
 
       addedExtensions.forEach(extn => {
-        outputChannel.appendLine(`  ${extn.name} v${extn.version}`);
+        const version = extn.enabled ? `v${extn.version}` : "disabled";
+        outputChannel.appendLine(`  ${extn.name} ${version}`);
       });
     }
 
