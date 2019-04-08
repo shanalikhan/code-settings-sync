@@ -8,6 +8,8 @@ import * as _temp from "temp";
 import * as url from "url";
 import * as vscode from "vscode";
 
+import { OsType } from "./enums";
+
 interface IHeaders {
   [key: string]: string;
 }
@@ -32,6 +34,41 @@ if (proxy) {
 }
 
 export class Util {
+  public static GetCodeCli(osType: OsType, isInsiders: boolean): string {
+    let codeCli: string = process.argv0;
+    let codeLastFolder = "";
+    let codeCliPath = "";
+
+    if (osType === OsType.Windows) {
+      if (isInsiders) {
+        codeLastFolder = "Code - Insiders";
+        codeCliPath = "bin/code-insiders";
+      } else {
+        codeLastFolder = "Code";
+        codeCliPath = "bin/code";
+      }
+    } else if (osType === OsType.Linux) {
+      if (isInsiders) {
+        codeLastFolder = "code-insiders";
+        codeCliPath = "bin/code-insiders";
+      } else {
+        codeLastFolder = "code";
+        codeCliPath = "bin/code";
+      }
+    } else if (osType === OsType.Mac) {
+      codeLastFolder = "Frameworks";
+      codeCliPath = "Resources/app/bin/code";
+    }
+
+    codeCli =
+      '"' +
+      codeCli.substr(0, codeCli.lastIndexOf(codeLastFolder)) +
+      codeCliPath +
+      '"';
+
+    return codeCli;
+  }
+
   public static HttpPostJson(path: string, obj: any, headers: IHeaders) {
     return new Promise<string>((resolve, reject) => {
       const item = url.parse(path);
