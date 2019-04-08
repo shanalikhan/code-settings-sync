@@ -4,6 +4,7 @@ import * as path from "path";
 import * as vscode from "vscode";
 
 import { OsType } from "../enums";
+import { Util } from "../util";
 
 export class ExtensionInformation {
   public static fromJSON(text: string) {
@@ -267,39 +268,12 @@ export class PluginService {
     notificationCallBack("TOTAL EXTENSIONS : " + missingList.length);
     notificationCallBack("");
     notificationCallBack("");
-    let myExt: string = process.argv0;
-    console.log(myExt);
-    let codeLastFolder = "";
-    let codeCliPath = "";
-    if (osType === OsType.Windows) {
-      if (isInsiders) {
-        codeLastFolder = "Code - Insiders";
-        codeCliPath = "bin/code-insiders";
-      } else {
-        codeLastFolder = "Code";
-        codeCliPath = "bin/code";
-      }
-    } else if (osType === OsType.Linux) {
-      if (isInsiders) {
-        codeLastFolder = "code-insiders";
-        codeCliPath = "bin/code-insiders";
-      } else {
-        codeLastFolder = "code";
-        codeCliPath = "bin/code";
-      }
-    } else if (osType === OsType.Mac) {
-      codeLastFolder = "Frameworks";
-      codeCliPath = "Resources/app/bin/code";
-    }
-    myExt =
-      '"' +
-      myExt.substr(0, myExt.lastIndexOf(codeLastFolder)) +
-      codeCliPath +
-      '"';
+    const codeCli = Util.GetCodeCli(osType, isInsiders);
+    console.log(codeCli);
     for (let i = 0; i < missingList.length; i++) {
       const missExt = missingList[i];
       const name = missExt.publisher + "." + missExt.name;
-      const extensionCli = myExt + " --install-extension " + name;
+      const extensionCli = codeCli + " --install-extension " + name;
       notificationCallBack(extensionCli);
       try {
         const installed = await new Promise<boolean>(res => {
