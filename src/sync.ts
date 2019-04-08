@@ -132,7 +132,10 @@ export class Sync {
       // var remoteList = ExtensionInformation.fromJSONList(file.content);
       // var deletedList = PluginService.GetDeletedExtensions(uploadedExtensions);
       if (syncSetting.syncExtensions) {
-        uploadedExtensions = PluginService.CreateExtensionList();
+        uploadedExtensions = PluginService.CreateExtensionList(
+          env.OsType,
+          env.isInsiders
+        );
         if (
           customSettings.ignoreExtensions &&
           customSettings.ignoreExtensions.length > 0
@@ -521,7 +524,9 @@ export class Sync {
                   deletedExtensions = await PluginService.DeleteExtensions(
                     content,
                     env.ExtensionFolder,
-                    ignoredExtensions
+                    ignoredExtensions,
+                    env.OsType,
+                    env.isInsiders
                   );
                 } catch (uncompletedExtensions) {
                   vscode.window.showErrorMessage(

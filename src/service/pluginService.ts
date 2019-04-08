@@ -81,11 +81,13 @@ export class ExtensionMetadata {
 export class PluginService {
   public static GetMissingExtensions(
     remoteExt: string,
-    ignoredExtensions: string[]
+    ignoredExtensions: string[],
+    osType: OsType,
+    isInsiders: boolean
   ) {
     const hashset = {};
     const remoteList = ExtensionInformation.fromJSONList(remoteExt);
-    const localList = this.CreateExtensionList();
+    const localList = this.CreateExtensionList(osType, isInsiders);
     const missingList: ExtensionInformation[] = [];
 
     for (const ext of localList) {
@@ -107,9 +109,11 @@ export class PluginService {
 
   public static GetDeletedExtensions(
     remoteList: ExtensionInformation[],
-    ignoredExtensions: string[]
+    ignoredExtensions: string[],
+    osType: OsType,
+    isInsiders: boolean
   ) {
-    const localList = this.CreateExtensionList();
+    const localList = this.CreateExtensionList(osType, isInsiders);
     const deletedList: ExtensionInformation[] = [];
 
     // for (var i = 0; i < remoteList.length; i++) {
@@ -229,12 +233,16 @@ export class PluginService {
   public static async DeleteExtensions(
     extensionsJson: string,
     extensionFolder: string,
-    ignoredExtensions: string[]
+    ignoredExtensions: string[],
+    osType: OsType,
+    isInsiders: boolean
   ): Promise<ExtensionInformation[]> {
     const remoteList = ExtensionInformation.fromJSONList(extensionsJson);
     const deletedList = PluginService.GetDeletedExtensions(
       remoteList,
-      ignoredExtensions
+      ignoredExtensions,
+      osType,
+      isInsiders
     );
     const deletedExt: ExtensionInformation[] = [];
 
@@ -269,7 +277,9 @@ export class PluginService {
     let addedExtensions: ExtensionInformation[] = [];
     const missingList = PluginService.GetMissingExtensions(
       extensions,
-      ignoredExtensions
+      ignoredExtensions,
+      osType,
+      insiders
     );
     if (missingList.length === 0) {
       notificationCallBack("Sync : No Extensions needs to be installed.");
