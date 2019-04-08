@@ -95,7 +95,9 @@ export default class PragmaUtil {
 
     let result = parsedLines.join("\n");
     const ignoredBlocks = this.getIgnoredBlocks(localContent); // get the settings that must prevail
-    result = result.replace(/{\s*\n/, `{\n${ignoredBlocks}\n\n\n`); // 3 lines breaks to separate from other settings
+    if (ignoredBlocks) {
+      result = result.replace(/{\s*\n/, `{\n${ignoredBlocks}\n\n\n`); // 3 lines breaks to separate from other settings
+    }
     // check is a valid JSON
 
     try {
