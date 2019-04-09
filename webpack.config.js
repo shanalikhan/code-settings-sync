@@ -2,6 +2,7 @@
 
 const path = require("path");
 const CleanWebpackPlugin = require("clean-webpack-plugin").default;
+const nodeExternals = require("webpack-node-externals");
 const webpack = require("webpack");
 
 /** @type WebpackOptions */
@@ -30,11 +31,14 @@ const config = {
       }
     ]
   },
-  externals: {
-    vscode: "commonjs vscode",
-    fsevents: "commonjs fsevents",
-    "original-fs": "commonjs original-fs"
-  },
+  externals: [
+    {
+      vscode: "commonjs vscode",
+      fsevents: "commonjs fsevents",
+      "original-fs": "commonjs original-fs"
+    },
+    nodeExternals()
+  ],
   plugins: [new CleanWebpackPlugin()],
   optimization: {
     minimize: true
