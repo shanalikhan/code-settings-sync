@@ -53,18 +53,20 @@ export class Sync {
         if (startUpSetting.autoDownload) {
           vscode.commands
             .executeCommand("extension.downloadSettings")
-            .then(() => {
+            .then(async () => {
               if (
                 startUpSetting.autoUpload &&
                 tokenAvailable &&
                 gistAvailable
               ) {
-                return globalCommonService.autoUploadService.StartWatching();
+                await globalCommonService.HandleStartWatching();
+                return;
               }
             });
         } else {
           if (startUpSetting.autoUpload && tokenAvailable && gistAvailable) {
-            return globalCommonService.autoUploadService.StartWatching();
+            await globalCommonService.HandleStartWatching();
+            return;
           }
         }
       }
@@ -83,7 +85,7 @@ export class Sync {
     let uploadedExtensions: ExtensionInformation[] = [];
     const ignoredExtensions: ExtensionInformation[] = [];
     const dateNow = new Date();
-    globalCommonService.autoUploadService.StopWatching();
+    await globalCommonService.HandleStopWatching();
 
     try {
       localConfig = await globalCommonService.InitalizeSettings(true, false);
@@ -365,7 +367,7 @@ export class Sync {
               );
             }
             if (syncSetting.autoUpload) {
-              globalCommonService.autoUploadService.StartWatching();
+              await globalCommonService.HandleStartWatching();
             }
           }
         } catch (err) {
@@ -380,7 +382,7 @@ export class Sync {
   public async download(): Promise<void> {
     const env = new Environment(this.context);
     let localSettings: LocalConfig = new LocalConfig();
-    globalCommonService.autoUploadService.StopWatching();
+    await globalCommonService.HandleStopWatching();
 
     try {
       localSettings = await globalCommonService.InitalizeSettings(true, true);
@@ -665,7 +667,7 @@ export class Sync {
           );
         }
         if (syncSetting.autoUpload) {
-          globalCommonService.autoUploadService.StartWatching();
+          await globalCommonService.HandleStartWatching();
         }
       } else {
         vscode.window.showErrorMessage(
@@ -949,7 +951,7 @@ export class Sync {
       await handlerMap[index]();
       if (settingChanged) {
         if (selectedItem === 1) {
-          globalCommonService.autoUploadService.StopWatching();
+          await globalCommonService.HandleStopWatching();
         }
         await common
           .SaveSettings(setting)
