@@ -32,7 +32,7 @@ const config = {
   },
   externals: {
     vscode: "commonjs vscode",
-    fsevents: "commonjs fsevents",
+    "vscode-fsevents": "commonjs vscode-fsevents",
     "original-fs": "commonjs original-fs"
   },
   plugins: [new CleanWebpackPlugin()],
