@@ -26,23 +26,7 @@
     <header class="masthead">
       <div class="container d-flex h-100">
         <div class="mx-auto text-center">
-          <h1 class="mx-auto mb-4 text-white-50">
-            <img
-              src="https://i.imgur.com/eypxaJl.png?2"
-              width="128"
-              class="opacity-50 my-auto logo"
-              alt="Settings Sync"
-            />
-            Settings Sync
-          </h1>
-          <h2 class="mx-auto mt-2 mb-3 text-left text-white-50">
-            Synchronize Settings, Snippets, Themes, File Icons, Launch,
-            Keybindings, Workspaces and Extensions Across Multiple Machines
-            Using GitHub Gist
-          </h2>
-          <h2 class="mx-auto mt-2 mb-4 text-left text-white-50">
-            by <a href="https://github.com/shanalikhan">@shanalikhan</a>
-          </h2>
+          <page-header></page-header>
           <h3 class="mx-auto mt-2 mb-3 text-white-50">
             Select Your Existing Gist
           </h3>
@@ -76,6 +60,7 @@
       integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
       crossorigin="anonymous"
     ></script>
+    <script defer src="@PWD/ui/shared/page-header.js"></script>
     <script defer>
       const gists = JSON.parse(`@GISTS`);
     </script>

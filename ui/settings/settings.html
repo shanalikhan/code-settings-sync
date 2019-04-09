@@ -32,25 +32,9 @@
     <header class="masthead">
       <div class="container d-flex h-100">
         <div class="mx-auto text-center">
-          <h1 class="mx-auto mb-4 text-white-50">
-            <img
-              src="https://i.imgur.com/eypxaJl.png?2"
-              width="128"
-              class="opacity-50 my-auto logo"
-              alt="Settings Sync"
-            />
-            Settings Sync
-          </h1>
-          <h2 class="mx-auto mt-2 mb-3 text-left text-white-50">
-            Synchronize Settings, Snippets, Themes, File Icons, Launch,
-            Keybindings, Workspaces and Extensions Across Multiple Machines
-            Using GitHub Gist
-          </h2>
-          <h2 class="mx-auto mt-2 mb-4 text-left text-white-50">
-            by <a href="https://github.com/shanalikhan">@shanalikhan</a>
-          </h2>
+          <page-header></page-header>
           <div class="row text-left">
-            <div class="col mt-2">
+            <div class="col mt-2 scrollable">
               <h3 class="mx-auto mt-2 mb-3 text-white-50">
                 Environment Settings
               </h3>
@@ -61,7 +45,7 @@
                 style="font-size: 3rem"
               ></p>
             </div>
-            <div class="col mt-2">
+            <div class="col mt-2 scrollable">
               <h3 class="mx-auto mt-2 mb-3 text-white-50">
                 Global Settings
               </h3>
@@ -93,6 +77,7 @@
       integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
       crossorigin="anonymous"
     ></script>
+    <script defer src="@PWD/ui/shared/page-header.js"></script>
     <script defer>
       const globalData = JSON.parse(`@GLOBAL_DATA`);
       const envData = JSON.parse(`@ENV_DATA`);
