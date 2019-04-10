@@ -60,12 +60,13 @@ export class GitHubService {
 
     if (userToken !== null && userToken !== "") {
       githubApiConfig.auth = `token ${userToken}`;
-      try {
-        this.github = new GitHubApi(githubApiConfig);
-      } catch (err) {
-        console.error(err);
-      }
-
+    }
+    try {
+      this.github = new GitHubApi(githubApiConfig);
+    } catch (err) {
+      console.error(err);
+    }
+    if (userToken !== null && userToken !== "") {
       this.github.users
         .getAuthenticated({})
         .then(res => {

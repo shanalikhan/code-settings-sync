@@ -170,7 +170,7 @@
     "webpack-merge": "^4.2.1"
   },
   "dependencies": {
-    "@octokit/rest": "^16.16.4",
+    "@octokit/rest": "^16.23.2",
     "fs-extra": "^7.0.1",
     "https-proxy-agent": "^2.2.1",
     "lockfile": "^1.0.4",
