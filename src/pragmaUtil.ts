@@ -116,12 +116,12 @@ export default class PragmaUtil {
    * Remove @sync-ignore settings before upload.
    *
    * @static
-   * @param {string} settingsContent
+   * @param {string} fileContent
    * @returns {string}
    * @memberof PragmaUtil
    */
-  public static processBeforeUpload(settingsContent: string): string {
-    const lines = settingsContent.split("\n");
+  public static processBeforeUpload(fileContent: string): string {
+    const lines = fileContent.split("\n");
     let osMatch: RegExpMatchArray;
     let osFromPragma: string;
 
@@ -256,7 +256,7 @@ export default class PragmaUtil {
       parsedLines.push(this.toggleComments(currentLine, shouldComment));
     }
 
-    const opensCurlyBraces = /".+"\s*:\s*{/.test(currentLine);
+    const opensCurlyBraces = /{/.test(currentLine);
     const opensBrackets = /".+"\s*:\s*\[/.test(currentLine);
 
     let openedBlock = opensCurlyBraces || opensBrackets;
