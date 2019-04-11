@@ -13,9 +13,9 @@ import { CustomSettings, ExtensionConfig, LocalConfig } from "./setting";
 import { GistSyncService } from "./service/gistSyncService";
 import { ExtensionInformation, PluginService } from "./service/pluginService";
 import {
-  DownloadResponse,
+  IDownloadResponse,
   ISyncService,
-  UploadResponse
+  IUploadResponse
 } from "./service/syncService";
 
 let globalCommonService: Commons;
@@ -153,7 +153,7 @@ export class Sync {
         );
       }
 
-      const res: UploadResponse = await syncService.upload(
+      const res: IUploadResponse = await syncService.upload(
         dateNow,
         localConfig
       );
@@ -234,7 +234,7 @@ export class Sync {
         2000
       );
 
-      const res: DownloadResponse = await syncService.download(localSettings);
+      const res: IDownloadResponse = await syncService.download(localSettings);
 
       if (res) {
         const saved: boolean = await globalCommonService.SaveConfig(

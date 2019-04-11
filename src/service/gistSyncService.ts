@@ -14,7 +14,11 @@ import {
 import { File, FileService } from "./fileService";
 import { GitHubService } from "./githubService";
 import { ExtensionInformation, PluginService } from "./pluginService";
-import { DownloadResponse, ISyncService, UploadResponse } from "./syncService";
+import {
+  IDownloadResponse,
+  ISyncService,
+  IUploadResponse
+} from "./syncService";
 
 export class GistSyncService extends GitHubService implements ISyncService {
   public async connect(token: string, baseUrl: string): Promise<boolean> {
@@ -24,7 +28,7 @@ export class GistSyncService extends GitHubService implements ISyncService {
   public async upload(
     dateNow: Date,
     localConfig: LocalConfig
-  ): Promise<UploadResponse> {
+  ): Promise<IUploadResponse> {
     const syncSetting: ExtensionConfig = localConfig.extConfig;
     const customSettings: CustomSettings = localConfig.customConfig;
 
@@ -114,15 +118,15 @@ export class GistSyncService extends GitHubService implements ISyncService {
       return null;
     }
 
-    const response: UploadResponse = new UploadResponse(
-      gistID,
-      allSettingFiles
-    );
+    const response: IUploadResponse = {
+      uploadID: gistID,
+      updatedFiles: allSettingFiles
+    };
 
     return Promise.resolve(response);
   }
 
-  public async download(localConfig: LocalConfig): Promise<DownloadResponse> {
+  public async download(localConfig: LocalConfig): Promise<IDownloadResponse> {
     const syncSetting: ExtensionConfig = localConfig.extConfig;
     const customSettings: CustomSettings = localConfig.customConfig;
 
@@ -307,11 +311,11 @@ export class GistSyncService extends GitHubService implements ISyncService {
     }
 
     await Promise.all(actionList);
-    const response: DownloadResponse = new DownloadResponse(
+    const response: IDownloadResponse = {
       updatedFiles,
       addedExtensions,
       deletedExtensions
-    );
+    };
 
     return Promise.resolve(response);
   }
