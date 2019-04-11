@@ -159,6 +159,7 @@ export default class Commons {
   }
 
   public async CreateAllSettingFiles(
+    syncSetting: ExtensionConfig,
     customSettings: CustomSettings
   ): Promise<File[]> {
     const files: File[] = [];
@@ -179,6 +180,12 @@ export default class Commons {
         contentFile =>
           contentFile.fileName !== this.en.FILE_CUSTOMIZEDSETTINGS_NAME
       );
+
+      if (!syncSetting.syncExtensions) {
+        contentFiles = contentFiles.filter(
+          contentFile => contentFile.fileName !== this.en.FILE_EXTENSION_NAME
+        );
+      }
 
       if (customSettings.ignoreUploadFiles.length > 0) {
         contentFiles = contentFiles.filter(contentFile => {

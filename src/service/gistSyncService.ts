@@ -29,6 +29,7 @@ export class GistSyncService extends GitHubService implements ISyncService {
     const customSettings: CustomSettings = localConfig.customConfig;
 
     const allSettingFiles: File[] = await this.globalCommonService.CreateAllSettingFiles(
+      syncSetting,
       customSettings
     );
 
