@@ -18,33 +18,60 @@ export class AutoUploadService {
 
   public watching = false;
 
+  public uniqueID = Math.random();
+
   private watcher = watch(this.options.en.USER_FOLDER, {
     depth: 2,
     ignored: this.options.ignored
   });
 
   constructor(
-    private options: { en: Environment; commons: Commons; ignored: string[] }
+    private options: {
+      en: Environment;
+      commons: Commons;
+      ignored: string[];
+      context: vscode.ExtensionContext;
+    }
   ) {
+    if (!this.options.context.globalState.get("syncInstance")) {
+      this.options.context.globalState.update("syncInstance", this.uniqueID);
+    } else {
+      return;
+    }
+
     vscode.extensions.onDidChange(async () => {
       if (this.watching) {
         console.log("Sync: Extensions changed");
-        if (await lockfile.Check(this.options.en.FILE_SYNC_LOCK)) {
+        if (
+          await lockfile
+            .Check(this.options.en.FILE_SYNC_LOCK)
+            .catch(err => console.log(err))
+        ) {
           return;
         } else {
-          await lockfile.Lock(this.options.en.FILE_SYNC_LOCK);
+          await lockfile
+            .Lock(this.options.en.FILE_SYNC_LOCK)
+            .catch(err => console.log(err));
         }
         const customSettings: CustomSettings = await this.options.commons.GetCustomSettings();
         if (customSettings) {
           await this.InitiateAutoUpload();
         }
-        await lockfile.Unlock(this.options.en.FILE_SYNC_LOCK);
+        await lockfile
+          .Unlock(this.options.en.FILE_SYNC_LOCK)
+          .catch(err => console.log(err));
         return;
       }
     });
   }
 
   public async StartWatching() {
+    if (
+      this.options.context.globalState.get("syncInstance") !== this.uniqueID
+    ) {
+      return;
+    }
+
     this.StopWatching();
 
     this.watching = true;
@@ -52,10 +79,16 @@ export class AutoUploadService {
     this.watcher.addListener("change", async (path: string) => {
       if (this.watching) {
         console.log(`Sync: ${FileService.ExtractFileName(path)} changed`);
-        if (await lockfile.Check(this.options.en.FILE_SYNC_LOCK)) {
+        if (
+          await lockfile
+            .Check(this.options.en.FILE_SYNC_LOCK)
+            .catch(err => console.log(err))
+        ) {
           return;
         } else {
-          await lockfile.Lock(this.options.en.FILE_SYNC_LOCK);
+          await lockfile
+            .Lock(this.options.en.FILE_SYNC_LOCK)
+            .catch(err => console.log(err));
         }
 
         const customSettings: CustomSettings = await this.options.commons.GetCustomSettings();
@@ -67,7 +100,9 @@ export class AutoUploadService {
             await this.InitiateAutoUpload();
           }
         }
-        await lockfile.Unlock(this.options.en.FILE_SYNC_LOCK);
+        await lockfile
+          .Unlock(this.options.en.FILE_SYNC_LOCK)
+          .catch(err => console.log(err));
         return;
       }
     });
@@ -89,6 +124,10 @@ export class AutoUploadService {
 
     await Util.Sleep(5000);
 
-    vscode.commands.executeCommand("extension.updateSettings", "forceUpdate");
+    return new Promise(resolve =>
+      vscode.commands
+        .executeCommand("extension.updateSettings", "forceUpdate")
+        .then(done => resolve(done))
+    );
   }
 }

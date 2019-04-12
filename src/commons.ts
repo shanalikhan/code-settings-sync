@@ -88,7 +88,8 @@ export default class Commons {
     this.autoUploadService = new AutoUploadService({
       en: this.en,
       commons: this,
-      ignored
+      ignored,
+      context: this.context
     });
   }
 
@@ -139,7 +140,7 @@ export default class Commons {
   }
 
   public async GetCustomSettings(): Promise<CustomSettings> {
-    let customSettings: CustomSettings = new CustomSettings();
+    const customSettings: CustomSettings = new CustomSettings();
     try {
       const customExist: boolean = await FileService.FileExists(
         this.en.FILE_CUSTOMIZEDSETTINGS
@@ -168,8 +169,7 @@ export default class Commons {
           "http://shanalikhan.github.io/2017/02/19/Option-to-ignore-settings-folders-code-settings-sync.html"
         )
       );
-      customSettings = null;
-      return customSettings;
+      return null;
     }
   }
 

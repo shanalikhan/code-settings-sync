@@ -28,15 +28,12 @@ export class Sync {
   public async bootstrap(): Promise<void> {
     const env = new Environment(this.context);
     globalCommonService = new Commons(env, this.context);
-    // if lock file not exist
-    // then create it
-    if (!(await FileService.FileExists(env.FILE_SYNC_LOCK))) {
-      await fs.close(await fs.open(env.FILE_SYNC_LOCK, "w"));
-    }
 
     // if is locked;
-    if (await lockfile.Check(env.FILE_SYNC_LOCK)) {
-      await lockfile.Unlock(env.FILE_SYNC_LOCK);
+    if (
+      await lockfile.Check(env.FILE_SYNC_LOCK).catch(err => console.log(err))
+    ) {
+      await lockfile.Unlock(env.FILE_SYNC_LOCK).catch(err => console.log(err));
     }
 
     await globalCommonService.StartMigrationProcess();
