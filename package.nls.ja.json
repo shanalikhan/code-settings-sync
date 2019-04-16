@@ -35,6 +35,7 @@
   "cmd.resetSettings.info.resetting": "Sync : 設定をリセット中です.",
   "cmd.resetSettings.info.settingClear": "Sync : 設定がクリアされました.",
   "cmd.otherOptions.title": "Sync : 詳細なオプション",
+  "cmd.otherOptions.openSettingsPage": "Sync : Open Settings [needs translation]",
   "cmd.otherOptions.editLocalSetting": "Sync : 拡張機能のローカル設定の編集",
   "cmd.otherOptions.shareSetting": "Sync : 公開 GIST で設定の共有",
   "cmd.otherOptions.shareSetting.beforeConfirm": "Sync : これにより, 現在の GIST が削除され, 新しく公開 GIST に設定がアップロードされます. 続行しますか?",

@@ -1,0 +1,30 @@
+{
+  "changes": [
+    {
+      "details": "Auto upload doesn't work when make change on settings (Thanks to <a href='https://github.com/arnohovhannisyan'>@arnohovhannisyan</a> for PR <a href='https://github.com/shanalikhan/code-settings-sync/pull/807'>#807</a>)",
+      "type": "FIX",
+      "color": "danger"
+    },
+    {
+      "details": "Disable change detection for workspace storage folder (Thanks to <a href='https://github.com/knyhle'>@knyhle</a> for PR <a href='https://github.com/shanalikhan/code-settings-sync/pull/811'>#811</a>)",
+      "type": "FIX",
+      "color": "danger"
+    },
+    {
+      "details": "Pretiffy Custom Settings JSON (Thanks to <a href='https://github.com/knyhle'>@knyhle</a> for PR <a href='https://github.com/shanalikhan/code-settings-sync/pull/812'>#812</a>)",
+      "type": "NEW",
+      "color": "success"
+    },
+    {
+      "details": "Remove manual vsix package installation in favour of extension download by CLI (<a href='https://github.com/shanalikhan/code-settings-sync/pull/820'>#820</a>)",
+      "type": "NEW",
+      "color": "success"
+    },
+    {
+      "details": "Remove replaceCodeSettings from Settings Sync configurations (<a href='https://github.com/shanalikhan/code-settings-sync/pull/805'>#805</a>)",
+      "type": "NEW",
+      "color": "success"
+    }
+  ],
+  "currentVersion": "v3.2.8"
+}

@@ -1,0 +1,129 @@
+:root {
+  --btn: #0e629c;
+  --btn-hover: #15496e;
+  --btn-click: #0e3450;
+}
+#selectionContainer {
+  width: 60%;
+}
+.dock-bottom-left {
+  position: fixed;
+  bottom: 4rem;
+  left: 4rem;
+}
+html,
+body {
+  background-color: rgb(10, 1, 15);
+  font-family: "Roboto", sans-serif !important;
+  color: white;
+  letter-spacing: 0.0625em;
+}
+.logo {
+  vertical-align: -4px;
+}
+.change {
+  line-height: 150%;
+}
+.badge-success {
+  color: #fff;
+  background-color: #73c991;
+}
+.badge-danger {
+  color: #fff;
+  background-color: #ce4f59;
+}
+.badge {
+  vertical-align: 2px;
+  width: 6rem;
+}
+.opacity-50 {
+  filter: opacity(0.5);
+  -webkit-filter: opacity(0.5);
+}
+.scrollable {
+  overflow-y: auto;
+  height: 35rem;
+}
+.masthead {
+  position: relative;
+  width: 100%;
+  height: auto;
+  min-height: 35rem;
+  padding: 15rem 0;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-attachment: scroll;
+  background-size: cover;
+  margin-top: 40px;
+  margin-bottom: 40px;
+}
+.masthead h1 {
+  font-size: 2.5rem;
+  line-height: 2.5rem;
+  font-weight: bold;
+  font-family: "Open Sans";
+}
+.masthead h2 {
+  /* max-width: 20rem; */
+  font-size: 1rem;
+}
+@media (min-width: 768px) {
+  .masthead h1 {
+    font-size: 4rem;
+    line-height: 4rem;
+  }
+}
+@media (min-width: 992px) {
+  .masthead {
+    /* height: 100vh; */
+    padding: 0;
+  }
+  .masthead h1 {
+    font-size: 6.5rem;
+    line-height: 6.5rem;
+  }
+  .masthead h2 {
+    /* max-width: 30rem; */
+    font-size: 1.25rem;
+  }
+}
+.btn {
+  -webkit-box-shadow: 0 0.1875rem 0.1875rem 0 rgba(0, 0, 0, 0.1) !important;
+  box-shadow: 0 0.1875rem 0.1875rem 0 rgba(0, 0, 0, 0.1) !important;
+  padding: 1.25rem 2rem;
+  font-size: 80%;
+  text-transform: uppercase;
+  letter-spacing: 0.15rem;
+  border: 0;
+}
+.btn-primary {
+  background-color: var(--btn);
+}
+.btn-primary:hover {
+  background-color: var(--btn-hover);
+}
+.btn-primary:focus {
+  background-color: var(--btn-hover);
+  color: #fff;
+}
+.btn-primary:active {
+  background-color: var(--btn-click) !important;
+}
+.text,
+.textarea {
+  -webkit-box-shadow: 0 0.1875rem 0.1875rem 0 rgba(0, 0, 0, 0.1) !important;
+  box-shadow: 0 0.1875rem 0.1875rem 0 rgba(0, 0, 0, 0.1) !important;
+  padding: 1.25rem 2rem;
+  height: auto;
+  border: 0;
+}
+a {
+  /* color: #64a19d; */
+  color: var(--btn);
+}
+a:focus,
+a:hover {
+  text-decoration: none;
+  /* color: #3c6360; */
+  color: var(--btn-hover);
+}

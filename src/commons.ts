@@ -1,11 +1,20 @@
 "use strict";
+import { readFileSync } from "fs";
+import { has, set } from "lodash";
 import * as vscode from "vscode";
 import { Environment } from "./environmentPath";
 import localize from "./localize";
 import { AutoUploadService } from "./service/autoUploadService";
 import { File, FileService } from "./service/fileService";
+import { GitHubOAuthService } from "./service/oauthService";
 import { ExtensionInformation } from "./service/pluginService";
 import { CustomSettings, ExtensionConfig, LocalConfig } from "./setting";
+
+enum SettingType {
+  TextInput,
+  Checkbox,
+  TextArea
+}
 
 export default class Commons {
   public static outputChannel: vscode.OutputChannel = null;
@@ -70,15 +79,254 @@ export default class Commons {
     }
   }
 
+  public SettingsView: string;
+  public LandingPageView: string;
+
   public autoUploadService: AutoUploadService;
 
   public ERROR_MESSAGE: string = localize("common.error.message");
+
+  private customizableSettings = [
+    {
+      name: "Hostname (optional)",
+      placeholder: "Enter Hostname",
+      type: SettingType.TextInput,
+      correspondingSetting: "hostName"
+    },
+    {
+      name: "Ignored Files",
+      placeholder: "Enter one file per line",
+      type: SettingType.TextArea,
+      correspondingSetting: "ignoreUploadFiles"
+    },
+    {
+      name: "Ignored Folders",
+      placeholder: "Enter one folder per line",
+      type: SettingType.TextArea,
+      correspondingSetting: "ignoreUploadFolders"
+    },
+    {
+      name: "Ignored Extensions",
+      placeholder: "Enter one extension per line (full name)",
+      type: SettingType.TextArea,
+      correspondingSetting: "ignoreExtensions"
+    },
+    {
+      name: "Supported File Extensions",
+      placeholder: "Enter one file extension per line",
+      type: SettingType.TextArea,
+      correspondingSetting: "supportedFileExtensions"
+    },
+    {
+      name: "Access Token",
+      placeholder: "Enter Token",
+      type: SettingType.TextInput,
+      correspondingSetting: "token"
+    },
+    {
+      name: "Gist Description",
+      placeholder: "Enter Gist Description",
+      type: SettingType.TextInput,
+      correspondingSetting: "gistDescription"
+    },
+    {
+      name: "GitHub Enterprise URL (optional)",
+      placeholder: "Enter GitHub Enterprise URL",
+      type: SettingType.TextInput,
+      correspondingSetting: "githubEnterpriseUrl"
+    },
+    {
+      name: "Ask Gist Name",
+      placeholder: "",
+      type: SettingType.Checkbox,
+      correspondingSetting: "askGistName"
+    },
+    {
+      name: "Download Public Gist",
+      placeholder: "",
+      type: SettingType.Checkbox,
+      correspondingSetting: "downloadPublicGist"
+    },
+    {
+      name: "Open Token Link",
+      placeholder: "",
+      type: SettingType.Checkbox,
+      correspondingSetting: "openTokenLink"
+    }
+  ];
+
+  private extensionSettings = [
+    {
+      name: "Gist ID",
+      placeholder: "Enter Gist ID",
+      type: SettingType.TextInput,
+      correspondingSetting: "gist",
+      tooltip: localize("ext.config.gist")
+    },
+    {
+      name: "Auto Download",
+      placeholder: "",
+      type: SettingType.Checkbox,
+      correspondingSetting: "autoDownload",
+      tooltip: localize("ext.config.autoDownload")
+    },
+    {
+      name: "Auto Upload",
+      placeholder: "",
+      type: SettingType.Checkbox,
+      correspondingSetting: "autoUpload",
+      tooltip: localize("ext.config.autoUpload")
+    },
+    {
+      name: "Force Download",
+      placeholder: "",
+      type: SettingType.Checkbox,
+      correspondingSetting: "forceDownload",
+      tooltip: localize("ext.config.forceDownload")
+    },
+    {
+      name: "Quiet Sync",
+      placeholder: "",
+      type: SettingType.Checkbox,
+      correspondingSetting: "quietSync",
+      tooltip: localize("ext.config.quietSync")
+    },
+    {
+      name: "Remove Extensions",
+      placeholder: "",
+      type: SettingType.Checkbox,
+      correspondingSetting: "removeExtensions",
+      tooltip: localize("ext.config.removeExtensions")
+    },
+    {
+      name: "Sync Extensions",
+      placeholder: "",
+      type: SettingType.Checkbox,
+      correspondingSetting: "syncExtensions",
+      tooltip: localize("ext.config.syncExtensions")
+    }
+  ];
 
   constructor(
     private en: Environment,
     private context: vscode.ExtensionContext
   ) {
     this.InitializeAutoUpload();
+    this.SettingsView = readFileSync(
+      `${this.context.extensionPath}/ui/settings/settings.html`,
+      {
+        encoding: "utf8"
+      }
+    );
+    this.LandingPageView = readFileSync(
+      `${this.context.extensionPath}/ui/landing-page/landing-page.html`,
+      {
+        encoding: "utf8"
+      }
+    );
+  }
+
+  public async OpenSettingsPage() {
+    const customSettings = await this.GetCustomSettings();
+    const extSettings = await this.GetSettings();
+    const content: string = this.SettingsView.replace(
+      new RegExp("@GLOBAL_DATA", "g"),
+      JSON.stringify(customSettings)
+    )
+      .replace(new RegExp("@ENV_DATA", "g"), JSON.stringify(extSettings))
+      .replace(
+        new RegExp("@GLOBAL_MAP", "g"),
+        JSON.stringify(this.customizableSettings)
+      )
+      .replace(
+        new RegExp("@ENV_MAP", "g"),
+        JSON.stringify(this.extensionSettings)
+      )
+      .replace(
+        new RegExp("@PWD", "g"),
+        vscode.Uri.file(this.context.extensionPath)
+          .with({
+            scheme: "vscode-resource"
+          })
+          .toString()
+      );
+    const settingsPanel = vscode.window.createWebviewPanel(
+      "syncSettings",
+      "Sync Settings",
+      vscode.ViewColumn.One,
+      {
+        retainContextWhenHidden: true,
+        enableScripts: true
+      }
+    );
+    settingsPanel.webview.html = content;
+    settingsPanel.webview.onDidReceiveMessage(message =>
+      this.ReceiveSettingChange(message)
+    );
+  }
+
+  public async ReceiveSettingChange(message: {
+    command: string;
+    text: string;
+    type: string;
+  }) {
+    let value: any = message.text;
+    if (message.text === "true" || message.text === "false") {
+      value = message.text === "true";
+    }
+    if (message.type === "global") {
+      const customSettings = await this.GetCustomSettings();
+      if (has(customSettings, message.command)) {
+        set(customSettings, message.command, value);
+        this.SetCustomSettings(customSettings);
+      }
+    } else {
+      const extSettings = await this.GetSettings();
+      extSettings[message.command] = value;
+      this.SaveSettings(extSettings);
+    }
+  }
+
+  public async OpenLandingPage() {
+    const releaseNotes = require("../release-notes.json");
+    const content: string = this.LandingPageView.replace(
+      new RegExp("@PWD", "g"),
+      vscode.Uri.file(this.context.extensionPath)
+        .with({
+          scheme: "vscode-resource"
+        })
+        .toString()
+    ).replace("@RELEASE_NOTES", JSON.stringify(releaseNotes));
+    const landingPanel = vscode.window.createWebviewPanel(
+      "landingPage",
+      "Welcome to Settings Sync",
+      vscode.ViewColumn.One,
+      {
+        retainContextWhenHidden: true,
+        enableScripts: true
+      }
+    );
+    landingPanel.webview.html = content;
+    landingPanel.webview.onDidReceiveMessage(async message => {
+      switch (message.command) {
+        case "loginWithGitHub":
+          new GitHubOAuthService(
+            54321,
+            this,
+            this.context.extensionPath
+          ).StartProcess();
+          vscode.commands.executeCommand(
+            "vscode.open",
+            vscode.Uri.parse(
+              "https://github.com/login/oauth/authorize?scope=gist%20read:user&client_id=cfd96460d8b110e2351b&redirect_uri=http://localhost:54321/callback"
+            )
+          );
+          break;
+        case "editConfiguration":
+          this.OpenSettingsPage();
+          break;
+      }
+    });
   }
 
   public async InitializeAutoUpload() {
@@ -110,47 +358,15 @@ export default class Commons {
     }
   }
 
-  public async InitalizeSettings(
-    askToken: boolean,
-    askGist: boolean
-  ): Promise<LocalConfig> {
+  public async InitalizeSettings(): Promise<LocalConfig> {
     const settings: LocalConfig = new LocalConfig();
     const extSettings: ExtensionConfig = this.GetSettings();
     const cusSettings: CustomSettings = await this.GetCustomSettings();
 
-    if (cusSettings.token === "") {
-      if (askToken === true) {
-        askToken = !cusSettings.downloadPublicGist;
-      }
-
-      if (askToken) {
-        if (cusSettings.openTokenLink) {
-          vscode.commands.executeCommand(
-            "vscode.open",
-            vscode.Uri.parse("https://github.com/settings/tokens")
-          );
-        }
-        const tokTemp: string = await this.GetTokenAndSave(cusSettings);
-        if (!tokTemp) {
-          const msg = localize("common.error.tokenNotSave");
-          vscode.window.showErrorMessage(msg);
-          throw new Error(msg);
-        }
-        cusSettings.token = tokTemp;
-      }
+    if (cusSettings.token === "" || extSettings.gist === "") {
+      this.OpenLandingPage();
     }
 
-    if (extSettings.gist === "") {
-      if (askGist) {
-        const gistTemp: string = await this.GetGistAndSave(extSettings);
-        if (!gistTemp) {
-          const msg = localize("common.error.gistNotSave");
-          vscode.window.showErrorMessage(msg);
-          throw new Error(msg);
-        }
-        extSettings.gist = gistTemp;
-      }
-    }
     settings.customConfig = cusSettings;
     settings.extConfig = extSettings;
     return settings;
@@ -392,42 +608,6 @@ export default class Commons {
 
     settings.gist = settings.gist.trim();
     return settings;
-  }
-
-  public async GetTokenAndSave(sett: CustomSettings): Promise<string> {
-    const opt = Commons.GetInputBox(true);
-
-    const token = ((await vscode.window.showInputBox(opt)) || "").trim();
-
-    if (token && token !== "esc") {
-      sett.token = token;
-      const saved = await this.SetCustomSettings(sett);
-      if (saved) {
-        vscode.window.setStatusBarMessage(
-          localize("common.info.tokenSaved"),
-          1000
-        );
-      }
-    }
-
-    return token;
-  }
-  public async GetGistAndSave(sett: ExtensionConfig): Promise<string> {
-    const opt = Commons.GetInputBox(false);
-
-    const gist = ((await vscode.window.showInputBox(opt)) || "").trim();
-
-    if (gist && gist !== "esc") {
-      sett.gist = gist;
-      const saved = await this.SaveSettings(sett);
-      if (saved) {
-        vscode.window.setStatusBarMessage(
-          localize("common.info.gistSaved"),
-          1000
-        );
-      }
-      return gist;
-    }
   }
 
   /**
