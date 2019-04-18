@@ -229,7 +229,11 @@ export class Sync {
           }
         }
 
-        if (snippetFile.fileName === env.FILE_SETTING_NAME) {
+        if (
+          snippetFile.fileName === env.FILE_SETTING_NAME ||
+          snippetFile.fileName === env.FILE_KEYBINDING_MAC ||
+          snippetFile.fileName === env.FILE_KEYBINDING_DEFAULT
+        ) {
           try {
             snippetFile.content = PragmaUtil.processBeforeUpload(
               snippetFile.content
@@ -604,7 +608,11 @@ export class Sync {
                 );
               }
 
-              if (file.gistName === env.FILE_SETTING_NAME) {
+              if (
+                file.gistName === env.FILE_SETTING_NAME ||
+                file.gistName !== env.FILE_KEYBINDING_MAC ||
+                file.gistName === env.FILE_KEYBINDING_DEFAULT
+              ) {
                 const localContent = await FileService.ReadFile(filePath);
                 content = PragmaUtil.processBeforeWrite(
                   localContent,
