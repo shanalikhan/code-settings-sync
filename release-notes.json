@@ -1,30 +1,40 @@
 {
   "changes": [
     {
-      "details": "Auto upload doesn't work when make change on settings (Thanks to <a href='https://github.com/arnohovhannisyan'>@arnohovhannisyan</a> for PR <a href='https://github.com/shanalikhan/code-settings-sync/pull/807'>#807</a>)",
+      "details": "Fixed Code that kills Extension Host for MacOS",
       "type": "FIX",
-      "color": "danger"
+      "color": "danger",
+      "author": "arnohovhannisyan",
+      "pullRequest": "834"
     },
     {
-      "details": "Disable change detection for workspace storage folder (Thanks to <a href='https://github.com/knyhle'>@knyhle</a> for PR <a href='https://github.com/shanalikhan/code-settings-sync/pull/811'>#811</a>)",
+      "details": "Download From Public Gist not working",
       "type": "FIX",
-      "color": "danger"
+      "color": "danger",
+      "author": "shanalikhan",
+      "pullRequest": "816"
     },
     {
-      "details": "Pretiffy Custom Settings JSON (Thanks to <a href='https://github.com/knyhle'>@knyhle</a> for PR <a href='https://github.com/shanalikhan/code-settings-sync/pull/812'>#812</a>)",
-      "type": "NEW",
-      "color": "success"
+      "details": "Auto Upload Fix",
+      "type": "FIX",
+      "color": "danger",
+      "author": "arnohovhannisyan",
+      "pullRequest": "835"
     },
     {
-      "details": "Remove manual vsix package installation in favour of extension download by CLI (<a href='https://github.com/shanalikhan/code-settings-sync/pull/820'>#820</a>)",
+      "details": "Inserts some empty lines in the beginning of settings.json",
       "type": "NEW",
-      "color": "success"
+      "color": "success",
+      "author": "knyhle",
+      "pullRequest": "828"
     },
     {
-      "details": "Remove replaceCodeSettings from Settings Sync configurations (<a href='https://github.com/shanalikhan/code-settings-sync/pull/805'>#805</a>)",
+      "details": "Update Documentation",
       "type": "NEW",
-      "color": "success"
+      "color": "success",
+      "author": "colinaaa",
+      "pullRequest": "845"
     }
   ],
-  "currentVersion": "v3.2.8"
+  "currentVersion": "v3.2.9"
 }
