@@ -610,7 +610,7 @@ export class Sync {
 
               if (
                 file.gistName === env.FILE_SETTING_NAME ||
-                file.gistName !== env.FILE_KEYBINDING_MAC ||
+                file.gistName === env.FILE_KEYBINDING_MAC ||
                 file.gistName === env.FILE_KEYBINDING_DEFAULT
               ) {
                 const localContent = await FileService.ReadFile(filePath);
