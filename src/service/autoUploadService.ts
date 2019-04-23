@@ -7,6 +7,7 @@ import lockfile from "../lockfile";
 import { CustomSettings } from "../setting";
 import { Util } from "../util";
 import { FileService } from "./fileService";
+import { InstanceManagerService } from "./instanceManagerService";
 
 export class AutoUploadService {
   public static GetIgnoredItems(customSettings: CustomSettings) {
@@ -17,8 +18,6 @@ export class AutoUploadService {
   }
 
   public watching = false;
-
-  public uniqueID = Math.random();
 
   private watcher = watch(this.options.en.USER_FOLDER, {
     depth: 2,
@@ -33,8 +32,8 @@ export class AutoUploadService {
       context: vscode.ExtensionContext;
     }
   ) {
-    if (!this.options.context.globalState.get("syncInstance")) {
-      this.options.context.globalState.update("syncInstance", this.uniqueID);
+    if (!InstanceManagerService.originalInstanceExists(this.options.context)) {
+      InstanceManagerService.setOriginalInstance(this.options.context);
     } else {
       return;
     }
@@ -66,9 +65,7 @@ export class AutoUploadService {
   }
 
   public async StartWatching() {
-    if (
-      this.options.context.globalState.get("syncInstance") !== this.uniqueID
-    ) {
+    if (!InstanceManagerService.isOriginalInstance(this.options.context)) {
       return;
     }
 
