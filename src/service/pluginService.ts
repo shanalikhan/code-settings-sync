@@ -229,31 +229,38 @@ export class PluginService {
     notificationCallBack("TOTAL EXTENSIONS : " + missingExtensions.length);
     notificationCallBack("");
     notificationCallBack("");
-    missingExtensions.forEach(ext => {
-      const name = ext.publisher + "." + ext.name;
+    for (let i = 0; i < missingExtensions.length; i++) {
+      const ext = missingExtensions[i];
+      addedExtensions.push(
+        await PluginService.InstallExtension(ext, notificationCallBack)
+      );
+      notificationCallBack(
+        `INSTALLED EXTENSION ${missingExtensions.indexOf(ext) +
+          1}/${missingExtensions.length.toString()}`,
+        true
+      );
+      notificationCallBack("");
+      notificationCallBack("");
+    }
+    return addedExtensions;
+  }
+
+  public static InstallExtension(
+    extension: ExtensionInformation,
+    notificationCallBack: (...data: any[]) => void
+  ): Promise<ExtensionInformation> {
+    return new Promise(async (resolve, reject) => {
+      const name = extension.publisher + "." + extension.name;
       try {
         notificationCallBack(`INSTALLING EXTENSION: ${name}`);
-        vscode.commands.executeCommand(
-          "workbench.extensions.installExtension",
-          name
-        );
-        notificationCallBack("");
-        notificationCallBack(
-          "EXTENSION : " +
-            (missingExtensions.indexOf(ext) + 1) +
-            " / " +
-            missingExtensions.length.toString() +
-            " INSTALLED.",
-          true
-        );
-        notificationCallBack("");
-        notificationCallBack("");
-        addedExtensions.push(ext);
+        vscode.commands
+          .executeCommand("workbench.extensions.installExtension", name)
+          .then(() => {
+            resolve(extension);
+          });
       } catch (err) {
-        console.log(err);
+        reject(err);
       }
     });
-
-    return addedExtensions;
   }
 }
