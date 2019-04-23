@@ -522,8 +522,8 @@ export class Sync {
                 try {
                   deletedExtensions = await PluginService.DeleteExtensions(
                     content,
-                    env.ExtensionFolder,
-                    ignoredExtensions
+                    ignoredExtensions,
+                    env.EXTENSION_FOLDER
                   );
                 } catch (uncompletedExtensions) {
                   vscode.window.showErrorMessage(
@@ -534,30 +534,21 @@ export class Sync {
               }
 
               try {
-                let useCli = true;
-                const autoUpdate: boolean = vscode.workspace
-                  .getConfiguration("extensions")
-                  .get("autoUpdate");
-                useCli = autoUpdate && !env.isCoderCom;
-                if (useCli) {
-                  if (!syncSetting.quietSync) {
-                    Commons.outputChannel = vscode.window.createOutputChannel(
-                      "Code Settings Sync"
-                    );
-                    Commons.outputChannel.clear();
-                    Commons.outputChannel.appendLine(
-                      `COMMAND LINE EXTENSION DOWNLOAD SUMMARY`
-                    );
-                    Commons.outputChannel.appendLine(`--------------------`);
-                    Commons.outputChannel.show();
-                  }
+                if (!syncSetting.quietSync) {
+                  Commons.outputChannel = vscode.window.createOutputChannel(
+                    "Code Settings Sync"
+                  );
+                  Commons.outputChannel.clear();
+                  Commons.outputChannel.appendLine(
+                    `COMMAND LINE EXTENSION DOWNLOAD SUMMARY`
+                  );
+                  Commons.outputChannel.appendLine(`--------------------`);
+                  Commons.outputChannel.show();
                 }
 
                 addedExtensions = await PluginService.InstallExtensions(
                   content,
                   ignoredExtensions,
-                  env.OsType,
-                  env.isInsiders,
                   (message: string, dispose: boolean) => {
                     if (!syncSetting.quietSync) {
                       Commons.outputChannel.appendLine(message);

@@ -1,7 +1,5 @@
 "use strict";
 
-import * as fs from "fs-extra";
-import * as os from "os";
 import * as path from "path";
 import * as vscode from "vscode";
 import { OsType } from "./enums";
@@ -28,14 +26,11 @@ export class Environment {
     );
   }
 
-  public isInsiders: boolean = false;
-  public isOss: boolean = false;
   public isPortable: boolean = false;
-  public isCoderCom: boolean = false;
   public homeDir: string | null = null;
   public USER_FOLDER: string = null;
 
-  public ExtensionFolder: string = null;
+  public EXTENSION_FOLDER: string = null;
   public PATH: string = null;
   public OsType: OsType = null;
 
@@ -64,89 +59,27 @@ export class Environment {
   public FOLDER_SNIPPETS: string = null;
 
   constructor(private context: vscode.ExtensionContext) {
-    this.isInsiders = /insiders/.test(this.context.asAbsolutePath(""));
-    this.isPortable = process.env.VSCODE_PORTABLE ? true : false;
-    this.isOss = /\boss\b/.test(this.context.asAbsolutePath(""));
-    this.isCoderCom =
-      vscode.extensions.getExtension("coder.coder") !== undefined;
-    const isXdg =
-      !this.isInsiders &&
-      !this.isCoderCom &&
-      process.platform === "linux" &&
-      !!process.env.XDG_DATA_HOME;
-    this.homeDir = isXdg
-      ? process.env.XDG_DATA_HOME
-      : process.env[process.platform === "win32" ? "USERPROFILE" : "HOME"];
-    const configSuffix = `${isXdg || this.isCoderCom ? "" : "."}vscode${
-      this.isInsiders ? "-insiders" : this.isOss ? "-oss" : ""
-    }`;
+    this.context.globalState.update("_", undefined); // Make sure the global state folder exists. This is needed for using this.context.globalStoragePath to access user folder
+
+    this.isPortable = !!process.env.VSCODE_PORTABLE;
 
     if (!this.isPortable) {
-      if (process.platform === "darwin") {
-        this.PATH = process.env.HOME + "/Library/Application Support";
-        this.OsType = OsType.Mac;
-      } else if (process.platform === "linux") {
-        if (!this.isCoderCom) {
-          this.PATH =
-            isXdg && !!process.env.XDG_CONFIG_HOME
-              ? process.env.XDG_CONFIG_HOME
-              : os.homedir() + "/.config";
-        } else {
-          this.PATH = "/tmp";
-        }
-        this.OsType = OsType.Linux;
-      } else if (process.platform === "win32") {
-        this.PATH = process.env.APPDATA;
-        this.OsType = OsType.Windows;
-      } else {
-        this.PATH = "/var/local";
-        this.OsType = OsType.Linux;
-      }
+      this.PATH = path
+        .resolve(this.context.globalStoragePath, "../../..")
+        .concat("/");
+      this.USER_FOLDER = path.resolve(this.PATH, "User").concat("/");
+      this.EXTENSION_FOLDER = path
+        .resolve(vscode.extensions.all[72].extensionPath, "..")
+        .concat("/"); // 0-71 are vscode built-in extensions that are in a separate folder. 72 is the first user-installed extension
     }
 
     if (this.isPortable) {
       this.PATH = process.env.VSCODE_PORTABLE;
-      if (process.platform === "darwin") {
-        this.OsType = OsType.Mac;
-      } else if (process.platform === "linux") {
-        this.OsType = OsType.Linux;
-      } else if (process.platform === "win32") {
-        this.OsType = OsType.Windows;
-      } else {
-        this.OsType = OsType.Linux;
-      }
+      this.USER_FOLDER = path.resolve(this.PATH, "user-data/User").concat("/");
+      this.EXTENSION_FOLDER = path.resolve(this.PATH, "extensions").concat("/");
     }
 
-    if (!this.isPortable) {
-      const possibleCodePaths = [];
-      if (this.isInsiders) {
-        possibleCodePaths.push("/Code - Insiders");
-      } else if (this.isOss) {
-        possibleCodePaths.push("/Code - OSS");
-        possibleCodePaths.push("/VSCodium");
-      } else {
-        possibleCodePaths.push("/Code");
-      }
-      for (const possibleCodePath of possibleCodePaths) {
-        try {
-          fs.statSync(this.PATH + possibleCodePath);
-          this.PATH = this.PATH + possibleCodePath;
-          break;
-        } catch (e) {
-          console.error("Error :" + possibleCodePath);
-          console.error(e);
-        }
-      }
-      this.ExtensionFolder = path.join(
-        this.homeDir,
-        configSuffix,
-        "extensions"
-      );
-      this.USER_FOLDER = this.PATH.concat("/User/");
-    } else {
-      this.USER_FOLDER = this.PATH.concat("/user-data/User/");
-      this.ExtensionFolder = this.PATH.concat("/extensions/");
-    }
+    this.OsType = process.platform as OsType;
 
     this.FILE_EXTENSION = this.USER_FOLDER.concat(this.FILE_EXTENSION_NAME);
     this.FILE_SETTING = this.USER_FOLDER.concat(this.FILE_SETTING_NAME);

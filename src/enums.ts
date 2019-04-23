@@ -1,7 +1,7 @@
 export enum OsType {
-  Windows = 1,
-  Linux,
-  Mac
+  Windows = "windows",
+  Linux = "linux",
+  Mac = "darwin"
 }
 
 export enum SettingType {
