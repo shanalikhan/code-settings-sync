@@ -153,7 +153,6 @@
   },
   "devDependencies": {
     "@types/chai": "4.1.7",
-    "@types/form-data": "^2.2.1",
     "@types/fs-extra": "^5.0.5",
     "@types/mocha": "^5.2.6",
     "@types/node": "^11.13.0",
@@ -173,7 +172,6 @@
   },
   "dependencies": {
     "@octokit/rest": "^16.23.2",
-    "form-data": "^2.3.3",
     "fs-extra": "^7.0.1",
     "https-proxy-agent": "^2.2.1",
     "lockfile": "^1.0.4",

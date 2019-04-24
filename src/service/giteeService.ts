@@ -1,6 +1,5 @@
 "use strict";
 
-import * as FormData from "form-data";
 import fetch from "node-fetch";
 import { File } from "./fileService";
 
