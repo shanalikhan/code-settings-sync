@@ -26,6 +26,10 @@ export class Environment {
     );
   }
 
+  // public isInsiders: boolean = false;
+  // public isOss: boolean = false;
+  // public isCoderCom: boolean = false;
+
   public isPortable: boolean = false;
   public homeDir: string | null = null;
   public USER_FOLDER: string = null;
@@ -80,6 +84,93 @@ export class Environment {
     }
 
     this.OsType = process.platform as OsType;
+
+    /* Start Legacy Code
+
+    this.isInsiders = /insiders/.test(this.context.asAbsolutePath(""));
+    this.isOss = /\boss\b/.test(this.context.asAbsolutePath(""));
+    this.isCoderCom =
+      vscode.extensions.getExtension("coder.coder") !== undefined;
+    const isXdg =
+      !this.isInsiders &&
+      !this.isCoderCom &&
+      process.platform === "linux" &&
+      !!process.env.XDG_DATA_HOME;
+    this.homeDir = isXdg
+      ? process.env.XDG_DATA_HOME
+      : process.env[process.platform === "win32" ? "USERPROFILE" : "HOME"];
+    const configSuffix = `${isXdg || this.isCoderCom ? "" : "."}vscode${
+      this.isInsiders ? "-insiders" : this.isOss ? "-oss" : ""
+    }`;
+
+    if (!this.isPortable) {
+      if (process.platform === "darwin") {
+        this.PATH = process.env.HOME + "/Library/Application Support";
+        this.OsType = OsType.Mac;
+      } else if (process.platform === "linux") {
+        if (!this.isCoderCom) {
+          this.PATH =
+            isXdg && !!process.env.XDG_CONFIG_HOME
+              ? process.env.XDG_CONFIG_HOME
+              : os.homedir() + "/.config";
+        } else {
+          this.PATH = "/tmp";
+        }
+        this.OsType = OsType.Linux;
+      } else if (process.platform === "win32") {
+        this.PATH = process.env.APPDATA;
+        this.OsType = OsType.Windows;
+      } else {
+        this.PATH = "/var/local";
+        this.OsType = OsType.Linux;
+      }
+    }
+
+    if (this.isPortable) {
+      this.PATH = process.env.VSCODE_PORTABLE;
+      if (process.platform === "darwin") {
+        this.OsType = OsType.Mac;
+      } else if (process.platform === "linux") {
+        this.OsType = OsType.Linux;
+      } else if (process.platform === "win32") {
+        this.OsType = OsType.Windows;
+      } else {
+        this.OsType = OsType.Linux;
+      }
+    }
+
+    if (!this.isPortable) {
+      const possibleCodePaths = [];
+      if (this.isInsiders) {
+        possibleCodePaths.push("/Code - Insiders");
+      } else if (this.isOss) {
+        possibleCodePaths.push("/Code - OSS");
+        possibleCodePaths.push("/VSCodium");
+      } else {
+        possibleCodePaths.push("/Code");
+      }
+      for (const possibleCodePath of possibleCodePaths) {
+        try {
+          fs.statSync(this.PATH + possibleCodePath);
+          this.PATH = this.PATH + possibleCodePath;
+          break;
+        } catch (e) {
+          console.error("Error :" + possibleCodePath);
+          console.error(e);
+        }
+      }
+      this.ExtensionFolder = path.join(
+        this.homeDir,
+        configSuffix,
+        "extensions"
+      );
+      this.USER_FOLDER = this.PATH.concat("/User/");
+    } else {
+      this.USER_FOLDER = this.PATH.concat("/user-data/User/");
+      this.ExtensionFolder = this.PATH.concat("/extensions/");
+    }
+
+    End Legacy Code */
 
     this.FILE_EXTENSION = this.USER_FOLDER.concat(this.FILE_EXTENSION_NAME);
     this.FILE_SETTING = this.USER_FOLDER.concat(this.FILE_SETTING_NAME);
