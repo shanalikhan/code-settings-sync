@@ -17,10 +17,7 @@ const config = {
   resolve: {
     extensions: [".ts", ".js"],
     alias: {
-      deepmerge$: path.resolve(
-        __dirname,
-        "../node_modules/deepmerge/dist/umd.js"
-      )
+      deepmerge$: path.resolve(__dirname, "../node_modules/deepmerge/dist/umd.js")
     }
   },
   module: {
