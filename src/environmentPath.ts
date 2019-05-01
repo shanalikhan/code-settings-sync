@@ -17,7 +17,7 @@ export function osTypeFromString(osName: string): OsType {
 }
 
 export class Environment {
-  public static CURRENT_VERSION: number = 325;
+  public static CURRENT_VERSION: number = 329;
   public static getVersion(): string {
     return (
       Environment.CURRENT_VERSION.toString().slice(0, 1) +
@@ -80,8 +80,6 @@ export class Environment {
     const configSuffix = `${isXdg || this.isCoderCom ? "" : "."}vscode${
       this.isInsiders ? "-insiders" : this.isOss ? "-oss" : ""
     }`;
-
-    process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
 
     if (!this.isPortable) {
       if (process.platform === "darwin") {

@@ -44,11 +44,7 @@ export class GitHubService {
   };
 
   constructor(userToken: string, basePath: string) {
-    const githubApiConfig: GitHubApi.Options = {
-      headers: {
-        rejectUnauthorized: false
-      }
-    };
+    const githubApiConfig: GitHubApi.Options = {};
 
     const proxyURL: string =
       vscode.workspace.getConfiguration("http").get("proxy") ||
@@ -61,18 +57,16 @@ export class GitHubService {
     if (proxyURL) {
       githubApiConfig.agent = new HttpsProxyAgent(proxyURL);
     }
-    this.github = new GitHubApi(githubApiConfig);
 
     if (userToken !== null && userToken !== "") {
-      try {
-        this.github.authenticate({
-          type: "oauth",
-          token: userToken
-        });
-      } catch (err) {
-        console.error(err);
-      }
-
+      githubApiConfig.auth = `token ${userToken}`;
+    }
+    try {
+      this.github = new GitHubApi(githubApiConfig);
+    } catch (err) {
+      console.error(err);
+    }
+    if (userToken !== null && userToken !== "") {
       this.github.users
         .getAuthenticated({})
         .then(res => {

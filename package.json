@@ -2,7 +2,7 @@
   "name": "code-settings-sync",
   "displayName": "Settings Sync",
   "description": "Synchronize Settings, Snippets, Themes, File Icons, Launch, Keybindings, Workspaces and Extensions Across Multiple Machines Using GitHub Gist.",
-  "version": "3.2.5",
+  "version": "3.2.9",
   "icon": "images/cloud.png",
   "publisher": "Shan",
   "author": {
@@ -46,7 +46,7 @@
     "email": "shanalikhan@hotmail.com"
   },
   "engines": {
-    "vscode": "^1.31.1"
+    "vscode": "^1.32.3"
   },
   "categories": [
     "Other"
@@ -143,9 +143,9 @@
     }
   },
   "scripts": {
-    "vscode:prepublish": "npm run tslint-check && webpack --mode production",
-    "compile": "webpack",
-    "watch": "webpack --mode development --watch",
+    "vscode:prepublish": "npm run tslint-check && webpack --config configs/webpack.production.config.js",
+    "compile": "webpack --config configs/webpack.development.config.js",
+    "watch": "webpack --config configs/webpack.development.config.js --watch",
     "postinstall": "node ./node_modules/vscode/bin/install",
     "tslint-check": "tslint -c ./tslint.json ./src/**/*.ts ./src/*.ts",
     "format": "prettier --write './src/**/*.ts'",
@@ -154,26 +154,27 @@
   "devDependencies": {
     "@types/chai": "4.1.7",
     "@types/fs-extra": "^5.0.5",
-    "@types/mocha": "^5.2.5",
-    "@types/node": "^11.9.0",
+    "@types/mocha": "^5.2.6",
+    "@types/node": "^11.13.0",
     "chai": "^4.2.0",
-    "clean-webpack-plugin": "^1.0.1",
-    "mocha": "^5.2.0",
+    "clean-webpack-plugin": "^2.0.1",
+    "mocha": "^6.0.2",
     "prettier": "^1.16.4",
     "ts-loader": "^5.3.3",
-    "tslint": "^5.12.1",
+    "tslint": "^5.15.0",
     "tslint-plugin-prettier": "^2.0.1",
-    "typescript": "^3.3.2",
-    "vscode": "^1.1.26",
-    "webpack": "^4.29.3",
-    "webpack-cli": "^3.2.3"
+    "typescript": "^3.4.1",
+    "vscode": "^1.1.33",
+    "webpack": "^4.29.6",
+    "webpack-cli": "^3.3.0",
+    "webpack-merge": "^4.2.1"
   },
   "dependencies": {
-    "@octokit/rest": "^16.15.0",
-    "adm-zip": "^0.4.13",
+    "@octokit/rest": "^16.23.2",
     "fs-extra": "^7.0.1",
     "https-proxy-agent": "^2.2.1",
     "lockfile": "^1.0.4",
-    "temp": "^0.9.0"
+    "temp": "^0.9.0",
+    "vscode-chokidar": "^1.6.5"
   }
 }

@@ -2,7 +2,34 @@
 
 [![Version](https://vsmarketplacebadge.apphb.com/version/Shan.code-settings-sync.svg)](https://marketplace.visualstudio.com/items?itemName=Shan.code-settings-sync) [![Travis](https://img.shields.io/travis/rust-lang/rust.svg)](https://marketplace.visualstudio.com/items?itemName=Shan.code-settings-sync) [![Master course](https://img.shields.io/badge/Supported%20by-VSCode%20Power%20User%20Course%20%E2%86%92-gray.svg?colorA=444444&colorB=4F44D6)](https://t.co/8BEMyhpKU5?amp=1)
 
-#### v3.2.5 - Feb 15,2018
+#### v3.2.9 - April 18,2019
+
+* Bug : Fixed Code that kills Extension Host for MacOS [#827](https://github.com/shanalikhan/code-settings-sync/issues/827) - Thanks for PR [#834](https://github.com/shanalikhan/code-settings-sync/pull/834) by [@arnohovhannisyan](https://github.com/arnohovhannisyan)
+* Bug : Download From Public Gist not working [#816](https://github.com/shanalikhan/code-settings-sync/issues/816)
+* Bug : Auto Upload Fix [#832](https://github.com/shanalikhan/code-settings-sync/issues/832) - Thanks for PR [#835](https://github.com/shanalikhan/code-settings-sync/pull/835) by [@arnohovhannisyan](https://github.com/arnohovhannisyan)
+* Improvement - Inserts some empty lines in the beginning of `settings.json` [#819](https://github.com/shanalikhan/code-settings-sync/issues/819) - Thanks for PR [#828](https://github.com/shanalikhan/code-settings-sync/pull/828) by [@arnohovhannisyan](https://github.com/arnohovhannisyan)
+* Wiki : Update Documentation - Thanks for PR [#828](https://github.com/shanalikhan/code-settings-sync/pull/845) by [@colinaaa](https://github.com/colinaaa)
+
+#### v3.2.8 - April 04,2019
+
+* Bug : auto upload doesn't work when make change on settings [#801](https://github.com/shanalikhan/code-settings-sync/issues/801) -  Thanks for PR [#807](https://github.com/shanalikhan/code-settings-sync/pull/807) by [@arnohovhannisyan](https://github.com/arnohovhannisyan)
+* Bug : Auto Upload / Download : Disable change detection for workspace storage folder [#708](https://github.com/shanalikhan/code-settings-sync/issues/708) -  Thanks for PR [#811](https://github.com/shanalikhan/code-settings-sync/pull/811) by [@knyhle](https://github.com/knyhle)
+* Pretiffy Custom Settings JSON -  Thanks for PR [#812](https://github.com/shanalikhan/code-settings-sync/pull/812) by [@knyhle](https://github.com/knyhle)
+* Improvement - Remove manual visx package installation in favour of extension download by CLI [#820](https://github.com/shanalikhan/code-settings-sync/issues/820)
+* Improvement - Remove replaceCodeSettings from Settings Sync configurations [#805](https://github.com/shanalikhan/code-settings-sync/issues/805)
+
+#### v3.2.7 - March 06,2019
+
+* Bug : Fixing Extensions Sync on Windows [#789](https://github.com/shanalikhan/code-settings-sync/issues/789) -  Thanks for PR [#791](https://github.com/shanalikhan/code-settings-sync/pull/791) by [@LuisUrrutia](https://github.com/LuisUrrutia)
+
+#### v3.2.6 - March 05,2019
+
+* Bug : Syncing of extensions not working in portable mode [#756](https://github.com/shanalikhan/code-settings-sync/issues/756) -  Thanks for PR [#782](https://github.com/shanalikhan/code-settings-sync/pull/782) by [@LuisUrrutia](https://github.com/LuisUrrutia)
+* Bug : Fixing NODE_TLS_REJECT_UNAUTHORIZED [#776](https://github.com/shanalikhan/code-settings-sync/issues/776) -  Thanks for PR [#779](https://github.com/shanalikhan/code-settings-sync/pull/779) by [@MattMorgis](https://github.com/MattMorgis)
+* Documentation Updated
+* Packages Updated
+
+#### v3.2.5 - Feb 15,2019
 
 * Bug : Not working with VSCode 1.31 [#762](https://github.com/shanalikhan/code-settings-sync/issues/762) -  Thanks for PR [#763](https://github.com/shanalikhan/code-settings-sync/pull/763) by [@nekonenene](https://github.com/nekonenene)
 * Bug : Multi-line settings aren't ignored properly using sync pragma [#701](https://github.com/shanalikhan/code-settings-sync/issues/701) -  Thanks for PR [#750](https://github.com/shanalikhan/code-settings-sync/pull/750) by [@ioprotium](https://github.com/ioprotium)

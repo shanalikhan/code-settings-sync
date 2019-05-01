@@ -30,6 +30,11 @@ export class KeyValue<T, S> {
 
 export class CustomSettings {
   public ignoreUploadFiles: string[] = [
+    "state.vscdb",
+    "state.vscdb.backup",
+    "syncLocalSettings.json",
+    ".DS_Store",
+    "sync.lock",
     "projects.json",
     "projects_cache_vscode.json",
     "projects_cache_git.json",
@@ -39,8 +44,6 @@ export class CustomSettings {
   ];
   public ignoreUploadFolders: string[] = ["workspaceStorage"];
   public ignoreExtensions: string[] = [];
-  public ignoreUploadSettings: string[] = [];
-  public replaceCodeSettings: { [key: string]: any } = {};
   public gistDescription: string = "Visual Studio Code Settings Sync Gist";
   public version: number = Environment.CURRENT_VERSION;
   public token: string = "";

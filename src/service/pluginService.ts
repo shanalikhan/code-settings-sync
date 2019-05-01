@@ -4,13 +4,6 @@ import * as path from "path";
 import * as vscode from "vscode";
 
 import { OsType } from "../enums";
-import * as util from "../util";
-
-const apiPath =
-  "https://marketplace.visualstudio.com/_apis/public/gallery/extensionquery";
-
-const extensionDir: string = ".vscode";
-const extensionDirPortable: string = "/data/extensions/";
 
 export class ExtensionInformation {
   public static fromJSON(text: string) {
@@ -158,33 +151,29 @@ export class PluginService {
     const list: ExtensionInformation[] = [];
 
     for (const ext of vscode.extensions.all) {
-      console.log(ext.extensionPath);
-
-      if (
-        (ext.extensionPath.includes(extensionDir) ||
-          ext.extensionPath.includes(extensionDirPortable)) && // skip if not install from gallery
-        ext.packageJSON.isBuiltin === false
-      ) {
-        const meta = ext.packageJSON.__metadata || {
-          id: ext.packageJSON.uuid,
-          publisherId: ext.id,
-          publisherDisplayName: ext.packageJSON.publisher
-        };
-        const data = new ExtensionMetadata(
-          meta.galleryApiUrl,
-          meta.id,
-          meta.downloadUrl,
-          meta.publisherId,
-          meta.publisherDisplayName,
-          meta.date
-        );
-        const info = new ExtensionInformation();
-        info.metadata = data;
-        info.name = ext.packageJSON.name;
-        info.publisher = ext.packageJSON.publisher;
-        info.version = ext.packageJSON.version;
-        list.push(info);
+      if (ext.packageJSON.isBuiltin === true) {
+        continue;
       }
+
+      const meta = ext.packageJSON.__metadata || {
+        id: ext.packageJSON.uuid,
+        publisherId: ext.id,
+        publisherDisplayName: ext.packageJSON.publisher
+      };
+      const data = new ExtensionMetadata(
+        meta.galleryApiUrl,
+        meta.id,
+        meta.downloadUrl,
+        meta.publisherId,
+        meta.publisherDisplayName,
+        meta.date
+      );
+      const info = new ExtensionInformation();
+      info.metadata = data;
+      info.name = ext.packageJSON.name;
+      info.publisher = ext.packageJSON.publisher;
+      info.version = ext.packageJSON.version;
+      list.push(info);
     }
 
     return list;
@@ -244,14 +233,11 @@ export class PluginService {
 
   public static async InstallExtensions(
     extensions: string,
-    extFolder: string,
-    useCli: boolean,
     ignoredExtensions: string[],
     osType: OsType,
     insiders: boolean,
     notificationCallBack: (...data: any[]) => void
   ): Promise<ExtensionInformation[]> {
-    let actionList: Array<Promise<void>> = [];
     let addedExtensions: ExtensionInformation[] = [];
     const missingList = PluginService.GetMissingExtensions(
       extensions,
@@ -261,29 +247,13 @@ export class PluginService {
       notificationCallBack("Sync : No Extensions needs to be installed.");
       return [];
     }
-
-    if (useCli) {
-      addedExtensions = await PluginService.ProcessInstallationCLI(
-        missingList,
-        osType,
-        insiders,
-        notificationCallBack
-      );
-      return addedExtensions;
-    } else {
-      actionList = await this.ProcessInstallation(
-        extFolder,
-        notificationCallBack,
-        missingList
-      );
-      try {
-        await Promise.all(actionList);
-        return addedExtensions;
-      } catch (err) {
-        // always return extension list
-        return addedExtensions;
-      }
-    }
+    addedExtensions = await PluginService.ProcessInstallationCLI(
+      missingList,
+      osType,
+      insiders,
+      notificationCallBack
+    );
+    return addedExtensions;
   }
 
   public static async ProcessInstallationCLI(
@@ -362,184 +332,5 @@ export class PluginService {
     }
 
     return addedExtensions;
-  }
-
-  public static async ProcessInstallation(
-    extFolder: string,
-    notificationCallBack: (...data: any[]) => void,
-    missingList: ExtensionInformation[]
-  ) {
-    const actionList: Array<Promise<void>> = [];
-    const addedExtensions: ExtensionInformation[] = [];
-    let totalInstalled: number = 0;
-    for (const element of missingList) {
-      actionList.push(
-        PluginService.InstallExtension(element, extFolder).then(
-          () => {
-            totalInstalled = totalInstalled + 1;
-            notificationCallBack(
-              "Sync : Extension " +
-                totalInstalled +
-                " of " +
-                missingList.length.toString() +
-                " installed.",
-              false
-            );
-            addedExtensions.push(element);
-          },
-          (err: any) => {
-            console.error(err);
-            notificationCallBack(
-              "Sync : " + element.name + " Download Failed.",
-              true
-            );
-          }
-        )
-      );
-    }
-    return actionList;
-  }
-
-  public static async InstallExtension(
-    item: ExtensionInformation,
-    ExtensionFolder: string
-  ) {
-    const header = {
-      Accept: "application/json;api-version=3.0-preview.1"
-    };
-    let extractPath: string = null;
-
-    const data = {
-      filters: [
-        {
-          criteria: [
-            {
-              filterType: 4,
-              value: item.metadata.id
-            }
-          ]
-        }
-      ],
-      flags: 133
-    };
-
-    try {
-      const res = await util.Util.HttpPostJson(apiPath, data, header);
-      let downloadUrl: string;
-
-      try {
-        let targetVersion = null;
-        const content = JSON.parse(res);
-
-        // Find correct version
-        for (const result of content.results) {
-          for (const extension of result.extensions) {
-            for (const version of extension.versions) {
-              if (version.version === item.version) {
-                targetVersion = version;
-                break;
-              }
-            }
-            if (targetVersion !== null) {
-              break;
-            }
-          }
-          if (targetVersion !== null) {
-            break;
-          }
-        }
-
-        if (
-          targetVersion === null ||
-          !targetVersion ||
-          !targetVersion.assetUri
-        ) {
-          // unable to find one
-          throw new Error("NA");
-        }
-
-        // Proceed to install
-        downloadUrl =
-          targetVersion.assetUri +
-          "/Microsoft.VisualStudio.Services.VSIXPackage?install=true";
-        console.log("Installing from Url :" + downloadUrl);
-      } catch (error) {
-        if (error === "NA" || error.message === "NA") {
-          console.error(
-            "Sync : Extension : '" +
-              item.name +
-              "' - Version : '" +
-              item.version +
-              "' Not Found in marketplace. Remove the extension and upload the settings to fix this."
-          );
-        }
-        console.error(error);
-        throw error;
-      }
-
-      const filePath = await util.Util.HttpGetFile(downloadUrl);
-
-      const dir = await util.Util.Extract(filePath);
-
-      extractPath = dir;
-      const packageJson = await PluginService.GetPackageJson(dir, item);
-
-      Object.assign(packageJson, {
-        __metadata: item.metadata
-      });
-
-      const text = JSON.stringify(packageJson, null, " ");
-      await PluginService.WritePackageJson(extractPath, text);
-
-      // Move the folder to correct path
-      const destination = path.join(
-        ExtensionFolder,
-        item.publisher + "." + item.name + "-" + item.version
-      );
-      const source = path.join(extractPath, "extension");
-      await PluginService.CopyExtension(destination, source);
-    } catch (err) {
-      console.error(
-        `Sync : Extension : '${item.name}' - Version : '${item.version}'` + err
-      );
-      throw err;
-    }
-  }
-
-  private static async CopyExtension(
-    destination: string,
-    source: string
-  ): Promise<void> {
-    await fs.copy(source, destination, { overwrite: true });
-  }
-  private static async WritePackageJson(dirName: string, packageJson: string) {
-    await fs.writeFile(
-      dirName + "/extension/package.json",
-      packageJson,
-      "utf-8"
-    );
-  }
-  private static async GetPackageJson(
-    dirName: string,
-    item: ExtensionInformation
-  ) {
-    const text = await fs.readFile(
-      dirName + "/extension/package.json",
-      "utf-8"
-    );
-
-    const config = JSON.parse(text);
-
-    if (config.name !== item.name) {
-      throw new Error("name not equal");
-    }
-    if (config.publisher !== item.publisher) {
-      throw new Error("publisher not equal");
-    }
-    if (config.version !== item.version) {
-      throw new Error("version not equal");
-    }
-
-    return config;
   }
 }
