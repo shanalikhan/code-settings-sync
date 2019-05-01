@@ -237,7 +237,7 @@ export default class PragmaUtil {
     }
   }
 
-  // checks and advance index
+  // Checks and advance line reading index
   private static checkNextLines(
     lines: string[],
     parsedLines: string[],
