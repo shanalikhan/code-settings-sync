@@ -18,6 +18,9 @@
     // @sync host=mac2 os=mac env=TEST_ENV
     //"mac2": 3,
 
+    // @sync host=mac2
+    //"server": "http://example.com",
+
     // @sync os=mac
     "mactest": "",
 
