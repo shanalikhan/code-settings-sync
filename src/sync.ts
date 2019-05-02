@@ -21,7 +21,10 @@ import PragmaUtil from "./pragmaUtil";
 let globalCommonService: Commons;
 
 export class Sync {
-  constructor(private context: vscode.ExtensionContext) {}
+  constructor(private context: vscode.ExtensionContext) {
+    // Check global storage dir
+    FileService.CreateDirectory(context.globalStoragePath);
+  }
   /**
    * Run when extension have been activated
    */
@@ -100,7 +103,11 @@ export class Sync {
         localConfig.customConfig.token,
         localConfig.customConfig.githubEnterpriseUrl
       );
-      await startGitProcess(localConfig.extConfig, localConfig.customConfig);
+      await startGitProcess.call(
+        this,
+        localConfig.extConfig,
+        localConfig.customConfig
+      );
     } catch (error) {
       Commons.LogException(error, globalCommonService.ERROR_MESSAGE, true);
       return;
@@ -219,25 +226,36 @@ export class Sync {
       for (const snippetFile of contentFiles) {
         if (snippetFile.fileName !== env.FILE_KEYBINDING_MAC) {
           if (snippetFile.content !== "") {
+            let shouldUpload = true;
+
             if (snippetFile.fileName === env.FILE_KEYBINDING_NAME) {
               snippetFile.gistName =
                 env.OsType === OsType.Mac
                   ? env.FILE_KEYBINDING_MAC
                   : env.FILE_KEYBINDING_DEFAULT;
             }
-            allSettingFiles.push(snippetFile);
-          }
-        }
 
-        if (snippetFile.fileName === env.FILE_SETTING_NAME) {
-          try {
-            snippetFile.content = PragmaUtil.processBeforeUpload(
-              snippetFile.content
-            );
-          } catch (e) {
-            Commons.LogException(null, e.message, true);
-            console.error(e);
-            return;
+            if (snippetFile.fileName === env.FILE_SETTING_NAME) {
+              try {
+                const [
+                  content,
+                  shouldUploadSettingsFile
+                ] = await PragmaUtil.processBeforeUpload(
+                  snippetFile.content,
+                  this.context
+                );
+                snippetFile.content = content;
+                shouldUpload = shouldUploadSettingsFile;
+              } catch (e) {
+                Commons.LogException(null, e.message, true);
+                console.error(e);
+                return;
+              }
+            }
+
+            if (shouldUpload) {
+              allSettingFiles.push(snippetFile);
+            }
           }
         }
       }
