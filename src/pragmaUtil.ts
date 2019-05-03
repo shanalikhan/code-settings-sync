@@ -225,7 +225,7 @@ export default class PragmaUtil {
       }
     }
 
-    if (!settingsFileExists || shouldUpload) {
+    if ((!settingsFileExists || shouldUpload) && context !== null) {
       // Create or update local settings file
       await FileService.WriteFile(
         `${context.globalStoragePath}/settings.sync`,
@@ -269,11 +269,18 @@ export default class PragmaUtil {
   private static readonly EnvPragmaWhiteSpacesSupportRegExp = /(?:env=(.+)host=)|(?:env=(.+)os=)|env=(.+)\n?/;
 
   private static toggleComments(line: string, shouldComment: boolean) {
-    if (shouldComment && !line.trim().startsWith("//")) {
-      return "  //" + line; // 2 spaces as formmating
+    const isCommented = line.trim().startsWith("//");
+    if (shouldComment) {
+      if (!isCommented) {
+        return "  //" + line; // 2 spaces as formating
+      }
     } else {
-      return line.replace("//", "");
+      if (isCommented) {
+        return line.replace("//", "");
+      }
     }
+
+    return line;
   }
 
   // Checks and advance line reading index
