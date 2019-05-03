@@ -522,8 +522,8 @@ export class Sync {
                 try {
                   deletedExtensions = await PluginService.DeleteExtensions(
                     content,
-                    ignoredExtensions,
-                    env.EXTENSION_FOLDER
+                    env.EXTENSION_FOLDER,
+                    ignoredExtensions
                   );
                 } catch (uncompletedExtensions) {
                   vscode.window.showErrorMessage(
@@ -549,6 +549,7 @@ export class Sync {
                 addedExtensions = await PluginService.InstallExtensions(
                   content,
                   ignoredExtensions,
+                  env.CODE_BIN,
                   (message: string, dispose: boolean) => {
                     if (!syncSetting.quietSync) {
                       Commons.outputChannel.appendLine(message);

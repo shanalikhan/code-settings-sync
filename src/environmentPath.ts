@@ -29,10 +29,12 @@ export class Environment {
   // public isInsiders: boolean = false;
   // public isOss: boolean = false;
   // public isCoderCom: boolean = false;
+  // public homeDir: string | null = null;
 
   public isPortable: boolean = false;
-  public homeDir: string | null = null;
   public USER_FOLDER: string = null;
+
+  public CODE_BIN: string;
 
   public EXTENSION_FOLDER: string = null;
   public PATH: string = null;
@@ -75,12 +77,16 @@ export class Environment {
       this.EXTENSION_FOLDER = path
         .resolve(vscode.extensions.all[72].extensionPath, "..")
         .concat("/"); // 0-71 are vscode built-in extensions that are in a separate folder. 72 is the first user-installed extension
+      this.CODE_BIN = path
+        .basename(path.resolve(this.EXTENSION_FOLDER, ".."))
+        .slice(3);
     }
 
     if (this.isPortable) {
       this.PATH = process.env.VSCODE_PORTABLE;
       this.USER_FOLDER = path.resolve(this.PATH, "user-data/User").concat("/");
       this.EXTENSION_FOLDER = path.resolve(this.PATH, "extensions").concat("/");
+      this.CODE_BIN = "./bin/code*";
     }
 
     this.OsType = process.platform as OsType;
@@ -99,8 +105,8 @@ export class Environment {
     this.homeDir = isXdg
       ? process.env.XDG_DATA_HOME
       : process.env[process.platform === "win32" ? "USERPROFILE" : "HOME"];
-    const configSuffix = `${isXdg || this.isCoderCom ? "" : "."}vscode${
-      this.isInsiders ? "-insiders" : this.isOss ? "-oss" : ""
+    const configSuffix = `; $; {isXdg || this.isCoderCom ? "" : "."; }vscode$; {
+      this.isInsiders ? "-insiders" : this.isOss ? "-oss" : "";
     }`;
 
     if (!this.isPortable) {
