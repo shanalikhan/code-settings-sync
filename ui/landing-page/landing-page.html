@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, shrink-to-fit=no"
+    />
+    <link
+      rel="stylesheet"
+      href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+      integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T"
+      crossorigin="anonymous"
+    />
+    <link
+      href="https://fonts.googleapis.com/css?family=Roboto:400"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css?family=Open+Sans:700"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="@PWD/ui/shared/styles.css" />
+  </head>
+  <body>
+    <header class="masthead">
+      <div class="container d-flex h-100">
+        <div class="mx-auto text-center">
+          <page-header></page-header>
+          <div class="row">
+            <div class="col text-left mb-2 mt-2">
+              <div class="scrollable" id="notes">
+                <h3 class="mx-auto mt-2 mb-3 text-white-50">
+                  What's New in
+                  <a
+                    id="current-version"
+                    href="https://github.com/shanalikhan/code-settings-sync/blob/master/CHANGELOG.md"
+                    >vX.X.X</a
+                  >
+                </h3>
+              </div>
+            </div>
+            <div class="col mb-2 mt-2 scrollable">
+              <div>
+                <h3 class="mx-auto mt-2 mb-3 text-white-50 text-left">
+                  Configuration
+                </h3>
+                <p class="mx-auto mt-2 mb-3 text-white-50 text-left">
+                  Login via GitHub to setup Settings Sync, or configure the
+                  settings manually.
+                </p>
+                <a
+                  href="#"
+                  onclick="sendCommand('loginWithGitHub')"
+                  title="Login with GitHub"
+                  class="btn btn-primary mb-2"
+                  style="width: 60%;"
+                  >Login with GitHub</a
+                >
+                <a
+                  href="#"
+                  onclick="sendCommand('editConfiguration')"
+                  title="Edit Configuration"
+                  class="btn btn-primary mt-2 mb-2"
+                  style="width: 60%;"
+                  >Edit Configuration</a
+                >
+              </div>
+              <div>
+                <h3 class="mx-auto mb-3 text-white-50 text-left">
+                  Show Your Support
+                </h3>
+                <p class="mx-auto mt-2 mb-3 text-white-50 text-left">
+                  While being free and open source, if you find Settings Sync
+                  useful, please consider supporting it by donating via PayPal
+                  or Open Collective.
+                </p>
+                <a
+                  href="https://opencollective.com/code-settings-sync"
+                  title="Become a Sponsor"
+                  class="btn btn-primary mt-2 mb-2"
+                  style="width: 60%;"
+                  >Become a Sponsor</a
+                >
+                <a
+                  href="https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=4W3EWHHBSYMM8&lc=IE&item_name=Code%20Settings%20Sync&item_number=visual%20studio%20code%20settings%20sync&currency_code=USD&bn=PP%2dDonationsBF%3abtn_donate_SM%2egif%3aNonHosted"
+                  title="Donate via PayPal"
+                  class="btn btn-primary mt-2 mb-2"
+                  style="width: 60%;"
+                  >Donate via PayPal</a
+                >
+                <div class="text-left mt-2">
+                  <a
+                    href="https://marketplace.visualstudio.com/items?itemName=Shan.code-settings-sync&ssr=false#review-details"
+                    >Write a review</a
+                  ><br />
+                  <a href="https://github.com/shanalikhan/code-settings-sync"
+                    >Star or Fork Settings Sync on Github</a
+                  ><br />
+                  <a href="https://twitter.com/itsShanKhan"
+                    >Follow me on Twitter</a
+                  ><br />
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="row text-left">
+            <div class="col">
+              <div class="mb-2 mt-2">
+                <h3 class="mx-auto mb-3 text-white-50">
+                  Need Help?
+                </h3>
+                <a href="https://shanalikhan.github.io/">Homepage</a><br />
+                <a
+                  href="https://github.com/shanalikhan/code-settings-sync/issues"
+                  >Questions & Issues</a
+                ><br />
+              </div>
+            </div>
+            <div class="col">
+              <div class="mb-2 mt-2">
+                <h3 class="mx-auto mb-3 text-white-50">
+                  Sponsors
+                </h3>
+                <p class="mx-auto mt-2 mb-3 text-white-50">
+                  Settings Sync is looking for sponsors to display here. Contact
+                  me on <a href="https://twitter.com/itsShanKhan">Twitter</a> or
+                  <a href="https://github.com/shanalikhan">GitHub</a>
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </header>
+    <script
+      defer
+      src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
+      integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
+      crossorigin="anonymous"
+    ></script>
+    <script
+      defer
+      src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"
+      integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1"
+      crossorigin="anonymous"
+    ></script>
+    <script
+      defer
+      src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
+      integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
+      crossorigin="anonymous"
+    ></script>
+    <script defer src="@PWD/ui/shared/page-header.js"></script>
+    <script defer>
+      const releaseNotes = JSON.parse(`@RELEASE_NOTES`);
+    </script>
+    <script defer src="@PWD/ui/landing-page/landing-page.js"></script>
+  </body>
+</html>

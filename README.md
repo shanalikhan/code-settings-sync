@@ -1,8 +1,5 @@
 # Settings Sync [![Tweet](https://img.shields.io/twitter/url/http/shields.io.svg?style=social)](https://twitter.com/intent/tweet?text=Synchronize%20your%20%40VisualStudio%20%40code%20Settings%20Across%20Multiple%20Machines%20using%20%40github%20GIST%20by%20%40itsShanKhan&url=https://github.com/shanalikhan/code-settings-sync&via=code&hashtags=code,vscode,SettingsSync,developers) [![Follow](https://img.shields.io/twitter/follow/itsShanKhan.svg?style=social&label=Follow)](https://twitter.com/intent/follow?screen_name=itsShanKhan)
 
-
-
-
 **Previously known as Visual Studio Code Settings Sync**
 
 [![Version](https://vsmarketplacebadge.apphb.com/version/Shan.code-settings-sync.svg)](https://marketplace.visualstudio.com/items?itemName=Shan.code-settings-sync) [![Travis](https://img.shields.io/travis/rust-lang/rust.svg)](https://marketplace.visualstudio.com/items?itemName=Shan.code-settings-sync)
@@ -11,7 +8,7 @@
 
 ## Support
 
-While being free and open source, if you find it useful, please consider supporting it by donating via PayPal or Open Collective. If you are using it in office as a team, please ask your company to support us via Open Collective from just 2$ per month!
+While being free and open source, if you find it useful, please consider supporting it by donating via PayPal or Open Collective. If you are using it in office as a team, please ask your company to support us via Open Collective from just 2\$ per month!
 
 <table align="center" width="60%" border="0">
   <tr>
@@ -42,7 +39,7 @@ While being free and open source, if you find it useful, please consider support
 
 ## Key Features
 
-``` 
+```
 1. Use your GitHub account token and Gist.
 2. Easy to Upload and Download on one click.
 3. Show a summary page at the end with details about config and extensions effected.
@@ -51,10 +48,11 @@ While being free and open source, if you find it useful, please consider support
 6. Share the Gist with other users and let them download your settings.
 7. Supports GitHub Enterprise
 8. Support pragmas with @sync keywords: host, os and env are supported.
+9. GUI for changing settings / logging in
 ```
 
-
 ## It Syncs
+
 ```
 All extensions and complete User Folder that Contains
 1. Settings File
@@ -66,26 +64,11 @@ All extensions and complete User Folder that Contains
 ```
 
 ## Shortcuts
+
 ```
 1. Upload Key : Shift + Alt + U
 2. Download Key : Shift + Alt + D
 ```
-
-## Steps To Get a Personal Access Token from GitHub
-
-This extension requires a Personal Access Token from your GitHub account. You can create one by simply following the steps shown in the pictures below. Make sure you add **Gist** in scope.
-
-**[Generate New Token](https://github.com/settings/tokens/new?description=code-setting-sync&scopes=gist)**
-
-![Select Scopes](https://shanalikhan.github.io/img/github2.PNG)
-
-**Get an Access Token.**
-
-![Get Access Token](https://shanalikhan.github.io/img/github3.PNG)
-
-
-> Save the Token somewhere for future use (i.e. to upload from other machines).
-
 
 ## Upload Your Settings For the first time
 
@@ -93,58 +76,29 @@ This extension requires a Personal Access Token from your GitHub account. You ca
 
 > Type ">Sync" In Command Palette into order download / upload
 
-This will automatically open your GitHub settings page, allowing you to generate a new token for the application, as explained in the previous section. This token will allow the extension to create gists.
+When downloading or uploading for the first time, the welcome page will automatically open, where you can log in with GitHub.
 
-Enter the GitHub token in the window and click enter.
+![Login with GitHub](https://user-images.githubusercontent.com/25834068/55663873-93c21280-57d9-11e9-8c24-7088a81ed47c.png)
 
-![github account access token](https://shanalikhan.github.io/img/upload1.png)
-
-**Upload your settings automatically and the extension gives you Gist ID in the system message.**
-Gist ID is needed to access the data you have uploaded with your token. Copy this Gist ID in order to download the settings to other machines.
-
-![uploaded automatically](https://shanalikhan.github.io/img/upload2.png)
-
-You can always **verify created gist** on the following url:
-
-> https://gist.github.com/{your_userName}/{gist_id}
-
-Here is the gif of the complete process when you execute the Upload command (Might take some time to load)
-
-![Upload](https://media.giphy.com/media/xT9IglKxSqs2Wdwq2c/source.gif)
+You can always **verify created gist** by going to `https://gist.github.com` and checking for a gist named `cloudSettings`
 
 ## Download your Settings
 
-**Press Shift + Alt + D it will ask your GitHub Gist ID.**
-
 > Type ">Sync" In Command Palette into order download / upload
 
-**Enter Your GitHub Token.**
+**Login with GitHub**
 
-Enter the GitHub token in the window and click enter.
+**Choose your existing Gist**
 
-![github account access token](https://shanalikhan.github.io/img/upload1.png)
-
-**Enter Your Gist ID.**
-
-You need to enter your Gist ID in order to download the files you have uploaded with Shift + Alt + U.
-
-![Enter Your Gist ID](https://shanalikhan.github.io/img/download2.png)
+![Existing Gist](https://user-images.githubusercontent.com/25834068/55663880-a9373c80-57d9-11e9-8afc-c0e79cc1b3b5.png)
 
 **Settings Downloaded.**
+
 You are Done! All your files are downloaded
-
-![Enter Your Gist ID](https://shanalikhan.github.io/img/download3.png)
-
-Here is the gif of the complete process when you execute the Download command (Might take time to load)
-
-
-![Download](https://media.giphy.com/media/xT9Iglsi3CS9noE8tW/source.gif)
-
 
 ## Reset Extension Settings
 
-> Type ">Sync" In Command Palette and select Reset Extension Settings
-
+> Select **"> Sync : Reset Extension Settings"** in the Command Palette to reset your settings
 
 ## Toggle Auto Download
 
@@ -169,7 +123,6 @@ Please make sure you have valid github Token and Gist available to make it work 
 
 Select Command **"Sync : Advanced Options > Toggle Auto-Upload on Settings Change"** command to Turn ON / OFF the auto-upload.
 
-
 ## Toggle Summary
 
 Summary is **enabled by default** which shows all files and extensions that are added or deleted on a single page.
@@ -186,8 +139,9 @@ Select Command **"Sync : Advanced Options > Share Settings with Public GIST"**
 
 Other users can give your Gist Id to download the Gist, but they can't upload their settings on your Gist.
 
-
 ## Settings
+
+Settings can be changed through the settings page, which can be accessed through **"> Sync : Advanced Options > Open Settings Page"**
 
 There are two types of settings in Settings Sync.
 I will recommend you to read the configurations details [here](https://medium.com/@itsShanKhan/visual-studio-code-settings-sync-configurations-ed8dd6fd9753).
@@ -199,7 +153,7 @@ You can customize the settings in gist settings like:
 
 ```
 1. Configure Gist Id (Environment)
-2. Configure auto upload / download for Github Gist 
+2. Configure auto upload / download for Github Gist
 3. Configure extension sync behaviour
 4. Configure force download
 5. Configure quiet sync
@@ -211,7 +165,6 @@ You can customize the settings in gist settings like:
     "sync.autoUpload": false,
     "sync.forceDownload": false,
     "sync.quietSync": false,
-    "sync.askGistName": false,
     "sync.removeExtensions": true,
     "sync.syncExtensions": true
 ```
@@ -238,33 +191,30 @@ You can customize the sync:
 
 ```json
 {
-    "ignoreUploadFiles": [
-        "projects.json",
-        "projects_cache_vscode.json",
-        "projects_cache_git.json",
-        "projects_cache_svn.json",
-        "gpm_projects.json",
-        "gpm-recentItems.json"
-    ],
-    "ignoreUploadFolders": [
-        "workspaceStorage"
-    ],
-    "ignoreExtensions": [
-        "ignored_extension_name"
-    ],
-    "gistDescription": "Visual Studio Code Settings Sync Gist",
-    "version": 310,
-    "token": "YOUR_GITHUB_TOKEN_HERE",
-    "downloadPublicGist": false,
-    "supportedFileExtensions": [
-        "json",
-        "code-snippets"
-    ],
-    "openTokenLink": true,
-    "lastUpload": null,
-    "lastDownload": null,
-    "githubEnterpriseUrl": null,
-    "hostName": null
+  "ignoreUploadFiles": [
+    "state.*",
+    "syncLocalSettings.json",
+    ".DS_Store",
+    "sync.lock",
+    "projects.json",
+    "projects_cache_vscode.json",
+    "projects_cache_git.json",
+    "projects_cache_svn.json",
+    "gpm_projects.json",
+    "gpm-recentItems.json"
+  ],
+  "ignoreUploadFolders": ["workspaceStorage"],
+  "ignoreExtensions": ["ignored_extension_name"],
+  "gistDescription": "Visual Studio Code Settings Sync Gist",
+  "version": 310,
+  "token": "YOUR_GITHUB_TOKEN_HERE",
+  "downloadPublicGist": false,
+  "supportedFileExtensions": ["json", "code-snippets"],
+  "openTokenLink": true,
+  "lastUpload": null,
+  "lastDownload": null,
+  "githubEnterpriseUrl": null,
+  "hostName": null
 }
 ```
 
@@ -294,19 +244,17 @@ Thank you to all our backers! [[Become a backer](https://opencollective.com/code
 <a href="https://opencollective.com/code-settings-sync#backers" target="_blank"><img src="https://opencollective.com/code-settings-sync/backers.svg?width=890"></a>
 [<img src="https://www.paypalobjects.com/en_US/i/btn/btn_donateCC_LG.gif">](https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=4W3EWHHBSYMM8&lc=IE&item_name=Code%20Settings%20Sync&item_number=visual%20studio%20code%20settings%20sync&currency_code=USD&bn=PP%2dDonationsBF%3abtn_donate_SM%2egif%3aNonHosted)
 
-
 ### Sponsors
 
 Thank you to all our sponsors! (please ask your company to also support this open source project by [becoming a sponsor](https://opencollective.com/code-settings-sync))
 
 ## [Contributors](https://github.com/shanalikhan/code-settings-sync/graphs/contributors)
+
 # [Release Notes](https://shanalikhan.github.io/2016/05/14/Visual-studio-code-sync-settings-release-notes.html)
 
 # License
 
-
 [![Version](https://img.shields.io/badge/license-MIT-green.svg)](https://github.com/shanalikhan/code-settings-sync/blob/master/LICENSE)
-
 
 [![Version](https://vsmarketplacebadge.apphb.com/version/Shan.code-settings-sync.svg)](https://marketplace.visualstudio.com/items?itemName=Shan.code-settings-sync)
 

@@ -1,0 +1,40 @@
+{
+  "changes": [
+    {
+      "details": "Fixed Code that kills Extension Host for MacOS",
+      "type": "FIX",
+      "color": "danger",
+      "author": "arnohovhannisyan",
+      "pullRequest": "834"
+    },
+    {
+      "details": "Download From Public Gist not working",
+      "type": "FIX",
+      "color": "danger",
+      "author": "shanalikhan",
+      "pullRequest": "816"
+    },
+    {
+      "details": "Auto Upload Fix",
+      "type": "FIX",
+      "color": "danger",
+      "author": "arnohovhannisyan",
+      "pullRequest": "835"
+    },
+    {
+      "details": "Inserts some empty lines in the beginning of settings.json",
+      "type": "NEW",
+      "color": "success",
+      "author": "knyhle",
+      "pullRequest": "828"
+    },
+    {
+      "details": "Update Documentation",
+      "type": "NEW",
+      "color": "success",
+      "author": "colinaaa",
+      "pullRequest": "845"
+    }
+  ],
+  "currentVersion": "v3.2.9"
+}
