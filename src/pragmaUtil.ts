@@ -233,9 +233,9 @@ export default class PragmaUtil {
 
   private static toggleComments(line: string, shouldComment: boolean) {
     if (shouldComment && !line.trim().startsWith("//")) {
-      return "  //" + line; // 2 spaces as formmating
+      return line.replace(/^(\s*)/, "$1// "); // use leading whitespaces for formmating
     } else {
-      return line.replace("//", "");
+      return line.replace(/\/\/\s*/, "");
     }
   }
 
