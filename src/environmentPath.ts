@@ -1,6 +1,6 @@
 "use strict";
 
-import * as path from "path";
+import { resolve } from "path";
 import * as vscode from "vscode";
 import { OsType } from "./enums";
 
@@ -70,24 +70,23 @@ export class Environment {
     this.isPortable = !!process.env.VSCODE_PORTABLE;
 
     if (!this.isPortable) {
-      this.PATH = path
-        .resolve(this.context.globalStoragePath, "../../..")
-        .concat("/");
-      this.USER_FOLDER = path.resolve(this.PATH, "User").concat("/");
-      this.EXTENSION_FOLDER = path
-        .resolve(vscode.extensions.all[72].extensionPath, "..")
-        .concat("/"); // 0-71 are vscode built-in extensions that are in a separate folder. 72 is the first user-installed extension
-      this.CODE_BIN = path
-        .basename(path.resolve(this.EXTENSION_FOLDER, ".."))
-        .slice(3);
+      this.PATH = resolve(this.context.globalStoragePath, "../../..").concat(
+        "/"
+      );
+      this.USER_FOLDER = resolve(this.PATH, "User").concat("/");
+      this.EXTENSION_FOLDER = resolve(
+        vscode.extensions.all[72].extensionPath,
+        ".."
+      ).concat("/"); // 0-71 are vscode built-in extensions that are in a separate folder. 72 is the first user-installed extension
     }
 
     if (this.isPortable) {
       this.PATH = process.env.VSCODE_PORTABLE;
-      this.USER_FOLDER = path.resolve(this.PATH, "user-data/User").concat("/");
-      this.EXTENSION_FOLDER = path.resolve(this.PATH, "extensions").concat("/");
-      this.CODE_BIN = "./bin/code*";
+      this.USER_FOLDER = resolve(this.PATH, "user-data/User").concat("/");
+      this.EXTENSION_FOLDER = resolve(this.PATH, "extensions").concat("/");
     }
+
+    this.CODE_BIN = process.argv0;
 
     this.OsType = process.platform as OsType;
 
