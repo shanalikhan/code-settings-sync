@@ -86,7 +86,7 @@ export class Environment {
       this.EXTENSION_FOLDER = resolve(this.PATH, "extensions").concat("/");
     }
 
-    this.CODE_BIN = process.argv0;
+    this.CODE_BIN = `"${process.argv0}"`; // process.argv0 returns the code executable path
 
     this.OsType = process.platform as OsType;
 
