@@ -1,7 +1,5 @@
 "use strict";
 import { exec } from "child_process";
-import { remove } from "fs-extra";
-import { join } from "path";
 import * as vscode from "vscode";
 
 export class ExtensionInformation {
@@ -129,8 +127,8 @@ export class PluginService {
     localExtensions.forEach(ext => {
       if (ext.name !== "code-settings-sync") {
         if (
-          !remoteExtensions.includes(ext) ||
-          ignoredExtensions.includes(ext.name)
+          !remoteExtensions.map(e => e.name).includes(ext.name) &&
+          !ignoredExtensions.includes(ext.name)
         ) {
           toDelete.push(ext);
         }
@@ -174,26 +172,26 @@ export class PluginService {
 
   public static async DeleteExtension(
     extension: ExtensionInformation,
-    extensionFolder: string
+    cliPath: string
   ): Promise<boolean> {
-    const destination = join(
-      extensionFolder,
-      extension.publisher + "." + extension.name + "-" + extension.version
-    );
-
-    try {
-      await remove(destination);
-      return true;
-    } catch (err) {
-      console.log("Sync : " + "Error in uninstalling Extension.");
-      console.log(err);
-      throw err;
-    }
+    const extensionCli = `${cliPath} --uninstall-extension ${
+      extension.publisher
+    }.${extension.name}`;
+    return new Promise<boolean>(res => {
+      exec(extensionCli, (err, stdout, stderr) => {
+        if (!stdout && (err || stderr)) {
+          console.log("Sync : " + "Error in uninstalling Extension.");
+          console.log(err);
+          res(false);
+        }
+        res(true);
+      });
+    });
   }
 
   public static async DeleteExtensions(
     extensionsJson: string,
-    extensionFolder: string,
+    cliPath: string,
     ignoredExtensions: string[]
   ): Promise<ExtensionInformation[]> {
     const remoteExtensions = ExtensionInformation.fromJSONList(extensionsJson);
@@ -209,7 +207,7 @@ export class PluginService {
 
     toDelete.forEach(async selectedExtension => {
       try {
-        await PluginService.DeleteExtension(selectedExtension, extensionFolder);
+        await PluginService.DeleteExtension(selectedExtension, cliPath);
         deletedExtensions.push(selectedExtension);
       } catch (err) {
         console.error(

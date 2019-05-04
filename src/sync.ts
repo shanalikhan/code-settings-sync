@@ -522,7 +522,7 @@ export class Sync {
                 try {
                   deletedExtensions = await PluginService.DeleteExtensions(
                     content,
-                    env.EXTENSION_FOLDER,
+                    env.CODE_BIN,
                     ignoredExtensions
                   );
                 } catch (uncompletedExtensions) {
