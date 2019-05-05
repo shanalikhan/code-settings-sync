@@ -232,10 +232,14 @@ export default class PragmaUtil {
   private static readonly EnvPragmaWhiteSpacesSupportRegExp = /(?:env=(.+)host=)|(?:env=(.+)os=)|env=(.+)\n?/;
 
   private static toggleComments(line: string, shouldComment: boolean) {
-    if (shouldComment && !line.trim().startsWith("//")) {
-      return line.replace(/^(\s*)/, "$1// "); // use leading whitespaces for formmating
+    const isCommented = line.trim().startsWith("//");
+
+    if (shouldComment) {
+      // Replace with RegEx to help match indent size
+      return !isCommented ? line.replace(/^(\s*)/, "$1// ") : line;
     } else {
-      return line.replace(/\/\/\s*/, "");
+      // Only remove if line is commented
+      return isCommented ? line.replace(/\/\/\s*/, "") : line;
     }
   }
 
