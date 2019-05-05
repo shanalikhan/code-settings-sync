@@ -1,6 +1,6 @@
 "use strict";
 
-import { resolve } from "path";
+import { basename, resolve } from "path";
 import * as vscode from "vscode";
 import { OsType } from "./enums";
 
@@ -78,15 +78,20 @@ export class Environment {
         vscode.extensions.all[72].extensionPath,
         ".."
       ).concat("/"); // 0-71 are vscode built-in extensions that are in a separate folder. 72 is the first user-installed extension
+      this.CODE_BIN = `"${process.argv0}"`;
     }
 
     if (this.isPortable) {
       this.PATH = process.env.VSCODE_PORTABLE;
       this.USER_FOLDER = resolve(this.PATH, "user-data/User").concat("/");
       this.EXTENSION_FOLDER = resolve(this.PATH, "extensions").concat("/");
+      this.CODE_BIN = `"${resolve(
+        this.PATH,
+        "..",
+        "bin",
+        basename(process.argv0)
+      )}"`;
     }
-
-    this.CODE_BIN = `"${process.argv0}"`; // process.argv0 returns the code executable path
 
     this.OsType = process.platform as OsType;
 
