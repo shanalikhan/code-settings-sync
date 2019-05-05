@@ -71,16 +71,17 @@ export class Environment {
     this.isPortable = !!process.env.VSCODE_PORTABLE;
 
     this.OsType = process.platform as OsType;
-
     if (!this.isPortable) {
       this.PATH = resolve(this.context.globalStoragePath, "../../..").concat(
         "/"
       );
       this.USER_FOLDER = resolve(this.PATH, "User").concat("/");
       this.EXTENSION_FOLDER = resolve(
-        vscode.extensions.all[72].extensionPath,
+        vscode.extensions.all.filter(
+          extension => !extension.packageJSON.isBuiltin
+        )[0].extensionPath,
         ".."
-      ).concat("/"); // 0-71 are vscode built-in extensions that are in a separate folder. 72 is the first user-installed extension
+      ).concat("/"); // Gets first non-builtin extension's path
       if (this.OsType === OsType.Windows) {
         this.CODE_BIN = `for /r "bin" %a in (*.cmd) do "%~fa"`;
       } else {
