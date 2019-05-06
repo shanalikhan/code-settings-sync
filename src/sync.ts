@@ -226,7 +226,8 @@ export class Sync {
           if (snippetFile.content !== "") {
             if (snippetFile.fileName === env.FILE_KEYBINDING_NAME) {
               snippetFile.gistName =
-                env.OsType === OsType.Mac
+                env.OsType === OsType.Mac &&
+                !customSettings.universalKeybindings
                   ? env.FILE_KEYBINDING_MAC
                   : env.FILE_KEYBINDING_DEFAULT;
             }
@@ -234,7 +235,11 @@ export class Sync {
           }
         }
 
-        if (snippetFile.fileName === env.FILE_SETTING_NAME) {
+        if (
+          snippetFile.fileName === env.FILE_SETTING_NAME ||
+          snippetFile.fileName === env.FILE_KEYBINDING_MAC ||
+          snippetFile.fileName === env.FILE_KEYBINDING_DEFAULT
+        ) {
           try {
             snippetFile.content = PragmaUtil.processBeforeUpload(
               snippetFile.content
@@ -490,17 +495,23 @@ export class Sync {
               );
               updatedFiles.push(f);
             } else if (gistName.indexOf(".") > -1) {
-              if (
-                env.OsType === OsType.Mac &&
-                gistName === env.FILE_KEYBINDING_DEFAULT
-              ) {
-                return;
-              }
-              if (
-                env.OsType !== OsType.Mac &&
-                gistName === env.FILE_KEYBINDING_MAC
-              ) {
-                return;
+              if (customSettings.universalKeybindings) {
+                if (gistName === env.FILE_KEYBINDING_MAC) {
+                  return;
+                }
+              } else {
+                if (
+                  env.OsType === OsType.Mac &&
+                  gistName === env.FILE_KEYBINDING_DEFAULT
+                ) {
+                  return;
+                }
+                if (
+                  env.OsType !== OsType.Mac &&
+                  gistName === env.FILE_KEYBINDING_MAC
+                ) {
+                  return;
+                }
               }
               const f: File = new File(
                 gistName,
@@ -588,7 +599,7 @@ export class Sync {
               file.gistName === env.FILE_KEYBINDING_MAC
             ) {
               let test: string = "";
-              env.OsType === OsType.Mac
+              env.OsType === OsType.Mac && !customSettings.universalKeybindings
                 ? (test = env.FILE_KEYBINDING_MAC)
                 : (test = env.FILE_KEYBINDING_DEFAULT);
               if (file.gistName !== test) {
@@ -609,7 +620,11 @@ export class Sync {
                 );
               }
 
-              if (file.gistName === env.FILE_SETTING_NAME) {
+              if (
+                file.gistName === env.FILE_SETTING_NAME ||
+                file.gistName === env.FILE_KEYBINDING_MAC ||
+                file.gistName === env.FILE_KEYBINDING_DEFAULT
+              ) {
                 const localContent = await FileService.ReadFile(filePath);
                 content = PragmaUtil.processBeforeWrite(
                   localContent,
