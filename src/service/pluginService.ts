@@ -227,7 +227,6 @@ export class PluginService {
   public static async InstallExtensions(
     extensions: string,
     ignoredExtensions: string[],
-    cliPath: string,
     notificationCallBack: (...data: any[]) => void
   ): Promise<ExtensionInformation[]> {
     let addedExtensions: ExtensionInformation[] = [];
@@ -239,17 +238,15 @@ export class PluginService {
       notificationCallBack("Sync : No Extensions needs to be installed.");
       return [];
     }
-    addedExtensions = await PluginService.InstallWithCLI(
+    addedExtensions = await PluginService.InstallWithAPI(
       missingExtensions,
-      cliPath,
       notificationCallBack
     );
     return addedExtensions;
   }
 
-  public static async InstallWithCLI(
+  public static async InstallWithAPI(
     missingExtensions: ExtensionInformation[],
-    cliPath: string,
     notificationCallBack: (...data: any[]) => void
   ): Promise<ExtensionInformation[]> {
     const addedExtensions: ExtensionInformation[] = [];
@@ -260,18 +257,13 @@ export class PluginService {
     for (let i = 0; i < missingExtensions.length; i++) {
       const missExt = missingExtensions[i];
       const name = missExt.publisher + "." + missExt.name;
-      const extensionCli = cliPath + " --install-extension " + name;
-      notificationCallBack(extensionCli);
       try {
         const installed = await new Promise<boolean>(res => {
-          exec(extensionCli, (err, stdout, stderr) => {
-            if (!stdout && (err || stderr)) {
-              notificationCallBack(err || stderr);
-              res(false);
-            }
-            notificationCallBack(stdout);
-            res(true);
-          });
+          vscode.commands
+            .executeCommand("workbench.extensions.installExtension", name)
+            .then(() => {
+              res(true);
+            });
         });
         if (installed) {
           notificationCallBack("");

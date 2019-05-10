@@ -549,7 +549,6 @@ export class Sync {
                 addedExtensions = await PluginService.InstallExtensions(
                   content,
                   ignoredExtensions,
-                  env.CODE_BIN,
                   (message: string, dispose: boolean) => {
                     if (!syncSetting.quietSync) {
                       Commons.outputChannel.appendLine(message);
