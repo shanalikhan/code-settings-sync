@@ -1,12 +1,13 @@
-document.querySelector(
-  "page-header"
-).innerHTML = `<h1 class="mx-auto mb-4 text-white-50a">
+// @ts-nocheck
+
+document.querySelector("page-header").innerHTML = `
 <img
-  src="https://i.imgur.com/eypxaJl.png?2"
-  width="128"
-  class="opacity-50 my-auto logo"
-  alt="Settings Sync"
+src="${pwd}/images/white-cloud.png"
+width="128"
+class="my-auto logo"
+alt="Settings Sync"
 />
+<h1 class="mx-auto mb-4 text-white-50a">
 Settings Sync
 </h1>
 <h2 class="mx-auto mt-2 mb-3 text-left text-white-50a">

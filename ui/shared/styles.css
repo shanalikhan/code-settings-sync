@@ -42,10 +42,6 @@ body {
   line-height: 120%;
   width: 6rem;
 }
-.opacity-50 {
-  filter: opacity(0.5);
-  -webkit-filter: opacity(0.5);
-}
 .scrollable {
   overflow-y: auto;
   max-height: 30rem;
