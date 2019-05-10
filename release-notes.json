@@ -1,35 +1,35 @@
 {
   "changes": [
     {
-      "details": "Fixed Code that kills Extension Host for MacOS",
+      "details": "Fixed Code that kills <b>Extension Host</b> for macOS",
       "type": "FIX",
       "color": "danger",
       "author": "arnohovhannisyan",
       "pullRequest": "834"
     },
     {
-      "details": "Download From Public Gist not working",
+      "details": "Download From <b>Public Gist</b> not working",
       "type": "FIX",
       "color": "danger",
       "author": "shanalikhan",
       "pullRequest": "816"
     },
     {
-      "details": "Auto Upload Fix",
+      "details": "<b>Auto Upload</b> Fix",
       "type": "FIX",
       "color": "danger",
       "author": "arnohovhannisyan",
       "pullRequest": "835"
     },
     {
-      "details": "Inserts some empty lines in the beginning of settings.json",
+      "details": "Inserts some <b>empty lines</b> in the beginning of settings.json",
       "type": "NEW",
       "color": "success",
       "author": "knyhle",
       "pullRequest": "828"
     },
     {
-      "details": "Update Documentation",
+      "details": "Update <b>Documentation</b>",
       "type": "NEW",
       "color": "success",
       "author": "colinaaa",

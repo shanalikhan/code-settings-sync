@@ -13,7 +13,7 @@
       crossorigin="anonymous"
     />
     <link
-      href="https://fonts.googleapis.com/css?family=Roboto:400"
+      href="https://fonts.googleapis.com/css?family=Roboto:400,700"
       rel="stylesheet"
     />
     <link
@@ -30,69 +30,87 @@
           <div class="row">
             <div class="col text-left mb-2 mt-2">
               <div class="scrollable" id="notes">
-                <h3 class="mx-auto mt-2 mb-3 text-white-50">
+                <h3 class="mx-auto mt-2 mb-3 text-white-50a text-center">
                   What's New in
-                  <a
-                    id="current-version"
-                    href="https://github.com/shanalikhan/code-settings-sync/blob/master/CHANGELOG.md"
-                    >vX.X.X</a
-                  >
+                  <b>
+                    <a
+                      id="current-version"
+                      href="https://github.com/shanalikhan/code-settings-sync/blob/master/CHANGELOG.md"
+                      >vX.X.X
+                    </a>
+                  </b>
                 </h3>
               </div>
             </div>
             <div class="col mb-2 mt-2 scrollable">
               <div>
-                <h3 class="mx-auto mt-2 mb-3 text-white-50 text-left">
+                <h3 class="mx-auto mt-2 mb-3 text-white-50a text-left">
                   Configuration
                 </h3>
-                <p class="mx-auto mt-2 mb-3 text-white-50 text-left">
+                <p class="mx-auto mt-2 mb-3 text-white-50a text-left">
                   Login via GitHub to setup Settings Sync, or configure the
                   settings manually.
                 </p>
-                <a
-                  href="#"
-                  onclick="sendCommand('loginWithGitHub')"
-                  title="Login with GitHub"
-                  class="btn btn-primary mb-2"
-                  style="width: 60%;"
-                  >Login with GitHub</a
-                >
-                <a
-                  href="#"
-                  onclick="sendCommand('editConfiguration')"
-                  title="Edit Configuration"
-                  class="btn btn-primary mt-2 mb-2"
-                  style="width: 60%;"
-                  >Edit Configuration</a
-                >
+                <div class="container p-0 mb-3">
+                  <div class="row">
+                    <div class="col">
+                      <a
+                        href="#"
+                        onclick="sendCommand('loginWithGitHub')"
+                        title="Login with GitHub"
+                        class="btn btn-primary font-weight-bold"
+                      >
+                        Login with GitHub
+                      </a>
+                    </div>
+                    <div class="col">
+                      <a
+                        href="#"
+                        onclick="sendCommand('editConfiguration')"
+                        title="Edit Configuration"
+                        class="btn btn-primary font-weight-bold"
+                      >
+                        Edit Configuration
+                      </a>
+                    </div>
+                  </div>
+                </div>
               </div>
               <div>
-                <h3 class="mx-auto mb-3 text-white-50 text-left">
+                <h3 class="mx-auto mb-3 text-white-50a text-left">
                   Show Your Support
                 </h3>
-                <p class="mx-auto mt-2 mb-3 text-white-50 text-left">
-                  While being free and open source, if you find Settings Sync
+                <p class="mx-auto mt-2 mb-3 text-white-50a text-left">
+                  While being free and open source, if you find
+                  <b>Settings Sync</b>
                   useful, please consider supporting it by donating via PayPal
                   or Open Collective.
                 </p>
-                <a
-                  href="https://opencollective.com/code-settings-sync"
-                  title="Become a Sponsor"
-                  class="btn btn-primary mt-2 mb-2"
-                  style="width: 60%;"
-                  >Become a Sponsor</a
-                >
-                <a
-                  href="https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=4W3EWHHBSYMM8&lc=IE&item_name=Code%20Settings%20Sync&item_number=visual%20studio%20code%20settings%20sync&currency_code=USD&bn=PP%2dDonationsBF%3abtn_donate_SM%2egif%3aNonHosted"
-                  title="Donate via PayPal"
-                  class="btn btn-primary mt-2 mb-2"
-                  style="width: 60%;"
-                  >Donate via PayPal</a
-                >
+                <div class="container p-0 mb-3">
+                  <div class="row">
+                    <div class="col">
+                      <a
+                        href="https://opencollective.com/code-settings-sync"
+                        title="Become a Sponsor"
+                        class="btn btn-primary font-weight-bold"
+                        >Become a Sponsor</a
+                      >
+                    </div>
+                    <div class="col">
+                      <a
+                        href="https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=4W3EWHHBSYMM8&lc=IE&item_name=Code%20Settings%20Sync&item_number=visual%20studio%20code%20settings%20sync&currency_code=USD&bn=PP%2dDonationsBF%3abtn_donate_SM%2egif%3aNonHosted"
+                        title="Donate via PayPal"
+                        class="btn btn-primary font-weight-bold"
+                        >Donate via PayPal</a
+                      >
+                    </div>
+                  </div>
+                </div>
+
                 <div class="text-left mt-2">
                   <a
                     href="https://marketplace.visualstudio.com/items?itemName=Shan.code-settings-sync&ssr=false#review-details"
-                    >Write a review</a
+                    >Write a Review</a
                   ><br />
                   <a href="https://github.com/shanalikhan/code-settings-sync"
                     >Star or Fork Settings Sync on Github</a
@@ -107,7 +125,7 @@
           <div class="row text-left">
             <div class="col">
               <div class="mb-2 mt-2">
-                <h3 class="mx-auto mb-3 text-white-50">
+                <h3 class="mx-auto mb-3 text-white-50a">
                   Need Help?
                 </h3>
                 <a href="https://shanalikhan.github.io/">Homepage</a><br />
@@ -119,10 +137,10 @@
             </div>
             <div class="col">
               <div class="mb-2 mt-2">
-                <h3 class="mx-auto mb-3 text-white-50">
+                <h3 class="mx-auto mb-3 text-white-50a">
                   Sponsors
                 </h3>
-                <p class="mx-auto mt-2 mb-3 text-white-50">
+                <p class="mx-auto mt-2 mb-3 text-white-50a">
                   Settings Sync is looking for sponsors to display here. Contact
                   me on <a href="https://twitter.com/itsShanKhan">Twitter</a> or
                   <a href="https://github.com/shanalikhan">GitHub</a>

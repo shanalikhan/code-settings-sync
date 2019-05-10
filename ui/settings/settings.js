@@ -11,8 +11,8 @@ function appendHTML(parent, html) {
 
 const vscode = acquireVsCodeApi();
 
-const textInputTemplate = `<div class="form-group">
-            <label for="setting:@correspondingSetting" class="text-white-50"
+const textInputTemplate = `<div class="form-group mb-4">
+            <label for="setting:@correspondingSetting" class="text-white-50a"
               >@name</label
             >
             @tooltip
@@ -26,7 +26,7 @@ const textInputTemplate = `<div class="form-group">
             />
           </div>`;
 
-const checkboxTemplate = `<div class="custom-control custom-checkbox my-1 mr-sm-2">
+const checkboxTemplate = `<div class="custom-control custom-checkbox my-1 mr-sm-2 mb-4">
             <input
               class="custom-control-input checkbox"
               type="checkbox"
@@ -36,15 +36,15 @@ const checkboxTemplate = `<div class="custom-control custom-checkbox my-1 mr-sm-
             />
             <label
               for="setting:@correspondingSetting"
-              class="custom-control-label text-white-50"
+              class="custom-control-label text-white-50a"
             >@name</label>
             @tooltip
           </div>`;
 
-const textareaTemplate = `<div class="form-group">
+const textareaTemplate = `<div class="form-group mb-3">
             <label
               for="setting:@correspondingSetting"
-              class="text-white-50"
+              class="text-white-50a"
               >@name</label>
               @tooltip
             <textarea
@@ -105,7 +105,7 @@ envMap.forEach(envMap => {
     )
     .replace(
       new RegExp("@tooltip"),
-      `<a class="text-white-50 fas fa-info-circle" data-toggle="tooltip" data-placement="right" title="${
+      `<a class="text-white-50a fas fa-info-circle" data-toggle="tooltip" data-placement="bottom" title="${
         envMap.tooltip
       }"></a>`
     )

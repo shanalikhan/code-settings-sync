@@ -2,6 +2,8 @@
   --btn: #0e629c;
   --btn-hover: #15496e;
   --btn-click: #0e3450;
+  --link: dodgerblue;
+  --link-hover: rgb(15, 109, 204);
 }
 #selectionContainer {
   width: 60%;
@@ -13,10 +15,13 @@
 }
 html,
 body {
-  background-color: rgb(10, 1, 15);
-  font-family: "Roboto", sans-serif !important;
-  color: white;
+  background-color: #1d1d1d !important;
+  font-family: "Roboto", sans-serif;
+  color: #bdbdbd;
   letter-spacing: 0.0625em;
+}
+#current-version {
+  color: #bdbdbd;
 }
 .logo {
   vertical-align: -4px;
@@ -34,6 +39,7 @@ body {
 }
 .badge {
   vertical-align: 2px;
+  line-height: 120%;
   width: 6rem;
 }
 .opacity-50 {
@@ -49,7 +55,6 @@ body {
   width: 100%;
   height: auto;
   min-height: 35rem;
-  padding: 15rem 0;
   background-position: center;
   background-repeat: no-repeat;
   background-attachment: scroll;
@@ -58,43 +63,33 @@ body {
   margin-bottom: 40px;
 }
 .masthead h1 {
-  font-size: 2.5rem;
+  font-size: 3.5rem;
   line-height: 2.5rem;
   font-weight: bold;
+  color: #5c5c5c !important;
   font-family: "Open Sans";
 }
 .masthead h2 {
   /* max-width: 20rem; */
   font-size: 1rem;
 }
-@media (min-width: 768px) {
-  .masthead h1 {
-    font-size: 4rem;
-    line-height: 4rem;
-  }
-}
-@media (min-width: 992px) {
-  .masthead {
-    /* height: 100vh; */
-    padding: 0;
-  }
-  .masthead h1 {
-    font-size: 6.5rem;
-    line-height: 6.5rem;
-  }
-  .masthead h2 {
-    /* max-width: 30rem; */
-    font-size: 1.25rem;
-  }
+.masthead h3 {
+  /* max-width: 20rem; */
+  font-size: 1.5rem;
 }
 .btn {
   -webkit-box-shadow: 0 0.1875rem 0.1875rem 0 rgba(0, 0, 0, 0.1) !important;
   box-shadow: 0 0.1875rem 0.1875rem 0 rgba(0, 0, 0, 0.1) !important;
-  padding: 1.25rem 2rem;
+  padding: 1rem;
   font-size: 80%;
   text-transform: uppercase;
   letter-spacing: 0.15rem;
   border: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center; /* align horizontal */
+  align-items: center; /* align vertical */
 }
 .btn-primary {
   background-color: var(--btn);
@@ -119,11 +114,11 @@ body {
 }
 a {
   /* color: #64a19d; */
-  color: var(--btn);
+  color: var(--link);
 }
 a:focus,
 a:hover {
   text-decoration: none;
   /* color: #3c6360; */
-  color: var(--btn-hover);
+  color: var(--link-hover);
 }
