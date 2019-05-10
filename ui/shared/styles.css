@@ -48,7 +48,7 @@ body {
 }
 .scrollable {
   overflow-y: auto;
-  height: 35rem;
+  max-height: 30rem;
 }
 .masthead {
   position: relative;
