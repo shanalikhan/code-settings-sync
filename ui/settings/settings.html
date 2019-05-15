@@ -26,35 +26,28 @@
       integrity="sha384-50oBUHEmvpQ+1lW4y57PTFmhCaXp0ML5d60M1M7uH2+nqUivzIebhndOJK28anvf"
       crossorigin="anonymous"
     />
+    <script>
+      const pwd = "@PWD";
+    </script>
     <link rel="stylesheet" href="@PWD/ui/shared/styles.css" />
   </head>
-  <body>
-    <header class="masthead">
-      <div class="container d-flex h-100">
-        <div class="mx-auto text-center">
-          <page-header></page-header>
-          <div class="row text-left">
-            <div class="col mt-2 scrollable">
-              <h3 class="mx-auto mt-2 mb-3 text-white-50a text-center">
-                Environment Settings
-              </h3>
-              <form id="environmentSettings"></form>
-              <p
-                id="saveStatus"
-                class="text-white-50a"
-                style="font-size: 3rem"
-              ></p>
-            </div>
-            <div class="col mt-2 scrollable">
-              <h3 class="mx-auto mt-2 mb-3 text-white-50a text-center">
-                Global Settings
-              </h3>
-              <form id="globalSettings"></form>
-            </div>
-          </div>
-        </div>
+  <body class="container d-flex h-100 mx-auto text-center">
+    <page-header></page-header>
+    <div class="row content-row text-left">
+      <div class="col mt-2 scrollable">
+        <h3 class="mx-auto mt-2 text-white-50a text-center">
+          Environment Settings
+        </h3>
+        <form id="environmentSettings"></form>
+        <p id="saveStatus" class="text-white-50a" style="font-size: 3rem"></p>
       </div>
-    </header>
+      <div class="col mt-2 scrollable">
+        <h3 class="mx-auto mt-2 text-white-50a text-center">
+          Global Settings
+        </h3>
+        <form id="globalSettings"></form>
+      </div>
+    </div>
     <script
       defer
       src="https://cdn.jsdelivr.net/npm/lodash@4.17.11/lodash.min.js"
