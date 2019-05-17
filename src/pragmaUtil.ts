@@ -120,7 +120,7 @@ export default class PragmaUtil {
    * Remove @sync-ignore settings before upload.
    *
    * @static
-   * @param {string} settingsContent
+   * @param {string} fileContent
    * @returns {string}
    * @memberof PragmaUtil
    */
@@ -271,13 +271,11 @@ export default class PragmaUtil {
   private static toggleComments(line: string, shouldComment: boolean) {
     const isCommented = line.trim().startsWith("//");
     if (shouldComment) {
-      if (!isCommented) {
-        return "  //" + line; // 2 spaces as formating
-      }
+      // Replace with RegEx to help match indent size
+      return !isCommented ? line.replace(/^(\s*)/, "$1// ") : line;
     } else {
-      if (isCommented) {
-        return line.replace("//", "");
-      }
+      // Only remove if line is commented
+      return isCommented ? line.replace(/\/\/\s*/, "") : line;
     }
 
     return line;
@@ -302,7 +300,7 @@ export default class PragmaUtil {
       parsedLines.push(this.toggleComments(currentLine, shouldComment));
     }
 
-    const opensCurlyBraces = /".+"\s*:\s*{/.test(currentLine);
+    const opensCurlyBraces = /{/.test(currentLine);
     const opensBrackets = /".+"\s*:\s*\[/.test(currentLine);
 
     let openedBlock = opensCurlyBraces || opensBrackets;
