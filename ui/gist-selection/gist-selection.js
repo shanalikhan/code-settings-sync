@@ -39,14 +39,19 @@ function appendHTML(parent, html) {
   div.remove();
 }
 
-function saveGistId(id) {
+function saveGistId(id, el) {
+  const savedMessage = " (saved! you may close this tab)";
   vscode.postMessage({ id });
+  if (!selectionContainer.innerText.includes(savedMessage)) {
+    el.textContent += savedMessage;
+  }
+  console.log(el.textContent);
 }
 
 const selectionContainer = document.getElementById("selectionContainer");
 
 const selectionTemplate = `
-<button type="button" onclick="saveGistId('@id')" class="list-group-item list-group-item-action">@description – Updated @timestamp ago</button>`;
+<button type="button" onclick="saveGistId('@id', this)" class="list-group-item list-group-item-action">@description – Updated @timestamp ago</button>`;
 
 gists.forEach(gist => {
   const html = selectionTemplate

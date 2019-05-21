@@ -98,8 +98,9 @@ export class GitHubOAuthService {
         const extSettings = await this.commons.GetSettings();
         extSettings.gist = message.id;
         this.commons.SaveSettings(extSettings);
+      } else {
+        gistSelectionPanel.dispose();
       }
-      return gistSelectionPanel.dispose();
     });
   }
 

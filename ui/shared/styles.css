@@ -11,20 +11,24 @@ body {
 }
 
 .content-row {
-  height: 100%;
-  width: 100%;
+  flex-grow: 1;
   overflow-y: hidden;
   padding-bottom: 1rem;
 }
 
+.footer > .col {
+  padding: 0;
+}
+
+.footer {
+  margin: 0;
+}
+
 .scrollable {
-  height: 100%;
-  width: 100%;
   overflow-y: auto;
 }
 
 .content {
-  flex: 2;
   background-color: burlywood;
   overflow: scroll;
 }
@@ -35,10 +39,6 @@ body {
   --btn-click: #0e3450;
   --link: dodgerblue;
   --link-hover: rgb(15, 109, 204);
-}
-
-#selectionContainer {
-  width: 60%;
 }
 
 .dock-bottom-left {

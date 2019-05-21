@@ -20,28 +20,26 @@
       href="https://fonts.googleapis.com/css?family=Open+Sans:700"
       rel="stylesheet"
     />
+    <script>
+      const pwd = `@PWD`;
+    </script>
     <link rel="stylesheet" href="@PWD/ui/shared/styles.css" />
   </head>
-  <body>
-    <header class="masthead">
-      <div class="container d-flex h-100">
-        <div class="mx-auto text-center">
-          <page-header></page-header>
-          <h3 class="mx-auto mt-2 mb-3 text-white-50a">
-            Select Your Existing Gist
-          </h3>
-          <div id="selectionContainer" class="list-group mx-auto"></div>
-          <a
-            href="#"
-            onclick="vscode.postMessage({close: true});"
-            title="Create a new Gist"
-            class="btn btn-primary mt-4"
-            style="width: 40%;"
-            >Create a new Gist</a
-          >
-        </div>
-      </div>
-    </header>
+  <body class="container d-flex h-100">
+    <div class="mx-auto text-center">
+      <page-header></page-header>
+      <h3 class="mx-auto mt-2 mb-3 text-white-50a">
+        Select Your Existing Gist
+      </h3>
+      <div id="selectionContainer" class="list-group mx-auto text-left"></div>
+      <a
+        href="#"
+        onclick="vscode.postMessage({close: true});"
+        title="Skip (new one will be created automatically)"
+        class="btn btn-primary mt-4"
+        >Skip (new one will be created automatically)</a
+      >
+    </div>
     <script
       defer
       src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
