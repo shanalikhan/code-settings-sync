@@ -1,6 +1,8 @@
 // @ts-nocheck
 const vscode = acquireVsCodeApi();
 
+window.onload = () => sendCommand("reloadColors");
+
 function sendCommand(args) {
   vscode.postMessage({
     command: args

@@ -255,10 +255,15 @@ export default class Commons {
       }
     );
     settingsPanel.webview.html = content;
-    settingsPanel.webview.onDidReceiveMessage(message =>
-      this.ReceiveSettingChange(message)
-    );
-    setTimeout(() => (settingsPanel.webview.html = content + " "), 2000);
+    settingsPanel.webview.onDidReceiveMessage(message => {
+      if (message === "reloadColors") {
+        return setTimeout(
+          () => (settingsPanel.webview.html = content + " "),
+          100
+        );
+      }
+      this.ReceiveSettingChange(message);
+    });
   }
 
   public async ReceiveSettingChange(message: {
@@ -320,10 +325,13 @@ export default class Commons {
         case "editConfiguration":
           this.OpenSettingsPage();
           break;
+        case "reloadColors":
+          console.log("Reload");
+          setTimeout(() => (landingPanel.webview.html = content + " "), 100);
+          break;
       }
     });
     landingPanel.webview.html = content;
-    setTimeout(() => (landingPanel.webview.html = content + " "), 2000);
   }
 
   public async InitializeAutoUpload() {

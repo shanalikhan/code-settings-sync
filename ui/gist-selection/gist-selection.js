@@ -2,6 +2,8 @@
 
 const vscode = acquireVsCodeApi();
 
+window.onload = () => vscode.postMessage({ reloadColors: true });
+
 /* https://stackoverflow.com/questions/3177836/how-to-format-time-since-xxx-e-g-4-minutes-ago-similar-to-stack-exchange-site */
 function timeSince(date) {
   var seconds = Math.floor((new Date() - date) / 1000);

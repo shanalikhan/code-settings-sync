@@ -94,6 +94,12 @@ export class GitHubOAuthService {
     );
     gistSelectionPanel.webview.html = content;
     gistSelectionPanel.webview.onDidReceiveMessage(async message => {
+      if (message.reloadColors) {
+        return setTimeout(
+          () => (gistSelectionPanel.webview.html = content + " "),
+          100
+        );
+      }
       if (!message.close) {
         const extSettings = await this.commons.GetSettings();
         extSettings.gist = message.id;
@@ -102,7 +108,6 @@ export class GitHubOAuthService {
         gistSelectionPanel.dispose();
       }
     });
-    setTimeout(() => (gistSelectionPanel.webview.html = content + " "), 2000);
   }
 
   public async getUser(token: string) {

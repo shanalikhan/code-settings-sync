@@ -11,6 +11,8 @@ function appendHTML(parent, html) {
 
 const vscode = acquireVsCodeApi();
 
+window.onload = () => vscode.postMessage("reloadColors");
+
 const textInputTemplate = `<div class="form-group mb-4">
             <label for="setting:@correspondingSetting" class="text-white-50a"
               >@name</label
