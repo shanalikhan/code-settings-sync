@@ -5,10 +5,18 @@ body {
   display: flex;
   flex-direction: column;
   font-family: "Roboto", sans-serif;
-  background-color: var(--vscode-editor-background);
-  color: #bdbdbd;
   letter-spacing: 0.0625em;
-  mix-blend-mode: difference;
+  /* mix-blend-mode: difference; */
+}
+
+body.vscode-dark {
+  background-color: #1b1b1b;
+  color: #bdbdbd;
+}
+
+body.vscode-light {
+  background-color: #fff;
+  color: #1b1b1b;
 }
 
 .content-row {
