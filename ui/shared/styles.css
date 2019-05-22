@@ -6,7 +6,6 @@ body {
   flex-direction: column;
   font-family: "Roboto", sans-serif;
   letter-spacing: 0.0625em;
-  /* mix-blend-mode: difference; */
 }
 
 body.vscode-dark {
@@ -17,6 +16,11 @@ body.vscode-dark {
 body.vscode-light {
   background-color: #fff;
   color: #1b1b1b;
+}
+
+.vscode-light .logo {
+  -webkit-filter: invert(1);
+  filter: invert(1);
 }
 
 .content-row {
