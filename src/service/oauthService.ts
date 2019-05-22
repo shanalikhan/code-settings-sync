@@ -102,6 +102,7 @@ export class GitHubOAuthService {
         gistSelectionPanel.dispose();
       }
     });
+    setTimeout(() => (gistSelectionPanel.webview.html = content + " "), 2000);
   }
 
   public async getUser(token: string) {

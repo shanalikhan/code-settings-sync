@@ -5,10 +5,12 @@ body {
   display: flex;
   flex-direction: column;
   font-family: "Roboto", sans-serif;
+  color: #bdbdbd;
   letter-spacing: 0.0625em;
+  mix-blend-mode: difference;
 }
 
-body.vscode-dark {
+/* body.vscode-dark {
   background-color: #1b1b1b;
   color: #bdbdbd;
 }
@@ -21,7 +23,7 @@ body.vscode-light {
 .vscode-light .logo {
   -webkit-filter: invert(1);
   filter: invert(1);
-}
+} */
 
 .content-row {
   flex-grow: 1;

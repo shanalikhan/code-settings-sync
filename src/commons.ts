@@ -258,6 +258,7 @@ export default class Commons {
     settingsPanel.webview.onDidReceiveMessage(message =>
       this.ReceiveSettingChange(message)
     );
+    setTimeout(() => (settingsPanel.webview.html = content + " "), 2000);
   }
 
   public async ReceiveSettingChange(message: {
@@ -301,7 +302,6 @@ export default class Commons {
         enableScripts: true
       }
     );
-    landingPanel.webview.html = content;
     landingPanel.webview.onDidReceiveMessage(async message => {
       switch (message.command) {
         case "loginWithGitHub":
@@ -322,6 +322,8 @@ export default class Commons {
           break;
       }
     });
+    landingPanel.webview.html = content;
+    setTimeout(() => (landingPanel.webview.html = content + " "), 2000);
   }
 
   public async InitializeAutoUpload() {
