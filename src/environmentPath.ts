@@ -1,7 +1,6 @@
 "use strict";
 
-import { existsSync } from "fs";
-import { basename, resolve } from "path";
+import { resolve } from "path";
 import * as vscode from "vscode";
 import { OsType } from "./enums";
 
@@ -82,26 +81,12 @@ export class Environment {
         )[0].extensionPath,
         ".."
       ).concat("/"); // Gets first non-builtin extension's path
-      if (this.OsType === OsType.Windows) {
-        this.CODE_BIN = `for /r "bin" %a in (*.cmd) do "%~fa"`;
-      } else {
-        if (existsSync("./bin")) {
-          this.CODE_BIN = "./bin/*";
-        } else {
-          this.CODE_BIN = `"/bin/${basename(vscode.env.appRoot)}"`;
-        }
-      }
     }
 
     if (this.isPortable) {
       this.PATH = process.env.VSCODE_PORTABLE;
       this.USER_FOLDER = resolve(this.PATH, "user-data/User").concat("/");
       this.EXTENSION_FOLDER = resolve(this.PATH, "extensions").concat("/");
-      if (this.OsType === OsType.Windows) {
-        this.CODE_BIN = `for /r "bin" %a in (*.cmd) do "%~fa"`;
-      } else {
-        this.CODE_BIN = "./bin/*";
-      }
     }
 
     /* Start Legacy Code
