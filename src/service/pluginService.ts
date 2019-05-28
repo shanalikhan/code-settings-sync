@@ -1,26 +1,29 @@
 "use strict";
-import { exec } from "child_process";
 import * as vscode from "vscode";
 
 export class ExtensionInformation {
   public static fromJSON(text: string) {
-    // TODO: JSON.parse may throw error
-    // Throw custom error should be more friendly
-    const obj = JSON.parse(text);
-    const meta = new ExtensionMetadata(
-      obj.meta.galleryApiUrl,
-      obj.meta.id,
-      obj.meta.downloadUrl,
-      obj.meta.publisherId,
-      obj.meta.publisherDisplayName,
-      obj.meta.date
-    );
-    const item = new ExtensionInformation();
-    item.metadata = meta;
-    item.name = obj.name;
-    item.publisher = obj.publisher;
-    item.version = obj.version;
-    return item;
+    try {
+      // TODO: JSON.parse may throw error
+      // Throw custom error should be more friendly
+      const obj = JSON.parse(text);
+      const meta = new ExtensionMetadata(
+        obj.meta.galleryApiUrl,
+        obj.meta.id,
+        obj.meta.downloadUrl,
+        obj.meta.publisherId,
+        obj.meta.publisherDisplayName,
+        obj.meta.date
+      );
+      const item = new ExtensionInformation();
+      item.metadata = meta;
+      item.name = obj.name;
+      item.publisher = obj.publisher;
+      item.version = obj.version;
+      return item;
+    } catch (err) {
+      throw new Error(err);
+    }
   }
 
   public static fromJSONList(text: string) {
@@ -49,7 +52,7 @@ export class ExtensionInformation {
         }
       });
     } catch (err) {
-      console.error("Sync : Unable to Parse extensions list", err);
+      throw new Error(err);
     }
 
     return extList;
@@ -77,26 +80,12 @@ export class PluginService {
     remoteExt: string,
     ignoredExtensions: string[]
   ) {
-    const hashset = {};
     const remoteList = ExtensionInformation.fromJSONList(remoteExt);
     const localList = this.CreateExtensionList();
-    const missingList: ExtensionInformation[] = [];
 
-    localList.forEach(ext => {
-      if (hashset[ext.name] == null) {
-        hashset[ext.name] = ext;
-      }
-    });
-
-    remoteList.forEach(ext => {
-      if (
-        hashset[ext.name] == null &&
-        ignoredExtensions.includes(ext.name) === false
-      ) {
-        missingList.push(ext);
-      }
-    });
-    return missingList;
+    return remoteList.filter(
+      ext => !ignoredExtensions.includes(ext.name) && !localList.includes(ext)
+    );
   }
 
   public static GetDeletedExtensions(
@@ -104,7 +93,6 @@ export class PluginService {
     ignoredExtensions: string[]
   ) {
     const localExtensions = this.CreateExtensionList();
-    const toDelete: ExtensionInformation[] = [];
 
     // for (var i = 0; i < remoteList.length; i++) {
 
@@ -124,74 +112,60 @@ export class PluginService {
 
     // }
 
-    localExtensions.forEach(ext => {
-      if (ext.name !== "code-settings-sync") {
-        if (
-          !remoteExtensions.map(e => e.name).includes(ext.name) &&
-          !ignoredExtensions.includes(ext.name)
-        ) {
-          toDelete.push(ext);
-        }
-      }
-    });
-
-    return toDelete;
+    return localExtensions.filter(
+      ext =>
+        ext.name !== "code-settings-sync" &&
+        !remoteExtensions.map(e => e.name).includes(ext.name) &&
+        !ignoredExtensions.includes(ext.name)
+    );
   }
 
   public static CreateExtensionList() {
-    const list: ExtensionInformation[] = [];
-
-    vscode.extensions.all.forEach(ext => {
-      if (ext.packageJSON.isBuiltin === true) {
-        return;
-      }
-
-      const meta = ext.packageJSON.__metadata || {
-        id: ext.packageJSON.uuid,
-        publisherId: ext.id,
-        publisherDisplayName: ext.packageJSON.publisher
-      };
-      const data = new ExtensionMetadata(
-        meta.galleryApiUrl,
-        meta.id,
-        meta.downloadUrl,
-        meta.publisherId,
-        meta.publisherDisplayName,
-        meta.date
-      );
-      const info = new ExtensionInformation();
-      info.metadata = data;
-      info.name = ext.packageJSON.name;
-      info.publisher = ext.packageJSON.publisher;
-      info.version = ext.packageJSON.version;
-      list.push(info);
-    });
-
-    return list;
+    return vscode.extensions.all
+      .filter(ext => !ext.packageJSON.isBuiltin)
+      .map(ext => {
+        const meta = ext.packageJSON.__metadata || {
+          id: ext.packageJSON.uuid,
+          publisherId: ext.id,
+          publisherDisplayName: ext.packageJSON.publisher
+        };
+        const data = new ExtensionMetadata(
+          meta.galleryApiUrl,
+          meta.id,
+          meta.downloadUrl,
+          meta.publisherId,
+          meta.publisherDisplayName,
+          meta.date
+        );
+        const info = new ExtensionInformation();
+        info.metadata = data;
+        info.name = ext.packageJSON.name;
+        info.publisher = ext.packageJSON.publisher;
+        info.version = ext.packageJSON.version;
+        return info;
+      });
   }
 
   public static async DeleteExtension(
-    extension: ExtensionInformation,
-    cliPath: string
+    extension: ExtensionInformation
   ): Promise<boolean> {
-    const extensionCli = `${cliPath} --uninstall-extension ${
-      extension.publisher
-    }.${extension.name}`;
-    return new Promise<boolean>(res => {
-      exec(extensionCli, (err, stdout, stderr) => {
-        if (!stdout && (err || stderr)) {
-          console.log("Sync : " + "Error in uninstalling Extension.");
-          console.log(err);
-          res(false);
-        }
-        res(true);
-      });
+    return new Promise<boolean>((resolve, reject) => {
+      try {
+        vscode.commands
+          .executeCommand(
+            "workbench.extensions.uninstallExtension",
+            `${extension.publisher}.${extension.name}`
+          )
+          .then(resolve);
+      } catch (err) {
+        reject(err);
+        throw new Error(err);
+      }
     });
   }
 
   public static async DeleteExtensions(
     extensionsJson: string,
-    cliPath: string,
     ignoredExtensions: string[]
   ): Promise<ExtensionInformation[]> {
     const remoteExtensions = ExtensionInformation.fromJSONList(extensionsJson);
@@ -201,23 +175,16 @@ export class PluginService {
     );
     const deletedExtensions: ExtensionInformation[] = [];
 
-    if (toDelete.length === 0) {
-      return deletedExtensions;
-    }
-
     toDelete.forEach(async selectedExtension => {
       try {
-        await PluginService.DeleteExtension(selectedExtension, cliPath);
+        await PluginService.DeleteExtension(selectedExtension);
         deletedExtensions.push(selectedExtension);
       } catch (err) {
-        console.error(
-          "Sync : Unable to delete extension " +
-            selectedExtension.name +
-            " " +
+        throw new Error(
+          `Sync : Unable to delete extension ${selectedExtension.name} ${
             selectedExtension.version
+          }: ${err}`
         );
-        console.error(err);
-        throw deletedExtensions;
       }
     });
 
@@ -249,41 +216,43 @@ export class PluginService {
     missingExtensions: ExtensionInformation[],
     notificationCallBack: (...data: any[]) => void
   ): Promise<ExtensionInformation[]> {
-    const addedExtensions: ExtensionInformation[] = [];
+    return new Promise((resolve, reject) => {
+      const addedExtensions: ExtensionInformation[] = [];
+      let remainingExtensions: ExtensionInformation[] = [...missingExtensions];
 
-    notificationCallBack("TOTAL EXTENSIONS : " + missingExtensions.length);
-    notificationCallBack("");
-    notificationCallBack("");
-    for (let i = 0; i < missingExtensions.length; i++) {
-      const missExt = missingExtensions[i];
-      const name = missExt.publisher + "." + missExt.name;
-      try {
-        const installed = await new Promise<boolean>(res => {
-          vscode.commands
-            .executeCommand("workbench.extensions.installExtension", name)
-            .then(() => {
-              res(true);
-            });
-        });
-        if (installed) {
-          notificationCallBack("");
-          notificationCallBack(
-            "EXTENSION : " +
-              (i + 1) +
-              " / " +
-              missingExtensions.length.toString() +
-              " INSTALLED.",
-            true
-          );
-          notificationCallBack("");
-          notificationCallBack("");
-          addedExtensions.push(missExt);
+      notificationCallBack("TOTAL EXTENSIONS : " + missingExtensions.length);
+      notificationCallBack("");
+      notificationCallBack("");
+      missingExtensions.forEach(async ext => {
+        const name = ext.publisher + "." + ext.name;
+        try {
+          const installed = await new Promise<boolean>(res => {
+            vscode.commands
+              .executeCommand("workbench.extensions.installExtension", name)
+              .then(res);
+          });
+          if (installed) {
+            remainingExtensions = remainingExtensions.filter(
+              remExt => remExt.name !== ext.name
+            );
+            notificationCallBack("");
+            notificationCallBack(
+              `EXTENSION: ${ext.name} INSTALLED. ${
+                remainingExtensions.length
+              } REMAINING`,
+              true
+            );
+            notificationCallBack("");
+            addedExtensions.push(ext);
+            if (remainingExtensions.length === 0) {
+              resolve(addedExtensions);
+            }
+          }
+        } catch (err) {
+          reject(err);
+          throw new Error(err);
         }
-      } catch (err) {
-        console.log(err);
-      }
-    }
-
-    return addedExtensions;
+      });
+    });
   }
 }
