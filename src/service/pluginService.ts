@@ -229,7 +229,7 @@ export class PluginService {
           const installed = await new Promise<boolean>(res => {
             vscode.commands
               .executeCommand("workbench.extensions.installExtension", name)
-              .then(res);
+              .then(() => res(true));
           });
           if (installed) {
             remainingExtensions = remainingExtensions.filter(
