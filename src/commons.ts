@@ -1,14 +1,11 @@
 "use strict";
-import { readFileSync } from "fs";
-import { has, set } from "lodash";
 import * as vscode from "vscode";
 import { Environment } from "./environmentPath";
 import localize from "./localize";
-import { UISettingType } from "./models/settingType.model";
 import { AutoUploadService } from "./service/autoUploadService";
 import { File, FileService } from "./service/fileService";
-import { GitHubOAuthService } from "./service/oauthService";
 import { ExtensionInformation } from "./service/pluginService";
+import { WebviewService } from "./service/webviewService";
 import { CustomSettings, ExtensionConfig, LocalConfig } from "./setting";
 
 export default class Commons {
@@ -74,257 +71,16 @@ export default class Commons {
     }
   }
 
-  public SettingsView: string;
-  public LandingPageView: string;
-
   public autoUploadService: AutoUploadService;
+  public webviewService = new WebviewService(this, this.context.extensionPath);
 
   public ERROR_MESSAGE: string = localize("common.error.message");
-
-  private customizableSettings = [
-    {
-      name: "Access Token",
-      placeholder: "Enter Token",
-      type: UISettingType.TextInput,
-      correspondingSetting: "token"
-    },
-    {
-      name: "GitHub Enterprise URL (optional)",
-      placeholder: "Enter GitHub Enterprise URL",
-      type: UISettingType.TextInput,
-      correspondingSetting: "githubEnterpriseUrl"
-    },
-
-    {
-      name: "Ignored Folders",
-      placeholder: "Enter one folder per line",
-      type: UISettingType.TextArea,
-      correspondingSetting: "ignoreUploadFolders"
-    },
-    {
-      name: "Ignored Extensions",
-      placeholder: "Enter one extension per line (full name)",
-      type: UISettingType.TextArea,
-      correspondingSetting: "ignoreExtensions"
-    },
-    {
-      name: "Hostname (optional)",
-      placeholder: "Enter Hostname",
-      type: UISettingType.TextInput,
-      correspondingSetting: "hostName"
-    },
-    {
-      name: "Ignored Files",
-      placeholder: "Enter one file per line",
-      type: UISettingType.TextArea,
-      correspondingSetting: "ignoreUploadFiles"
-    },
-    {
-      name: "Supported File Extensions",
-      placeholder: "Enter one file extension per line",
-      type: UISettingType.TextArea,
-      correspondingSetting: "supportedFileExtensions"
-    },
-
-    {
-      name: "Gist Description",
-      placeholder: "Enter Gist Description",
-      type: UISettingType.TextInput,
-      correspondingSetting: "gistDescription"
-    },
-
-    {
-      name: "Ask Gist Name",
-      placeholder: "",
-      type: UISettingType.Checkbox,
-      correspondingSetting: "askGistName"
-    },
-    {
-      name: "Download Public Gist",
-      placeholder: "",
-      type: UISettingType.Checkbox,
-      correspondingSetting: "downloadPublicGist"
-    },
-    {
-      name: "Open Token Link",
-      placeholder: "",
-      type: UISettingType.Checkbox,
-      correspondingSetting: "openTokenLink"
-    }
-  ];
-
-  private extensionSettings = [
-    {
-      name: "Gist ID",
-      placeholder: "Enter Gist ID",
-      type: UISettingType.TextInput,
-      correspondingSetting: "gist",
-      tooltip: localize("ext.config.gist")
-    },
-    {
-      name: "Auto Download",
-      placeholder: "",
-      type: UISettingType.Checkbox,
-      correspondingSetting: "autoDownload",
-      tooltip: localize("ext.config.autoDownload")
-    },
-    {
-      name: "Auto Upload",
-      placeholder: "",
-      type: UISettingType.Checkbox,
-      correspondingSetting: "autoUpload",
-      tooltip: localize("ext.config.autoUpload")
-    },
-    {
-      name: "Force Download",
-      placeholder: "",
-      type: UISettingType.Checkbox,
-      correspondingSetting: "forceDownload",
-      tooltip: localize("ext.config.forceDownload")
-    },
-    {
-      name: "Quiet Sync",
-      placeholder: "",
-      type: UISettingType.Checkbox,
-      correspondingSetting: "quietSync",
-      tooltip: localize("ext.config.quietSync")
-    },
-    {
-      name: "Remove Extensions",
-      placeholder: "",
-      type: UISettingType.Checkbox,
-      correspondingSetting: "removeExtensions",
-      tooltip: localize("ext.config.removeExtensions")
-    },
-    {
-      name: "Sync Extensions",
-      placeholder: "",
-      type: UISettingType.Checkbox,
-      correspondingSetting: "syncExtensions",
-      tooltip: localize("ext.config.syncExtensions")
-    }
-  ];
 
   constructor(
     private en: Environment,
     private context: vscode.ExtensionContext
   ) {
     this.InitializeAutoUpload();
-    this.SettingsView = readFileSync(
-      `${this.context.extensionPath}/ui/settings/settings.html`,
-      {
-        encoding: "utf8"
-      }
-    );
-    this.LandingPageView = readFileSync(
-      `${this.context.extensionPath}/ui/landing-page/landing-page.html`,
-      {
-        encoding: "utf8"
-      }
-    );
-  }
-
-  public async OpenSettingsPage() {
-    const customSettings = await this.GetCustomSettings();
-    const extSettings = await this.GetSettings();
-    const content: string = this.SettingsView.replace(
-      new RegExp("@GLOBAL_DATA", "g"),
-      JSON.stringify(customSettings)
-    )
-      .replace(new RegExp("@ENV_DATA", "g"), JSON.stringify(extSettings))
-      .replace(
-        new RegExp("@GLOBAL_MAP", "g"),
-        JSON.stringify(this.customizableSettings)
-      )
-      .replace(
-        new RegExp("@ENV_MAP", "g"),
-        JSON.stringify(this.extensionSettings)
-      )
-      .replace(
-        new RegExp("@PWD", "g"),
-        vscode.Uri.file(this.context.extensionPath)
-          .with({
-            scheme: "vscode-resource"
-          })
-          .toString()
-      );
-    const settingsPanel = vscode.window.createWebviewPanel(
-      "syncSettings",
-      "Sync Settings",
-      vscode.ViewColumn.One,
-      {
-        retainContextWhenHidden: true,
-        enableScripts: true
-      }
-    );
-    settingsPanel.webview.html = content;
-    settingsPanel.webview.onDidReceiveMessage(message => {
-      this.ReceiveSettingChange(message);
-    });
-  }
-
-  public async ReceiveSettingChange(message: {
-    command: string;
-    text: string;
-    type: string;
-  }) {
-    let value: any = message.text;
-    if (message.text === "true" || message.text === "false") {
-      value = message.text === "true";
-    }
-    if (message.type === "global") {
-      const customSettings = await this.GetCustomSettings();
-      if (has(customSettings, message.command)) {
-        set(customSettings, message.command, value);
-        this.SetCustomSettings(customSettings);
-      }
-    } else {
-      const extSettings = await this.GetSettings();
-      extSettings[message.command] = value;
-      this.SaveSettings(extSettings);
-    }
-  }
-
-  public async OpenLandingPage() {
-    const releaseNotes = require("../release-notes.json");
-    const content: string = this.LandingPageView.replace(
-      new RegExp("@PWD", "g"),
-      vscode.Uri.file(this.context.extensionPath)
-        .with({
-          scheme: "vscode-resource"
-        })
-        .toString()
-    ).replace("@RELEASE_NOTES", JSON.stringify(releaseNotes));
-    const landingPanel = vscode.window.createWebviewPanel(
-      "landingPage",
-      "Welcome to Settings Sync",
-      vscode.ViewColumn.One,
-      {
-        retainContextWhenHidden: true,
-        enableScripts: true
-      }
-    );
-    landingPanel.webview.onDidReceiveMessage(async message => {
-      switch (message.command) {
-        case "loginWithGitHub":
-          new GitHubOAuthService(
-            54321,
-            this,
-            this.context.extensionPath
-          ).StartProcess();
-          vscode.commands.executeCommand(
-            "vscode.open",
-            vscode.Uri.parse(
-              "https://github.com/login/oauth/authorize?scope=gist%20read:user&client_id=cfd96460d8b110e2351b&redirect_uri=http://localhost:54321/callback"
-            )
-          );
-          break;
-        case "editConfiguration":
-          this.OpenSettingsPage();
-          break;
-      }
-    });
-    landingPanel.webview.html = content;
   }
 
   public async InitializeAutoUpload() {
@@ -362,7 +118,7 @@ export default class Commons {
     const cusSettings: CustomSettings = await this.GetCustomSettings();
 
     if (cusSettings.token === "" || extSettings.gist === "") {
-      this.OpenLandingPage();
+      this.webviewService.OpenLandingPage();
     }
 
     settings.customConfig = cusSettings;

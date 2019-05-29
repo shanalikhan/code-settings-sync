@@ -50,7 +50,7 @@ export class Sync {
         startUpSetting.gist != null && startUpSetting.gist !== "";
 
       if (!tokenAvailable) {
-        globalCommonService.OpenLandingPage();
+        globalCommonService.webviewService.OpenLandingPage();
         return;
       }
 
@@ -805,7 +805,7 @@ export class Sync {
 
     const handlerMap = [
       async () => {
-        common.OpenSettingsPage();
+        common.webviewService.OpenSettingsPage(customSettings, setting);
       },
       async () => {
         const file: vscode.Uri = vscode.Uri.file(env.FILE_CUSTOMIZEDSETTINGS);
