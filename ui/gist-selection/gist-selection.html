@@ -24,11 +24,6 @@
       const pwd = `@PWD`;
     </script>
     <link rel="stylesheet" href="@PWD/ui/shared/styles.css" />
-    <style>
-      body {
-        background-color: var(--vscode-editor-background);
-      }
-    </style>
   </head>
   <body class="container d-flex h-100">
     <div class="mx-auto text-center">
@@ -44,6 +39,44 @@
         class="btn btn-primary mt-4"
         >Skip (new one will be created automatically)</a
       >
+    </div>
+    <div
+      class="modal fade"
+      id="modal"
+      tabindex="-1"
+      role="dialog"
+      aria-labelledby="exampleModalCenterTitle"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content bg-dark">
+          <div class="modal-header">
+            <h5 class="modal-title" id="exampleModalCenterTitle">
+              Saved Gist ID!
+            </h5>
+          </div>
+          <div class="modal-body">
+            The Gist ID has been saved to the configuration. You may now close
+            this tab.
+          </div>
+          <div class="modal-footer">
+            <button
+              type="button"
+              class="btn btn-secondary"
+              data-dismiss="modal"
+            >
+              Back
+            </button>
+            <button
+              type="button"
+              class="btn btn-primary"
+              onclick="vscode.postMessage({close: true});"
+            >
+              Close Tab
+            </button>
+          </div>
+        </div>
+      </div>
     </div>
     <script
       defer

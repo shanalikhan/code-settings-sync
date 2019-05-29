@@ -11,8 +11,6 @@ function appendHTML(parent, html) {
 
 const vscode = acquireVsCodeApi();
 
-window.onload = () => vscode.postMessage("reloadColors");
-
 const textInputTemplate = `<div class="form-group mb-4">
             <label for="setting:@correspondingSetting" class="text-white-50a"
               >@name</label
@@ -107,9 +105,14 @@ envMap.forEach(envMap => {
     )
     .replace(
       new RegExp("@tooltip"),
-      `<a class="text-white-50a fas fa-info-circle" data-toggle="tooltip" data-placement="bottom" title="${
-        envMap.tooltip
-      }"></a>`
+      `
+      <a
+        class="text-white-50a fas fa-info-circle"
+        data-toggle="tooltip" 
+        data-placement="right" 
+        title="${envMap.tooltip}">
+      </a>
+      `
     )
     .replace(new RegExp("@settingType", "g"), "env");
   appendHTML(envParent, html);
@@ -117,7 +120,7 @@ envMap.forEach(envMap => {
 
 $(document).ready(function() {
   save();
-  $('[data-toggle="tooltip"]').tooltip();
+  $('[data-toggle="tooltip"]').tooltip({ container: "html" });
   $(".text")
     .each((i, el) => {
       if ($(el).attr("settingType") === "global") {

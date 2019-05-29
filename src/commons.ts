@@ -83,17 +83,18 @@ export default class Commons {
 
   private customizableSettings = [
     {
-      name: "Hostname (optional)",
-      placeholder: "Enter Hostname",
+      name: "Access Token",
+      placeholder: "Enter Token",
       type: UISettingType.TextInput,
-      correspondingSetting: "hostName"
+      correspondingSetting: "token"
     },
     {
-      name: "Ignored Files",
-      placeholder: "Enter one file per line",
-      type: UISettingType.TextArea,
-      correspondingSetting: "ignoreUploadFiles"
+      name: "GitHub Enterprise URL (optional)",
+      placeholder: "Enter GitHub Enterprise URL",
+      type: UISettingType.TextInput,
+      correspondingSetting: "githubEnterpriseUrl"
     },
+
     {
       name: "Ignored Folders",
       placeholder: "Enter one folder per line",
@@ -107,29 +108,31 @@ export default class Commons {
       correspondingSetting: "ignoreExtensions"
     },
     {
+      name: "Hostname (optional)",
+      placeholder: "Enter Hostname",
+      type: UISettingType.TextInput,
+      correspondingSetting: "hostName"
+    },
+    {
+      name: "Ignored Files",
+      placeholder: "Enter one file per line",
+      type: UISettingType.TextArea,
+      correspondingSetting: "ignoreUploadFiles"
+    },
+    {
       name: "Supported File Extensions",
       placeholder: "Enter one file extension per line",
       type: UISettingType.TextArea,
       correspondingSetting: "supportedFileExtensions"
     },
-    {
-      name: "Access Token",
-      placeholder: "Enter Token",
-      type: UISettingType.TextInput,
-      correspondingSetting: "token"
-    },
+
     {
       name: "Gist Description",
       placeholder: "Enter Gist Description",
       type: UISettingType.TextInput,
       correspondingSetting: "gistDescription"
     },
-    {
-      name: "GitHub Enterprise URL (optional)",
-      placeholder: "Enter GitHub Enterprise URL",
-      type: UISettingType.TextInput,
-      correspondingSetting: "githubEnterpriseUrl"
-    },
+
     {
       name: "Ask Gist Name",
       placeholder: "",
@@ -256,12 +259,6 @@ export default class Commons {
     );
     settingsPanel.webview.html = content;
     settingsPanel.webview.onDidReceiveMessage(message => {
-      if (message === "reloadColors") {
-        return setTimeout(
-          () => (settingsPanel.webview.html = content + " "),
-          100
-        );
-      }
       this.ReceiveSettingChange(message);
     });
   }
@@ -324,10 +321,6 @@ export default class Commons {
           break;
         case "editConfiguration":
           this.OpenSettingsPage();
-          break;
-        case "reloadColors":
-          console.log("Reload");
-          setTimeout(() => (landingPanel.webview.html = content + " "), 100);
           break;
       }
     });

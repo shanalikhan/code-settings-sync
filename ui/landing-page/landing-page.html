@@ -24,17 +24,12 @@
       const pwd = `@PWD`;
     </script>
     <link rel="stylesheet" href="@PWD/ui/shared/styles.css" />
-    <style>
-      body {
-        background-color: var(--vscode-editor-background);
-      }
-    </style>
   </head>
   <body class="container d-flex h-100 mx-auto my-8 text-center">
     <page-header></page-header>
     <div class="row content-row">
       <div class="col text-left mt-2 scrollable" id="notes">
-        <h3 class="mx-auto mt-2 text-white-50a text-center">
+        <h3 class="mx-auto pt-2 pb-4 text-white-50a text-center">
           What's New in
           <b>
             <a
@@ -124,7 +119,7 @@
       </div>
     </div>
     <footer class="footer row text-left">
-      <div class="col">
+      <div class="col col-one">
         <h3 class="mx-auto mb-3 text-white-50a">
           Need Help?
         </h3>
@@ -134,7 +129,7 @@
         >
         <br />
       </div>
-      <div class="col">
+      <div class="col col-two">
         <h3 class="mx-auto mb-3 text-white-50a">
           Sponsors
         </h3>
@@ -145,7 +140,7 @@
         </p>
       </div>
     </footer>
-    <script
+    <!-- <script
       defer
       src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
       integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
@@ -162,7 +157,7 @@
       src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
       integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
       crossorigin="anonymous"
-    ></script>
+    ></script> -->
     <script defer src="@PWD/ui/shared/page-header.js"></script>
     <script defer>
       const releaseNotes = JSON.parse(`@RELEASE_NOTES`);

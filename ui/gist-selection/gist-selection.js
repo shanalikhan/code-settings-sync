@@ -2,8 +2,6 @@
 
 const vscode = acquireVsCodeApi();
 
-window.onload = () => vscode.postMessage({ reloadColors: true });
-
 /* https://stackoverflow.com/questions/3177836/how-to-format-time-since-xxx-e-g-4-minutes-ago-similar-to-stack-exchange-site */
 function timeSince(date) {
   var seconds = Math.floor((new Date() - date) / 1000);
@@ -41,19 +39,15 @@ function appendHTML(parent, html) {
   div.remove();
 }
 
-function saveGistId(id, el) {
-  const savedMessage = " (saved! you may close this tab)";
+function saveGistId(id) {
   vscode.postMessage({ id });
-  if (!selectionContainer.innerText.includes(savedMessage)) {
-    el.textContent += savedMessage;
-  }
-  console.log(el.textContent);
+  $("#modal").modal();
 }
 
-const selectionContainer = document.getElementById("selectionContainer");
+const selectionContainer = document.querySelector("#selectionContainer");
 
 const selectionTemplate = `
-<button type="button" onclick="saveGistId('@id', this)" class="list-group-item list-group-item-action">@description – Updated @timestamp ago</button>`;
+<button type="button" onclick="saveGistId('@id')" class="list-group-item list-group-item-action">@description (@id) – Updated @timestamp ago</button>`;
 
 gists.forEach(gist => {
   const html = selectionTemplate
