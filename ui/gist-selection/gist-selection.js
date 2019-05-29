@@ -46,6 +46,12 @@ function saveGistId(id) {
 
 const selectionContainer = document.querySelector("#selectionContainer");
 
+document
+  .querySelector(".modal-content")
+  .classList.add(
+    document.body.className.includes("vscode-dark") ? "bg-dark" : "bg-light"
+  );
+
 const selectionTemplate = `
 <button type="button" onclick="saveGistId('@id')" class="list-group-item list-group-item-action">@description (@id) – Updated @timestamp ago</button>`;
 
