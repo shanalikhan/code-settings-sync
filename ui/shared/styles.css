@@ -80,10 +80,6 @@ body.vscode-light {
   left: 4rem;
 }
 
-#current-version {
-  color: #bdbdbd;
-}
-
 .logo {
   padding-right: 0.5rem;
   filter: opacity(0.5);
