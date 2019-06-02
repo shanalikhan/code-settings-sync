@@ -2,6 +2,7 @@
 
 import * as vscode from "vscode";
 import { init as initLocalize } from "./localize";
+import { InstanceManagerService } from "./service/instanceManagerService";
 import { Sync } from "./sync";
 
 export async function activate(context: vscode.ExtensionContext) {
@@ -10,6 +11,10 @@ export async function activate(context: vscode.ExtensionContext) {
   const sync = new Sync(context);
 
   sync.bootstrap();
+
+  if (!InstanceManagerService.instanceSet(context)) {
+    InstanceManagerService.setInstance(this.options.context);
+  }
 
   context.subscriptions.push(
     vscode.commands.registerCommand(
@@ -41,4 +46,10 @@ export async function activate(context: vscode.ExtensionContext) {
       sync.advance.bind(sync)
     )
   );
+}
+
+export async function deactivate(context: vscode.ExtensionContext) {
+  if (InstanceManagerService.isOriginalInstance(context)) {
+    InstanceManagerService.unsetInstance(context);
+  }
 }

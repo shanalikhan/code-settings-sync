@@ -32,14 +32,14 @@ export class AutoUploadService {
       context: vscode.ExtensionContext;
     }
   ) {
-    if (!InstanceManagerService.originalInstanceExists(this.options.context)) {
-      InstanceManagerService.setOriginalInstance(this.options.context);
-    } else {
-      return;
-    }
-
     vscode.extensions.onDidChange(async () => {
-      if (this.watching) {
+      if (!InstanceManagerService.instanceSet(this.options.context)) {
+        InstanceManagerService.setInstance(this.options.context);
+      }
+      if (
+        this.watching &&
+        InstanceManagerService.isOriginalInstance(this.options.context)
+      ) {
         console.log("Sync: Extensions changed");
         if (
           await lockfile
@@ -65,16 +65,18 @@ export class AutoUploadService {
   }
 
   public async StartWatching() {
-    if (!InstanceManagerService.isOriginalInstance(this.options.context)) {
-      return;
-    }
-
     this.StopWatching();
 
     this.watching = true;
 
     this.watcher.addListener("change", async (path: string) => {
-      if (this.watching) {
+      if (!InstanceManagerService.instanceSet(this.options.context)) {
+        InstanceManagerService.setInstance(this.options.context);
+      }
+      if (
+        this.watching &&
+        InstanceManagerService.isOriginalInstance(this.options.context)
+      ) {
         console.log(`Sync: ${FileService.ExtractFileName(path)} changed`);
         if (
           await lockfile
