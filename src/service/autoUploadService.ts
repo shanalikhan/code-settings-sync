@@ -1,5 +1,5 @@
-import { watch } from "chokidar";
 import * as vscode from "vscode";
+import { watch } from "vscode-chokidar";
 import Commons from "../commons";
 import { Environment } from "../environmentPath";
 import localize from "../localize";

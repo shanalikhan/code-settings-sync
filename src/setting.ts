@@ -56,4 +56,5 @@ export class CustomSettings {
   public askGistName: boolean = false;
   public customFiles: { [key: string]: string } = {};
   public hostName: string = null;
+  public universalKeybindings: boolean = false;
 }
