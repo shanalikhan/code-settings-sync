@@ -737,6 +737,11 @@ export class Sync {
           localize("cmd.resetSettings.info.settingClear")
         );
       }
+
+      globalCommonService.webviewService.UpdateSettingsPage(
+        localSettings,
+        extSettings
+      );
     } catch (err) {
       Commons.LogException(
         err,

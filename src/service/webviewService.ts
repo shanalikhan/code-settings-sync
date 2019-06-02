@@ -9,21 +9,6 @@ import { CustomSettings, ExtensionConfig } from "../setting";
 import { GitHubOAuthService } from "./oauthService";
 
 export class WebviewService {
-  private webviews: IWebview[] = [
-    {
-      name: "landing-page",
-      htmlPath: "landing-page.html"
-    },
-    {
-      name: "settings",
-      htmlPath: "settings.html"
-    },
-    {
-      name: "gist-selection",
-      htmlPath: "gist-selection.html"
-    }
-  ];
-
   private customizableSettings = [
     {
       name: "Access Token",
@@ -148,6 +133,51 @@ export class WebviewService {
     }
   ];
 
+  private webviews: IWebview[] = [
+    {
+      name: "landing-page",
+      htmlPath: "landing-page.html",
+      replaceables: [
+        {
+          find: "@RELEASE_NOTES",
+          replace: "releaseNotes"
+        }
+      ]
+    },
+    {
+      name: "settings",
+      htmlPath: "settings.html",
+      replaceables: [
+        {
+          find: "@GLOBAL_DATA",
+          replace: "customSettings"
+        },
+        {
+          find: "@ENV_DATA",
+          replace: "extSettings"
+        },
+        {
+          find: "@GLOBAL_MAP",
+          replace: this.customizableSettings
+        },
+        {
+          find: "@ENV_MAP",
+          replace: this.extensionSettings
+        }
+      ]
+    },
+    {
+      name: "gist-selection",
+      htmlPath: "gist-selection.html",
+      replaceables: [
+        {
+          find: "@GISTS",
+          replace: "gists"
+        }
+      ]
+    }
+  ];
+
   constructor(private commons: Commons, private searchFolder: string) {
     this.webviews = this.webviews.map(view => {
       return {
@@ -165,25 +195,12 @@ export class WebviewService {
     extSettings: ExtensionConfig
   ): vscode.WebviewPanel {
     const webview = this.webviews[1];
-    const content: string = this.webviews[1].htmlContent
-      .replace(new RegExp("@GLOBAL_DATA", "g"), JSON.stringify(customSettings))
-      .replace(new RegExp("@ENV_DATA", "g"), JSON.stringify(extSettings))
-      .replace(
-        new RegExp("@GLOBAL_MAP", "g"),
-        JSON.stringify(this.customizableSettings)
-      )
-      .replace(
-        new RegExp("@ENV_MAP", "g"),
-        JSON.stringify(this.extensionSettings)
-      )
-      .replace(
-        new RegExp("@PWD", "g"),
-        vscode.Uri.file(this.searchFolder)
-          .with({
-            scheme: "vscode-resource"
-          })
-          .toString()
-      );
+    const content: string = this.GenerateContent({
+      content: webview.htmlContent,
+      items: webview.replaceables,
+      customSettings,
+      extSettings
+    });
     if (webview.webview) {
       webview.webview.webview.html = content;
       webview.webview.reveal();
@@ -205,6 +222,21 @@ export class WebviewService {
     webview.webview = settingsPanel;
     settingsPanel.onDidDispose(() => (webview.webview = null));
     return settingsPanel;
+  }
+
+  public UpdateSettingsPage(
+    customSettings: CustomSettings,
+    extSettings: ExtensionConfig
+  ) {
+    const webview = this.webviews[1];
+    if (webview.webview) {
+      webview.webview.webview.html = this.GenerateContent({
+        content: webview.htmlContent,
+        items: webview.replaceables,
+        customSettings,
+        extSettings
+      });
+    }
   }
 
   public ReceiveSettingChange(
@@ -234,16 +266,11 @@ export class WebviewService {
   public OpenLandingPage() {
     const webview = this.webviews[0];
     const releaseNotes = require("../../release-notes.json");
-    const content: string = webview.htmlContent
-      .replace(
-        new RegExp("@PWD", "g"),
-        vscode.Uri.file(this.searchFolder)
-          .with({
-            scheme: "vscode-resource"
-          })
-          .toString()
-      )
-      .replace("@RELEASE_NOTES", JSON.stringify(releaseNotes));
+    const content: string = this.GenerateContent({
+      content: webview.htmlContent,
+      items: webview.replaceables,
+      releaseNotes
+    });
     if (webview.webview) {
       webview.webview.webview.html = content;
       webview.webview.reveal();
@@ -289,16 +316,11 @@ export class WebviewService {
 
   public OpenGistSelectionpage(gists: any) {
     const webview = this.webviews[2];
-    const content: string = webview.htmlContent
-      .replace(new RegExp("@GISTS", "g"), JSON.stringify(gists))
-      .replace(
-        new RegExp("@PWD", "g"),
-        vscode.Uri.file(this.searchFolder)
-          .with({
-            scheme: "vscode-resource"
-          })
-          .toString()
-      );
+    const content: string = this.GenerateContent({
+      content: webview.htmlContent,
+      items: webview.replaceables,
+      gists
+    });
     if (webview.webview) {
       webview.webview.webview.html = content;
       webview.webview.reveal();
@@ -326,5 +348,47 @@ export class WebviewService {
     webview.webview = gistSelectionPanel;
     gistSelectionPanel.onDidDispose(() => (webview.webview = null));
     return gistSelectionPanel;
+  }
+
+  private GenerateContent(options: any) {
+    const toReplace: Array<{}> = [];
+    options.items.forEach(option => {
+      if (typeof option.replace === "string") {
+        let str = "";
+        switch (option.replace) {
+          case "releaseNotes":
+            str = JSON.stringify(options.releaseNotes);
+            break;
+          case "customSettings":
+            str = JSON.stringify(options.customSettings);
+            break;
+          case "extSettings":
+            str = JSON.stringify(options.extSettings);
+            break;
+          case "gists":
+            str = JSON.stringify(options.gists);
+            break;
+        }
+        toReplace.push({ ...option, replace: str });
+      } else {
+        toReplace.push({
+          find: option.find,
+          replace: JSON.stringify(option.replace)
+        });
+      }
+    });
+    return toReplace
+      .reduce(
+        (acc, cur: any) => acc.replace(new RegExp(cur.find, "g"), cur.replace),
+        options.content
+      )
+      .replace(
+        new RegExp("@PWD", "g"),
+        vscode.Uri.file(this.searchFolder)
+          .with({
+            scheme: "vscode-resource"
+          })
+          .toString()
+      );
   }
 }

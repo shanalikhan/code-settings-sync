@@ -5,4 +5,5 @@ export interface IWebview {
   htmlPath: string;
   htmlContent?: string;
   webview?: WebviewPanel;
+  replaceables: Array<{}>;
 }
