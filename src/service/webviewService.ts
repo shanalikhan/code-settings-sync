@@ -9,7 +9,7 @@ import { CustomSettings, ExtensionConfig } from "../setting";
 import { GitHubOAuthService } from "./oauthService";
 
 export class WebviewService {
-  private customizableSettings = [
+  private globalSettings = [
     {
       name: "Access Token",
       placeholder: "Enter Token",
@@ -81,7 +81,7 @@ export class WebviewService {
     }
   ];
 
-  private extensionSettings = [
+  private environmentSettings = [
     {
       name: "Gist ID",
       placeholder: "Enter Gist ID",
@@ -158,11 +158,11 @@ export class WebviewService {
         },
         {
           find: "@GLOBAL_MAP",
-          replace: this.customizableSettings
+          replace: this.globalSettings
         },
         {
           find: "@ENV_MAP",
-          replace: this.extensionSettings
+          replace: this.environmentSettings
         }
       ]
     },
@@ -354,22 +354,10 @@ export class WebviewService {
     const toReplace: Array<{}> = [];
     options.items.forEach(option => {
       if (typeof option.replace === "string") {
-        let str = "";
-        switch (option.replace) {
-          case "releaseNotes":
-            str = JSON.stringify(options.releaseNotes);
-            break;
-          case "customSettings":
-            str = JSON.stringify(options.customSettings);
-            break;
-          case "extSettings":
-            str = JSON.stringify(options.extSettings);
-            break;
-          case "gists":
-            str = JSON.stringify(options.gists);
-            break;
-        }
-        toReplace.push({ ...option, replace: str });
+        toReplace.push({
+          ...option,
+          replace: JSON.stringify(options[option.replace])
+        });
       } else {
         toReplace.push({
           find: option.find,
