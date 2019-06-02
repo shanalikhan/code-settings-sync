@@ -75,12 +75,7 @@ All extensions and complete User Folder that Contains
 
 This extension requires a Personal Access Token from your GitHub account. You can create one by simply following the steps shown in the pictures below. Make sure you add **Gist** in scope.
 
-**Go to [Settings](https://github.com/settings) / [Developer settings](https://github.com/settings/tokens) / [Personal access tokens](https://github.com/settings/tokens) / Generate New Token**
-
-
-![Goto Settings / Developer settings / Personal Access Tokens](https://shanalikhan.github.io/img/github1.PNG)
-
-**Select Gist From Scopes.**
+**[Generate New Token](https://github.com/settings/tokens/new?description=code-setting-sync&scopes=gist)**
 
 ![Select Scopes](https://shanalikhan.github.io/img/github2.PNG)
 
@@ -146,9 +141,9 @@ Here is the gif of the complete process when you execute the Download command (M
 ![Download](https://media.giphy.com/media/xT9Iglsi3CS9noE8tW/source.gif)
 
 
-## Reset Token / Gist Settings
+## Reset Extension Settings
 
-> Type ">Sync" In Command Palette and select Reset Token and Gist Settings
+> Type ">Sync" In Command Palette and select Reset Extension Settings
 
 
 ## Toggle Auto Download
