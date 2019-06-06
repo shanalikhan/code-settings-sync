@@ -149,19 +149,15 @@ export class PluginService {
   public static async DeleteExtension(
     extension: ExtensionInformation
   ): Promise<boolean> {
-    return new Promise<boolean>((resolve, reject) => {
-      try {
-        vscode.commands
-          .executeCommand(
-            "workbench.extensions.uninstallExtension",
-            `${extension.publisher}.${extension.name}`
-          )
-          .then(resolve);
-      } catch (err) {
-        reject(err);
-        throw new Error(err);
-      }
-    });
+    try {
+      await vscode.commands.executeCommand(
+        "workbench.extensions.uninstallExtension",
+        `${extension.publisher}.${extension.name}`
+      );
+      return true;
+    } catch (err) {
+      throw new Error(err);
+    }
   }
 
   public static async DeleteExtensions(
@@ -173,22 +169,21 @@ export class PluginService {
       remoteExtensions,
       ignoredExtensions
     );
-    const deletedExtensions: ExtensionInformation[] = [];
 
-    toDelete.forEach(async selectedExtension => {
-      try {
-        await PluginService.DeleteExtension(selectedExtension);
-        deletedExtensions.push(selectedExtension);
-      } catch (err) {
-        throw new Error(
-          `Sync : Unable to delete extension ${selectedExtension.name} ${
-            selectedExtension.version
-          }: ${err}`
-        );
-      }
-    });
-
-    return deletedExtensions;
+    return Promise.all(
+      toDelete.map(async selectedExtension => {
+        try {
+          await PluginService.DeleteExtension(selectedExtension);
+          return selectedExtension;
+        } catch (err) {
+          throw new Error(
+            `Sync : Unable to delete extension ${selectedExtension.name} ${
+              selectedExtension.version
+            }: ${err}`
+          );
+        }
+      })
+    );
   }
 
   public static async InstallExtensions(
@@ -216,43 +211,36 @@ export class PluginService {
     missingExtensions: ExtensionInformation[],
     notificationCallBack: (...data: any[]) => void
   ): Promise<ExtensionInformation[]> {
-    return new Promise((resolve, reject) => {
-      const addedExtensions: ExtensionInformation[] = [];
-      let remainingExtensions: ExtensionInformation[] = [...missingExtensions];
+    let remainingExtensions: ExtensionInformation[] = [...missingExtensions];
 
-      notificationCallBack("TOTAL EXTENSIONS : " + missingExtensions.length);
-      notificationCallBack("");
-      notificationCallBack("");
-      missingExtensions.forEach(async ext => {
+    notificationCallBack("TOTAL EXTENSIONS : " + missingExtensions.length);
+    notificationCallBack("");
+    notificationCallBack("");
+    return Promise.all(
+      missingExtensions.map(async ext => {
         const name = ext.publisher + "." + ext.name;
         try {
-          const installed = await new Promise<boolean>(res => {
-            vscode.commands
-              .executeCommand("workbench.extensions.installExtension", name)
-              .then(() => res(true));
-          });
-          if (installed) {
-            remainingExtensions = remainingExtensions.filter(
-              remExt => remExt.name !== ext.name
-            );
-            notificationCallBack("");
-            notificationCallBack(
-              `EXTENSION: ${ext.name} INSTALLED. ${
-                remainingExtensions.length
-              } REMAINING`,
-              true
-            );
-            notificationCallBack("");
-            addedExtensions.push(ext);
-            if (remainingExtensions.length === 0) {
-              resolve(addedExtensions);
-            }
-          }
+          await vscode.commands.executeCommand(
+            "workbench.extensions.installExtension",
+            name
+          );
+          remainingExtensions = remainingExtensions.filter(
+            remExt => remExt.name !== ext.name
+          );
+          notificationCallBack("");
+          notificationCallBack(
+            `EXTENSION: ${ext.name} INSTALLED. ${
+              remainingExtensions.length
+            } OF ${missingExtensions.length -
+              remainingExtensions.length} EXTENSIONS REMAINING`,
+            true
+          );
+          notificationCallBack("");
+          return ext;
         } catch (err) {
-          reject(err);
           throw new Error(err);
         }
-      });
-    });
+      })
+    );
   }
 }

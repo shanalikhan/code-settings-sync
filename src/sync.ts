@@ -539,7 +539,7 @@ export class Sync {
                   );
                   Commons.outputChannel.clear();
                   Commons.outputChannel.appendLine(
-                    `COMMAND LINE EXTENSION DOWNLOAD SUMMARY`
+                    `Realtime Extension Download Summary`
                   );
                   Commons.outputChannel.appendLine(`--------------------`);
                   Commons.outputChannel.show();

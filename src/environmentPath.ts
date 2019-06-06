@@ -1,6 +1,6 @@
 "use strict";
 
-import { resolve } from "path";
+import { normalize, resolve } from "path";
 import * as vscode from "vscode";
 import { OsType } from "./enums";
 
@@ -72,21 +72,25 @@ export class Environment {
     this.OsType = process.platform as OsType;
     if (!this.isPortable) {
       this.PATH = resolve(this.context.globalStoragePath, "../../..").concat(
-        "/"
+        normalize("/")
       );
-      this.USER_FOLDER = resolve(this.PATH, "User").concat("/");
+      this.USER_FOLDER = resolve(this.PATH, "User").concat(normalize("/"));
       this.EXTENSION_FOLDER = resolve(
         vscode.extensions.all.filter(
           extension => !extension.packageJSON.isBuiltin
         )[0].extensionPath,
         ".."
-      ).concat("/"); // Gets first non-builtin extension's path
+      ).concat(normalize("/")); // Gets first non-builtin extension's path
     }
 
     if (this.isPortable) {
       this.PATH = process.env.VSCODE_PORTABLE;
-      this.USER_FOLDER = resolve(this.PATH, "user-data/User").concat("/");
-      this.EXTENSION_FOLDER = resolve(this.PATH, "extensions").concat("/");
+      this.USER_FOLDER = resolve(this.PATH, "user-data/User").concat(
+        normalize("/")
+      );
+      this.EXTENSION_FOLDER = resolve(this.PATH, "extensions").concat(
+        normalize("/")
+      );
     }
 
     /* Start Legacy Code
