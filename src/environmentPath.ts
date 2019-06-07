@@ -81,9 +81,7 @@ export class Environment {
         )[0].extensionPath,
         ".."
       ).concat(normalize("/")); // Gets first non-builtin extension's path
-    }
-
-    if (this.isPortable) {
+    } else {
       this.PATH = process.env.VSCODE_PORTABLE;
       this.USER_FOLDER = resolve(this.PATH, "user-data/User").concat(
         normalize("/")
