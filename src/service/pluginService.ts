@@ -212,8 +212,8 @@ export class PluginService {
     notificationCallBack: (...data: any[]) => void
   ): Promise<ExtensionInformation[]> {
     let remainingExtensions: ExtensionInformation[] = [...missingExtensions];
-
-    notificationCallBack("TOTAL EXTENSIONS : " + missingExtensions.length);
+    const missingExtensionsCount = missingExtensions.length;
+    notificationCallBack("TOTAL EXTENSIONS : " + missingExtensionsCount);
     notificationCallBack("");
     notificationCallBack("");
     return Promise.all(
@@ -228,11 +228,10 @@ export class PluginService {
             remExt => remExt.name !== ext.name
           );
           notificationCallBack("");
+          notificationCallBack(`[x] - EXTENSION: ${ext.name} INSTALLED.`);
           notificationCallBack(
-            `EXTENSION: ${ext.name} INSTALLED. ${
-              remainingExtensions.length
-            } OF ${missingExtensions.length -
-              remainingExtensions.length} EXTENSIONS REMAINING`,
+            `      ${missingExtensions.length -
+              remainingExtensions.length} OF ${missingExtensionsCount} INSTALLED`,
             true
           );
           notificationCallBack("");
