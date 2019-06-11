@@ -535,11 +535,11 @@ export class Sync {
                     content,
                     ignoredExtensions
                   );
-                } catch (uncompletedExtensions) {
+                } catch (err) {
                   vscode.window.showErrorMessage(
                     localize("cmd.downloadSettings.error.removeExtFail")
                   );
-                  deletedExtensions = uncompletedExtensions;
+                  throw new Error(err);
                 }
               }
 
