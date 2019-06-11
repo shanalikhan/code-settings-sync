@@ -84,7 +84,9 @@ export class PluginService {
     const localList = this.CreateExtensionList();
 
     return remoteList.filter(
-      ext => !ignoredExtensions.includes(ext.name) && !localList.includes(ext)
+      ext =>
+        !ignoredExtensions.includes(ext.name) &&
+        !localList.map(e => e.name).includes(ext.name)
     );
   }
 
