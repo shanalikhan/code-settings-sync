@@ -30,8 +30,7 @@ export class KeyValue<T, S> {
 
 export class CustomSettings {
   public ignoreUploadFiles: string[] = [
-    "state.vscdb",
-    "state.vscdb.backup",
+    "state.*",
     "syncLocalSettings.json",
     ".DS_Store",
     "sync.lock",
@@ -57,4 +56,5 @@ export class CustomSettings {
   public askGistName: boolean = false;
   public customFiles: { [key: string]: string } = {};
   public hostName: string = null;
+  public universalKeybindings: boolean = false;
 }
