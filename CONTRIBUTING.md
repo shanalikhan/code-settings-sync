@@ -42,6 +42,16 @@ Git and Node should be enough to run this extension. Execute the commands above 
 PR usually dont merge into `master` branch but in the version name branch like `v3.1.0`.
 You will always see the next version branch if which current work is being done by me and other contributors. You need to set base branch and create PR for that branch.
 
+## Run Tests
+Make sure the changes you made are not breaking the tests cases!
+
+All the test cases are in `/test` directory. Add new test cases if application with your PR.
+
+To run the tests, 
+1. `cd path/to/code-settings-sync && npm install && code .`
+2. `Launch Extension` by pressing `F5`
+3. From Debugger menu, start `Launch Tests`
+
 
 ## Bounty Programs - Fix and Earn !
 

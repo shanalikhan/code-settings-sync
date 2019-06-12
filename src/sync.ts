@@ -221,7 +221,8 @@ export class Sync {
           if (snippetFile.content !== "") {
             if (snippetFile.fileName === env.FILE_KEYBINDING_NAME) {
               snippetFile.gistName =
-                env.OsType === OsType.Mac
+                env.OsType === OsType.Mac &&
+                !customSettings.universalKeybindings
                   ? env.FILE_KEYBINDING_MAC
                   : env.FILE_KEYBINDING_DEFAULT;
             }
@@ -229,7 +230,11 @@ export class Sync {
           }
         }
 
-        if (snippetFile.fileName === env.FILE_SETTING_NAME) {
+        if (
+          snippetFile.fileName === env.FILE_SETTING_NAME ||
+          snippetFile.fileName === env.FILE_KEYBINDING_MAC ||
+          snippetFile.fileName === env.FILE_KEYBINDING_DEFAULT
+        ) {
           try {
             snippetFile.content = PragmaUtil.processBeforeUpload(
               snippetFile.content
@@ -485,17 +490,23 @@ export class Sync {
               );
               updatedFiles.push(f);
             } else if (gistName.indexOf(".") > -1) {
-              if (
-                env.OsType === OsType.Mac &&
-                gistName === env.FILE_KEYBINDING_DEFAULT
-              ) {
-                return;
-              }
-              if (
-                env.OsType !== OsType.Mac &&
-                gistName === env.FILE_KEYBINDING_MAC
-              ) {
-                return;
+              if (customSettings.universalKeybindings) {
+                if (gistName === env.FILE_KEYBINDING_MAC) {
+                  return;
+                }
+              } else {
+                if (
+                  env.OsType === OsType.Mac &&
+                  gistName === env.FILE_KEYBINDING_DEFAULT
+                ) {
+                  return;
+                }
+                if (
+                  env.OsType !== OsType.Mac &&
+                  gistName === env.FILE_KEYBINDING_MAC
+                ) {
+                  return;
+                }
               }
               const f: File = new File(
                 gistName,
@@ -522,42 +533,32 @@ export class Sync {
                 try {
                   deletedExtensions = await PluginService.DeleteExtensions(
                     content,
-                    env.ExtensionFolder,
                     ignoredExtensions
                   );
-                } catch (uncompletedExtensions) {
+                } catch (err) {
                   vscode.window.showErrorMessage(
                     localize("cmd.downloadSettings.error.removeExtFail")
                   );
-                  deletedExtensions = uncompletedExtensions;
+                  throw new Error(err);
                 }
               }
 
               try {
-                let useCli = true;
-                const autoUpdate: boolean = vscode.workspace
-                  .getConfiguration("extensions")
-                  .get("autoUpdate");
-                useCli = autoUpdate && !env.isCoderCom;
-                if (useCli) {
-                  if (!syncSetting.quietSync) {
-                    Commons.outputChannel = vscode.window.createOutputChannel(
-                      "Code Settings Sync"
-                    );
-                    Commons.outputChannel.clear();
-                    Commons.outputChannel.appendLine(
-                      `COMMAND LINE EXTENSION DOWNLOAD SUMMARY`
-                    );
-                    Commons.outputChannel.appendLine(`--------------------`);
-                    Commons.outputChannel.show();
-                  }
+                if (!syncSetting.quietSync) {
+                  Commons.outputChannel = vscode.window.createOutputChannel(
+                    "Code Settings Sync"
+                  );
+                  Commons.outputChannel.clear();
+                  Commons.outputChannel.appendLine(
+                    `Realtime Extension Download Summary`
+                  );
+                  Commons.outputChannel.appendLine(`--------------------`);
+                  Commons.outputChannel.show();
                 }
 
                 addedExtensions = await PluginService.InstallExtensions(
                   content,
                   ignoredExtensions,
-                  env.OsType,
-                  env.isInsiders,
                   (message: string, dispose: boolean) => {
                     if (!syncSetting.quietSync) {
                       Commons.outputChannel.appendLine(message);
@@ -583,7 +584,7 @@ export class Sync {
               file.gistName === env.FILE_KEYBINDING_MAC
             ) {
               let test: string = "";
-              env.OsType === OsType.Mac
+              env.OsType === OsType.Mac && !customSettings.universalKeybindings
                 ? (test = env.FILE_KEYBINDING_MAC)
                 : (test = env.FILE_KEYBINDING_DEFAULT);
               if (file.gistName !== test) {
@@ -604,7 +605,11 @@ export class Sync {
                 );
               }
 
-              if (file.gistName === env.FILE_SETTING_NAME) {
+              if (
+                file.gistName === env.FILE_SETTING_NAME ||
+                file.gistName === env.FILE_KEYBINDING_MAC ||
+                file.gistName === env.FILE_KEYBINDING_DEFAULT
+              ) {
                 const localContent = await FileService.ReadFile(filePath);
                 content = PragmaUtil.processBeforeWrite(
                   localContent,
