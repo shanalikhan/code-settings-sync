@@ -2,14 +2,14 @@ import * as vscode from "vscode";
 import { watch } from "vscode-chokidar";
 import localize from "../localize";
 import lockfile from "../lockfile";
-import { CustomSettings } from "../setting";
+import { CustomConfig } from "../models/customConfig.model";
 import { state } from "../state";
 import { Util } from "../util";
 import { FileService } from "./fileService";
 import { InstanceManagerService } from "./instanceManager.service";
 
 export class AutoUploadService {
-  public static GetIgnoredItems(customSettings: CustomSettings) {
+  public static GetIgnoredItems(customSettings: CustomConfig) {
     return [
       ...customSettings.ignoreUploadFolders.map(folder => `**/${folder}/**`),
       ...customSettings.ignoreUploadFiles.map(file => `**/${file}`)
@@ -35,8 +35,8 @@ export class AutoUploadService {
         } else {
           await lockfile.Lock(state.environment.FILE_SYNC_LOCK);
         }
-        const customSettings: CustomSettings = await state.commons.GetCustomSettings();
-        if (customSettings) {
+        const customConfig = await state.commons.GetCustomSettings();
+        if (customConfig) {
           await this.InitiateAutoUpload();
         }
         await lockfile.Unlock(state.environment.FILE_SYNC_LOCK);
@@ -62,12 +62,12 @@ export class AutoUploadService {
           await lockfile.Lock(state.environment.FILE_SYNC_LOCK);
         }
 
-        const customSettings: CustomSettings = await state.commons.GetCustomSettings();
-        if (customSettings) {
+        const customConfig = await state.commons.GetCustomSettings();
+        if (customConfig) {
           const fileType: string = path
             .substring(path.lastIndexOf("."), path.length)
             .slice(1);
-          if (customSettings.supportedFileExtensions.indexOf(fileType) !== -1) {
+          if (customConfig.supportedFileExtensions.indexOf(fileType) !== -1) {
             await this.InitiateAutoUpload();
           }
         }

@@ -5,17 +5,14 @@ import Commons from "./commons";
 import { OsType } from "./enums";
 import localize from "./localize";
 import * as lockfile from "./lockfile";
+import { CloudSettings } from "./models/cloudSettings.model";
+import { CustomConfig } from "./models/customConfig.model";
+import { ExtensionConfig } from "./models/extensionConfig.model";
+import { LocalConfig } from "./models/localConfig.model";
+import PragmaUtil from "./pragmaUtil";
 import { File, FileService } from "./service/fileService";
 import { GitHubService } from "./service/githubService";
 import { ExtensionInformation, PluginService } from "./service/pluginService";
-import {
-  CloudSetting,
-  CustomSettings,
-  ExtensionConfig,
-  LocalConfig
-} from "./setting";
-
-import PragmaUtil from "./pragmaUtil";
 import { state } from "./state";
 
 export class Sync {
@@ -65,7 +62,7 @@ export class Sync {
     // @ts-ignore
     const args = arguments;
     let github: GitHubService = null;
-    let localConfig: LocalConfig = new LocalConfig();
+    let localConfig = new LocalConfig();
     const allSettingFiles: File[] = [];
     let uploadedExtensions: ExtensionInformation[] = [];
     const ignoredExtensions: ExtensionInformation[] = [];
@@ -93,7 +90,7 @@ export class Sync {
 
     async function startGitProcess(
       syncSetting: ExtensionConfig,
-      customSettings: CustomSettings
+      customSettings: CustomConfig
     ) {
       vscode.window.setStatusBarMessage(
         localize("cmd.updateSettings.info.uploading"),
@@ -237,7 +234,7 @@ export class Sync {
         }
       }
 
-      const extProp: CloudSetting = new CloudSetting();
+      const extProp = new CloudSettings();
       extProp.lastUpload = dateNow;
       const fileName: string = state.environment.FILE_CLOUDSETTINGS_NAME;
       const fileContent: string = JSON.stringify(extProp);
@@ -386,7 +383,7 @@ export class Sync {
 
     async function StartDownload(
       syncSetting: ExtensionConfig,
-      customSettings: CustomSettings
+      customSettings: CustomConfig
     ) {
       const github = new GitHubService(
         customSettings.token,
@@ -420,8 +417,8 @@ export class Sync {
         const cloudSettGist: object = JSON.parse(
           res.data.files[state.environment.FILE_CLOUDSETTINGS_NAME].content
         );
-        const cloudSett: CloudSetting = Object.assign(
-          new CloudSetting(),
+        const cloudSett: CloudSettings = Object.assign(
+          new CloudSettings(),
           cloudSettGist
         );
 
@@ -672,7 +669,7 @@ export class Sync {
    */
   public async reset(): Promise<void> {
     let extSettings: ExtensionConfig = null;
-    let localSettings: CustomSettings = null;
+    let localSettings: CustomConfig = null;
 
     vscode.window.setStatusBarMessage(
       localize("cmd.resetSettings.info.resetting"),
@@ -681,7 +678,7 @@ export class Sync {
 
     try {
       extSettings = new ExtensionConfig();
-      localSettings = new CustomSettings();
+      localSettings = new CustomConfig();
 
       const extSaved: boolean = await state.commons.SaveSettings(extSettings);
       const customSaved: boolean = await state.commons.SetCustomSettings(
@@ -723,7 +720,7 @@ export class Sync {
   }
   public async advance() {
     const setting: ExtensionConfig = await state.commons.GetSettings();
-    const customSettings: CustomSettings = await state.commons.GetCustomSettings();
+    const customSettings: CustomConfig = await state.commons.GetCustomSettings();
     if (customSettings == null) {
       vscode.window
         .showInformationMessage(
@@ -1017,7 +1014,7 @@ export class Sync {
   }
 
   private async getCustomFilesFromGist(
-    customSettings: CustomSettings,
+    customSettings: CustomConfig,
     syncSetting: ExtensionConfig
   ): Promise<File[]> {
     const github = new GitHubService(

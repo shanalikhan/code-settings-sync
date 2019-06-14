@@ -2,10 +2,12 @@
 import * as vscode from "vscode";
 import { Environment } from "./environmentPath";
 import localize from "./localize";
+import { CustomConfig } from "./models/customConfig.model";
+import { ExtensionConfig } from "./models/extensionConfig.model";
+import { LocalConfig } from "./models/localConfig.model";
 import { AutoUploadService } from "./service/autoUpload.service";
 import { File, FileService } from "./service/fileService";
 import { ExtensionInformation } from "./service/pluginService";
-import { CustomSettings, ExtensionConfig, LocalConfig } from "./setting";
 import { state } from "./state";
 
 export default class Commons {
@@ -108,9 +110,9 @@ export default class Commons {
     askToken: boolean,
     askGist: boolean
   ): Promise<LocalConfig> {
-    const settings: LocalConfig = new LocalConfig();
-    const extSettings: ExtensionConfig = this.GetSettings();
-    const cusSettings: CustomSettings = await this.GetCustomSettings();
+    const settings = new LocalConfig();
+    const extSettings = this.GetSettings();
+    const cusSettings = await this.GetCustomSettings();
 
     if (cusSettings.token === "") {
       if (askToken === true) {
@@ -150,8 +152,8 @@ export default class Commons {
     return settings;
   }
 
-  public async GetCustomSettings(): Promise<CustomSettings> {
-    let customSettings: CustomSettings = new CustomSettings();
+  public async GetCustomSettings(): Promise<CustomConfig> {
+    let customSettings = new CustomConfig();
     try {
       const customExist: boolean = await FileService.FileExists(
         state.environment.FILE_CUSTOMIZEDSETTINGS
@@ -185,7 +187,7 @@ export default class Commons {
     }
   }
 
-  public async SetCustomSettings(setting: CustomSettings): Promise<boolean> {
+  public async SetCustomSettings(setting: CustomConfig): Promise<boolean> {
     try {
       await FileService.WriteFile(
         state.environment.FILE_CUSTOMIZEDSETTINGS,
@@ -207,14 +209,14 @@ export default class Commons {
     const fileExist: boolean = await FileService.FileExists(
       state.environment.FILE_CUSTOMIZEDSETTINGS
     );
-    let customSettings: CustomSettings = null;
+    let customSettings: CustomConfig = null;
     const firstTime: boolean = !fileExist;
     let fileChanged: boolean = firstTime;
 
     if (fileExist) {
       customSettings = await this.GetCustomSettings();
     } else {
-      customSettings = new CustomSettings();
+      customSettings = new CustomConfig();
     }
     // vscode.workspace.getConfiguration().update("sync.version", undefined, true);
 
@@ -239,7 +241,7 @@ export default class Commons {
     } else if (customSettings.version < Environment.CURRENT_VERSION) {
       fileChanged = true;
       // #TODO : Remove this in new update
-      const newIgnoredList = new CustomSettings().ignoreUploadFiles;
+      const newIgnoredList = new CustomConfig().ignoreUploadFiles;
       newIgnoredList.forEach(m => {
         if (customSettings.ignoreUploadFiles.indexOf(m) === -1) {
           customSettings.ignoreUploadFiles.push(m);
@@ -389,7 +391,7 @@ export default class Commons {
     return settings;
   }
 
-  public async GetTokenAndSave(sett: CustomSettings): Promise<string> {
+  public async GetTokenAndSave(sett: CustomConfig): Promise<string> {
     const opt = Commons.GetInputBox(true);
 
     const token = ((await vscode.window.showInputBox(opt)) || "").trim();
