@@ -3,6 +3,7 @@
 import { normalize, resolve } from "path";
 import * as vscode from "vscode";
 import { OsType } from "./enums";
+import { state } from "./state";
 
 export const SUPPORTED_OS: string[] = Object.keys(OsType)
   .filter(k => !/\d/.test(k))
@@ -64,14 +65,14 @@ export class Environment {
 
   public FOLDER_SNIPPETS: string = null;
 
-  constructor(private context: vscode.ExtensionContext) {
-    this.context.globalState.update("_", undefined); // Make sure the global state folder exists. This is needed for using this.context.globalStoragePath to access user folder
+  constructor() {
+    state.context.globalState.update("_", undefined); // Make sure the global state folder exists. This is needed for using this.context.globalStoragePath to access user folder
 
     this.isPortable = !!process.env.VSCODE_PORTABLE;
 
     this.OsType = process.platform as OsType;
     if (!this.isPortable) {
-      this.PATH = resolve(this.context.globalStoragePath, "../../..").concat(
+      this.PATH = resolve(state.context.globalStoragePath, "../../..").concat(
         normalize("/")
       );
       this.USER_FOLDER = resolve(this.PATH, "User").concat(normalize("/"));

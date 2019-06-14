@@ -9,7 +9,7 @@ import { Sync } from "./sync";
 
 export async function activate(context: vscode.ExtensionContext) {
   state.context = context;
-  state.environment = new Environment(state.context);
+  state.environment = new Environment();
 
   await initLocalize();
 
