@@ -179,7 +179,9 @@ export class PluginService {
           return selectedExtension;
         } catch (err) {
           throw new Error(
-            `Sync : Unable to delete extension ${selectedExtension.name} ${selectedExtension.version}: ${err}`
+            `Sync : Unable to delete extension ${selectedExtension.name} ${
+              selectedExtension.version
+            }: ${err}`
           );
         }
       })
@@ -217,9 +219,11 @@ export class PluginService {
     notificationCallBack("");
     notificationCallBack("");
     return Promise.all(
-      missingExtensions.map(async ext => {
+      await missingExtensions.map(async ext => {
         const name = ext.publisher + "." + ext.name;
         try {
+          notificationCallBack("");
+          notificationCallBack(`[x] - EXTENSION: ${ext.name} - INSTALLING`);
           await vscode.commands.executeCommand(
             "workbench.extensions.installExtension",
             name
@@ -227,8 +231,8 @@ export class PluginService {
           remainingExtensions = remainingExtensions.filter(
             remExt => remExt.name !== ext.name
           );
-          notificationCallBack("");
-          notificationCallBack(`[x] - EXTENSION: ${ext.name} INSTALLED.`);
+
+          notificationCallBack(`    - EXTENSION: ${ext.name} - INSTALLED.`);
           notificationCallBack(
             `      ${missingExtensions.length -
               remainingExtensions.length} OF ${missingExtensionsCount} INSTALLED`,
