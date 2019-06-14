@@ -179,9 +179,7 @@ export class PluginService {
           return selectedExtension;
         } catch (err) {
           throw new Error(
-            `Sync : Unable to delete extension ${selectedExtension.name} ${
-              selectedExtension.version
-            }: ${err}`
+            `Sync : Unable to delete extension ${selectedExtension.name} ${selectedExtension.version}: ${err}`
           );
         }
       })
@@ -213,37 +211,33 @@ export class PluginService {
     missingExtensions: ExtensionInformation[],
     notificationCallBack: (...data: any[]) => void
   ): Promise<ExtensionInformation[]> {
-    let remainingExtensions: ExtensionInformation[] = [...missingExtensions];
+    const addedExtensions: ExtensionInformation[] = [];
     const missingExtensionsCount = missingExtensions.length;
     notificationCallBack("TOTAL EXTENSIONS : " + missingExtensionsCount);
     notificationCallBack("");
     notificationCallBack("");
-    return Promise.all(
-      await missingExtensions.map(async ext => {
-        const name = ext.publisher + "." + ext.name;
-        try {
-          notificationCallBack("");
-          notificationCallBack(`[x] - EXTENSION: ${ext.name} - INSTALLING`);
-          await vscode.commands.executeCommand(
-            "workbench.extensions.installExtension",
-            name
-          );
-          remainingExtensions = remainingExtensions.filter(
-            remExt => remExt.name !== ext.name
-          );
-
-          notificationCallBack(`    - EXTENSION: ${ext.name} - INSTALLED.`);
-          notificationCallBack(
-            `      ${missingExtensions.length -
-              remainingExtensions.length} OF ${missingExtensionsCount} INSTALLED`,
-            true
-          );
-          notificationCallBack("");
-          return ext;
-        } catch (err) {
-          throw new Error(err);
-        }
-      })
-    );
+    for (const ext of missingExtensions) {
+      const name = ext.publisher + "." + ext.name;
+      try {
+        notificationCallBack("");
+        notificationCallBack(`[x] - EXTENSION: ${ext.name} - INSTALLING`);
+        await vscode.commands.executeCommand(
+          "workbench.extensions.installExtension",
+          name
+        );
+        notificationCallBack("");
+        notificationCallBack(`[x] - EXTENSION: ${ext.name} INSTALLED.`);
+        notificationCallBack(
+          `      ${missingExtensions.indexOf(ext) +
+            1} OF ${missingExtensionsCount} INSTALLED`,
+          true
+        );
+        notificationCallBack("");
+        addedExtensions.push(ext);
+      } catch (err) {
+        throw new Error(err);
+      }
+    }
+    return addedExtensions;
   }
 }
