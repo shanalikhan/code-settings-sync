@@ -17,24 +17,18 @@ import {
 } from "./setting";
 
 import PragmaUtil from "./pragmaUtil";
+import { state } from "./state";
 
 let globalCommonService: Commons;
 
 export class Sync {
-  constructor(private context: vscode.ExtensionContext) {}
   /**
    * Run when extension have been activated
    */
   public async bootstrap(): Promise<void> {
-    const env = new Environment(this.context);
-    globalCommonService = new Commons(env, this.context);
-
-    // if is locked;
-    if (
-      await lockfile.Check(env.FILE_SYNC_LOCK).catch(err => console.log(err))
-    ) {
-      await lockfile.Unlock(env.FILE_SYNC_LOCK).catch(err => console.log(err));
-    }
+    console.log(state.context.extensionPath);
+    const env = new Environment(state.context);
+    globalCommonService = new Commons(env, state.context);
 
     await globalCommonService.StartMigrationProcess();
     const startUpSetting = await globalCommonService.GetSettings();
@@ -75,7 +69,7 @@ export class Sync {
   public async upload(): Promise<void> {
     // @ts-ignore
     const args = arguments;
-    const env = new Environment(this.context);
+    const env = new Environment(state.context);
     let github: GitHubService = null;
     let localConfig: LocalConfig = new LocalConfig();
     const allSettingFiles: File[] = [];
@@ -382,7 +376,7 @@ export class Sync {
    * Download setting from github gist
    */
   public async download(): Promise<void> {
-    const env = new Environment(this.context);
+    const env = new Environment(state.context);
     let localSettings: LocalConfig = new LocalConfig();
     await globalCommonService.HandleStopWatching();
 
@@ -701,8 +695,8 @@ export class Sync {
     );
 
     try {
-      const env: Environment = new Environment(this.context);
-      const common: Commons = new Commons(env, this.context);
+      const env: Environment = new Environment(state.context);
+      const common: Commons = new Commons(env, state.context);
 
       extSettings = new ExtensionConfig();
       localSettings = new CustomSettings();
@@ -746,8 +740,8 @@ export class Sync {
     );
   }
   public async advance() {
-    const env: Environment = new Environment(this.context);
-    const common: Commons = new Commons(env, this.context);
+    const env: Environment = new Environment(state.context);
+    const common: Commons = new Commons(env, state.context);
     const setting: ExtensionConfig = await common.GetSettings();
     const customSettings: CustomSettings = await common.GetCustomSettings();
     if (customSettings == null) {

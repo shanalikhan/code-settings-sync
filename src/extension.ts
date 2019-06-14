@@ -3,17 +3,20 @@
 import * as vscode from "vscode";
 import { init as initLocalize } from "./localize";
 import { InstanceManagerService } from "./service/instanceManagerService";
+import { state } from "./state";
 import { Sync } from "./sync";
 
 export async function activate(context: vscode.ExtensionContext) {
+  state.context = context;
+
   await initLocalize();
 
-  const sync = new Sync(context);
+  const sync = new Sync();
 
   sync.bootstrap();
 
-  if (!InstanceManagerService.instanceSet(context)) {
-    InstanceManagerService.setInstance(this.options.context);
+  if (!InstanceManagerService.instanceSet(state.context)) {
+    InstanceManagerService.setInstance(state.context);
   }
 
   context.subscriptions.push(
@@ -48,8 +51,8 @@ export async function activate(context: vscode.ExtensionContext) {
   );
 }
 
-export async function deactivate(context: vscode.ExtensionContext) {
-  if (InstanceManagerService.isOriginalInstance(context)) {
-    InstanceManagerService.unsetInstance(context);
+export async function deactivate() {
+  if (InstanceManagerService.isOriginalInstance(state.context)) {
+    InstanceManagerService.unsetInstance(state.context);
   }
 }
