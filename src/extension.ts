@@ -1,15 +1,25 @@
 "use strict";
 
 import * as vscode from "vscode";
+import { Environment } from "./environmentPath";
 import { init as initLocalize } from "./localize";
+import { InstanceManagerService } from "./service/instanceManager.service";
+import { state } from "./state";
 import { Sync } from "./sync";
 
 export async function activate(context: vscode.ExtensionContext) {
+  state.context = context;
+  state.environment = new Environment(state.context);
+
   await initLocalize();
 
-  const sync = new Sync(context);
+  const sync = new Sync();
 
   sync.bootstrap();
+
+  if (!InstanceManagerService.instanceSet()) {
+    InstanceManagerService.setInstance();
+  }
 
   context.subscriptions.push(
     vscode.commands.registerCommand(
@@ -41,4 +51,10 @@ export async function activate(context: vscode.ExtensionContext) {
       sync.advance.bind(sync)
     )
   );
+}
+
+export async function deactivate() {
+  if (InstanceManagerService.isOriginalInstance()) {
+    InstanceManagerService.unsetInstance();
+  }
 }

@@ -2,10 +2,11 @@
 import * as vscode from "vscode";
 import { Environment } from "./environmentPath";
 import localize from "./localize";
-import { AutoUploadService } from "./service/autoUploadService";
+import { AutoUploadService } from "./service/autoUpload.service";
 import { File, FileService } from "./service/fileService";
 import { ExtensionInformation } from "./service/pluginService";
 import { CustomSettings, ExtensionConfig, LocalConfig } from "./setting";
+import { state } from "./state";
 
 export default class Commons {
   public static outputChannel: vscode.OutputChannel = null;
@@ -74,10 +75,7 @@ export default class Commons {
 
   public ERROR_MESSAGE: string = localize("common.error.message");
 
-  constructor(
-    private en: Environment,
-    private context: vscode.ExtensionContext
-  ) {
+  constructor() {
     this.InitializeAutoUpload();
   }
 
@@ -85,11 +83,7 @@ export default class Commons {
     const ignored = AutoUploadService.GetIgnoredItems(
       await this.GetCustomSettings()
     );
-    this.autoUploadService = new AutoUploadService({
-      en: this.en,
-      commons: this,
-      ignored
-    });
+    this.autoUploadService = new AutoUploadService(ignored);
   }
 
   public async HandleStartWatching() {
@@ -160,11 +154,11 @@ export default class Commons {
     let customSettings: CustomSettings = new CustomSettings();
     try {
       const customExist: boolean = await FileService.FileExists(
-        this.en.FILE_CUSTOMIZEDSETTINGS
+        state.environment.FILE_CUSTOMIZEDSETTINGS
       );
       if (customExist) {
         const customSettingStr: string = await FileService.ReadFile(
-          this.en.FILE_CUSTOMIZEDSETTINGS
+          state.environment.FILE_CUSTOMIZEDSETTINGS
         );
         const tempObj = JSON.parse(customSettingStr);
 
@@ -176,7 +170,7 @@ export default class Commons {
       Commons.LogException(
         e,
         "Sync : Unable to read " +
-          this.en.FILE_CUSTOMIZEDSETTINGS_NAME +
+          state.environment.FILE_CUSTOMIZEDSETTINGS_NAME +
           ". Make sure its Valid JSON.",
         true
       );
@@ -194,14 +188,15 @@ export default class Commons {
   public async SetCustomSettings(setting: CustomSettings): Promise<boolean> {
     try {
       await FileService.WriteFile(
-        this.en.FILE_CUSTOMIZEDSETTINGS,
+        state.environment.FILE_CUSTOMIZEDSETTINGS,
         JSON.stringify(setting, null, 4)
       );
       return true;
     } catch (e) {
       Commons.LogException(
         e,
-        "Sync : Unable to write " + this.en.FILE_CUSTOMIZEDSETTINGS_NAME,
+        "Sync : Unable to write " +
+          state.environment.FILE_CUSTOMIZEDSETTINGS_NAME,
         true
       );
       return false;
@@ -210,7 +205,7 @@ export default class Commons {
 
   public async StartMigrationProcess(): Promise<boolean> {
     const fileExist: boolean = await FileService.FileExists(
-      this.en.FILE_CUSTOMIZEDSETTINGS
+      state.environment.FILE_CUSTOMIZEDSETTINGS
     );
     let customSettings: CustomSettings = null;
     const firstTime: boolean = !fileExist;
@@ -251,11 +246,11 @@ export default class Commons {
         }
       });
 
-      if (this.context.globalState.get("synctoken")) {
-        const token = this.context.globalState.get("synctoken");
+      if (state.context.globalState.get("synctoken")) {
+        const token = state.context.globalState.get("synctoken");
         if (token !== "") {
           customSettings.token = String(token);
-          this.context.globalState.update("synctoken", "");
+          state.context.globalState.update("synctoken", "");
           vscode.window.showInformationMessage(
             localize("common.info.setToken")
           );
@@ -337,16 +332,16 @@ export default class Commons {
 
     try {
       await Promise.all(allKeysUpdated);
-      if (this.context.globalState.get("syncCounter")) {
-        const counter = this.context.globalState.get("syncCounter");
+      if (state.context.globalState.get("syncCounter")) {
+        const counter = state.context.globalState.get("syncCounter");
         let count: number = parseInt(counter + "", 10);
         if (count % 450 === 0) {
           this.DonateMessage();
         }
         count = count + 1;
-        this.context.globalState.update("syncCounter", count);
+        state.context.globalState.update("syncCounter", count);
       } else {
-        this.context.globalState.update("syncCounter", 1);
+        state.context.globalState.update("syncCounter", 1);
       }
       return true;
     } catch (err) {

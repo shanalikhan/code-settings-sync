@@ -1,12 +1,12 @@
 import * as vscode from "vscode";
 import { watch } from "vscode-chokidar";
-import Commons from "../commons";
-import { Environment } from "../environmentPath";
 import localize from "../localize";
 import lockfile from "../lockfile";
 import { CustomSettings } from "../setting";
+import { state } from "../state";
 import { Util } from "../util";
 import { FileService } from "./fileService";
+import { InstanceManagerService } from "./instanceManager.service";
 
 export class AutoUploadService {
   public static GetIgnoredItems(customSettings: CustomSettings) {
@@ -18,27 +18,28 @@ export class AutoUploadService {
 
   public watching = false;
 
-  private watcher = watch(this.options.en.USER_FOLDER, {
+  private watcher = watch(state.environment.USER_FOLDER, {
     depth: 2,
-    ignored: this.options.ignored
+    ignored: this.ignored
   });
 
-  constructor(
-    private options: { en: Environment; commons: Commons; ignored: string[] }
-  ) {
+  constructor(private ignored: string[]) {
+    if (!InstanceManagerService.instanceSet()) {
+      InstanceManagerService.setInstance();
+    }
     vscode.extensions.onDidChange(async () => {
-      if (this.watching) {
+      if (this.watching && InstanceManagerService.isOriginalInstance()) {
         console.log("Sync: Extensions changed");
-        if (await lockfile.Check(this.options.en.FILE_SYNC_LOCK)) {
+        if (await lockfile.Check(state.environment.FILE_SYNC_LOCK)) {
           return;
         } else {
-          await lockfile.Lock(this.options.en.FILE_SYNC_LOCK);
+          await lockfile.Lock(state.environment.FILE_SYNC_LOCK);
         }
-        const customSettings: CustomSettings = await this.options.commons.GetCustomSettings();
+        const customSettings: CustomSettings = await state.commons.GetCustomSettings();
         if (customSettings) {
           await this.InitiateAutoUpload();
         }
-        await lockfile.Unlock(this.options.en.FILE_SYNC_LOCK);
+        await lockfile.Unlock(state.environment.FILE_SYNC_LOCK);
         return;
       }
     });
@@ -50,15 +51,18 @@ export class AutoUploadService {
     this.watching = true;
 
     this.watcher.addListener("change", async (path: string) => {
-      if (this.watching) {
+      if (!InstanceManagerService.instanceSet()) {
+        InstanceManagerService.setInstance();
+      }
+      if (this.watching && InstanceManagerService.isOriginalInstance()) {
         console.log(`Sync: ${FileService.ExtractFileName(path)} changed`);
-        if (await lockfile.Check(this.options.en.FILE_SYNC_LOCK)) {
+        if (await lockfile.Check(state.environment.FILE_SYNC_LOCK)) {
           return;
         } else {
-          await lockfile.Lock(this.options.en.FILE_SYNC_LOCK);
+          await lockfile.Lock(state.environment.FILE_SYNC_LOCK);
         }
 
-        const customSettings: CustomSettings = await this.options.commons.GetCustomSettings();
+        const customSettings: CustomSettings = await state.commons.GetCustomSettings();
         if (customSettings) {
           const fileType: string = path
             .substring(path.lastIndexOf("."), path.length)
@@ -67,7 +71,7 @@ export class AutoUploadService {
             await this.InitiateAutoUpload();
           }
         }
-        await lockfile.Unlock(this.options.en.FILE_SYNC_LOCK);
+        await lockfile.Unlock(state.environment.FILE_SYNC_LOCK);
         return;
       }
     });
