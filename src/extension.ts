@@ -11,15 +11,17 @@ export async function activate(context: vscode.ExtensionContext) {
   state.context = context;
   state.environment = new Environment();
 
+  if (!InstanceManagerService.instanceSet()) {
+    InstanceManagerService.setInstance();
+  }
+
+  setInterval(InstanceManagerService.checkAndUpdate, 60000);
+
   await initLocalize();
 
   const sync = new Sync();
 
   sync.bootstrap();
-
-  if (!InstanceManagerService.instanceSet()) {
-    InstanceManagerService.setInstance();
-  }
 
   context.subscriptions.push(
     vscode.commands.registerCommand(
@@ -51,10 +53,4 @@ export async function activate(context: vscode.ExtensionContext) {
       sync.advance.bind(sync)
     )
   );
-}
-
-export async function deactivate() {
-  if (InstanceManagerService.isOriginalInstance()) {
-    InstanceManagerService.unsetInstance();
-  }
 }
