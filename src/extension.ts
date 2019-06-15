@@ -3,19 +3,12 @@
 import * as vscode from "vscode";
 import { Environment } from "./environmentPath";
 import { init as initLocalize } from "./localize";
-import { InstanceManagerService } from "./service/instanceManager.service";
 import { state } from "./state";
 import { Sync } from "./sync";
 
 export async function activate(context: vscode.ExtensionContext) {
   state.context = context;
   state.environment = new Environment();
-
-  if (!InstanceManagerService.instanceSet()) {
-    InstanceManagerService.setInstance();
-  }
-
-  setInterval(InstanceManagerService.checkAndUpdate, 60000);
 
   await initLocalize();
 

@@ -6,7 +6,6 @@ import { CustomConfig } from "../models/customConfig.model";
 import { state } from "../state";
 import { Util } from "../util";
 import { FileService } from "./file.service";
-import { InstanceManagerService } from "./instanceManager.service";
 
 export class AutoUploadService {
   public static GetIgnoredItems(customSettings: CustomConfig) {
@@ -24,11 +23,8 @@ export class AutoUploadService {
   });
 
   constructor(private ignored: string[]) {
-    if (!InstanceManagerService.instanceSet()) {
-      InstanceManagerService.setInstance();
-    }
     vscode.extensions.onDidChange(async () => {
-      if (this.watching && InstanceManagerService.isOriginalInstance()) {
+      if (this.watching && vscode.window.state.focused) {
         console.log("Sync: Extensions changed");
         if (await lockfile.Check(state.environment.FILE_SYNC_LOCK)) {
           return;
@@ -51,10 +47,7 @@ export class AutoUploadService {
     this.watching = true;
 
     this.watcher.addListener("change", async (path: string) => {
-      if (!InstanceManagerService.instanceSet()) {
-        InstanceManagerService.setInstance();
-      }
-      if (this.watching && InstanceManagerService.isOriginalInstance()) {
+      if (this.watching && vscode.window.state.focused) {
         console.log(`Sync: ${FileService.ExtractFileName(path)} changed`);
         if (await lockfile.Check(state.environment.FILE_SYNC_LOCK)) {
           return;
