@@ -5,7 +5,7 @@ import lockfile from "../lockfile";
 import { CustomConfig } from "../models/customConfig.model";
 import { state } from "../state";
 import { Util } from "../util";
-import { FileService } from "./fileService";
+import { FileService } from "./file.service";
 import { InstanceManagerService } from "./instanceManager.service";
 
 export class AutoUploadService {

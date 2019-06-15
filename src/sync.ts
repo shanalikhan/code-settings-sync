@@ -10,9 +10,9 @@ import { CustomConfig } from "./models/customConfig.model";
 import { ExtensionConfig } from "./models/extensionConfig.model";
 import { LocalConfig } from "./models/localConfig.model";
 import PragmaUtil from "./pragmaUtil";
-import { File, FileService } from "./service/fileService";
-import { GitHubService } from "./service/githubService";
-import { ExtensionInformation, PluginService } from "./service/pluginService";
+import { File, FileService } from "./service/file.service";
+import { GitHubService } from "./service/github.service";
+import { ExtensionInformation, PluginService } from "./service/plugin.service";
 import { state } from "./state";
 
 export class Sync {
