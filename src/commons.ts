@@ -7,7 +7,7 @@ import { ExtensionConfig } from "./models/extensionConfig.model";
 import { LocalConfig } from "./models/localConfig.model";
 import { AutoUploadService } from "./service/autoUpload.service";
 import { File, FileService } from "./service/file.service";
-import { ExtensionInformation } from "./service/plugin.service";
+import { ExtensionInformation } from "./service/pluginService";
 import { state } from "./state";
 
 export default class Commons {

@@ -12,7 +12,7 @@ import { LocalConfig } from "./models/localConfig.model";
 import PragmaUtil from "./pragmaUtil";
 import { File, FileService } from "./service/file.service";
 import { GitHubService } from "./service/github.service";
-import { ExtensionInformation, PluginService } from "./service/plugin.service";
+import { ExtensionInformation, PluginService } from "./service/pluginService";
 import { state } from "./state";
 
 export class Sync {
