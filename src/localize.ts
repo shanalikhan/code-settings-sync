@@ -12,7 +12,7 @@ interface ILanguagePack {
 
 export class Localize {
   private bundle: ILanguagePack;
-  constructor(private options: IConfig = {}) {}
+  private options: IConfig;
   /**
    * translate the key
    * @param key
