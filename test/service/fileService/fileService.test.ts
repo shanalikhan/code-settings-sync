@@ -1,6 +1,6 @@
 import { expect } from "chai";
 
-import { File, FileService } from "../../../src/service/fileService";
+import { File, FileService } from "../../../src/service/file.service";
 
 describe("FileService", () => {
   it("should get custom file info", async () => {
