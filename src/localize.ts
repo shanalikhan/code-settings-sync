@@ -1,6 +1,7 @@
 import * as fs from "fs-extra";
 import * as path from "path";
 import { extensions } from "vscode";
+import { state } from "./state";
 
 interface IConfig {
   locale?: string;
@@ -12,7 +13,7 @@ interface ILanguagePack {
 
 export class Localize {
   private bundle: ILanguagePack;
-  constructor(private options: IConfig = {}) {}
+  private options: IConfig;
   /**
    * translate the key
    * @param key
@@ -24,6 +25,26 @@ export class Localize {
     return this.format(message, args);
   }
   public async init() {
+    this.options = {
+      locale: "en"
+    };
+
+    try {
+      const pathToLocale = path.resolve(
+        state.environment.USER_FOLDER,
+        "locale.json"
+      );
+      if (fs.existsSync(pathToLocale)) {
+        const contents = fs.readFileSync(pathToLocale, "utf-8");
+        this.options = {
+          ...this.options,
+          ...(contents ? JSON.parse(contents) : {})
+        };
+      }
+    } catch (err) {
+      //
+    }
+
     this.bundle = await this.resolveLanguagePack();
   }
   /**
@@ -100,20 +121,7 @@ export class Localize {
   }
 }
 
-let config: IConfig = {
-  locale: "en"
-};
-
-try {
-  config = Object.assign(
-    config,
-    JSON.parse((process.env as any).VSCODE_NLS_CONFIG)
-  );
-} catch (err) {
-  //
-}
-
-const instance = new Localize(config);
+const instance = new Localize();
 
 const init = instance.init.bind(instance);
 
