@@ -23,7 +23,24 @@ export class Localize {
     const message: string = languagePack[key] || key;
     return this.format(message, args);
   }
-  public async init() {
+  public async init(userFolder: string) {
+    this.options = {
+      locale: "en"
+    };
+
+    try {
+      const pathToLocale = path.resolve(userFolder, "locale.json");
+      if (fs.existsSync(pathToLocale)) {
+        const contents = fs.readFileSync(pathToLocale, "utf-8");
+        this.options = {
+          ...this.options,
+          ...(contents ? JSON.parse(contents) : {})
+        };
+      }
+    } catch (err) {
+      //
+    }
+
     this.bundle = await this.resolveLanguagePack();
   }
   /**
@@ -100,20 +117,7 @@ export class Localize {
   }
 }
 
-let config: IConfig = {
-  locale: "en"
-};
-
-try {
-  config = Object.assign(
-    config,
-    JSON.parse((process.env as any).VSCODE_NLS_CONFIG)
-  );
-} catch (err) {
-  //
-}
-
-const instance = new Localize(config);
+const instance = new Localize();
 
 const init = instance.init.bind(instance);
 
