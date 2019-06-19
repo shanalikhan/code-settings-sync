@@ -573,8 +573,8 @@ export class Sync {
                     }
                   }
                 );
-              } catch (extensions) {
-                addedExtensions = extensions;
+              } catch (err) {
+                throw new Error(err);
               }
             }
           } else {
