@@ -10,7 +10,7 @@ export async function activate(context: vscode.ExtensionContext) {
   state.context = context;
   state.environment = new Environment();
 
-  await initLocalize(state.environment.USER_FOLDER);
+  await initLocalize();
 
   const sync = new Sync();
 

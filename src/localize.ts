@@ -1,6 +1,7 @@
 import * as fs from "fs-extra";
 import * as path from "path";
 import { extensions } from "vscode";
+import { state } from "./state";
 
 interface IConfig {
   locale?: string;
@@ -23,13 +24,16 @@ export class Localize {
     const message: string = languagePack[key] || key;
     return this.format(message, args);
   }
-  public async init(userFolder: string) {
+  public async init() {
     this.options = {
       locale: "en"
     };
 
     try {
-      const pathToLocale = path.resolve(userFolder, "locale.json");
+      const pathToLocale = path.resolve(
+        state.environment.USER_FOLDER,
+        "locale.json"
+      );
       if (fs.existsSync(pathToLocale)) {
         const contents = fs.readFileSync(pathToLocale, "utf-8");
         this.options = {
