@@ -1,10 +1,9 @@
 "use strict";
 
-import * as fs from "fs-extra";
-import * as os from "os";
-import * as path from "path";
+import { normalize, resolve } from "path";
 import * as vscode from "vscode";
 import { OsType } from "./enums";
+import { state } from "./state";
 
 export const SUPPORTED_OS: string[] = Object.keys(OsType)
   .filter(k => !/\d/.test(k))
@@ -28,14 +27,17 @@ export class Environment {
     );
   }
 
-  public isInsiders: boolean = false;
-  public isOss: boolean = false;
+  // public isInsiders: boolean = false;
+  // public isOss: boolean = false;
+  // public isCoderCom: boolean = false;
+  // public homeDir: string | null = null;
+
   public isPortable: boolean = false;
-  public isCoderCom: boolean = false;
-  public homeDir: string | null = null;
   public USER_FOLDER: string = null;
 
-  public ExtensionFolder: string = null;
+  public CODE_BIN: string;
+
+  public EXTENSION_FOLDER: string = null;
   public PATH: string = null;
   public OsType: OsType = null;
 
@@ -63,9 +65,36 @@ export class Environment {
 
   public FOLDER_SNIPPETS: string = null;
 
-  constructor(private context: vscode.ExtensionContext) {
+  constructor() {
+    state.context.globalState.update("_", undefined); // Make sure the global state folder exists. This is needed for using this.context.globalStoragePath to access user folder
+
+    this.isPortable = !!process.env.VSCODE_PORTABLE;
+
+    this.OsType = process.platform as OsType;
+    if (!this.isPortable) {
+      this.PATH = resolve(state.context.globalStoragePath, "../../..").concat(
+        normalize("/")
+      );
+      this.USER_FOLDER = resolve(this.PATH, "User").concat(normalize("/"));
+      this.EXTENSION_FOLDER = resolve(
+        vscode.extensions.all.filter(
+          extension => !extension.packageJSON.isBuiltin
+        )[0].extensionPath,
+        ".."
+      ).concat(normalize("/")); // Gets first non-builtin extension's path
+    } else {
+      this.PATH = process.env.VSCODE_PORTABLE;
+      this.USER_FOLDER = resolve(this.PATH, "user-data/User").concat(
+        normalize("/")
+      );
+      this.EXTENSION_FOLDER = resolve(this.PATH, "extensions").concat(
+        normalize("/")
+      );
+    }
+
+    /* Start Legacy Code
+
     this.isInsiders = /insiders/.test(this.context.asAbsolutePath(""));
-    this.isPortable = process.env.VSCODE_PORTABLE ? true : false;
     this.isOss = /\boss\b/.test(this.context.asAbsolutePath(""));
     this.isCoderCom =
       vscode.extensions.getExtension("coder.coder") !== undefined;
@@ -77,8 +106,8 @@ export class Environment {
     this.homeDir = isXdg
       ? process.env.XDG_DATA_HOME
       : process.env[process.platform === "win32" ? "USERPROFILE" : "HOME"];
-    const configSuffix = `${isXdg || this.isCoderCom ? "" : "."}vscode${
-      this.isInsiders ? "-insiders" : this.isOss ? "-oss" : ""
+    const configSuffix = `; $; {isXdg || this.isCoderCom ? "" : "."; }vscode$; {
+      this.isInsiders ? "-insiders" : this.isOss ? "-oss" : "";
     }`;
 
     if (!this.isPortable) {
@@ -147,6 +176,8 @@ export class Environment {
       this.USER_FOLDER = this.PATH.concat("/user-data/User/");
       this.ExtensionFolder = this.PATH.concat("/extensions/");
     }
+
+    End Legacy Code */
 
     this.FILE_EXTENSION = this.USER_FOLDER.concat(this.FILE_EXTENSION_NAME);
     this.FILE_SETTING = this.USER_FOLDER.concat(this.FILE_SETTING_NAME);

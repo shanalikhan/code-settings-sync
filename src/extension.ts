@@ -1,13 +1,18 @@
 "use strict";
 
 import * as vscode from "vscode";
+import { Environment } from "./environmentPath";
 import { init as initLocalize } from "./localize";
+import { state } from "./state";
 import { Sync } from "./sync";
 
 export async function activate(context: vscode.ExtensionContext) {
+  state.context = context;
+  state.environment = new Environment();
+
   await initLocalize();
 
-  const sync = new Sync(context);
+  const sync = new Sync();
 
   sync.bootstrap();
 
