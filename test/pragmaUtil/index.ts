@@ -14,7 +14,7 @@ describe("Process before upload", function() {
   });
 
   it("should trim os, host and env", async () => {
-    const [result] = await PragmaUtil.processBeforeUpload(testSettings, null);
+    const result = await PragmaUtil.processBeforeUpload(testSettings);
     await expect(result).to.match(/@sync os=linux host=trim env=TEST_ENV/);
   });
 
@@ -26,9 +26,8 @@ describe("Process before upload", function() {
       // "server": "http://exmaple.com
     `;
 
-    const [result] = await PragmaUtil.processBeforeUpload(
-      commentedSettings,
-      null
+    const result = await PragmaUtil.processBeforeUpload(
+      commentedSettings
     );
     await expect(result)
       .to.match(/\s+"window"/)
@@ -54,7 +53,7 @@ describe("Process before upload", function() {
   });
 
   it("should not comment os=linux settings lines", async () => {
-    let [processed] = await PragmaUtil.processBeforeUpload(testSettings, null);
+    let processed = await PragmaUtil.processBeforeUpload(testSettings);
     processed = PragmaUtil.processBeforeWrite(
       processed,
       processed,
@@ -65,9 +64,8 @@ describe("Process before upload", function() {
   });
 
   it("should leave only settings that matches with os=mac host=mac2 env=TEST_ENV", async () => {
-    const [processed] = await PragmaUtil.processBeforeUpload(
-      testSettings,
-      null
+    const processed = await PragmaUtil.processBeforeUpload(
+      testSettings
     );
     // tslint:disable-next-line:no-string-literal
     process.env["TEST_ENV"] = "1";
