@@ -1,8 +1,6 @@
-import { ExtensionContext } from "vscode";
 import { OsType } from "./enums";
 import { osTypeFromString, SUPPORTED_OS } from "./environmentPath";
 import localize from "./localize";
-import { FileService } from "./service/fileService";
 
 /**
  * Comment/Uncomment lines if matches OS name or Hostname.
@@ -125,10 +123,9 @@ export default class PragmaUtil {
    * @memberof PragmaUtil
    */
   public static async processBeforeUpload(
-    settingsContent: string,
-    context: ExtensionContext
-  ): Promise<any[]> {
-    const lines = settingsContent.split("\n");
+    fileContent: string
+  ): Promise<string> {
+    const lines = fileContent.split("\n");
     let osMatch: RegExpMatchArray;
     let osFromPragma: string;
 
@@ -140,17 +137,6 @@ export default class PragmaUtil {
 
     const parsedLines: string[] = [];
     let currentLine = "";
-
-    let settingsFileExists = false;
-
-    if (context !== null) {
-      settingsFileExists = await FileService.FileExists(
-        `${context.globalStoragePath}/settings.sync`
-      );
-    }
-
-    // Compare each line between new content and existing settings file
-    let shouldUpload = false;
 
     for (let index = 0; index < lines.length; index++) {
       currentLine = lines[index];
@@ -211,29 +197,7 @@ export default class PragmaUtil {
         parsedLines.push(currentLine);
       }
     }
-
-    const result = parsedLines.join("\n");
-
-    if (settingsFileExists && context !== null) {
-      try {
-        const localSettingFile = await FileService.ReadFile(
-          `${context.globalStoragePath}/settings.sync`
-        );
-        shouldUpload = localSettingFile !== result;
-      } catch (error) {
-        console.warn("Sync: Could not read local settings file", error.message);
-      }
-    }
-
-    if ((!settingsFileExists || shouldUpload) && context !== null) {
-      // Create or update local settings file
-      await FileService.WriteFile(
-        `${context.globalStoragePath}/settings.sync`,
-        result
-      );
-    }
-
-    return [result, shouldUpload];
+    return parsedLines.join("\n");
   }
 
   public static getIgnoredBlocks(content: string): string {
