@@ -16,12 +16,6 @@ import { ExtensionInformation, PluginService } from "./service/pluginService";
 import { state } from "./state";
 
 export class Sync {
-
-  constructor(private context: vscode.ExtensionContext) {
-    // Check global storage dir
-    FileService.CreateDirectory(context.globalStoragePath);
-  }
-
   /**
    * Run when extension have been activated
    */
@@ -210,11 +204,9 @@ export class Sync {
         Commons.LogException(null, state.commons.ERROR_MESSAGE, true);
         return;
       }
-
       for (const snippetFile of contentFiles) {
         if (snippetFile.fileName !== state.environment.FILE_KEYBINDING_MAC) {
           if (snippetFile.content !== "") {
-            let shouldUpload = true;
             if (
               snippetFile.fileName === state.environment.FILE_KEYBINDING_NAME
             ) {
@@ -224,28 +216,22 @@ export class Sync {
                   ? state.environment.FILE_KEYBINDING_MAC
                   : state.environment.FILE_KEYBINDING_DEFAULT;
             }
-            if (snippetFile.fileName === env.FILE_SETTING_NAME ||
-                snippetFile.fileName === env.FILE_KEYBINDING_MAC ||
-                snippetFile.fileName === env.FILE_KEYBINDING_DEFAULT) {
+            if (
+              snippetFile.fileName === state.environment.FILE_SETTING_NAME ||
+              snippetFile.fileName === state.environment.FILE_KEYBINDING_MAC ||
+              snippetFile.fileName === state.environment.FILE_KEYBINDING_DEFAULT
+            ) {
               try {
-                const [
-                  content,
-                  shouldUploadSettingsFile
-                ] = await PragmaUtil.processBeforeUpload(
-                  snippetFile.content,
-                  this.context
+                const parsedContent = await PragmaUtil.processBeforeUpload(
+                  snippetFile.content
                 );
-                snippetFile.content = content;
-                shouldUpload = shouldUploadSettingsFile;
+                snippetFile.content = parsedContent;
+                allSettingFiles.push(snippetFile);
               } catch (e) {
                 Commons.LogException(null, e.message, true);
                 console.error(e);
                 return;
               }
-            }
-
-            if (shouldUpload) {
-              allSettingFiles.push(snippetFile);
             }
           }
         }
@@ -313,7 +299,7 @@ export class Sync {
           }
         }
 
-        if (gistObj.public === true) {
+        if (gistObj.data.public === true) {
           localConfig.publicGist = true;
         }
 
@@ -321,6 +307,29 @@ export class Sync {
           localize("cmd.updateSettings.info.uploadingFile"),
           3000
         );
+
+        // We should not upload unless one or more files have changed
+        let shouldUploadGist = false;
+        for (const fileToUpload of allSettingFiles) {
+          // This file contains only file time stamps
+          if (fileToUpload.fileName === "cloudSettings") {
+            continue;
+          }
+          if (
+            gistObj.data.files[fileToUpload.fileName].content !==
+            fileToUpload.content
+          ) {
+            console.info(`Sync: file ${fileToUpload.fileName} has changed`);
+            shouldUploadGist = true;
+            break;
+          }
+        }
+
+        if (!shouldUploadGist) {
+          console.info("Sync: nothing to update");
+          return;
+        }
+
         gistObj = github.UpdateGIST(gistObj, allSettingFiles);
         completed = await github.SaveGIST(gistObj.data);
         if (!completed) {
