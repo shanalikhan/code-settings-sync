@@ -122,7 +122,9 @@ export default class PragmaUtil {
    * @returns {string}
    * @memberof PragmaUtil
    */
-  public static processBeforeUpload(fileContent: string): string {
+  public static async processBeforeUpload(
+    fileContent: string
+  ): Promise<string> {
     const lines = fileContent.split("\n");
     let osMatch: RegExpMatchArray;
     let osFromPragma: string;
@@ -195,7 +197,6 @@ export default class PragmaUtil {
         parsedLines.push(currentLine);
       }
     }
-
     return parsedLines.join("\n");
   }
 
@@ -233,7 +234,6 @@ export default class PragmaUtil {
 
   private static toggleComments(line: string, shouldComment: boolean) {
     const isCommented = line.trim().startsWith("//");
-
     if (shouldComment) {
       // Replace with RegEx to help match indent size
       return !isCommented ? line.replace(/^(\s*)/, "$1// ") : line;
@@ -241,6 +241,8 @@ export default class PragmaUtil {
       // Only remove if line is commented
       return isCommented ? line.replace(/\/\/\s*/, "") : line;
     }
+
+    return line;
   }
 
   // checks and advance index
