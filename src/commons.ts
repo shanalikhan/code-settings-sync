@@ -166,8 +166,8 @@ export default class Commons {
 
         Object.assign(customSettings, tempObj);
         customSettings.token = customSettings.token.trim();
-        return customSettings;
       }
+      return customSettings;
     } catch (e) {
       Commons.LogException(
         e,
