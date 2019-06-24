@@ -82,7 +82,11 @@ export class Sync {
         localConfig.customConfig.token,
         localConfig.customConfig.githubEnterpriseUrl
       );
-      await startGitProcess(localConfig.extConfig, localConfig.customConfig);
+      await startGitProcess.call(
+        this,
+        localConfig.extConfig,
+        localConfig.customConfig
+      );
     } catch (error) {
       Commons.LogException(error, state.commons.ERROR_MESSAGE, true);
       return;
@@ -200,7 +204,6 @@ export class Sync {
         Commons.LogException(null, state.commons.ERROR_MESSAGE, true);
         return;
       }
-
       for (const snippetFile of contentFiles) {
         if (snippetFile.fileName !== state.environment.FILE_KEYBINDING_MAC) {
           if (snippetFile.content !== "") {
@@ -213,23 +216,23 @@ export class Sync {
                   ? state.environment.FILE_KEYBINDING_MAC
                   : state.environment.FILE_KEYBINDING_DEFAULT;
             }
-            allSettingFiles.push(snippetFile);
-          }
-        }
-
-        if (
-          snippetFile.fileName === state.environment.FILE_SETTING_NAME ||
-          snippetFile.fileName === state.environment.FILE_KEYBINDING_MAC ||
-          snippetFile.fileName === state.environment.FILE_KEYBINDING_DEFAULT
-        ) {
-          try {
-            snippetFile.content = PragmaUtil.processBeforeUpload(
-              snippetFile.content
-            );
-          } catch (e) {
-            Commons.LogException(null, e.message, true);
-            console.error(e);
-            return;
+            if (
+              snippetFile.fileName === state.environment.FILE_SETTING_NAME ||
+              snippetFile.fileName === state.environment.FILE_KEYBINDING_MAC ||
+              snippetFile.fileName === state.environment.FILE_KEYBINDING_DEFAULT
+            ) {
+              try {
+                const parsedContent = await PragmaUtil.processBeforeUpload(
+                  snippetFile.content
+                );
+                snippetFile.content = parsedContent;
+                allSettingFiles.push(snippetFile);
+              } catch (e) {
+                Commons.LogException(null, e.message, true);
+                console.error(e);
+                return;
+              }
+            }
           }
         }
       }
@@ -296,7 +299,7 @@ export class Sync {
           }
         }
 
-        if (gistObj.public === true) {
+        if (gistObj.data.public === true) {
           localConfig.publicGist = true;
         }
 
@@ -304,6 +307,29 @@ export class Sync {
           localize("cmd.updateSettings.info.uploadingFile"),
           3000
         );
+
+        // We should not upload unless one or more files have changed
+        let shouldUploadGist = false;
+        for (const fileToUpload of allSettingFiles) {
+          // This file contains only file time stamps
+          if (fileToUpload.fileName === "cloudSettings") {
+            continue;
+          }
+          if (
+            gistObj.data.files[fileToUpload.fileName].content !==
+            fileToUpload.content
+          ) {
+            console.info(`Sync: file ${fileToUpload.fileName} has changed`);
+            shouldUploadGist = true;
+            break;
+          }
+        }
+
+        if (!shouldUploadGist) {
+          console.info("Sync: nothing to update");
+          return;
+        }
+
         gistObj = github.UpdateGIST(gistObj, allSettingFiles);
         completed = await github.SaveGIST(gistObj.data);
         if (!completed) {
