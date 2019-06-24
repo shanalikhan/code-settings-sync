@@ -2,17 +2,13 @@ import * as express from "express";
 import { Server } from "http";
 import fetch from "node-fetch";
 import { URLSearchParams } from "url";
-import Commons from "../commons";
+import { state } from "../state";
 
 export class GitHubOAuthService {
   public app: express.Express;
   public server: Server;
 
-  constructor(
-    public port: number,
-    public commons: Commons,
-    public extensionPath: string
-  ) {
+  constructor(public port: number) {
     this.app = express();
     this.app.use(express.json(), express.urlencoded({ extended: false }));
   }
@@ -33,7 +29,7 @@ export class GitHubOAuthService {
       const user = await this.getUser(token);
 
       const gists = await this.getGists(token, user);
-      this.commons.webviewService.OpenGistSelectionpage(gists);
+      state.commons.webviewService.OpenGistSelectionpage(gists);
     });
   }
 
@@ -59,9 +55,9 @@ export class GitHubOAuthService {
   }
 
   public async saveToken(token: string) {
-    const currentSettings = await this.commons.GetCustomSettings();
+    const currentSettings = await state.commons.GetCustomSettings();
     currentSettings.token = token;
-    this.commons.SetCustomSettings(currentSettings);
+    state.commons.SetCustomSettings(currentSettings);
   }
 
   public async getUser(token: string) {

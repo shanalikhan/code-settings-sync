@@ -7,8 +7,8 @@ import { ExtensionConfig } from "./models/extensionConfig.model";
 import { LocalConfig } from "./models/localConfig.model";
 import { AutoUploadService } from "./service/autoUpload.service";
 import { File, FileService } from "./service/file.service";
-import { ExtensionInformation } from "./service/pluginService";
-import { WebviewService } from "./service/webviewService";
+import { ExtensionInformation } from "./service/plugin.service";
+import { WebviewService } from "./service/webview.service";
 import { state } from "./state";
 
 export default class Commons {
@@ -75,7 +75,7 @@ export default class Commons {
   }
 
   public autoUploadService: AutoUploadService;
-  public webviewService = new WebviewService(this, this.context.extensionPath);
+  public webviewService = new WebviewService();
 
   public ERROR_MESSAGE: string = localize("common.error.message");
 

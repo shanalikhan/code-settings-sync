@@ -1,12 +1,13 @@
 import { readFileSync } from "fs-extra";
 import { has, set } from "lodash";
 import * as vscode from "vscode";
-import Commons from "../commons";
 import localize from "../localize";
+import { CustomConfig } from "../models/customConfig.model";
+import { ExtensionConfig } from "../models/extensionConfig.model";
 import { UISettingType } from "../models/settingType.model";
 import { IWebview } from "../models/webview.model";
-import { CustomSettings, ExtensionConfig } from "../setting";
-import { GitHubOAuthService } from "./oauthService";
+import { state } from "../state";
+import { GitHubOAuthService } from "./github.oauth.service";
 
 export class WebviewService {
   private globalSettings = [
@@ -178,12 +179,12 @@ export class WebviewService {
     }
   ];
 
-  constructor(private commons: Commons, private searchFolder: string) {
+  constructor() {
     this.webviews = this.webviews.map(view => {
       return {
         ...view,
         htmlContent: readFileSync(
-          `${this.searchFolder}/ui/${view.name}/${view.htmlPath}`,
+          `${state.context.extensionPath}/ui/${view.name}/${view.htmlPath}`,
           "utf-8"
         )
       };
@@ -191,7 +192,7 @@ export class WebviewService {
   }
 
   public OpenSettingsPage(
-    customSettings: CustomSettings,
+    customSettings: CustomConfig,
     extSettings: ExtensionConfig
   ): vscode.WebviewPanel {
     const webview = this.webviews[1];
@@ -225,7 +226,7 @@ export class WebviewService {
   }
 
   public UpdateSettingsPage(
-    customSettings: CustomSettings,
+    customSettings: CustomConfig,
     extSettings: ExtensionConfig
   ) {
     const webview = this.webviews[1];
@@ -245,7 +246,7 @@ export class WebviewService {
       text: string;
       type: string;
     },
-    customSettings: CustomSettings,
+    customSettings: CustomConfig,
     extSettings: ExtensionConfig
   ) {
     let value: any = message.text;
@@ -255,11 +256,11 @@ export class WebviewService {
     if (message.type === "global") {
       if (has(customSettings, message.command)) {
         set(customSettings, message.command, value);
-        this.commons.SetCustomSettings(customSettings);
+        state.commons.SetCustomSettings(customSettings);
       }
     } else {
       extSettings[message.command] = value;
-      this.commons.SaveSettings(extSettings);
+      state.commons.SaveSettings(extSettings);
     }
   }
 
@@ -288,11 +289,7 @@ export class WebviewService {
     landingPanel.webview.onDidReceiveMessage(async message => {
       switch (message.command) {
         case "loginWithGitHub":
-          new GitHubOAuthService(
-            54321,
-            this.commons,
-            this.searchFolder
-          ).StartProcess();
+          new GitHubOAuthService(54321).StartProcess();
           vscode.commands.executeCommand(
             "vscode.open",
             vscode.Uri.parse(
@@ -302,8 +299,8 @@ export class WebviewService {
           break;
         case "editConfiguration":
           this.OpenSettingsPage(
-            await this.commons.GetCustomSettings(),
-            await this.commons.GetSettings()
+            await state.commons.GetCustomSettings(),
+            await state.commons.GetSettings()
           );
           break;
       }
@@ -338,9 +335,9 @@ export class WebviewService {
     gistSelectionPanel.webview.html = content;
     gistSelectionPanel.webview.onDidReceiveMessage(async message => {
       if (!message.close) {
-        const extSettings = await this.commons.GetSettings();
+        const extSettings = await state.commons.GetSettings();
         extSettings.gist = message.id;
-        this.commons.SaveSettings(extSettings);
+        state.commons.SaveSettings(extSettings);
       } else {
         gistSelectionPanel.dispose();
       }
@@ -372,7 +369,7 @@ export class WebviewService {
       )
       .replace(
         new RegExp("@PWD", "g"),
-        vscode.Uri.file(this.searchFolder)
+        vscode.Uri.file(state.context.extensionPath)
           .with({
             scheme: "vscode-resource"
           })

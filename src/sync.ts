@@ -12,7 +12,7 @@ import { LocalConfig } from "./models/localConfig.model";
 import PragmaUtil from "./pragmaUtil";
 import { File, FileService } from "./service/file.service";
 import { GitHubService } from "./service/github.service";
-import { ExtensionInformation, PluginService } from "./service/pluginService";
+import { ExtensionInformation, PluginService } from "./service/plugin.service";
 import { state } from "./state";
 
 export class Sync {
@@ -33,7 +33,7 @@ export class Sync {
         startUpSetting.gist != null && startUpSetting.gist !== "";
 
       if (!tokenAvailable) {
-        globalCommonService.webviewService.OpenLandingPage();
+        state.commons.webviewService.OpenLandingPage();
         return;
       }
 
@@ -708,7 +708,7 @@ export class Sync {
         );
       }
 
-      globalCommonService.webviewService.UpdateSettingsPage(
+      state.commons.webviewService.UpdateSettingsPage(
         localSettings,
         extSettings
       );
@@ -778,7 +778,7 @@ export class Sync {
 
     const handlerMap = [
       async () => {
-        common.webviewService.OpenSettingsPage(customSettings, setting);
+        state.commons.webviewService.OpenSettingsPage(customSettings, setting);
       },
       async () => {
         const file: vscode.Uri = vscode.Uri.file(
