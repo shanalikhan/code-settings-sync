@@ -13,23 +13,25 @@ describe("Process before upload", function() {
     );
   });
 
-  it("should trim os, host and env", () => {
-    expect(PragmaUtil.processBeforeUpload(testSettings)).to.match(
-      /@sync os=linux host=trim env=TEST_ENV/
-    );
+  it("should trim os, host and env", async () => {
+    const result = await PragmaUtil.processBeforeUpload(testSettings);
+    await expect(result).to.match(/@sync os=linux host=trim env=TEST_ENV/);
   });
 
-  it("should uncomment all lines", () => {
+  it("should uncomment all lines", async () => {
     const commentedSettings = `
       // @sync os=linux
       // "window": 1,
       // @sync os=mac
-      // "mac": 1
+      // "server": "http://exmaple.com
     `;
 
-    expect(PragmaUtil.processBeforeUpload(commentedSettings))
+    const result = await PragmaUtil.processBeforeUpload(
+      commentedSettings
+    );
+    await expect(result)
       .to.match(/\s+"window"/)
-      .and.to.match(/\s+"mac"/);
+      .and.to.match(/\s+"server"/);
   });
 
   it("should uncomment lines before write file for os=linux", () => {
@@ -47,11 +49,11 @@ describe("Process before upload", function() {
     );
     expect(processed)
       .to.match(/\s+"linux"/)
-      .and.to.match(/.+\/\/"mac"/);
+      .and.to.match(/\s+\/\/\s+"mac"/);
   });
 
-  it("should not comment os=linux settings lines", () => {
-    let processed = PragmaUtil.processBeforeUpload(testSettings);
+  it("should not comment os=linux settings lines", async () => {
+    let processed = await PragmaUtil.processBeforeUpload(testSettings);
     processed = PragmaUtil.processBeforeWrite(
       processed,
       processed,
@@ -61,11 +63,13 @@ describe("Process before upload", function() {
     expect(processed).to.match(/\s+"not_commented"/);
   });
 
-  it("should leave only settings that matches with os=mac host=mac2 env=TEST_ENV", () => {
-    const processed = PragmaUtil.processBeforeUpload(testSettings);
+  it("should leave only settings that matches with os=mac host=mac2 env=TEST_ENV", async () => {
+    const processed = await PragmaUtil.processBeforeUpload(
+      testSettings
+    );
     // tslint:disable-next-line:no-string-literal
     process.env["TEST_ENV"] = "1";
-    expect(
+    await expect(
       PragmaUtil.processBeforeWrite(processed, processed, OsType.Mac, "mac2")
     )
       .to.match(/\n\s+"mac2"/)
@@ -98,5 +102,5 @@ describe("Process before upload", function() {
       .and.to.match(/\/{2}\s+"setting"/)
       .and.to.match(/\/{2}\s+},/)
       .and.to.match(/\s+"mac"/);
-  })
+  });
 });

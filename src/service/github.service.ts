@@ -3,12 +3,16 @@
 import * as GitHubApi from "@octokit/rest";
 import * as HttpsProxyAgent from "https-proxy-agent";
 import * as vscode from "vscode";
-import { File } from "./fileService";
+import { File } from "./file.service";
 
 interface IEnv {
   [key: string]: string | undefined;
   http_proxy: string;
   HTTP_PROXY: string;
+}
+
+interface IFixGistResponse extends Omit<GitHubApi.GistsGetResponse, "files"> {
+  files: any | GitHubApi.GistsGetResponseFiles;
 }
 
 export class GitHubService {
@@ -120,7 +124,10 @@ export class GitHubService {
     }
   }
 
-  public async ReadGist(GIST: string): Promise<any> {
+  // This should return GitHubApi.Response<GitHubApi.GistsGetResponse> but Types are wrong
+  public async ReadGist(
+    GIST: string
+  ): Promise<GitHubApi.Response<IFixGistResponse>> {
     return await this.github.gists.get({ gist_id: GIST });
   }
 

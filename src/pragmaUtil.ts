@@ -118,12 +118,14 @@ export default class PragmaUtil {
    * Remove @sync-ignore settings before upload.
    *
    * @static
-   * @param {string} settingsContent
+   * @param {string} fileContent
    * @returns {string}
    * @memberof PragmaUtil
    */
-  public static processBeforeUpload(settingsContent: string): string {
-    const lines = settingsContent.split("\n");
+  public static async processBeforeUpload(
+    fileContent: string
+  ): Promise<string> {
+    const lines = fileContent.split("\n");
     let osMatch: RegExpMatchArray;
     let osFromPragma: string;
 
@@ -195,7 +197,6 @@ export default class PragmaUtil {
         parsedLines.push(currentLine);
       }
     }
-
     return parsedLines.join("\n");
   }
 
@@ -232,11 +233,16 @@ export default class PragmaUtil {
   private static readonly EnvPragmaWhiteSpacesSupportRegExp = /(?:env=(.+)host=)|(?:env=(.+)os=)|env=(.+)\n?/;
 
   private static toggleComments(line: string, shouldComment: boolean) {
-    if (shouldComment && !line.trim().startsWith("//")) {
-      return "  //" + line; // 2 spaces as formmating
+    const isCommented = line.trim().startsWith("//");
+    if (shouldComment) {
+      // Replace with RegEx to help match indent size
+      return !isCommented ? line.replace(/^(\s*)/, "$1// ") : line;
     } else {
-      return line.replace("//", "");
+      // Only remove if line is commented
+      return isCommented ? line.replace(/\/\/\s*/, "") : line;
     }
+
+    return line;
   }
 
   // checks and advance index
@@ -258,7 +264,7 @@ export default class PragmaUtil {
       parsedLines.push(this.toggleComments(currentLine, shouldComment));
     }
 
-    const opensCurlyBraces = /".+"\s*:\s*{/.test(currentLine);
+    const opensCurlyBraces = /{/.test(currentLine);
     const opensBrackets = /".+"\s*:\s*\[/.test(currentLine);
 
     let openedBlock = opensCurlyBraces || opensBrackets;

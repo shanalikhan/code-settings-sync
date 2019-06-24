@@ -3,45 +3,28 @@ import * as vscode from "vscode";
 
 import Commons from "./commons";
 import { OsType } from "./enums";
-import { Environment } from "./environmentPath";
 import localize from "./localize";
 import * as lockfile from "./lockfile";
-import { File, FileService } from "./service/fileService";
-import { GitHubService } from "./service/githubService";
-import { ExtensionInformation, PluginService } from "./service/pluginService";
-import {
-  CloudSetting,
-  CustomSettings,
-  ExtensionConfig,
-  LocalConfig
-} from "./setting";
-
+import { CloudSettings } from "./models/cloudSettings.model";
+import { CustomConfig } from "./models/customConfig.model";
+import { ExtensionConfig } from "./models/extensionConfig.model";
+import { LocalConfig } from "./models/localConfig.model";
 import PragmaUtil from "./pragmaUtil";
-
-let globalCommonService: Commons;
+import { File, FileService } from "./service/file.service";
+import { GitHubService } from "./service/github.service";
+import { ExtensionInformation, PluginService } from "./service/pluginService";
+import { state } from "./state";
 
 export class Sync {
-  constructor(private context: vscode.ExtensionContext) {}
   /**
    * Run when extension have been activated
    */
   public async bootstrap(): Promise<void> {
-    const env = new Environment(this.context);
-    globalCommonService = new Commons(env, this.context);
-    // if lock file not exist
-    // then create it
-    if (!(await FileService.FileExists(env.FILE_SYNC_LOCK))) {
-      await fs.close(await fs.open(env.FILE_SYNC_LOCK, "w"));
-    }
+    state.commons = new Commons();
 
-    // if is locked;
-    if (await lockfile.Check(env.FILE_SYNC_LOCK)) {
-      await lockfile.Unlock(env.FILE_SYNC_LOCK);
-    }
-
-    await globalCommonService.StartMigrationProcess();
-    const startUpSetting = await globalCommonService.GetSettings();
-    const startUpCustomSetting = await globalCommonService.GetCustomSettings();
+    await state.commons.StartMigrationProcess();
+    const startUpSetting = await state.commons.GetSettings();
+    const startUpCustomSetting = await state.commons.GetCustomSettings();
 
     if (startUpSetting) {
       const tokenAvailable: boolean =
@@ -59,13 +42,13 @@ export class Sync {
                 tokenAvailable &&
                 gistAvailable
               ) {
-                await globalCommonService.HandleStartWatching();
+                await state.commons.HandleStartWatching();
                 return;
               }
             });
         } else {
           if (startUpSetting.autoUpload && tokenAvailable && gistAvailable) {
-            await globalCommonService.HandleStartWatching();
+            await state.commons.HandleStartWatching();
             return;
           }
         }
@@ -78,17 +61,16 @@ export class Sync {
   public async upload(): Promise<void> {
     // @ts-ignore
     const args = arguments;
-    const env = new Environment(this.context);
     let github: GitHubService = null;
-    let localConfig: LocalConfig = new LocalConfig();
+    let localConfig = new LocalConfig();
     const allSettingFiles: File[] = [];
     let uploadedExtensions: ExtensionInformation[] = [];
     const ignoredExtensions: ExtensionInformation[] = [];
     const dateNow = new Date();
-    await globalCommonService.HandleStopWatching();
+    await state.commons.HandleStopWatching();
 
     try {
-      localConfig = await globalCommonService.InitalizeSettings(true, false);
+      localConfig = await state.commons.InitalizeSettings(true, false);
       localConfig.publicGist = false;
       if (args.length > 0) {
         if (args[0] === "publicGIST") {
@@ -100,15 +82,19 @@ export class Sync {
         localConfig.customConfig.token,
         localConfig.customConfig.githubEnterpriseUrl
       );
-      await startGitProcess(localConfig.extConfig, localConfig.customConfig);
+      await startGitProcess.call(
+        this,
+        localConfig.extConfig,
+        localConfig.customConfig
+      );
     } catch (error) {
-      Commons.LogException(error, globalCommonService.ERROR_MESSAGE, true);
+      Commons.LogException(error, state.commons.ERROR_MESSAGE, true);
       return;
     }
 
     async function startGitProcess(
       syncSetting: ExtensionConfig,
-      customSettings: CustomSettings
+      customSettings: CustomConfig
     ) {
       vscode.window.setStatusBarMessage(
         localize("cmd.updateSettings.info.uploading"),
@@ -148,8 +134,8 @@ export class Sync {
           });
         }
         uploadedExtensions.sort((a, b) => a.name.localeCompare(b.name));
-        const extensionFileName = env.FILE_EXTENSION_NAME;
-        const extensionFilePath = env.FILE_EXTENSION;
+        const extensionFileName = state.environment.FILE_EXTENSION_NAME;
+        const extensionFilePath = state.environment.FILE_EXTENSION;
         const extensionFileContent = JSON.stringify(
           uploadedExtensions,
           undefined,
@@ -166,26 +152,29 @@ export class Sync {
 
       let contentFiles: File[] = [];
       contentFiles = await FileService.ListFiles(
-        env.USER_FOLDER,
+        state.environment.USER_FOLDER,
         0,
         2,
         customSettings.supportedFileExtensions
       );
 
       const customExist: boolean = await FileService.FileExists(
-        env.FILE_CUSTOMIZEDSETTINGS
+        state.environment.FILE_CUSTOMIZEDSETTINGS
       );
       if (customExist) {
         contentFiles = contentFiles.filter(
           contentFile =>
-            contentFile.fileName !== env.FILE_CUSTOMIZEDSETTINGS_NAME
+            contentFile.fileName !==
+            state.environment.FILE_CUSTOMIZEDSETTINGS_NAME
         );
 
         if (customSettings.ignoreUploadFiles.length > 0) {
           contentFiles = contentFiles.filter(contentFile => {
             const isMatch: boolean =
               customSettings.ignoreUploadFiles.indexOf(contentFile.fileName) ===
-                -1 && contentFile.fileName !== env.FILE_CUSTOMIZEDSETTINGS_NAME;
+                -1 &&
+              contentFile.fileName !==
+                state.environment.FILE_CUSTOMIZEDSETTINGS_NAME;
             return isMatch;
           });
         }
@@ -212,39 +201,45 @@ export class Sync {
           }
         }
       } else {
-        Commons.LogException(null, globalCommonService.ERROR_MESSAGE, true);
+        Commons.LogException(null, state.commons.ERROR_MESSAGE, true);
         return;
       }
-
       for (const snippetFile of contentFiles) {
-        if (snippetFile.fileName !== env.FILE_KEYBINDING_MAC) {
+        if (snippetFile.fileName !== state.environment.FILE_KEYBINDING_MAC) {
           if (snippetFile.content !== "") {
-            if (snippetFile.fileName === env.FILE_KEYBINDING_NAME) {
+            if (
+              snippetFile.fileName === state.environment.FILE_KEYBINDING_NAME
+            ) {
               snippetFile.gistName =
-                env.OsType === OsType.Mac
-                  ? env.FILE_KEYBINDING_MAC
-                  : env.FILE_KEYBINDING_DEFAULT;
+                state.environment.OsType === OsType.Mac &&
+                !customSettings.universalKeybindings
+                  ? state.environment.FILE_KEYBINDING_MAC
+                  : state.environment.FILE_KEYBINDING_DEFAULT;
             }
-            allSettingFiles.push(snippetFile);
-          }
-        }
-
-        if (snippetFile.fileName === env.FILE_SETTING_NAME) {
-          try {
-            snippetFile.content = PragmaUtil.processBeforeUpload(
-              snippetFile.content
-            );
-          } catch (e) {
-            Commons.LogException(null, e.message, true);
-            console.error(e);
-            return;
+            if (
+              snippetFile.fileName === state.environment.FILE_SETTING_NAME ||
+              snippetFile.fileName === state.environment.FILE_KEYBINDING_MAC ||
+              snippetFile.fileName === state.environment.FILE_KEYBINDING_DEFAULT
+            ) {
+              try {
+                const parsedContent = await PragmaUtil.processBeforeUpload(
+                  snippetFile.content
+                );
+                snippetFile.content = parsedContent;
+                allSettingFiles.push(snippetFile);
+              } catch (e) {
+                Commons.LogException(null, e.message, true);
+                console.error(e);
+                return;
+              }
+            }
           }
         }
       }
 
-      const extProp: CloudSetting = new CloudSetting();
+      const extProp = new CloudSettings();
       extProp.lastUpload = dateNow;
-      const fileName: string = env.FILE_CLOUDSETTINGS_NAME;
+      const fileName: string = state.environment.FILE_CLOUDSETTINGS_NAME;
       const fileContent: string = JSON.stringify(extProp);
       const file: File = new File(fileName, fileContent, "", fileName);
       allSettingFiles.push(file);
@@ -254,7 +249,7 @@ export class Sync {
       try {
         if (syncSetting.gist == null || syncSetting.gist === "") {
           if (customSettings.askGistName) {
-            customSettings.gistDescription = await globalCommonService.AskGistName();
+            customSettings.gistDescription = await state.commons.AskGistName();
           }
           newGIST = true;
           const gistID = await github.CreateEmptyGIST(
@@ -304,7 +299,7 @@ export class Sync {
           }
         }
 
-        if (gistObj.public === true) {
+        if (gistObj.data.public === true) {
           localConfig.publicGist = true;
         }
 
@@ -312,6 +307,29 @@ export class Sync {
           localize("cmd.updateSettings.info.uploadingFile"),
           3000
         );
+
+        // We should not upload unless one or more files have changed
+        let shouldUploadGist = false;
+        for (const fileToUpload of allSettingFiles) {
+          // This file contains only file time stamps
+          if (fileToUpload.fileName === "cloudSettings") {
+            continue;
+          }
+          if (
+            gistObj.data.files[fileToUpload.fileName].content !==
+            fileToUpload.content
+          ) {
+            console.info(`Sync: file ${fileToUpload.fileName} has changed`);
+            shouldUploadGist = true;
+            break;
+          }
+        }
+
+        if (!shouldUploadGist) {
+          console.info("Sync: nothing to update");
+          return;
+        }
+
         gistObj = github.UpdateGIST(gistObj, allSettingFiles);
         completed = await github.SaveGIST(gistObj.data);
         if (!completed) {
@@ -321,16 +339,14 @@ export class Sync {
           return;
         }
       } catch (err) {
-        Commons.LogException(err, globalCommonService.ERROR_MESSAGE, true);
+        Commons.LogException(err, state.commons.ERROR_MESSAGE, true);
         return;
       }
 
       if (completed) {
         try {
-          const settingsUpdated = await globalCommonService.SaveSettings(
-            syncSetting
-          );
-          const customSettingsUpdated = await globalCommonService.SetCustomSettings(
+          const settingsUpdated = await state.commons.SaveSettings(syncSetting);
+          const customSettingsUpdated = await state.commons.SetCustomSettings(
             customSettings
           );
           if (settingsUpdated && customSettingsUpdated) {
@@ -350,7 +366,7 @@ export class Sync {
             }
 
             if (!syncSetting.quietSync) {
-              globalCommonService.ShowSummaryOutput(
+              state.commons.ShowSummaryOutput(
                 true,
                 allSettingFiles,
                 null,
@@ -367,11 +383,11 @@ export class Sync {
               );
             }
             if (syncSetting.autoUpload) {
-              await globalCommonService.HandleStartWatching();
+              await state.commons.HandleStartWatching();
             }
           }
         } catch (err) {
-          Commons.LogException(err, globalCommonService.ERROR_MESSAGE, true);
+          Commons.LogException(err, state.commons.ERROR_MESSAGE, true);
         }
       }
     }
@@ -380,21 +396,20 @@ export class Sync {
    * Download setting from github gist
    */
   public async download(): Promise<void> {
-    const env = new Environment(this.context);
     let localSettings: LocalConfig = new LocalConfig();
-    await globalCommonService.HandleStopWatching();
+    await state.commons.HandleStopWatching();
 
     try {
-      localSettings = await globalCommonService.InitalizeSettings(true, true);
+      localSettings = await state.commons.InitalizeSettings(true, true);
       await StartDownload(localSettings.extConfig, localSettings.customConfig);
     } catch (err) {
-      Commons.LogException(err, globalCommonService.ERROR_MESSAGE, true);
+      Commons.LogException(err, state.commons.ERROR_MESSAGE, true);
       return;
     }
 
     async function StartDownload(
       syncSetting: ExtensionConfig,
-      customSettings: CustomSettings
+      customSettings: CustomConfig
     ) {
       const github = new GitHubService(
         customSettings.token,
@@ -424,12 +439,12 @@ export class Sync {
         localSettings.publicGist = true;
       }
       const keys = Object.keys(res.data.files);
-      if (keys.indexOf(env.FILE_CLOUDSETTINGS_NAME) > -1) {
+      if (keys.indexOf(state.environment.FILE_CLOUDSETTINGS_NAME) > -1) {
         const cloudSettGist: object = JSON.parse(
-          res.data.files[env.FILE_CLOUDSETTINGS_NAME].content
+          res.data.files[state.environment.FILE_CLOUDSETTINGS_NAME].content
         );
-        const cloudSett: CloudSetting = Object.assign(
-          new CloudSetting(),
+        const cloudSett: CloudSettings = Object.assign(
+          new CloudSettings(),
           cloudSettGist
         );
 
@@ -485,17 +500,23 @@ export class Sync {
               );
               updatedFiles.push(f);
             } else if (gistName.indexOf(".") > -1) {
-              if (
-                env.OsType === OsType.Mac &&
-                gistName === env.FILE_KEYBINDING_DEFAULT
-              ) {
-                return;
-              }
-              if (
-                env.OsType !== OsType.Mac &&
-                gistName === env.FILE_KEYBINDING_MAC
-              ) {
-                return;
+              if (customSettings.universalKeybindings) {
+                if (gistName === state.environment.FILE_KEYBINDING_MAC) {
+                  return;
+                }
+              } else {
+                if (
+                  state.environment.OsType === OsType.Mac &&
+                  gistName === state.environment.FILE_KEYBINDING_DEFAULT
+                ) {
+                  return;
+                }
+                if (
+                  state.environment.OsType !== OsType.Mac &&
+                  gistName === state.environment.FILE_KEYBINDING_MAC
+                ) {
+                  return;
+                }
               }
               const f: File = new File(
                 gistName,
@@ -516,48 +537,38 @@ export class Sync {
         let content: string = file.content;
 
         if (content !== "") {
-          if (file.gistName === env.FILE_EXTENSION_NAME) {
+          if (file.gistName === state.environment.FILE_EXTENSION_NAME) {
             if (syncSetting.syncExtensions) {
               if (syncSetting.removeExtensions) {
                 try {
                   deletedExtensions = await PluginService.DeleteExtensions(
                     content,
-                    env.ExtensionFolder,
                     ignoredExtensions
                   );
-                } catch (uncompletedExtensions) {
+                } catch (err) {
                   vscode.window.showErrorMessage(
                     localize("cmd.downloadSettings.error.removeExtFail")
                   );
-                  deletedExtensions = uncompletedExtensions;
+                  throw new Error(err);
                 }
               }
 
               try {
-                let useCli = true;
-                const autoUpdate: boolean = vscode.workspace
-                  .getConfiguration("extensions")
-                  .get("autoUpdate");
-                useCli = autoUpdate && !env.isCoderCom;
-                if (useCli) {
-                  if (!syncSetting.quietSync) {
-                    Commons.outputChannel = vscode.window.createOutputChannel(
-                      "Code Settings Sync"
-                    );
-                    Commons.outputChannel.clear();
-                    Commons.outputChannel.appendLine(
-                      `COMMAND LINE EXTENSION DOWNLOAD SUMMARY`
-                    );
-                    Commons.outputChannel.appendLine(`--------------------`);
-                    Commons.outputChannel.show();
-                  }
+                if (!syncSetting.quietSync) {
+                  Commons.outputChannel = vscode.window.createOutputChannel(
+                    "Code Settings Sync"
+                  );
+                  Commons.outputChannel.clear();
+                  Commons.outputChannel.appendLine(
+                    `Realtime Extension Download Summary`
+                  );
+                  Commons.outputChannel.appendLine(`--------------------`);
+                  Commons.outputChannel.show();
                 }
 
                 addedExtensions = await PluginService.InstallExtensions(
                   content,
                   ignoredExtensions,
-                  env.OsType,
-                  env.isInsiders,
                   (message: string, dispose: boolean) => {
                     if (!syncSetting.quietSync) {
                       Commons.outputChannel.appendLine(message);
@@ -572,44 +583,49 @@ export class Sync {
                     }
                   }
                 );
-              } catch (extensions) {
-                addedExtensions = extensions;
+              } catch (err) {
+                throw new Error(err);
               }
             }
           } else {
             writeFile = true;
             if (
-              file.gistName === env.FILE_KEYBINDING_DEFAULT ||
-              file.gistName === env.FILE_KEYBINDING_MAC
+              file.gistName === state.environment.FILE_KEYBINDING_DEFAULT ||
+              file.gistName === state.environment.FILE_KEYBINDING_MAC
             ) {
               let test: string = "";
-              env.OsType === OsType.Mac
-                ? (test = env.FILE_KEYBINDING_MAC)
-                : (test = env.FILE_KEYBINDING_DEFAULT);
+              state.environment.OsType === OsType.Mac &&
+              !customSettings.universalKeybindings
+                ? (test = state.environment.FILE_KEYBINDING_MAC)
+                : (test = state.environment.FILE_KEYBINDING_DEFAULT);
               if (file.gistName !== test) {
                 writeFile = false;
               }
             }
             if (writeFile) {
-              if (file.gistName === env.FILE_KEYBINDING_MAC) {
-                file.fileName = env.FILE_KEYBINDING_DEFAULT;
+              if (file.gistName === state.environment.FILE_KEYBINDING_MAC) {
+                file.fileName = state.environment.FILE_KEYBINDING_DEFAULT;
               }
               let filePath: string = "";
               if (file.filePath !== null) {
                 filePath = await FileService.CreateCustomDirTree(file.filePath);
               } else {
                 filePath = await FileService.CreateDirTree(
-                  env.USER_FOLDER,
+                  state.environment.USER_FOLDER,
                   file.fileName
                 );
               }
 
-              if (file.gistName === env.FILE_SETTING_NAME) {
+              if (
+                file.gistName === state.environment.FILE_SETTING_NAME ||
+                file.gistName === state.environment.FILE_KEYBINDING_MAC ||
+                file.gistName === state.environment.FILE_KEYBINDING_DEFAULT
+              ) {
                 const localContent = await FileService.ReadFile(filePath);
                 content = PragmaUtil.processBeforeWrite(
                   localContent,
                   content,
-                  env.OsType,
+                  state.environment.OsType,
                   localSettings.customConfig.hostName
                 );
               }
@@ -622,7 +638,7 @@ export class Sync {
                   .catch(err => {
                     Commons.LogException(
                       err,
-                      globalCommonService.ERROR_MESSAGE,
+                      state.commons.ERROR_MESSAGE,
                       true
                     );
                     return;
@@ -634,15 +650,13 @@ export class Sync {
       }
 
       await Promise.all(actionList);
-      const settingsUpdated = await globalCommonService.SaveSettings(
-        syncSetting
-      );
-      const customSettingsUpdated = await globalCommonService.SetCustomSettings(
+      const settingsUpdated = await state.commons.SaveSettings(syncSetting);
+      const customSettingsUpdated = await state.commons.SetCustomSettings(
         customSettings
       );
       if (settingsUpdated && customSettingsUpdated) {
         if (!syncSetting.quietSync) {
-          globalCommonService.ShowSummaryOutput(
+          state.commons.ShowSummaryOutput(
             false,
             updatedFiles,
             deletedExtensions,
@@ -667,7 +681,7 @@ export class Sync {
           );
         }
         if (syncSetting.autoUpload) {
-          await globalCommonService.HandleStartWatching();
+          await state.commons.HandleStartWatching();
         }
       } else {
         vscode.window.showErrorMessage(
@@ -681,7 +695,7 @@ export class Sync {
    */
   public async reset(): Promise<void> {
     let extSettings: ExtensionConfig = null;
-    let localSettings: CustomSettings = null;
+    let localSettings: CustomConfig = null;
 
     vscode.window.setStatusBarMessage(
       localize("cmd.resetSettings.info.resetting"),
@@ -689,27 +703,24 @@ export class Sync {
     );
 
     try {
-      const env: Environment = new Environment(this.context);
-      const common: Commons = new Commons(env, this.context);
-
       extSettings = new ExtensionConfig();
-      localSettings = new CustomSettings();
+      localSettings = new CustomConfig();
 
-      const extSaved: boolean = await common.SaveSettings(extSettings);
-      const customSaved: boolean = await common.SetCustomSettings(
+      const extSaved: boolean = await state.commons.SaveSettings(extSettings);
+      const customSaved: boolean = await state.commons.SetCustomSettings(
         localSettings
       );
       const lockExist: boolean = await FileService.FileExists(
-        env.FILE_SYNC_LOCK
+        state.environment.FILE_SYNC_LOCK
       );
 
       if (!lockExist) {
-        fs.closeSync(fs.openSync(env.FILE_SYNC_LOCK, "w"));
+        fs.closeSync(fs.openSync(state.environment.FILE_SYNC_LOCK, "w"));
       }
 
       // check is sync locking
-      if (await lockfile.Check(env.FILE_SYNC_LOCK)) {
-        await lockfile.Unlock(env.FILE_SYNC_LOCK);
+      if (await lockfile.Check(state.environment.FILE_SYNC_LOCK)) {
+        await lockfile.Unlock(state.environment.FILE_SYNC_LOCK);
       }
 
       if (extSaved && customSaved) {
@@ -734,10 +745,8 @@ export class Sync {
     );
   }
   public async advance() {
-    const env: Environment = new Environment(this.context);
-    const common: Commons = new Commons(env, this.context);
-    const setting: ExtensionConfig = await common.GetSettings();
-    const customSettings: CustomSettings = await common.GetCustomSettings();
+    const setting: ExtensionConfig = await state.commons.GetSettings();
+    const customSettings: CustomConfig = await state.commons.GetCustomSettings();
     if (customSettings == null) {
       vscode.window
         .showInformationMessage(
@@ -784,7 +793,9 @@ export class Sync {
 
     const handlerMap = {
       0: async () => {
-        const file: vscode.Uri = vscode.Uri.file(env.FILE_CUSTOMIZEDSETTINGS);
+        const file: vscode.Uri = vscode.Uri.file(
+          state.environment.FILE_CUSTOMIZEDSETTINGS
+        );
         fs.openSync(file.fsPath, "r");
         const document = await vscode.workspace.openTextDocument(file);
         await vscode.window.showTextDocument(
@@ -806,7 +817,7 @@ export class Sync {
           setting.gist = "";
           selectedItem = 1;
           customSettings.downloadPublicGist = false;
-          await common.SetCustomSettings(customSettings);
+          await state.commons.SetCustomSettings(customSettings);
         }
       },
       2: async () => {
@@ -814,7 +825,7 @@ export class Sync {
         selectedItem = 2;
         customSettings.downloadPublicGist = true;
         settingChanged = true;
-        await common.SetCustomSettings(customSettings);
+        await state.commons.SetCustomSettings(customSettings);
       },
       3: async () => {
         // toggle force download
@@ -869,7 +880,9 @@ export class Sync {
             return;
           }
           customSettings.customFiles[fileName] = input;
-          const done: boolean = await common.SetCustomSettings(customSettings);
+          const done: boolean = await state.commons.SetCustomSettings(
+            customSettings
+          );
           if (done) {
             vscode.window.showInformationMessage(
               localize("cmd.otherOptions.customizedSync.done", fileName)
@@ -951,9 +964,9 @@ export class Sync {
       await handlerMap[index]();
       if (settingChanged) {
         if (selectedItem === 1) {
-          await globalCommonService.HandleStopWatching();
+          await state.commons.HandleStopWatching();
         }
-        await common
+        await state.commons
           .SaveSettings(setting)
           .then((added: boolean) => {
             if (added) {
@@ -1027,7 +1040,7 @@ export class Sync {
   }
 
   private async getCustomFilesFromGist(
-    customSettings: CustomSettings,
+    customSettings: CustomConfig,
     syncSetting: ExtensionConfig
   ): Promise<File[]> {
     const github = new GitHubService(
