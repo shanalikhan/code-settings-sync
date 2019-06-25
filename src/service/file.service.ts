@@ -107,9 +107,17 @@ export class FileService {
       }
       return false;
     }
+    function fileExtensionMatcher(file: string) {
+      const ext = path.extname(file).slice(1);
+      if (!customSettings.supportedFileExtensions.includes(ext)) {
+        return true;
+      }
+      return false;
+    }
     const files = await recursiveRead(directory, [
       ...customSettings.ignoreUploadFiles,
-      folderMatcher
+      folderMatcher,
+      fileExtensionMatcher
     ]);
     return Promise.all(
       files.map(file => {
