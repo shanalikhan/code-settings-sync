@@ -6,6 +6,7 @@
   "ext.config.autoDownload": "Set it true to Auto Download the settings on code start. [Code Restart Required]",
   "ext.config.autoUpload": "Set it true to Auto Upload on the settings change. [Code Restart Required]",
   "ext.config.forceDownload": "Set it to true if you want to download the settings even when you have the latest settings.",
+  "ext.config.forceUpload": "Set it to true if you want to upload the settings even when the GIST has newer settings.",
   "ext.config.host": "Set it to your GitHub Enterprise host if you want to use GHE.",
   "ext.config.pathPrefix": "Set it to your GitHub Enterprise API prefix if you want to use GHE. Normally '/api/v3'. Only used when host is set.",
   "ext.config.quietSync": "When set to true, will show the result in status bar instead of summary page.",
@@ -101,5 +102,6 @@
   "common.prompt.enterGistId": "Enter Gist Id from previously uploaded settings. You can also set manually in code settings (sync.gist). Press [Enter] or [Esc] to cancel.",
   "common.prompt.enterGithubAccessToken": "You also manually add a token (User Folder/syncLocalSettings.json). Press [Enter] or [Esc] to cancel.",
   "common.prompt.restartCode": "Do you want to reload to apply extensions and configurations?",
-  "common.button.yes":"Yes"
+  "common.prompt.gistNewer": "Sync: Gist has a newer or identical version of your settings. Do you want to enable forceUpload to override this?",
+  "common.button.yes": "Yes"
 }

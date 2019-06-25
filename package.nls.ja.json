@@ -6,6 +6,7 @@
   "ext.config.autoDownload": "エディタを開いたときに設定を自動でダウンロードする場合は true にしてください. [再起動が必要です]",
   "ext.config.autoUpload": "変更したときに設定を自動でアップロードする場合は true にしてください. [再起動が必要です]",
   "ext.config.forceDownload": "ローカルの設定が更新されていても, リモート設定をダウンロードしたい場合は true にしてください.",
+  "ext.config.forceUpload": "設定する場合はtrueアップロードしたい設定の場合でも、要旨は、新しい設定します。,",
   "ext.config.host": "必要に応じて GitHub Enterprise のホストを指定してください.",
   "ext.config.pathPrefix": "必要に応じて GitHub Enterprise API プリフィックスを指定してください. 通常であれば '/api/v3'. hostフィールドが指定されているときだけ使います.",
   "ext.config.quietSync": "true にした場合, サイレントモードになります. 出力パネルではなくステータスバーに同期結果を表示します.",
@@ -97,5 +98,6 @@
   "common.placeholder.multipleGist": "Gist 名 (例 : Personal Settings)",
   "common.prompt.multipleGist": "複数の gist を持っている場合に設定を識別できます.",
   "common.prompt.enterGistId": "以前にアップロードした設定の Gist Id を入力してください. コード設定で手動で設定する事もできます (sync.gist). 確定するには [Enter], キャンセルするには [Esc] を押してください.",
-  "common.prompt.enterGithubAccessToken": "手動でトークンを追加する事もできます (ユーザーフォルダ / syncLocalSettings.json). 確定するには [Enter], キャンセルするには [Esc] を押してください."
+  "common.prompt.enterGithubAccessToken": "手動でトークンを追加する事もできます (ユーザーフォルダ / syncLocalSettings.json). 確定するには [Enter], キャンセルするには [Esc] を押してください.",
+  "common.prompt.gistNewer": "Sync:概要は、新しいまたは同一のバージョンを設定します。 いよforceUploadにこのメソッドをオーバーライド?,"
 }

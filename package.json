@@ -119,6 +119,11 @@
           "default": false,
           "description": "%ext.config.forceDownload%"
         },
+        "sync.forceUpload": {
+          "type": "boolean",
+          "default": false,
+          "description": "%ext.config.forceUpload%"
+        },
         "sync.quietSync": {
           "type": "boolean",
           "default": false,

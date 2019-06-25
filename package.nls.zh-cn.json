@@ -6,6 +6,7 @@
   "ext.config.autoDownload": "设置为 true 在编辑器打开时自动下载远程配置. [需要重启]",
   "ext.config.autoUpload": "设置为 true 在编辑器打开时自动上传本地配置. [需要重启]",
   "ext.config.forceDownload": "设置为 true 将会下载远程配置, 即便本地已有更新的配置.",
+  "ext.config.forceUpload": "它设定为真的如果你想上传的设置，即使在其主旨具有较新设置.",
   "ext.config.host": "如果你是 Github 企业用户, 设置为 Github 企业版服务器.",
   "ext.config.pathPrefix": "如果你是 Github 企业用户, 设置 Github 的 API 前缀. 通常是 '/api/v3'. 只在 host 字段设置后生效",
   "ext.config.quietSync": "如果设置为 true, 开启静默模式. 上传和下载的概要信息显示在状态栏而非输出面板",
@@ -90,5 +91,6 @@
   "common.placeholder.multipleGist": "Gist 名 [ 例如 : Personal Settings ]",
   "common.prompt.multipleGist": "如果你有多个 Gist 设置, 请输入名称扩展才得以识别",
   "common.prompt.enterGistId": "请输入上一次上传设置的 Gist Id. 你也可以手动添加到 VSCode 的配置文件 (sync.gist 字段). 按下 [Enter] 确认或者 输入 'esc' 取消",
-  "common.prompt.enterGithubAccessToken": "链接打开了! 你可以手动添加到  用户目录/syncLocalSettings.json. 按下 [Enter] 确认或者 输入 'esc' 取消"
+  "common.prompt.enterGithubAccessToken": "链接打开了! 你可以手动添加到  用户目录/syncLocalSettings.json. 按下 [Enter] 确认或者 输入 'esc' 取消",
+  "common.prompt.gistNewer": "Sync:主旨具有较新的或相同版本的设置。 你想要使forceUpload重写这个?,"
 }

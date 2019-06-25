@@ -82,6 +82,27 @@ export class Sync {
         localConfig.customConfig.token,
         localConfig.customConfig.githubEnterpriseUrl
       );
+
+      if (!localConfig.extConfig.forceUpload) {
+        if (
+          await github.CheckIfGistIsNewer(
+            localConfig.extConfig.gist,
+            new Date(localConfig.customConfig.lastUpload)
+          )
+        ) {
+          const message = await vscode.window.showInformationMessage(
+            localize("cmd.updateSettings.warning.gistNewer"),
+            "Yes"
+          );
+          if (message === "Yes") {
+            localConfig.extConfig.forceUpload = true;
+            await state.commons.SaveSettings(localConfig.extConfig);
+          } else {
+            return;
+          }
+        }
+      }
+
       await startGitProcess.call(
         this,
         localConfig.extConfig,
@@ -245,6 +266,7 @@ export class Sync {
       allSettingFiles.push(file);
 
       let completed: boolean = false;
+
       let newGIST: boolean = false;
       try {
         if (syncSetting.gist == null || syncSetting.gist === "") {
@@ -303,32 +325,38 @@ export class Sync {
           localConfig.publicGist = true;
         }
 
+        if (
+          !allSettingFiles.some(fileToUpload => {
+            if (fileToUpload.fileName === "cloudSettings") {
+              return false;
+            }
+            if (
+              gistObj.data.files[fileToUpload.fileName].content !==
+              fileToUpload.content
+            ) {
+              console.info(`Sync: file ${fileToUpload.fileName} has changed`);
+              return true;
+            }
+          })
+        ) {
+          if (!localConfig.extConfig.forceUpload) {
+            const message = await vscode.window.showInformationMessage(
+              localize("cmd.updateSettings.warning.gistNewer"),
+              "Yes"
+            );
+            if (message === "Yes") {
+              localConfig.extConfig.forceUpload = true;
+              await state.commons.SaveSettings(localConfig.extConfig);
+            } else {
+              return;
+            }
+          }
+        }
+
         vscode.window.setStatusBarMessage(
           localize("cmd.updateSettings.info.uploadingFile"),
           3000
         );
-
-        // We should not upload unless one or more files have changed
-        let shouldUploadGist = false;
-        for (const fileToUpload of allSettingFiles) {
-          // This file contains only file time stamps
-          if (fileToUpload.fileName === "cloudSettings") {
-            continue;
-          }
-          if (
-            gistObj.data.files[fileToUpload.fileName].content !==
-            fileToUpload.content
-          ) {
-            console.info(`Sync: file ${fileToUpload.fileName} has changed`);
-            shouldUploadGist = true;
-            break;
-          }
-        }
-
-        if (!shouldUploadGist) {
-          console.info("Sync: nothing to update");
-          return;
-        }
 
         gistObj = github.UpdateGIST(gistObj, allSettingFiles);
         completed = await github.SaveGIST(gistObj.data);
