@@ -801,6 +801,7 @@ export class Sync {
       "cmd.otherOptions.shareSetting",
       "cmd.otherOptions.downloadSetting",
       "cmd.otherOptions.toggleForceDownload",
+      "cmd.otherOptions.toggleForceUpload",
       "cmd.otherOptions.toggleAutoUpload",
       "cmd.otherOptions.toggleAutoDownload",
       "cmd.otherOptions.toggleSummaryPage",
@@ -866,14 +867,20 @@ export class Sync {
         setting.forceDownload = !setting.forceDownload;
       },
       4: async () => {
-        // toggle auto upload
+        // toggle force upload
         selectedItem = 4;
+        settingChanged = true;
+        setting.forceUpload = !setting.forceUpload;
+      },
+      5: async () => {
+        // toggle auto upload
+        selectedItem = 5;
         settingChanged = true;
         setting.autoUpload = !setting.autoUpload;
       },
-      5: async () => {
+      6: async () => {
         // auto download on startup
-        selectedItem = 5;
+        selectedItem = 6;
         settingChanged = true;
         if (!setting) {
           vscode.commands.executeCommand("extension.HowSettings");
@@ -886,9 +893,9 @@ export class Sync {
 
         setting.autoDownload = !setting.autoDownload;
       },
-      6: async () => {
+      7: async () => {
         // page summary toggle
-        selectedItem = 6;
+        selectedItem = 7;
         settingChanged = true;
 
         if (!tokenAvailable || !gistAvailable) {
@@ -897,7 +904,7 @@ export class Sync {
         }
         setting.quietSync = !setting.quietSync;
       },
-      7: async () => {
+      8: async () => {
         // add customized sync file
         const options: vscode.InputBoxOptions = {
           ignoreFocusOut: true,
@@ -922,7 +929,7 @@ export class Sync {
           }
         }
       },
-      8: async () => {
+      9: async () => {
         // Import customized sync file to workspace
         const customFiles = await this.getCustomFilesFromGist(
           customSettings,
@@ -966,7 +973,7 @@ export class Sync {
           }
         }
       },
-      9: async () => {
+      10: async () => {
         vscode.commands.executeCommand(
           "vscode.open",
           vscode.Uri.parse(
@@ -974,7 +981,7 @@ export class Sync {
           )
         );
       },
-      10: async () => {
+      11: async () => {
         vscode.commands.executeCommand(
           "vscode.open",
           vscode.Uri.parse(
@@ -982,7 +989,7 @@ export class Sync {
           )
         );
       },
-      11: async () => {
+      12: async () => {
         vscode.commands.executeCommand(
           "vscode.open",
           vscode.Uri.parse(
@@ -1023,6 +1030,14 @@ export class Sync {
                   );
                 },
                 4: async () => {
+                  const message = setting.forceUpload
+                    ? "cmd.otherOptions.toggleForceUpload.on"
+                    : "cmd.otherOptions.toggleForceUpload.off";
+                  return vscode.window.showInformationMessage(
+                    localize(message)
+                  );
+                },
+                5: async () => {
                   const message = setting.autoUpload
                     ? "cmd.otherOptions.toggleAutoUpload.on"
                     : "cmd.otherOptions.toggleAutoUpload.off";
@@ -1030,7 +1045,7 @@ export class Sync {
                     localize(message)
                   );
                 },
-                5: async () => {
+                6: async () => {
                   const message = setting.autoDownload
                     ? "cmd.otherOptions.toggleAutoDownload.on"
                     : "cmd.otherOptions.toggleAutoDownload.off";
@@ -1038,7 +1053,7 @@ export class Sync {
                     localize(message)
                   );
                 },
-                6: async () => {
+                7: async () => {
                   const message = setting.quietSync
                     ? "cmd.otherOptions.quietSync.on"
                     : "cmd.otherOptions.quietSync.off";
