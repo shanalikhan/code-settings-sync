@@ -621,13 +621,17 @@ export class Sync {
                 file.gistName === state.environment.FILE_KEYBINDING_MAC ||
                 file.gistName === state.environment.FILE_KEYBINDING_DEFAULT
               ) {
-                const localContent = await FileService.ReadFile(filePath);
-                content = PragmaUtil.processBeforeWrite(
-                  localContent,
-                  content,
-                  state.environment.OsType,
-                  localSettings.customConfig.hostName
-                );
+                const fileExists = await FileService.FileExists(filePath);
+
+                if (fileExists) {
+                  const localContent = await FileService.ReadFile(filePath);
+                  content = PragmaUtil.processBeforeWrite(
+                    localContent,
+                    content,
+                    state.environment.OsType,
+                    localSettings.customConfig.hostName
+                  );
+                }
               }
 
               actionList.push(

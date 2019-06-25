@@ -166,9 +166,9 @@ export default class Commons {
 
         Object.assign(customSettings, tempObj);
         customSettings.token = customSettings.token.trim();
-        return customSettings;
       }
     } catch (e) {
+      customSettings = null;
       Commons.LogException(
         e,
         "Sync : Unable to read " +
@@ -182,9 +182,8 @@ export default class Commons {
           "http://shanalikhan.github.io/2017/02/19/Option-to-ignore-settings-folders-code-settings-sync.html"
         )
       );
-      customSettings = null;
-      return customSettings;
     }
+    return customSettings;
   }
 
   public async SetCustomSettings(setting: CustomConfig): Promise<boolean> {
