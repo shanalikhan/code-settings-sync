@@ -175,44 +175,15 @@ export class Sync {
         allSettingFiles.push(extensionFile);
       }
 
-      let contentFiles: File[] = [];
-      contentFiles = await FileService.ListFiles(
+      const contentFiles = await FileService.ListFiles(
         state.environment.USER_FOLDER,
-        0,
-        2,
-        customSettings.supportedFileExtensions
+        customSettings
       );
 
       const customExist: boolean = await FileService.FileExists(
         state.environment.FILE_CUSTOMIZEDSETTINGS
       );
       if (customExist) {
-        contentFiles = contentFiles.filter(
-          contentFile =>
-            contentFile.fileName !==
-            state.environment.FILE_CUSTOMIZEDSETTINGS_NAME
-        );
-
-        if (customSettings.ignoreUploadFiles.length > 0) {
-          contentFiles = contentFiles.filter(contentFile => {
-            const isMatch: boolean =
-              customSettings.ignoreUploadFiles.indexOf(contentFile.fileName) ===
-                -1 &&
-              contentFile.fileName !==
-                state.environment.FILE_CUSTOMIZEDSETTINGS_NAME;
-            return isMatch;
-          });
-        }
-        if (customSettings.ignoreUploadFolders.length > 0) {
-          contentFiles = contentFiles.filter((contentFile: File) => {
-            const matchedFolders = customSettings.ignoreUploadFolders.filter(
-              folder => {
-                return contentFile.filePath.indexOf(folder) !== -1;
-              }
-            );
-            return matchedFolders.length === 0;
-          });
-        }
         const customFileKeys: string[] = Object.keys(
           customSettings.customFiles
         );
@@ -251,13 +222,13 @@ export class Sync {
                   snippetFile.content
                 );
                 snippetFile.content = parsedContent;
-                allSettingFiles.push(snippetFile);
               } catch (e) {
                 Commons.LogException(null, e.message, true);
                 console.error(e);
                 return;
               }
             }
+            allSettingFiles.push(snippetFile);
           }
         }
       }
@@ -333,6 +304,9 @@ export class Sync {
           !allSettingFiles.some(fileToUpload => {
             if (fileToUpload.fileName === "cloudSettings") {
               return false;
+            }
+            if (!gistObj.data.files[fileToUpload.fileName]) {
+              return true;
             }
             if (
               gistObj.data.files[fileToUpload.fileName].content !==
