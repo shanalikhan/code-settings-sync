@@ -262,7 +262,8 @@ You can customize the sync:
   "lastUpload": null,
   "lastDownload": null,
   "githubEnterpriseUrl": null,
-  "hostName": null
+  "hostName": null,
+  "autoUploadDelay": 20
 }
 ```
 

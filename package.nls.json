@@ -79,7 +79,7 @@
   "common.info.needHelp": "Sync: Need Help configuring this extension?",
   "common.info.excludeFile": "Sync: You can exclude any file/folder for upload and settings for download.",
   "common.info.updating": "Sync: Updating In Progress… Please Wait.",
-  "common.info.initAutoUpload": "Sync: Auto Upload Initiating In 5 Seconds.",
+  "common.info.initAutoUpload": "Sync: Auto Upload Initiating In {0} Seconds.",
   "common.info.setToken": "Sync: Now You can set your GitHub token manually in `syncLocalSettings.json`",
   "common.info.tokenSaved": "Sync: Token Saved",
   "common.info.gistSaved": "Sync: Gist Saved",
