@@ -70,23 +70,6 @@ All extensions and complete User Folder that Contains
 2. Download Key : Shift + Alt + D
 ```
 
-<<<<<<< HEAD
-=======
-## Steps To Get a Personal Access Token from GitHub
-
-This extension requires a Personal Access Token from your GitHub account. You can create one by simply following the steps shown in the pictures below. Make sure you add **Gist** in scope.
-
-**[Generate New Token](https://github.com/settings/tokens/new?description=code-setting-sync&scopes=gist)**
-
-![Select Scopes](https://shanalikhan.github.io/img/github2.PNG)
-
-**Get an Access Token.**
-
-![Get Access Token](https://shanalikhan.github.io/img/github3.PNG)
-
-> Save the Token somewhere for future use (i.e. to upload from other machines).
-
->>>>>>> 5446626c4bf5d3fa5e7e76a3b8974c18eb0007b1
 ## Upload Your Settings For the first time
 
 **Press Shift + Alt + U it will ask your GitHub account access token.**
@@ -110,26 +93,12 @@ You can always **verify created gist** by going to `https://gist.github.com` and
 ![Existing Gist](https://user-images.githubusercontent.com/25834068/55663880-a9373c80-57d9-11e9-8afc-c0e79cc1b3b5.png)
 
 **Settings Downloaded.**
-<<<<<<< HEAD
 
 You are Done! All your files are downloaded
 
 ## Reset Extension Settings
 
 > Select **"> Sync : Reset Extension Settings"** in the Command Palette to reset your settings
-=======
-You are Done! All your files are downloaded
-
-![Enter Your Gist ID](https://shanalikhan.github.io/img/download3.png)
-
-Here is the gif of the complete process when you execute the Download command (Might take time to load)
-
-![Download](https://media.giphy.com/media/xT9Iglsi3CS9noE8tW/source.gif)
-
-## Reset Extension Settings
-
-> Type ">Sync" In Command Palette and select Reset Extension Settings
->>>>>>> 5446626c4bf5d3fa5e7e76a3b8974c18eb0007b1
 
 ## Toggle Auto Download
 
@@ -255,12 +224,8 @@ You can customize the sync:
   "lastUpload": null,
   "lastDownload": null,
   "githubEnterpriseUrl": null,
-<<<<<<< HEAD
-  "hostName": null
-=======
   "hostName": null,
   "autoUploadDelay": 20
->>>>>>> 5446626c4bf5d3fa5e7e76a3b8974c18eb0007b1
 }
 ```
 
