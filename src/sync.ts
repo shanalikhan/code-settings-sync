@@ -91,7 +91,7 @@ export class Sync {
           )
         ) {
           const message = await vscode.window.showInformationMessage(
-            localize("cmd.updateSettings.warning.gistNewer"),
+            localize("common.prompt.gistNewer"),
             "Yes"
           );
           if (message === "Yes") {
