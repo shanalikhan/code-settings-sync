@@ -182,8 +182,8 @@ export default class Commons {
           "http://shanalikhan.github.io/2017/02/19/Option-to-ignore-settings-folders-code-settings-sync.html"
         )
       );
-      return customSettings;
     }
+    return customSettings;
   }
 
   public async SetCustomSettings(setting: CustomConfig): Promise<boolean> {
