@@ -344,20 +344,11 @@ export class Sync {
           })
         ) {
           if (!localConfig.extConfig.forceUpload) {
-            const message = await vscode.window.showInformationMessage(
-              localize("cmd.updateSettings.warning.gistNewer"),
-              "Yes"
+            vscode.window.setStatusBarMessage(
+              localize("cmd.updateSettings.info.uploadCanceled"),
+              3
             );
-            if (message === "Yes") {
-              localConfig.extConfig.forceUpload = true;
-              await state.commons.SaveSettings(localConfig.extConfig);
-            } else {
-              vscode.window.setStatusBarMessage(
-                localize("cmd.updateSettings.info.uploadCanceled"),
-                3
-              );
-              return;
-            }
+            return;
           }
         }
 
