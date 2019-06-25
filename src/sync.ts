@@ -85,7 +85,7 @@ export class Sync {
 
       if (!localConfig.extConfig.forceUpload) {
         if (
-          await github.CheckIfGistIsNewer(
+          await github.IsGistNewer(
             localConfig.extConfig.gist,
             new Date(localConfig.customConfig.lastUpload)
           )
@@ -98,6 +98,10 @@ export class Sync {
             localConfig.extConfig.forceUpload = true;
             await state.commons.SaveSettings(localConfig.extConfig);
           } else {
+            vscode.window.setStatusBarMessage(
+              localize("cmd.updateSettings.info.uploadCanceled"),
+              3
+            );
             return;
           }
         }
@@ -348,6 +352,10 @@ export class Sync {
               localConfig.extConfig.forceUpload = true;
               await state.commons.SaveSettings(localConfig.extConfig);
             } else {
+              vscode.window.setStatusBarMessage(
+                localize("cmd.updateSettings.info.uploadCanceled"),
+                3
+              );
               return;
             }
           }

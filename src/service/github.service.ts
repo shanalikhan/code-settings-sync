@@ -131,7 +131,7 @@ export class GitHubService {
     return await this.github.gists.get({ gist_id: GIST });
   }
 
-  public async CheckIfGistIsNewer(
+  public async IsGistNewer(
     GIST: string,
     localLastUpload: Date
   ): Promise<boolean> {
