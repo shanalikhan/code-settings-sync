@@ -26,6 +26,21 @@ const textInputTemplate = `<div class="form-group mb-4">
             />
           </div>`;
 
+const numberInputTemplate = `<div class="form-group mb-4">
+            <label for="setting:@correspondingSetting" class="text-white-50a"
+              >@name</label
+            >
+            @tooltip
+            <input
+              type="number"
+              class="form-control number"
+              id="setting:@correspondingSetting"
+              placeholder="@placeholder"
+              setting="@correspondingSetting"
+              settingType="@settingType"
+            />
+          </div>`;
+
 const checkboxTemplate = `<div class="custom-control custom-checkbox my-1 mr-sm-2 mb-4">
             <input
               class="custom-control-input checkbox"
@@ -64,13 +79,16 @@ const saveStatus = document.getElementById("saveStatus");
 globalMap.forEach(settingMap => {
   let template;
   switch (settingMap.type) {
-    case 0:
+    case "textinput":
       template = textInputTemplate;
       break;
-    case 1:
+    case "numberinput":
+      template = numberInputTemplate;
+      break;
+    case "checkbox":
       template = checkboxTemplate;
       break;
-    case 2:
+    case "textarea":
       template = textareaTemplate;
       break;
   }
@@ -89,10 +107,13 @@ globalMap.forEach(settingMap => {
 envMap.forEach(envMap => {
   let template;
   switch (envMap.type) {
-    case 0:
+    case "textinput":
       template = textInputTemplate;
       break;
-    case 1:
+    case "numberinput":
+      template = textInputTemplate;
+      break;
+    case "checkbox":
       template = checkboxTemplate;
       break;
   }
@@ -132,6 +153,23 @@ $(document).ready(function() {
     .change(function() {
       save();
       let val = $(this).val();
+      vscode.postMessage({
+        command: $(this).attr("setting"),
+        text: val,
+        type: $(this).attr("settingType")
+      });
+    });
+  $(".number")
+    .each((i, el) => {
+      if ($(el).attr("settingType") === "global") {
+        $(el).val(_.get(globalData, $(el).attr("setting")));
+      } else {
+        $(el).val(envData[$(el).attr("setting")]);
+      }
+    })
+    .change(function() {
+      save();
+      let val = Number($(this).val());
       vscode.postMessage({
         command: $(this).attr("setting"),
         text: val,

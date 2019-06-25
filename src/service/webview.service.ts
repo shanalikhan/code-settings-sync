@@ -54,14 +54,18 @@ export class WebviewService {
       type: UISettingType.TextArea,
       correspondingSetting: "supportedFileExtensions"
     },
-
     {
       name: "Gist Description",
       placeholder: "Enter Gist Description",
       type: UISettingType.TextInput,
       correspondingSetting: "gistDescription"
     },
-
+    {
+      name: "Auto Upload Delay",
+      placeholder: "Enter the amount of seconds to delay auto-upload",
+      type: UISettingType.NumberInput,
+      correspondingSetting: "autoUploadDelay"
+    },
     {
       name: "Ask Gist Name",
       placeholder: "",
@@ -110,6 +114,13 @@ export class WebviewService {
       type: UISettingType.Checkbox,
       correspondingSetting: "forceDownload",
       tooltip: localize("ext.config.forceDownload")
+    },
+    {
+      name: "Force Upload",
+      placeholder: "",
+      type: UISettingType.Checkbox,
+      correspondingSetting: "forceUpload",
+      tooltip: localize("ext.config.forceUpload")
     },
     {
       name: "Quiet Sync",

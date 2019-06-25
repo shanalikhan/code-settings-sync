@@ -1,5 +1,6 @@
 export enum UISettingType {
-  TextInput,
-  Checkbox,
-  TextArea
+  TextInput = "textinput",
+  NumberInput = "numberinput",
+  Checkbox = "checkbox",
+  TextArea = "textarea"
 }
