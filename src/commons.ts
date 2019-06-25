@@ -136,9 +136,9 @@ export default class Commons {
 
         Object.assign(customSettings, tempObj);
         customSettings.token = customSettings.token.trim();
-        return customSettings;
       }
     } catch (e) {
+      customSettings = null;
       Commons.LogException(
         e,
         "Sync : Unable to read " +
@@ -152,9 +152,8 @@ export default class Commons {
           "http://shanalikhan.github.io/2017/02/19/Option-to-ignore-settings-folders-code-settings-sync.html"
         )
       );
-      customSettings = null;
-      return customSettings;
     }
+    return customSettings;
   }
 
   public async SetCustomSettings(setting: CustomConfig): Promise<boolean> {
@@ -359,6 +358,42 @@ export default class Commons {
 
     settings.gist = settings.gist.trim();
     return settings;
+  }
+
+  public async GetTokenAndSave(sett: CustomConfig): Promise<string> {
+    const opt = Commons.GetInputBox(true);
+
+    const token = ((await vscode.window.showInputBox(opt)) || "").trim();
+
+    if (token && token !== "esc") {
+      sett.token = token;
+      const saved = await this.SetCustomSettings(sett);
+      if (saved) {
+        vscode.window.setStatusBarMessage(
+          localize("common.info.tokenSaved"),
+          1000
+        );
+      }
+    }
+
+    return token;
+  }
+  public async GetGistAndSave(sett: ExtensionConfig): Promise<string> {
+    const opt = Commons.GetInputBox(false);
+
+    const gist = ((await vscode.window.showInputBox(opt)) || "").trim();
+
+    if (gist && gist !== "esc") {
+      sett.gist = gist;
+      const saved = await this.SaveSettings(sett);
+      if (saved) {
+        vscode.window.setStatusBarMessage(
+          localize("common.info.gistSaved"),
+          1000
+        );
+      }
+      return gist;
+    }
   }
 
   /**

@@ -87,7 +87,36 @@ export class Sync {
         localConfig.customConfig.token,
         localConfig.customConfig.githubEnterpriseUrl
       );
-      await startGitProcess(localConfig.extConfig, localConfig.customConfig);
+
+      if (!localConfig.extConfig.forceUpload) {
+        if (
+          await github.IsGistNewer(
+            localConfig.extConfig.gist,
+            new Date(localConfig.customConfig.lastUpload)
+          )
+        ) {
+          const message = await vscode.window.showInformationMessage(
+            localize("common.prompt.gistNewer"),
+            "Yes"
+          );
+          if (message === "Yes") {
+            localConfig.extConfig.forceUpload = true;
+            await state.commons.SaveSettings(localConfig.extConfig);
+          } else {
+            vscode.window.setStatusBarMessage(
+              localize("cmd.updateSettings.info.uploadCanceled"),
+              3
+            );
+            return;
+          }
+        }
+      }
+
+      await startGitProcess.call(
+        this,
+        localConfig.extConfig,
+        localConfig.customConfig
+      );
     } catch (error) {
       Commons.LogException(error, state.commons.ERROR_MESSAGE, true);
       return;
@@ -205,7 +234,6 @@ export class Sync {
         Commons.LogException(null, state.commons.ERROR_MESSAGE, true);
         return;
       }
-
       for (const snippetFile of contentFiles) {
         if (snippetFile.fileName !== state.environment.FILE_KEYBINDING_MAC) {
           if (snippetFile.content !== "") {
@@ -218,23 +246,23 @@ export class Sync {
                   ? state.environment.FILE_KEYBINDING_MAC
                   : state.environment.FILE_KEYBINDING_DEFAULT;
             }
-            allSettingFiles.push(snippetFile);
-          }
-        }
-
-        if (
-          snippetFile.fileName === state.environment.FILE_SETTING_NAME ||
-          snippetFile.fileName === state.environment.FILE_KEYBINDING_MAC ||
-          snippetFile.fileName === state.environment.FILE_KEYBINDING_DEFAULT
-        ) {
-          try {
-            snippetFile.content = PragmaUtil.processBeforeUpload(
-              snippetFile.content
-            );
-          } catch (e) {
-            Commons.LogException(null, e.message, true);
-            console.error(e);
-            return;
+            if (
+              snippetFile.fileName === state.environment.FILE_SETTING_NAME ||
+              snippetFile.fileName === state.environment.FILE_KEYBINDING_MAC ||
+              snippetFile.fileName === state.environment.FILE_KEYBINDING_DEFAULT
+            ) {
+              try {
+                const parsedContent = await PragmaUtil.processBeforeUpload(
+                  snippetFile.content
+                );
+                snippetFile.content = parsedContent;
+                allSettingFiles.push(snippetFile);
+              } catch (e) {
+                Commons.LogException(null, e.message, true);
+                console.error(e);
+                return;
+              }
+            }
           }
         }
       }
@@ -247,6 +275,7 @@ export class Sync {
       allSettingFiles.push(file);
 
       let completed: boolean = false;
+
       let newGIST: boolean = false;
       try {
         if (syncSetting.gist == null || syncSetting.gist === "") {
@@ -301,14 +330,38 @@ export class Sync {
           }
         }
 
-        if (gistObj.public === true) {
+        if (gistObj.data.public === true) {
           localConfig.publicGist = true;
+        }
+
+        if (
+          !allSettingFiles.some(fileToUpload => {
+            if (fileToUpload.fileName === "cloudSettings") {
+              return false;
+            }
+            if (
+              gistObj.data.files[fileToUpload.fileName].content !==
+              fileToUpload.content
+            ) {
+              console.info(`Sync: file ${fileToUpload.fileName} has changed`);
+              return true;
+            }
+          })
+        ) {
+          if (!localConfig.extConfig.forceUpload) {
+            vscode.window.setStatusBarMessage(
+              localize("cmd.updateSettings.info.uploadCanceled"),
+              3
+            );
+            return;
+          }
         }
 
         vscode.window.setStatusBarMessage(
           localize("cmd.updateSettings.info.uploadingFile"),
           3000
         );
+
         gistObj = github.UpdateGIST(gistObj, allSettingFiles);
         completed = await github.SaveGIST(gistObj.data);
         if (!completed) {
@@ -600,13 +653,17 @@ export class Sync {
                 file.gistName === state.environment.FILE_KEYBINDING_MAC ||
                 file.gistName === state.environment.FILE_KEYBINDING_DEFAULT
               ) {
-                const localContent = await FileService.ReadFile(filePath);
-                content = PragmaUtil.processBeforeWrite(
-                  localContent,
-                  content,
-                  state.environment.OsType,
-                  localSettings.customConfig.hostName
-                );
+                const fileExists = await FileService.FileExists(filePath);
+
+                if (fileExists) {
+                  const localContent = await FileService.ReadFile(filePath);
+                  content = PragmaUtil.processBeforeWrite(
+                    localContent,
+                    content,
+                    state.environment.OsType,
+                    localSettings.customConfig.hostName
+                  );
+                }
               }
 
               actionList.push(
@@ -754,6 +811,7 @@ export class Sync {
       "cmd.otherOptions.shareSetting",
       "cmd.otherOptions.downloadSetting",
       "cmd.otherOptions.toggleForceDownload",
+      "cmd.otherOptions.toggleForceUpload",
       "cmd.otherOptions.toggleAutoUpload",
       "cmd.otherOptions.toggleAutoDownload",
       "cmd.otherOptions.toggleSummaryPage",
@@ -822,14 +880,20 @@ export class Sync {
         setting.forceDownload = !setting.forceDownload;
       },
       async () => {
-        // toggle auto upload
+        // toggle force upload
         selectedItem = 4;
+        settingChanged = true;
+        setting.forceUpload = !setting.forceUpload;
+      },
+      async () => {
+        // toggle auto upload
+        selectedItem = 5;
         settingChanged = true;
         setting.autoUpload = !setting.autoUpload;
       },
       async () => {
         // auto download on startup
-        selectedItem = 5;
+        selectedItem = 6;
         settingChanged = true;
         if (!setting) {
           vscode.commands.executeCommand("extension.HowSettings");
@@ -844,7 +908,7 @@ export class Sync {
       },
       async () => {
         // page summary toggle
-        selectedItem = 6;
+        selectedItem = 7;
         settingChanged = true;
 
         if (!tokenAvailable || !gistAvailable) {
@@ -979,6 +1043,14 @@ export class Sync {
                   );
                 },
                 4: async () => {
+                  const message = setting.forceUpload
+                    ? "cmd.otherOptions.toggleForceUpload.on"
+                    : "cmd.otherOptions.toggleForceUpload.off";
+                  return vscode.window.showInformationMessage(
+                    localize(message)
+                  );
+                },
+                5: async () => {
                   const message = setting.autoUpload
                     ? "cmd.otherOptions.toggleAutoUpload.on"
                     : "cmd.otherOptions.toggleAutoUpload.off";
@@ -986,7 +1058,7 @@ export class Sync {
                     localize(message)
                   );
                 },
-                5: async () => {
+                6: async () => {
                   const message = setting.autoDownload
                     ? "cmd.otherOptions.toggleAutoDownload.on"
                     : "cmd.otherOptions.toggleAutoDownload.off";
@@ -994,7 +1066,7 @@ export class Sync {
                     localize(message)
                   );
                 },
-                6: async () => {
+                7: async () => {
                   const message = setting.quietSync
                     ? "cmd.otherOptions.quietSync.on"
                     : "cmd.otherOptions.quietSync.off";

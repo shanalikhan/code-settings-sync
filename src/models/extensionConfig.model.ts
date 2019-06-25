@@ -6,4 +6,5 @@ export class ExtensionConfig {
   public autoDownload = false;
   public autoUpload = false;
   public forceDownload = false;
+  public forceUpload = false;
 }

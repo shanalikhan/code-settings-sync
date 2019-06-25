@@ -11,6 +11,10 @@ interface IEnv {
   HTTP_PROXY: string;
 }
 
+interface IFixGistResponse extends Omit<GitHubApi.GistsGetResponse, "files"> {
+  files: any | GitHubApi.GistsGetResponseFiles;
+}
+
 export class GitHubService {
   public userName: string = null;
   public name: string = null;
@@ -120,8 +124,25 @@ export class GitHubService {
     }
   }
 
-  public async ReadGist(GIST: string): Promise<any> {
+  // This should return GitHubApi.Response<GitHubApi.GistsGetResponse> but Types are wrong
+  public async ReadGist(
+    GIST: string
+  ): Promise<GitHubApi.Response<IFixGistResponse>> {
     return await this.github.gists.get({ gist_id: GIST });
+  }
+
+  public async IsGistNewer(
+    GIST: string,
+    localLastUpload: Date
+  ): Promise<boolean> {
+    const gist = await this.ReadGist(GIST);
+    const gistLastUpload = new Date(
+      JSON.parse(gist.data.files.cloudSettings.content).lastUpload
+    );
+    if (!localLastUpload) {
+      return false;
+    }
+    return gistLastUpload > localLastUpload;
   }
 
   public UpdateGIST(gistObject: any, files: File[]): any {
