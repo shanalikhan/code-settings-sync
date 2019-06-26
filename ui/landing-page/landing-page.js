@@ -20,7 +20,7 @@ const releaseNoteTemplate = `<h5 class="change text-white-50a mx-auto mt-2 mb-2"
 
 const notesElement = document.querySelector("#notes");
 releaseNotes.changes.forEach(change => {
-  const html = releaseNoteTemplate
+  let html = releaseNoteTemplate
     .replace(new RegExp("@NOTE", "g"), change.details)
     .replace(new RegExp("@TYPE", "g"), change.type)
     .replace(new RegExp("@COLOR", "g"), change.color);
