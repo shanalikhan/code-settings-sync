@@ -102,12 +102,15 @@ export class FileService {
     function folderMatcher(file: string, stats: fs.Stats) {
       if (stats.isDirectory()) {
         return customSettings.ignoreUploadFolders.some(fold => {
-          return new RegExp(`${path.sep}${fold}${path.sep}`).test(file);
+          return file.split(path.sep).includes(fold);
         });
       }
       return false;
     }
-    function fileExtensionMatcher(file: string) {
+    function fileExtensionMatcher(file: string, stats: fs.Stats) {
+      if (stats.isDirectory()) {
+        return false;
+      }
       const ext = path.extname(file).slice(1);
       if (!customSettings.supportedFileExtensions.includes(ext)) {
         return true;
@@ -119,6 +122,7 @@ export class FileService {
       folderMatcher,
       fileExtensionMatcher
     ]);
+    console.log(files);
     return Promise.all(
       files.map(file => {
         return FileService.GetFile(file, path.basename(file));
