@@ -78,7 +78,7 @@ All extensions and complete User Folder that Contains
 
 When downloading or uploading for the first time, the welcome page will automatically open, where you can log in with GitHub.
 
-![Login with GitHub](https://user-images.githubusercontent.com/25834068/55663873-93c21280-57d9-11e9-8c24-7088a81ed47c.png)
+![Login with GitHub](images/login-with-github.png)
 
 You can always **verify created gist** by going to `https://gist.github.com` and checking for a gist named `cloudSettings`
 
@@ -90,7 +90,7 @@ You can always **verify created gist** by going to `https://gist.github.com` and
 
 **Choose your existing Gist**
 
-![Existing Gist](https://user-images.githubusercontent.com/25834068/55663880-a9373c80-57d9-11e9-8afc-c0e79cc1b3b5.png)
+![Existing Gist](images/existing-gist.png)
 
 **Settings Downloaded.**
 

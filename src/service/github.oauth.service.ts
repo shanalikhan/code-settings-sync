@@ -86,7 +86,7 @@ export class GitHubOAuthService {
   }
 
   public async getGists(token: string, user: string, host: URL) {
-    const promise = fetch(`https://${host.hostname}/users/${user}/gists`, {
+    const promise = fetch(`https://api.${host.hostname}/users/${user}/gists`, {
       method: "GET",
       headers: { Authorization: `token ${token}` }
     });
