@@ -1,40 +1,64 @@
 {
   "changes": [
     {
-      "details": "Fixed Code that kills <b>Extension Host</b> for macOS",
+      "details": "<b>Code OSS</b> Version Support Added",
       "type": "FIX",
       "color": "danger",
       "author": "arnohovhannisyan",
-      "pullRequest": "834"
+      "pullRequest": "859"
     },
     {
-      "details": "Download From <b>Public Gist</b> not working",
-      "type": "FIX",
-      "color": "danger",
-      "author": "shanalikhan",
-      "pullRequest": "816"
+      "details": "<b>Remote Development</b> Support Added",
+      "type": "NEW",
+      "color": "success",
+      "author": "mjbvz",
+      "pullRequest": "871"
     },
     {
-      "details": "<b>Auto Upload</b> Fix",
+      "details": "Support <b>OS specific keybindings.json</b> in single file",
+      "type": "NEW",
+      "color": "success",
+      "author": "njkevlani",
+      "pullRequest": "854"
+    },
+    {
+      "details": "Improved <b>Auto Upload</b> Process",
       "type": "FIX",
       "color": "danger",
       "author": "arnohovhannisyan",
-      "pullRequest": "835"
+      "pullRequest": "909"
     },
     {
-      "details": "Inserts some <b>empty lines</b> in the beginning of settings.json",
-      "type": "NEW",
-      "color": "success",
-      "author": "knyhle",
-      "pullRequest": "828"
+      "details": "Improved <b>Pragma Util</b> to ignore some values",
+      "type": "FIX",
+      "color": "danger",
+      "author": "ioprotium",
+      "pullRequest": "872"
     },
     {
-      "details": "Update <b>Documentation</b>",
+      "details": "Ignore <b>auto-upload</b> process for some settings",
+      "type": "FIX",
+      "color": "danger",
+      "author": "ioprotium",
+      "pullRequest": "872"
+    },
+    {
+      "details": "<b>Language localization</b> improved and more <b>languages</b> added",
       "type": "NEW",
       "color": "success",
-      "author": "colinaaa",
-      "pullRequest": "845"
+      "author": "arnohovhannisyan",
+      "pullRequest": "915"
+    },
+    {
+      "details": "Improved <b>Command line</b> text",
+      "type": "NEW",
+      "color": "success"
+    },
+    {
+      "details": "Small Improvements",
+      "type": "NEW",
+      "color": "success"
     }
   ],
-  "currentVersion": "v3.2.9"
+  "currentVersion": "v3.3.1"
 }
