@@ -1,5 +1,6 @@
 import { readFileSync } from "fs-extra";
 import { has, set } from "lodash";
+import { URL } from "url";
 import * as vscode from "vscode";
 import localize from "../localize";
 import { CustomConfig } from "../models/customConfig.model";
@@ -12,74 +13,74 @@ import { GitHubOAuthService } from "./github.oauth.service";
 export class WebviewService {
   private globalSettings = [
     {
-      name: "Access Token",
-      placeholder: "Enter Token",
+      name: localize("ext.globalConfig.token.name"),
+      placeholder: localize("ext.globalConfig.token.placeholder"),
       type: UISettingType.TextInput,
       correspondingSetting: "token"
     },
     {
-      name: "GitHub Enterprise URL (optional)",
-      placeholder: "Enter GitHub Enterprise URL",
+      name: localize("ext.globalConfig.githubEnterpriseUrl.name"),
+      placeholder: localize("ext.globalConfig.token.name"),
       type: UISettingType.TextInput,
       correspondingSetting: "githubEnterpriseUrl"
     },
 
     {
-      name: "Ignored Folders",
-      placeholder: "Enter one folder per line",
+      name: localize("ext.globalConfig.token.name"),
+      placeholder: localize("ext.globalConfig.token.name"),
       type: UISettingType.TextArea,
       correspondingSetting: "ignoreUploadFolders"
     },
     {
-      name: "Ignored Extensions",
-      placeholder: "Enter one extension per line (full name)",
+      name: localize("ext.globalConfig.token.name"),
+      placeholder: localize("ext.globalConfig.token.name"),
       type: UISettingType.TextArea,
       correspondingSetting: "ignoreExtensions"
     },
     {
-      name: "Hostname (optional)",
-      placeholder: "Enter Hostname",
+      name: localize("ext.globalConfig.token.name"),
+      placeholder: localize("ext.globalConfig.token.name"),
       type: UISettingType.TextInput,
       correspondingSetting: "hostName"
     },
     {
-      name: "Ignored Files",
-      placeholder: "Enter one file per line",
+      name: localize("ext.globalConfig.token.name"),
+      placeholder: localize("ext.globalConfig.token.name"),
       type: UISettingType.TextArea,
       correspondingSetting: "ignoreUploadFiles"
     },
     {
-      name: "Supported File Extensions",
-      placeholder: "Enter one file extension per line",
+      name: localize("ext.globalConfig.token.name"),
+      placeholder: localize("ext.globalConfig.token.name"),
       type: UISettingType.TextArea,
       correspondingSetting: "supportedFileExtensions"
     },
     {
-      name: "Gist Description",
-      placeholder: "Enter Gist Description",
+      name: localize("ext.globalConfig.token.name"),
+      placeholder: localize("ext.globalConfig.token.name"),
       type: UISettingType.TextInput,
       correspondingSetting: "gistDescription"
     },
     {
-      name: "Auto Upload Delay",
-      placeholder: "Enter the amount of seconds to delay auto-upload",
+      name: localize("ext.globalConfig.token.name"),
+      placeholder: localize("ext.globalConfig.token.name"),
       type: UISettingType.NumberInput,
       correspondingSetting: "autoUploadDelay"
     },
     {
-      name: "Ask Gist Name",
+      name: localize("ext.globalConfig.token.name"),
       placeholder: "",
       type: UISettingType.Checkbox,
       correspondingSetting: "askGistName"
     },
     {
-      name: "Download Public Gist",
+      name: localize("ext.globalConfig.token.name"),
       placeholder: "",
       type: UISettingType.Checkbox,
       correspondingSetting: "downloadPublicGist"
     },
     {
-      name: "Open Token Link",
+      name: localize("ext.globalConfig.token.name"),
       placeholder: "",
       type: UISettingType.Checkbox,
       correspondingSetting: "openTokenLink"
@@ -88,56 +89,56 @@ export class WebviewService {
 
   private environmentSettings = [
     {
-      name: "Gist ID",
-      placeholder: "Enter Gist ID",
+      name: localize("ext.config.gist.name"),
+      placeholder: localize("ext.config.gist.placeholder"),
       type: UISettingType.TextInput,
       correspondingSetting: "gist",
       tooltip: localize("ext.config.gist")
     },
     {
-      name: "Auto Download",
+      name: localize("ext.config.autoDownload.name"),
       placeholder: "",
       type: UISettingType.Checkbox,
       correspondingSetting: "autoDownload",
       tooltip: localize("ext.config.autoDownload")
     },
     {
-      name: "Auto Upload",
+      name: localize("ext.config.autoUpload.name"),
       placeholder: "",
       type: UISettingType.Checkbox,
       correspondingSetting: "autoUpload",
       tooltip: localize("ext.config.autoUpload")
     },
     {
-      name: "Force Download",
+      name: localize("ext.config.forceDownload.name"),
       placeholder: "",
       type: UISettingType.Checkbox,
       correspondingSetting: "forceDownload",
       tooltip: localize("ext.config.forceDownload")
     },
     {
-      name: "Force Upload",
+      name: localize("ext.config.forceUpload.name"),
       placeholder: "",
       type: UISettingType.Checkbox,
       correspondingSetting: "forceUpload",
       tooltip: localize("ext.config.forceUpload")
     },
     {
-      name: "Quiet Sync",
+      name: localize("ext.config.quietSync.name"),
       placeholder: "",
       type: UISettingType.Checkbox,
       correspondingSetting: "quietSync",
       tooltip: localize("ext.config.quietSync")
     },
     {
-      name: "Remove Extensions",
+      name: localize("ext.config.removeExtensions.name"),
       placeholder: "",
       type: UISettingType.Checkbox,
       correspondingSetting: "removeExtensions",
       tooltip: localize("ext.config.removeExtensions")
     },
     {
-      name: "Sync Extensions",
+      name: localize("ext.config.syncExtensions.name"),
       placeholder: "",
       type: UISettingType.Checkbox,
       correspondingSetting: "syncExtensions",
@@ -301,10 +302,14 @@ export class WebviewService {
       switch (message.command) {
         case "loginWithGitHub":
           new GitHubOAuthService(54321).StartProcess();
+          const customSettings = await state.commons.GetCustomSettings();
+          const host = customSettings.githubEnterpriseUrl
+            ? new URL(customSettings.githubEnterpriseUrl)
+            : new URL("https://github.com");
           vscode.commands.executeCommand(
             "vscode.open",
             vscode.Uri.parse(
-              "https://github.com/login/oauth/authorize?scope=gist%20read:user&client_id=cfd96460d8b110e2351b&redirect_uri=http://localhost:54321/callback"
+              `https://${host.hostname}/login/oauth/authorize?scope=gist%20read:user&client_id=cfd96460d8b110e2351b&redirect_uri=http://localhost:54321/callback`
             )
           );
           break;
