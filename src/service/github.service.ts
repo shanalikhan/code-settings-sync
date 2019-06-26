@@ -4,6 +4,7 @@ import * as GitHubApi from "@octokit/rest";
 import * as HttpsProxyAgent from "https-proxy-agent";
 import * as vscode from "vscode";
 import Commons from "../commons";
+import { state } from "../state";
 import { File } from "./file.service";
 
 interface IEnv {
@@ -132,8 +133,9 @@ export class GitHubService {
     const promise = this.github.gists.get({ gist_id: GIST });
     const res = await promise.catch(err => {
       if (String(err).includes("HttpError: Not Found")) {
-        Commons.LogException(err, "Sync: Invalid Gist ID", true);
+        return Commons.LogException(err, "Sync: Invalid Gist ID", true);
       }
+      Commons.LogException(err, state.commons.ERROR_MESSAGE, true);
     });
     if (res) {
       return res;
@@ -183,8 +185,9 @@ export class GitHubService {
 
     const res = await promise.catch(err => {
       if (String(err).includes("HttpError: Not Found")) {
-        Commons.LogException(err, "Sync: Invalid Gist ID", true);
+        return Commons.LogException(err, "Sync: Invalid Gist ID", true);
       }
+      Commons.LogException(err, state.commons.ERROR_MESSAGE, true);
     });
 
     if (res) {
