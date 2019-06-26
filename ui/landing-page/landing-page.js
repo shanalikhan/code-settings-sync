@@ -20,16 +20,16 @@ const releaseNoteTemplate = `<h5 class="change text-white-50a mx-auto mt-2 mb-2"
 
 const notesElement = document.querySelector("#notes");
 releaseNotes.changes.forEach(change => {
-  let html = releaseNoteTemplate
+  const html = releaseNoteTemplate
     .replace(new RegExp("@NOTE", "g"), change.details)
     .replace(new RegExp("@TYPE", "g"), change.type)
-    .replace(new RegExp("@COLOR", "g"), change.color);
-  if (change.author && change.pullRequest) {
-    html = html.replace(
+    .replace(new RegExp("@COLOR", "g"), change.color)
+    .replace(
       new RegExp("@EXTRA", "g"),
-      `(Thanks to <a href='https://github.com/${change.author}'>@${change.author}</a> for PR <a href='https://github.com/shanalikhan/code-settings-sync/pull/${change.pullRequest}'>#${change.pullRequest}`
+      change.author && change.pullRequest
+        ? `(Thanks to <a href='https://github.com/${change.author}'>@${change.author}</a> for PR <a href='https://github.com/shanalikhan/code-settings-sync/pull/${change.pullRequest}'>#${change.pullRequest}`
+        : ""
     );
-  }
   appendHTML(notesElement, html);
 });
 
