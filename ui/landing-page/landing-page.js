@@ -16,7 +16,7 @@ function appendHTML(parent, html) {
   div.remove();
 }
 
-const releaseNoteTemplate = `<h5 class="change text-white-50a mx-auto mt-2 mb-2"><span class="badge badge-@COLOR mr-2">@TYPE</span>@NOTE @EXTRA</a>)</h5>`;
+const releaseNoteTemplate = `<h5 class="change text-white-50a mx-auto mt-2 mb-2"><span class="badge badge-@COLOR mr-2">@TYPE</span>@NOTE @EXTRA</h5>`;
 
 const notesElement = document.querySelector("#notes");
 releaseNotes.changes.forEach(change => {
@@ -27,7 +27,7 @@ releaseNotes.changes.forEach(change => {
     .replace(
       new RegExp("@EXTRA", "g"),
       change.author && change.pullRequest
-        ? `(Thanks to <a href='https://github.com/${change.author}'>@${change.author}</a> for PR <a href='https://github.com/shanalikhan/code-settings-sync/pull/${change.pullRequest}'>#${change.pullRequest}`
+        ? `(Thanks to <a href='https://github.com/${change.author}'>@${change.author}</a> for PR <a href='https://github.com/shanalikhan/code-settings-sync/pull/${change.pullRequest}'>#${change.pullRequest}</a>)`
         : ""
     );
   appendHTML(notesElement, html);
