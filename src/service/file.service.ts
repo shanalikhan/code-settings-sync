@@ -122,7 +122,6 @@ export class FileService {
       folderMatcher,
       fileExtensionMatcher
     ]);
-    console.log(files);
     return Promise.all(
       files.map(file => {
         return FileService.GetFile(file, path.basename(file));
