@@ -26,6 +26,26 @@ const textInputTemplate = `<div class="form-group mb-4">
             />
           </div>`;
 
+const textInputGroupTemplate = `<div class="mb-4">
+          <label for="setting:@correspondingSetting" class="text-white-50a"
+            >@name</label
+          >
+          @tooltip
+          <div class="input-group">
+            <input
+              type="text"
+              class="form-control text"
+              id="setting:@correspondingSetting"
+              placeholder="@placeholder"
+              setting="@correspondingSetting"
+              settingType="@settingType"
+            />
+            <div class="input-group-append">
+              <button class="btn btn-primary" @disabled onclick="@action" type="button" id="button-addon2">View</button>
+            </div>
+          </div>
+        </div>`;
+
 const numberInputTemplate = `<div class="form-group mb-4">
             <label for="setting:@correspondingSetting" class="text-white-50a"
               >@name</label
@@ -117,6 +137,14 @@ envMap.forEach(envMap => {
       template = checkboxTemplate;
       break;
   }
+  const isInputGroup = envMap.correspondingSetting === "gist";
+  let disabledStatus = "";
+  if (isInputGroup) {
+    template = textInputGroupTemplate;
+    if (!_.get(envData, "gist") || !_.get(globalData, "token")) {
+      disabledStatus = "disabled";
+    }
+  }
   const html = template
     .replace(new RegExp("@name", "g"), envMap.name)
     .replace(new RegExp("@placeholder", "g"), envMap.placeholder)
@@ -135,7 +163,12 @@ envMap.forEach(envMap => {
       </a>
       `
     )
-    .replace(new RegExp("@settingType", "g"), "env");
+    .replace(new RegExp("@settingType", "g"), "env")
+    .replace(
+      new RegExp("@action", "g"),
+      `inputGroupAction('${envMap.correspondingSetting}')`
+    )
+    .replace(new RegExp("@disabled", "g"), disabledStatus);
   appendHTML(envParent, html);
 });
 
@@ -227,4 +260,10 @@ function save() {
       (saveStatus.innerHTML = `<i class="fas fa-check dock-bottom-left"></i>`),
     1000
   );
+}
+
+function inputGroupAction(setting) {
+  if (setting === "gist") {
+    vscode.postMessage("openGist");
+  }
 }

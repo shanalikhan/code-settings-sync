@@ -2,6 +2,7 @@ import { readFileSync } from "fs-extra";
 import { has, set } from "lodash";
 import { URL } from "url";
 import * as vscode from "vscode";
+import Commons from "../commons";
 import localize from "../localize";
 import { CustomConfig } from "../models/customConfig.model";
 import { ExtensionConfig } from "../models/extensionConfig.model";
@@ -20,67 +21,69 @@ export class WebviewService {
     },
     {
       name: localize("ext.globalConfig.githubEnterpriseUrl.name"),
-      placeholder: localize("ext.globalConfig.token.name"),
+      placeholder: localize("ext.globalConfig.githubEnterpriseUrl.placeholder"),
       type: UISettingType.TextInput,
       correspondingSetting: "githubEnterpriseUrl"
     },
 
     {
-      name: localize("ext.globalConfig.token.name"),
-      placeholder: localize("ext.globalConfig.token.name"),
+      name: localize("ext.globalConfig.ignoreUploadFolders.name"),
+      placeholder: localize("ext.globalConfig.ignoreUploadFolders.placeholder"),
       type: UISettingType.TextArea,
       correspondingSetting: "ignoreUploadFolders"
     },
     {
-      name: localize("ext.globalConfig.token.name"),
-      placeholder: localize("ext.globalConfig.token.name"),
+      name: localize("ext.globalConfig.ignoreExtensions.name"),
+      placeholder: localize("ext.globalConfig.ignoreExtensions.placeholder"),
       type: UISettingType.TextArea,
       correspondingSetting: "ignoreExtensions"
     },
     {
-      name: localize("ext.globalConfig.token.name"),
-      placeholder: localize("ext.globalConfig.token.name"),
+      name: localize("ext.globalConfig.hostName.name"),
+      placeholder: localize("ext.globalConfig.hostName.placeholder"),
       type: UISettingType.TextInput,
       correspondingSetting: "hostName"
     },
     {
-      name: localize("ext.globalConfig.token.name"),
-      placeholder: localize("ext.globalConfig.token.name"),
+      name: localize("ext.globalConfig.ignoreUploadFiles.name"),
+      placeholder: localize("ext.globalConfig.ignoreUploadFiles.placeholder"),
       type: UISettingType.TextArea,
       correspondingSetting: "ignoreUploadFiles"
     },
     {
-      name: localize("ext.globalConfig.token.name"),
-      placeholder: localize("ext.globalConfig.token.name"),
+      name: localize("ext.globalConfig.supportedFileExtensions.name"),
+      placeholder: localize(
+        "ext.globalConfig.supportedFileExtensions.placeholder"
+      ),
       type: UISettingType.TextArea,
       correspondingSetting: "supportedFileExtensions"
     },
     {
-      name: localize("ext.globalConfig.token.name"),
-      placeholder: localize("ext.globalConfig.token.name"),
+      name: localize("ext.globalConfig.gistDescription.name"),
+      placeholder: localize("ext.globalConfig.gistDescription.placeholder"),
       type: UISettingType.TextInput,
       correspondingSetting: "gistDescription"
     },
     {
-      name: localize("ext.globalConfig.token.name"),
-      placeholder: localize("ext.globalConfig.token.name"),
+      name: localize("ext.globalConfig.autoUploadDelay.name"),
+      placeholder: localize("ext.globalConfig.autoUploadDelay.placeholder"),
       type: UISettingType.NumberInput,
       correspondingSetting: "autoUploadDelay"
     },
     {
-      name: localize("ext.globalConfig.token.name"),
+      name: localize("ext.globalConfig.askGistName.name"),
       placeholder: "",
       type: UISettingType.Checkbox,
       correspondingSetting: "askGistName"
     },
     {
-      name: localize("ext.globalConfig.token.name"),
+      name: localize("ext.globalConfig.downloadPublicGist.name"),
       placeholder: "",
       type: UISettingType.Checkbox,
       correspondingSetting: "downloadPublicGist"
     },
     {
-      name: localize("ext.globalConfig.token.name"),
+      name: localize("ext.globalConfig.openTokenLink.name"),
       placeholder: "",
       type: UISettingType.Checkbox,
       correspondingSetting: "openTokenLink"
@@ -229,7 +232,33 @@ export class WebviewService {
       }
     );
     settingsPanel.webview.html = content;
-    settingsPanel.webview.onDidReceiveMessage(message => {
+    settingsPanel.webview.onDidReceiveMessage(async message => {
+      if (message === "openGist") {
+        const [customConfig, extConfig] = await Promise.all([
+          state.commons.GetCustomSettings(),
+          state.commons.GetSettings()
+        ]);
+        const host = customConfig.githubEnterpriseUrl
+          ? new URL(customConfig.githubEnterpriseUrl)
+          : new URL("https://github.com");
+        const username = await new GitHubOAuthService(0).getUser(
+          customConfig.token,
+          host
+        );
+        if (!username) {
+          return Commons.LogException(
+            null,
+            "Sync: Invalid Access Token.",
+            true
+          );
+        }
+        vscode.env.openExternal(
+          vscode.Uri.parse(
+            `https://gist.${host.hostname}/${username}/${extConfig.gist}`
+          )
+        );
+        return;
+      }
       this.ReceiveSettingChange(message, customSettings, extSettings);
     });
     webview.webview = settingsPanel;
