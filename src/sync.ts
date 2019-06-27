@@ -302,9 +302,6 @@ export class Sync {
         }
         let gistObj = await github.ReadGist(syncSetting.gist);
         if (!gistObj) {
-          vscode.window.showErrorMessage(
-            localize("cmd.updateSettings.error.readGistFail", syncSetting.gist)
-          );
           return;
         }
 
@@ -456,7 +453,6 @@ export class Sync {
       const res = await github.ReadGist(syncSetting.gist);
 
       if (!res) {
-        Commons.LogException(res, "Sync : Unable to Read Gist.", true);
         return;
       }
 
@@ -1109,7 +1105,6 @@ export class Sync {
     );
     const res = await github.ReadGist(syncSetting.gist);
     if (!res) {
-      Commons.LogException(res, "Sync : Unable to Read Gist.", true);
       return [];
     }
     const keys = Object.keys(res.data.files);
