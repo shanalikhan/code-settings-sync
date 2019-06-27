@@ -3,6 +3,8 @@
 import * as GitHubApi from "@octokit/rest";
 import * as HttpsProxyAgent from "https-proxy-agent";
 import * as vscode from "vscode";
+import Commons from "../commons";
+import { state } from "../state";
 import { File } from "./file.service";
 
 interface IEnv {
@@ -128,7 +130,16 @@ export class GitHubService {
   public async ReadGist(
     GIST: string
   ): Promise<GitHubApi.Response<IFixGistResponse>> {
-    return await this.github.gists.get({ gist_id: GIST });
+    const promise = this.github.gists.get({ gist_id: GIST });
+    const res = await promise.catch(err => {
+      if (String(err).includes("HttpError: Not Found")) {
+        return Commons.LogException(err, "Sync: Invalid Gist ID", true);
+      }
+      Commons.LogException(err, state.commons.ERROR_MESSAGE, true);
+    });
+    if (res) {
+      return res;
+    }
   }
 
   public async IsGistNewer(
@@ -136,6 +147,9 @@ export class GitHubService {
     localLastUpload: Date
   ): Promise<boolean> {
     const gist = await this.ReadGist(GIST);
+    if (!gist) {
+      return;
+    }
     const gistLastUpload = new Date(
       JSON.parse(gist.data.files.cloudSettings.content).lastUpload
     );
@@ -167,7 +181,17 @@ export class GitHubService {
 
   public async SaveGIST(gistObject: any): Promise<boolean> {
     gistObject.gist_id = gistObject.id;
-    await this.github.gists.update(gistObject);
-    return true;
+    const promise = this.github.gists.update(gistObject);
+
+    const res = await promise.catch(err => {
+      if (String(err).includes("HttpError: Not Found")) {
+        return Commons.LogException(err, "Sync: Invalid Gist ID", true);
+      }
+      Commons.LogException(err, state.commons.ERROR_MESSAGE, true);
+    });
+
+    if (res) {
+      return true;
+    }
   }
 }
