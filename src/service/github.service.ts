@@ -131,6 +131,20 @@ export class GitHubService {
     return await this.github.gists.get({ gist_id: GIST });
   }
 
+  public async IsGistNewer(
+    GIST: string,
+    localLastUpload: Date
+  ): Promise<boolean> {
+    const gist = await this.ReadGist(GIST);
+    const gistLastUpload = new Date(
+      JSON.parse(gist.data.files.cloudSettings.content).lastUpload
+    );
+    if (!localLastUpload) {
+      return false;
+    }
+    return gistLastUpload > localLastUpload;
+  }
+
   public UpdateGIST(gistObject: any, files: File[]): any {
     const allFiles: string[] = Object.keys(gistObject.data.files);
     for (const fileName of allFiles) {

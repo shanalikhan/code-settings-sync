@@ -78,13 +78,18 @@ export class AutoUploadService {
   }
 
   private async InitiateAutoUpload() {
+    const customSettings = await state.commons.GetCustomSettings();
+
     vscode.window.setStatusBarMessage("").dispose();
     vscode.window.setStatusBarMessage(
-      localize("common.info.initAutoUpload"),
+      localize("common.info.initAutoUpload").replace(
+        "{0}",
+        customSettings.autoUploadDelay
+      ),
       5000
     );
 
-    await Util.Sleep(5000);
+    await Util.Sleep(customSettings.autoUploadDelay * 1000);
 
     vscode.commands.executeCommand("extension.updateSettings", "forceUpdate");
   }
