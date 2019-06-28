@@ -6,19 +6,34 @@
       name="viewport"
       content="width=device-width, initial-scale=1, shrink-to-fit=no"
     />
+    <style>
+      @font-face {
+        font-family: Roboto;
+        src: url(@PWD/ui/shared/vendor/google/Roboto-Bold.ttf);
+        font-weight: 700;
+      }
+      @font-face {
+        font-family: Roboto;
+        src: url(@PWD/ui/shared/vendor/google/Roboto-Regular.ttf);
+        font-weight: 400;
+      }
+      @font-face {
+        font-family: "Open Sans";
+        src: url(@PWD/ui/shared/vendor/google/OpenSans-Bold.ttf);
+        font-weight: 700;
+      }
+    </style>
     <link
       rel="stylesheet"
-      href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
-      integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T"
-      crossorigin="anonymous"
+      href="@PWD/ui/shared/vendor/bootstrap/css/bootstrap.min.css"
     />
     <link
-      href="https://fonts.googleapis.com/css?family=Roboto:400,700"
       rel="stylesheet"
+      href="@PWD/ui/shared/vendor/fontawesome/css/fontawesome.min.css"
     />
     <link
-      href="https://fonts.googleapis.com/css?family=Open+Sans:700"
       rel="stylesheet"
+      href="@PWD/ui/shared/vendor/fontawesome/css/solid.min.css"
     />
     <script>
       const pwd = `@PWD`;
@@ -80,21 +95,12 @@
     </div>
     <script
       defer
-      src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
-      integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
-      crossorigin="anonymous"
+      src="@PWD/ui/shared/vendor/jquery/jquery-3.3.1.slim.min.js"
     ></script>
+    <script defer src="@PWD/ui/shared/vendor/popper.js/popper.min.js"></script>
     <script
       defer
-      src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"
-      integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1"
-      crossorigin="anonymous"
-    ></script>
-    <script
-      defer
-      src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
-      integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
-      crossorigin="anonymous"
+      src="@PWD/ui/shared/vendor/bootstrap/js/bootstrap.min.js"
     ></script>
     <script defer src="@PWD/ui/shared/page-header.js"></script>
     <script defer>
