@@ -165,6 +165,7 @@
     "@types/fs-extra": "^8.0.0",
     "@types/mocha": "^5.2.6",
     "@types/node": "^12.0.9",
+    "@types/recursive-readdir": "^2.2.0",
     "chai": "^4.2.0",
     "clean-webpack-plugin": "^3.0.0",
     "mocha": "^6.0.2",
@@ -188,6 +189,7 @@
     "lockfile": "^1.0.4",
     "lodash": "^4.17.11",
     "node-fetch": "^2.5.0",
+    "recursive-readdir": "^2.2.2",
     "temp": "^0.9.0",
     "vscode-chokidar": "^1.6.5",
     "webpack-node-externals": "^1.7.2"
