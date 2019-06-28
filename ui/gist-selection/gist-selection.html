@@ -6,23 +6,6 @@
       name="viewport"
       content="width=device-width, initial-scale=1, shrink-to-fit=no"
     />
-    <style>
-      @font-face {
-        font-family: Roboto;
-        src: url(@PWD/ui/shared/vendor/google/Roboto-Bold.ttf);
-        font-weight: 700;
-      }
-      @font-face {
-        font-family: Roboto;
-        src: url(@PWD/ui/shared/vendor/google/Roboto-Regular.ttf);
-        font-weight: 400;
-      }
-      @font-face {
-        font-family: "Open Sans";
-        src: url(@PWD/ui/shared/vendor/google/OpenSans-Bold.ttf);
-        font-weight: 700;
-      }
-    </style>
     <link
       rel="stylesheet"
       href="@PWD/ui/shared/vendor/bootstrap/css/bootstrap.min.css"
@@ -103,6 +86,8 @@
       src="@PWD/ui/shared/vendor/bootstrap/js/bootstrap.min.js"
     ></script>
     <script defer src="@PWD/ui/shared/page-header.js"></script>
+    <script defer src="@PWD/ui/shared/fonts.js"></script>
+    <font-injector></font-injector>
     <script defer>
       const gists = JSON.parse(`@GISTS`);
     </script>
