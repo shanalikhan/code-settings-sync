@@ -7,7 +7,7 @@
       "label": "build",
       "type": "shell",
       "command": "npm",
-      "args": ["run", "watch", "--loglevel", "silent"],
+      "args": ["run", "compile", "--loglevel", "silent"],
       "problemMatcher": "$tsc-watch"
     },
     {
