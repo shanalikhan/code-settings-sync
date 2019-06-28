@@ -32,7 +32,7 @@ export class AutoUploadService {
           await lockfile.Lock(state.environment.FILE_SYNC_LOCK);
         }
         const customConfig = await state.commons.GetCustomSettings();
-        if (customConfig) {
+        if (!customConfig.downloadPublicGist) {
           await this.InitiateAutoUpload();
         }
         await lockfile.Unlock(state.environment.FILE_SYNC_LOCK);
@@ -60,7 +60,10 @@ export class AutoUploadService {
           const fileType: string = path
             .substring(path.lastIndexOf("."), path.length)
             .slice(1);
-          if (customConfig.supportedFileExtensions.indexOf(fileType) !== -1) {
+          if (
+            customConfig.supportedFileExtensions.includes(fileType) &&
+            !customConfig.downloadPublicGist
+          ) {
             await this.InitiateAutoUpload();
           }
         }

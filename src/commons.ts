@@ -113,7 +113,11 @@ export default class Commons {
     const extSettings = this.GetSettings();
     const cusSettings = await this.GetCustomSettings();
 
-    if (cusSettings.token === "" || extSettings.gist === "") {
+    if (
+      cusSettings.downloadPublicGist
+        ? !extSettings.gist
+        : !cusSettings.token || !extSettings.gist
+    ) {
       this.webviewService.OpenLandingPage();
     }
 

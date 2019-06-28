@@ -32,7 +32,7 @@ export class Sync {
       const gistAvailable: boolean =
         startUpSetting.gist != null && startUpSetting.gist !== "";
 
-      if (!tokenAvailable) {
+      if (!startUpCustomSetting.downloadPublicGist && !tokenAvailable) {
         state.commons.webviewService.OpenLandingPage();
         return;
       }
