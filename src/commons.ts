@@ -7,52 +7,11 @@ import { ExtensionConfig } from "./models/extensionConfig.model";
 import { LocalConfig } from "./models/localConfig.model";
 import { AutoUploadService } from "./service/autoUpload.service";
 import { File, FileService } from "./service/file.service";
+import { LoggerService } from "./service/logger.service";
 import { ExtensionInformation } from "./service/pluginService";
 import { state } from "./state";
 
 export default class Commons {
-  public static outputChannel: vscode.OutputChannel = null;
-  public static LogException(
-    error: any,
-    message: string,
-    msgBox: boolean,
-    callback?: () => void
-  ): void {
-    if (error) {
-      console.error(error);
-      if (error.status === 500) {
-        message = localize("common.error.connection");
-        msgBox = false;
-      } else if (error.status === 401) {
-        msgBox = true;
-        message = localize("common.error.invalidToken");
-      } else if (error.status === 4) {
-        message = localize("common.error.canNotSave");
-      } else if (error.message) {
-        try {
-          message = JSON.parse(error.message).message;
-          if (message.toLowerCase() === "not found") {
-            msgBox = true;
-            message = localize("common.error.invalidGistId");
-          }
-        } catch (error) {
-          //  message = error.message;
-        }
-      }
-    }
-
-    if (msgBox === true) {
-      vscode.window.showErrorMessage(message);
-      vscode.window.setStatusBarMessage("").dispose();
-    } else {
-      vscode.window.setStatusBarMessage(message, 5000);
-    }
-
-    if (callback) {
-      callback.apply(this);
-    }
-  }
-
   public static GetInputBox(token: boolean) {
     if (token) {
       const options: vscode.InputBoxOptions = {
@@ -169,7 +128,7 @@ export default class Commons {
       }
     } catch (e) {
       customSettings = null;
-      Commons.LogException(
+      LoggerService.LogException(
         e,
         "Sync : Unable to read " +
           state.environment.FILE_CUSTOMIZEDSETTINGS_NAME +
@@ -194,7 +153,7 @@ export default class Commons {
       );
       return true;
     } catch (e) {
-      Commons.LogException(
+      LoggerService.LogException(
         e,
         "Sync : Unable to write " +
           state.environment.FILE_CUSTOMIZEDSETTINGS_NAME,
@@ -346,7 +305,7 @@ export default class Commons {
       }
       return true;
     } catch (err) {
-      Commons.LogException(err, this.ERROR_MESSAGE, true);
+      LoggerService.LogException(err, this.ERROR_MESSAGE, true);
       return false;
     }
   }
@@ -478,13 +437,13 @@ export default class Commons {
     ignoredExtensions: ExtensionInformation[],
     syncSettings: LocalConfig
   ) {
-    if (Commons.outputChannel === null) {
-      Commons.outputChannel = vscode.window.createOutputChannel(
+    if (!LoggerService.outputChannel) {
+      LoggerService.outputChannel = vscode.window.createOutputChannel(
         "Code Settings Sync"
       );
     }
 
-    const outputChannel = Commons.outputChannel;
+    const outputChannel = LoggerService.outputChannel;
     outputChannel.appendLine(
       `CODE SETTINGS SYNC ${upload ? "UPLOAD" : "DOWNLOAD"} SUMMARY`
     );

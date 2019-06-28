@@ -3,8 +3,10 @@
 import * as vscode from "vscode";
 import { Environment } from "./environmentPath";
 import { init as initLocalize } from "./localize";
+import { InitService } from "./service/init.service";
+import { SettingsService } from "./service/settings.service";
+import { SyncService } from "./service/sync.service";
 import { state } from "./state";
-import { Sync } from "./sync";
 
 export async function activate(context: vscode.ExtensionContext) {
   state.context = context;
@@ -12,38 +14,40 @@ export async function activate(context: vscode.ExtensionContext) {
 
   await initLocalize();
 
-  const sync = new Sync();
+  const initService = new InitService();
+  const syncService = new SyncService();
+  const settingsService = new SettingsService();
 
-  sync.bootstrap();
+  initService.init();
 
   context.subscriptions.push(
     vscode.commands.registerCommand(
       "extension.updateSettings",
-      sync.upload.bind(sync)
+      syncService.UploadSettings.bind(syncService)
     )
   );
   context.subscriptions.push(
     vscode.commands.registerCommand(
       "extension.downloadSettings",
-      sync.download.bind(sync)
+      syncService.DownloadSettings.bind(syncService)
     )
   );
   context.subscriptions.push(
     vscode.commands.registerCommand(
       "extension.resetSettings",
-      sync.reset.bind(sync)
+      settingsService.ResetSettings.bind(settingsService)
     )
   );
   context.subscriptions.push(
     vscode.commands.registerCommand(
       "extension.HowSettings",
-      sync.how.bind(sync)
+      settingsService.OpenHelp.bind(settingsService)
     )
   );
   context.subscriptions.push(
     vscode.commands.registerCommand(
       "extension.otherOptions",
-      sync.advance.bind(sync)
+      settingsService.OpenAdvancedOptions.bind(settingsService)
     )
   );
 }
