@@ -3,12 +3,12 @@ import Commons from "../commons";
 import { state } from "../state";
 
 export class InitService {
-  public async init(): Promise<void> {
+  public static async init(): Promise<void> {
     state.commons = new Commons();
 
     await state.commons.StartMigrationProcess();
-    const extSettings = await state.commons.GetSettings();
-    const customSettings = await state.commons.GetCustomSettings();
+    const extSettings = await state.settings.GetExtensionSettings();
+    const customSettings = await state.settings.GetCustomSettings();
 
     if (extSettings) {
       const tokenAvailable = !!customSettings.token;

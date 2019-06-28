@@ -14,11 +14,10 @@ export async function activate(context: vscode.ExtensionContext) {
 
   await initLocalize();
 
-  const initService = new InitService();
   const syncService = new SyncService();
   const settingsService = new SettingsService();
 
-  initService.init();
+  InitService.init();
 
   context.subscriptions.push(
     vscode.commands.registerCommand(

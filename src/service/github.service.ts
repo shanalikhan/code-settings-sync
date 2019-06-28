@@ -3,7 +3,6 @@
 import * as GitHubApi from "@octokit/rest";
 import * as HttpsProxyAgent from "https-proxy-agent";
 import * as vscode from "vscode";
-import { state } from "../state";
 import { File } from "./file.service";
 import { LoggerService } from "./logger.service";
 
@@ -135,7 +134,7 @@ export class GitHubService {
       if (String(err).includes("HttpError: Not Found")) {
         return LoggerService.LogException(err, "Sync: Invalid Gist ID", true);
       }
-      LoggerService.LogException(err, state.commons.ERROR_MESSAGE, true);
+      LoggerService.LogException(err, LoggerService.defaultError, true);
     });
     if (res) {
       return res;
@@ -187,7 +186,7 @@ export class GitHubService {
       if (String(err).includes("HttpError: Not Found")) {
         return LoggerService.LogException(err, "Sync: Invalid Gist ID", true);
       }
-      LoggerService.LogException(err, state.commons.ERROR_MESSAGE, true);
+      LoggerService.LogException(err, LoggerService.defaultError, true);
     });
 
     if (res) {

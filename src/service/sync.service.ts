@@ -44,7 +44,7 @@ export class SyncService {
           );
           if (message === "Yes") {
             localConfig.extConfig.forceUpload = true;
-            await state.commons.SaveSettings(localConfig.extConfig);
+            await state.settings.SetExtensionSettings(localConfig.extConfig);
           } else {
             vscode.window.setStatusBarMessage(
               localize("cmd.updateSettings.info.uploadCanceled"),
@@ -61,7 +61,7 @@ export class SyncService {
         localConfig.customConfig
       );
     } catch (error) {
-      LoggerService.LogException(error, state.commons.ERROR_MESSAGE, true);
+      LoggerService.LogException(error, LoggerService.defaultError, true);
       return;
     }
 
@@ -174,7 +174,7 @@ export class SyncService {
           }
         }
       } else {
-        LoggerService.LogException(null, state.commons.ERROR_MESSAGE, true);
+        LoggerService.LogException(null, LoggerService.defaultError, true);
         return;
       }
       for (const snippetFile of contentFiles) {
@@ -306,14 +306,16 @@ export class SyncService {
           return;
         }
       } catch (err) {
-        LoggerService.LogException(err, state.commons.ERROR_MESSAGE, true);
+        LoggerService.LogException(err, LoggerService.defaultError, true);
         return;
       }
 
       if (completed) {
         try {
-          const settingsUpdated = await state.commons.SaveSettings(syncSetting);
-          const customSettingsUpdated = await state.commons.SetCustomSettings(
+          const settingsUpdated = await state.settings.SetExtensionSettings(
+            syncSetting
+          );
+          const customSettingsUpdated = await state.settings.SetCustomSettings(
             customSettings
           );
           if (settingsUpdated && customSettingsUpdated) {
@@ -354,7 +356,7 @@ export class SyncService {
             }
           }
         } catch (err) {
-          LoggerService.LogException(err, state.commons.ERROR_MESSAGE, true);
+          LoggerService.LogException(err, LoggerService.defaultError, true);
         }
       }
     }
@@ -368,7 +370,7 @@ export class SyncService {
       localSettings = await state.commons.InitalizeSettings(true, true);
       await StartDownload(localSettings.extConfig, localSettings.customConfig);
     } catch (err) {
-      LoggerService.LogException(err, state.commons.ERROR_MESSAGE, true);
+      LoggerService.LogException(err, LoggerService.defaultError, true);
       return;
     }
 
@@ -608,7 +610,7 @@ export class SyncService {
                   .catch(err => {
                     LoggerService.LogException(
                       err,
-                      state.commons.ERROR_MESSAGE,
+                      LoggerService.defaultError,
                       true
                     );
                     return;
@@ -620,8 +622,10 @@ export class SyncService {
       }
 
       await Promise.all(actionList);
-      const settingsUpdated = await state.commons.SaveSettings(syncSetting);
-      const customSettingsUpdated = await state.commons.SetCustomSettings(
+      const settingsUpdated = await state.settings.SetExtensionSettings(
+        syncSetting
+      );
+      const customSettingsUpdated = await state.settings.SetCustomSettings(
         customSettings
       );
       if (settingsUpdated && customSettingsUpdated) {

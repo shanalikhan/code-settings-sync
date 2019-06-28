@@ -9,6 +9,82 @@ import { GitHubService } from "./github.service";
 import { LoggerService } from "./logger.service";
 
 export class SettingsService {
+  public async GetCustomSettings(): Promise<CustomConfig> {
+    const customSettings = new CustomConfig();
+    try {
+      const customExist: boolean = await FileService.FileExists(
+        state.environment.FILE_CUSTOMIZEDSETTINGS
+      );
+      if (customExist) {
+        const customSettingStr: string = await FileService.ReadFile(
+          state.environment.FILE_CUSTOMIZEDSETTINGS
+        );
+
+        Object.assign(customSettings, JSON.parse(customSettingStr));
+        customSettings.token = customSettings.token.trim();
+      }
+    } catch (e) {
+      LoggerService.LogException(
+        e,
+        `Sync : Unable to read ${state.environment.FILE_CUSTOMIZEDSETTINGS_NAME}. Make sure its Valid JSON.`,
+        true
+      );
+    }
+    return customSettings;
+  }
+
+  public async SetCustomSettings(settings: CustomConfig): Promise<boolean> {
+    try {
+      return FileService.WriteFile(
+        state.environment.FILE_CUSTOMIZEDSETTINGS,
+        JSON.stringify(settings, null, 4)
+      );
+    } catch (e) {
+      LoggerService.LogException(
+        e,
+        `Sync: Unable to write to ${state.environment.FILE_CUSTOMIZEDSETTINGS_NAME}`,
+        true
+      );
+      return false;
+    }
+  }
+
+  public GetExtensionSettings(): ExtensionConfig {
+    const settings = new ExtensionConfig();
+
+    Object.keys(settings).forEach(key => {
+      settings[key] = vscode.workspace.getConfiguration("sync").get(key);
+    });
+
+    settings.gist = settings.gist.trim();
+    return settings;
+  }
+
+  public async SetExtensionSettings(
+    settings: ExtensionConfig
+  ): Promise<boolean> {
+    const config = vscode.workspace.getConfiguration("sync");
+    const allKeysUpdated = new Array<Thenable<void>>();
+
+    const keys = Object.entries(settings);
+    keys.forEach(async ([key, value]) => {
+      if (!value) {
+        value = new ExtensionConfig()[key];
+      }
+      if (config.get(key) !== value) {
+        allKeysUpdated.push(config.update(key, value, true));
+      }
+    });
+
+    try {
+      await Promise.all(allKeysUpdated);
+      return true;
+    } catch (err) {
+      LoggerService.LogException(err, LoggerService.defaultError, true);
+      return false;
+    }
+  }
+
   public async ResetSettings(): Promise<void> {
     const extSettings = new ExtensionConfig();
     const localSettings = new CustomConfig();
@@ -19,10 +95,8 @@ export class SettingsService {
     );
 
     try {
-      const extSaved: boolean = await state.commons.SaveSettings(extSettings);
-      const customSaved: boolean = await state.commons.SetCustomSettings(
-        localSettings
-      );
+      const extSaved: boolean = await this.SetExtensionSettings(extSettings);
+      const customSaved: boolean = await this.SetCustomSettings(localSettings);
 
       if (extSaved && customSaved) {
         vscode.window.showInformationMessage(
@@ -39,8 +113,8 @@ export class SettingsService {
   }
 
   public async OpenAdvancedOptions() {
-    const setting: ExtensionConfig = await state.commons.GetSettings();
-    const customSettings: CustomConfig = await state.commons.GetCustomSettings();
+    const setting: ExtensionConfig = await this.GetExtensionSettings();
+    const customSettings: CustomConfig = await this.GetCustomSettings();
     if (customSettings == null) {
       vscode.window
         .showInformationMessage(
@@ -111,7 +185,7 @@ export class SettingsService {
           setting.gist = "";
           selectedItem = 1;
           customSettings.downloadPublicGist = false;
-          await state.commons.SetCustomSettings(customSettings);
+          await this.SetCustomSettings(customSettings);
         }
       },
       2: async () => {
@@ -119,7 +193,7 @@ export class SettingsService {
         selectedItem = 2;
         customSettings.downloadPublicGist = true;
         settingChanged = true;
-        await state.commons.SetCustomSettings(customSettings);
+        await this.SetCustomSettings(customSettings);
       },
       3: async () => {
         // toggle force download
@@ -180,9 +254,7 @@ export class SettingsService {
             return;
           }
           customSettings.customFiles[fileName] = input;
-          const done: boolean = await state.commons.SetCustomSettings(
-            customSettings
-          );
+          const done: boolean = await this.SetCustomSettings(customSettings);
           if (done) {
             vscode.window.showInformationMessage(
               localize("cmd.otherOptions.customizedSync.done", fileName)
@@ -266,8 +338,7 @@ export class SettingsService {
         if (selectedItem === 1) {
           await state.commons.HandleStopWatching();
         }
-        await state.commons
-          .SaveSettings(setting)
+        await this.SetExtensionSettings(setting)
           .then((added: boolean) => {
             if (added) {
               const callbackMap = {
