@@ -6,7 +6,7 @@ const { CleanWebpackPlugin } = require("clean-webpack-plugin");
 /** @type WebpackOptions */
 const config = {
   stats: {
-    warnings: false
+    warningsFilter: /Critical dependency: the request of a dependency is an expression/
   },
   target: "node",
   entry: "./src/extension.ts",
