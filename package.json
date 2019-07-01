@@ -159,9 +159,13 @@
   },
   "devDependencies": {
     "@types/chai": "4.1.7",
+    "@types/express": "^4.16.1",
+    "@types/lodash": "^4.14.123",
+    "@types/node-fetch": "^2.3.3",
     "@types/fs-extra": "^8.0.0",
     "@types/mocha": "^5.2.6",
     "@types/node": "^12.0.9",
+    "@types/recursive-readdir": "^2.2.0",
     "chai": "^4.2.0",
     "clean-webpack-plugin": "^3.0.0",
     "mocha": "^6.0.2",
@@ -177,9 +181,15 @@
   },
   "dependencies": {
     "@octokit/rest": "^16.23.2",
+    "adm-zip": "^0.4.13",
+    "const": "^1.0.0",
+    "express": "^4.16.4",
     "fs-extra": "^8.0.1",
     "https-proxy-agent": "^2.2.1",
     "lockfile": "^1.0.4",
+    "lodash": "^4.17.11",
+    "node-fetch": "^2.5.0",
+    "recursive-readdir": "^2.2.2",
     "temp": "^0.9.0",
     "vscode-chokidar": "^1.6.5"
   }

@@ -1,16 +1,16 @@
 import * as vscode from "vscode";
-import { OsType } from "../enums";
 import localize from "../localize";
 import { CloudSettings } from "../models/cloudSettings.model";
 import { CustomConfig } from "../models/customConfig.model";
 import { ExtensionConfig } from "../models/extensionConfig.model";
 import { LocalConfig } from "../models/localConfig.model";
+import { OsType } from "../models/os-type.model";
 import PragmaUtil from "../pragmaUtil";
 import { state } from "../state";
 import { File, FileService } from "./file.service";
 import { GitHubService } from "./github.service";
 import { LoggerService } from "./logger.service";
-import { ExtensionInformation, PluginService } from "./pluginService";
+import { ExtensionInformation, PluginService } from "./plugin.service";
 
 export class SyncService {
   public async UploadSettings(options: string): Promise<void> {
@@ -23,7 +23,7 @@ export class SyncService {
     await state.commons.HandleStopWatching();
 
     try {
-      localConfig = await state.commons.InitalizeSettings(true, false);
+      localConfig = await state.commons.InitalizeSettings();
       localConfig.publicGist = options === "publicGIST";
 
       github = new GitHubService(
@@ -123,44 +123,15 @@ export class SyncService {
         allSettingFiles.push(extensionFile);
       }
 
-      let contentFiles: File[] = [];
-      contentFiles = await FileService.ListFiles(
+      const contentFiles = await FileService.ListFiles(
         state.environment.USER_FOLDER,
-        0,
-        2,
-        customSettings.supportedFileExtensions
+        customSettings
       );
 
       const customExist: boolean = await FileService.FileExists(
         state.environment.FILE_CUSTOMIZEDSETTINGS
       );
       if (customExist) {
-        contentFiles = contentFiles.filter(
-          contentFile =>
-            contentFile.fileName !==
-            state.environment.FILE_CUSTOMIZEDSETTINGS_NAME
-        );
-
-        if (customSettings.ignoreUploadFiles.length > 0) {
-          contentFiles = contentFiles.filter(contentFile => {
-            const isMatch: boolean =
-              customSettings.ignoreUploadFiles.indexOf(contentFile.fileName) ===
-                -1 &&
-              contentFile.fileName !==
-                state.environment.FILE_CUSTOMIZEDSETTINGS_NAME;
-            return isMatch;
-          });
-        }
-        if (customSettings.ignoreUploadFolders.length > 0) {
-          contentFiles = contentFiles.filter((contentFile: File) => {
-            const matchedFolders = customSettings.ignoreUploadFolders.filter(
-              folder => {
-                return contentFile.filePath.indexOf(folder) !== -1;
-              }
-            );
-            return matchedFolders.length === 0;
-          });
-        }
         const customFileKeys: string[] = Object.keys(
           customSettings.customFiles
         );
@@ -199,13 +170,13 @@ export class SyncService {
                   snippetFile.content
                 );
                 snippetFile.content = parsedContent;
-                allSettingFiles.push(snippetFile);
               } catch (e) {
                 LoggerService.LogException(null, e.message, true);
                 console.error(e);
                 return;
               }
             }
+            allSettingFiles.push(snippetFile);
           }
         }
       }
@@ -273,6 +244,9 @@ export class SyncService {
           !allSettingFiles.some(fileToUpload => {
             if (fileToUpload.fileName === "cloudSettings") {
               return false;
+            }
+            if (!gistObj.data.files[fileToUpload.fileName]) {
+              return true;
             }
             if (
               gistObj.data.files[fileToUpload.fileName].content !==
@@ -367,7 +341,7 @@ export class SyncService {
     await state.commons.HandleStopWatching();
 
     try {
-      localSettings = await state.commons.InitalizeSettings(true, true);
+      localSettings = await state.commons.InitalizeSettings();
       await StartDownload(localSettings.extConfig, localSettings.customConfig);
     } catch (err) {
       LoggerService.LogException(err, LoggerService.defaultError, true);

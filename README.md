@@ -48,6 +48,7 @@ While being free and open source, if you find it useful, please consider support
 6. Share the Gist with other users and let them download your settings.
 7. Supports GitHub Enterprise
 8. Support pragmas with @sync keywords: host, os and env are supported.
+9. GUI for changing settings / logging in
 ```
 
 ## It Syncs
@@ -69,75 +70,35 @@ All extensions and complete User Folder that Contains
 2. Download Key : Shift + Alt + D
 ```
 
-## Steps To Get a Personal Access Token from GitHub
-
-This extension requires a Personal Access Token from your GitHub account. You can create one by simply following the steps shown in the pictures below. Make sure you add **Gist** in scope.
-
-**[Generate New Token](https://github.com/settings/tokens/new?description=code-setting-sync&scopes=gist)**
-
-![Select Scopes](https://shanalikhan.github.io/img/github2.PNG)
-
-**Get an Access Token.**
-
-![Get Access Token](https://shanalikhan.github.io/img/github3.PNG)
-
-> Save the Token somewhere for future use (i.e. to upload from other machines).
-
 ## Upload Your Settings For the first time
 
 **Press Shift + Alt + U it will ask your GitHub account access token.**
 
 > Type ">Sync" In Command Palette into order download / upload
 
-This will automatically open your GitHub settings page, allowing you to generate a new token for the application, as explained in the previous section. This token will allow the extension to create gists.
+When downloading or uploading for the first time, the welcome page will automatically open, where you can log in with GitHub.
 
-Enter the GitHub token in the window and click enter.
+![Login with GitHub](images/login-with-github.png)
 
-![github account access token](https://shanalikhan.github.io/img/upload1.png)
-
-**Upload your settings automatically and the extension gives you Gist ID in the system message.**
-Gist ID is needed to access the data you have uploaded with your token. Copy this Gist ID in order to download the settings to other machines.
-
-![uploaded automatically](https://shanalikhan.github.io/img/upload2.png)
-
-You can always **verify created gist** on the following url:
-
-> https://gist.github.com/{your_userName}/{gist_id}
-
-Here is the gif of the complete process when you execute the Upload command (Might take some time to load)
-
-![Upload](https://media.giphy.com/media/xT9IglKxSqs2Wdwq2c/source.gif)
+You can always **verify created gist** by going to `https://gist.github.com` and checking for a gist named `cloudSettings`
 
 ## Download your Settings
 
-**Press Shift + Alt + D it will ask your GitHub Gist ID.**
-
 > Type ">Sync" In Command Palette into order download / upload
 
-**Enter Your GitHub Token.**
+**Login with GitHub**
 
-Enter the GitHub token in the window and click enter.
+**Choose your existing Gist**
 
-![github account access token](https://shanalikhan.github.io/img/upload1.png)
-
-**Enter Your Gist ID.**
-
-You need to enter your Gist ID in order to download the files you have uploaded with Shift + Alt + U.
-
-![Enter Your Gist ID](https://shanalikhan.github.io/img/download2.png)
+![Existing Gist](images/existing-gist.png)
 
 **Settings Downloaded.**
+
 You are Done! All your files are downloaded
-
-![Enter Your Gist ID](https://shanalikhan.github.io/img/download3.png)
-
-Here is the gif of the complete process when you execute the Download command (Might take time to load)
-
-![Download](https://media.giphy.com/media/xT9Iglsi3CS9noE8tW/source.gif)
 
 ## Reset Extension Settings
 
-> Type ">Sync" In Command Palette and select Reset Extension Settings
+> Select **"> Sync : Reset Extension Settings"** in the Command Palette to reset your settings
 
 ## Toggle Auto Download
 
@@ -188,6 +149,8 @@ Other users can give your Gist Id to download the Gist, but they can't upload th
 
 ## Settings
 
+Settings can be changed through the settings page, which can be accessed through **"> Sync : Advanced Options > Open Settings Page"**
+
 There are two types of settings in Settings Sync.
 I will recommend you to read the configurations details [here](https://medium.com/@itsShanKhan/visual-studio-code-settings-sync-configurations-ed8dd6fd9753).
 
@@ -212,7 +175,6 @@ You can customize the settings in gist settings like:
     "sync.forceDownload": false,
     "sync.forceUpload": false,
     "sync.quietSync": false,
-    "sync.askGistName": false,
     "sync.removeExtensions": true,
     "sync.syncExtensions": true
 ```

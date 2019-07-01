@@ -133,6 +133,7 @@ export class SettingsService {
     const gistAvailable: boolean = setting.gist != null && setting.gist !== "";
 
     const items: string[] = [
+      "cmd.otherOptions.openSettingsPage",
       "cmd.otherOptions.editLocalSetting",
       "cmd.otherOptions.shareSetting",
       "cmd.otherOptions.downloadSetting",
@@ -160,8 +161,11 @@ export class SettingsService {
 
     const index = items.findIndex(v => v === item);
 
-    const handlerMap = {
-      0: async () => {
+    const handlerMap = [
+      async () => {
+        state.commons.webviewService.OpenSettingsPage(customSettings, setting);
+      },
+      async () => {
         const file: vscode.Uri = vscode.Uri.file(
           state.environment.FILE_CUSTOMIZEDSETTINGS
         );
@@ -172,7 +176,7 @@ export class SettingsService {
           true
         );
       },
-      1: async () => {
+      async () => {
         // share public gist
         const answer = await vscode.window.showInformationMessage(
           localize("cmd.otherOptions.shareSetting.beforeConfirm"),
@@ -188,32 +192,32 @@ export class SettingsService {
           await this.SetCustomSettings(customSettings);
         }
       },
-      2: async () => {
+      async () => {
         // Download Settings from Public GIST
         selectedItem = 2;
         customSettings.downloadPublicGist = true;
         settingChanged = true;
         await this.SetCustomSettings(customSettings);
       },
-      3: async () => {
+      async () => {
         // toggle force download
         selectedItem = 3;
         settingChanged = true;
         setting.forceDownload = !setting.forceDownload;
       },
-      4: async () => {
+      async () => {
         // toggle force upload
         selectedItem = 4;
         settingChanged = true;
         setting.forceUpload = !setting.forceUpload;
       },
-      5: async () => {
+      async () => {
         // toggle auto upload
         selectedItem = 5;
         settingChanged = true;
         setting.autoUpload = !setting.autoUpload;
       },
-      6: async () => {
+      async () => {
         // auto download on startup
         selectedItem = 6;
         settingChanged = true;
@@ -228,7 +232,7 @@ export class SettingsService {
 
         setting.autoDownload = !setting.autoDownload;
       },
-      7: async () => {
+      async () => {
         // page summary toggle
         selectedItem = 7;
         settingChanged = true;
@@ -239,7 +243,7 @@ export class SettingsService {
         }
         setting.quietSync = !setting.quietSync;
       },
-      8: async () => {
+      async () => {
         // add customized sync file
         const options: vscode.InputBoxOptions = {
           ignoreFocusOut: true,
@@ -262,7 +266,7 @@ export class SettingsService {
           }
         }
       },
-      9: async () => {
+      async () => {
         // Import customized sync file to workspace
         const customFiles = await this.CustomFilesFromGist(
           customSettings,
@@ -306,7 +310,7 @@ export class SettingsService {
           }
         }
       },
-      10: async () => {
+      async () => {
         vscode.commands.executeCommand(
           "vscode.open",
           vscode.Uri.parse(
@@ -314,7 +318,7 @@ export class SettingsService {
           )
         );
       },
-      11: async () => {
+      async () => {
         vscode.commands.executeCommand(
           "vscode.open",
           vscode.Uri.parse(
@@ -322,7 +326,7 @@ export class SettingsService {
           )
         );
       },
-      12: async () => {
+      async () => {
         vscode.commands.executeCommand(
           "vscode.open",
           vscode.Uri.parse(
@@ -330,7 +334,7 @@ export class SettingsService {
           )
         );
       }
-    };
+    ];
 
     try {
       await handlerMap[index]();

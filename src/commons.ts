@@ -7,11 +7,13 @@ import { LocalConfig } from "./models/localConfig.model";
 import { AutoUploadService } from "./service/autoUpload.service";
 import { File, FileService } from "./service/file.service";
 import { LoggerService } from "./service/logger.service";
-import { ExtensionInformation } from "./service/pluginService";
+import { ExtensionInformation } from "./service/plugin.service";
+import { WebviewService } from "./service/webview.service";
 import { state } from "./state";
 
 export default class Commons {
   public autoUploadService: AutoUploadService;
+  public webviewService = new WebviewService();
 
   constructor() {
     this.InitializeAutoUpload();
@@ -42,47 +44,19 @@ export default class Commons {
     }
   }
 
-  public async InitalizeSettings(
-    askToken: boolean,
-    askGist: boolean
-  ): Promise<LocalConfig> {
+  public async InitalizeSettings(): Promise<LocalConfig> {
     const settings = new LocalConfig();
     const extSettings = state.settings.GetExtensionSettings();
     const cusSettings = await state.settings.GetCustomSettings();
 
-    if (cusSettings.token === "") {
-      if (askToken === true) {
-        askToken = !cusSettings.downloadPublicGist;
-      }
-
-      if (askToken) {
-        if (cusSettings.openTokenLink) {
-          vscode.commands.executeCommand(
-            "vscode.open",
-            vscode.Uri.parse("https://github.com/settings/tokens")
-          );
-        }
-        const tokTemp: string = await this.GetTokenAndSave(cusSettings);
-        if (!tokTemp) {
-          const msg = localize("common.error.tokenNotSave");
-          vscode.window.showErrorMessage(msg);
-          throw new Error(msg);
-        }
-        cusSettings.token = tokTemp;
-      }
+    if (
+      cusSettings.downloadPublicGist
+        ? !extSettings.gist
+        : !cusSettings.token || !extSettings.gist
+    ) {
+      this.webviewService.OpenLandingPage();
     }
 
-    if (extSettings.gist === "") {
-      if (askGist) {
-        const gistTemp: string = await this.GetGistAndSave(extSettings);
-        if (!gistTemp) {
-          const msg = localize("common.error.gistNotSave");
-          vscode.window.showErrorMessage(msg);
-          throw new Error(msg);
-        }
-        extSettings.gist = gistTemp;
-      }
-    }
     settings.customConfig = cusSettings;
     settings.extConfig = extSettings;
     return settings;
@@ -113,8 +87,7 @@ export default class Commons {
         )
         .then((val: string) => {
           if (val === openExtensionPage) {
-            vscode.commands.executeCommand(
-              "vscode.open",
+            vscode.env.openExternal(
               vscode.Uri.parse(
                 "https://marketplace.visualstudio.com/items?itemName=Shan.code-settings-sync"
               )
@@ -157,32 +130,28 @@ export default class Commons {
           )
           .then((val: string) => {
             if (val === releaseNotes) {
-              vscode.commands.executeCommand(
-                "vscode.open",
+              vscode.env.openExternal(
                 vscode.Uri.parse(
                   "http://shanalikhan.github.io/2016/05/14/Visual-studio-code-sync-settings-release-notes.html"
                 )
               );
             }
             if (val === writeReview) {
-              vscode.commands.executeCommand(
-                "vscode.open",
+              vscode.env.openExternal(
                 vscode.Uri.parse(
                   "https://marketplace.visualstudio.com/items?itemName=Shan.code-settings-sync#review-details"
                 )
               );
             }
             if (val === support) {
-              vscode.commands.executeCommand(
-                "vscode.open",
+              vscode.env.openExternal(
                 vscode.Uri.parse(
                   "https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=4W3EWHHBSYMM8&lc=IE&item_name=Code%20Settings%20Sync&item_number=visual%20studio%20code%20settings%20sync&currency_code=USD&bn=PP-DonationsBF:btn_donate_SM.gif:NonHosted"
                 )
               );
             }
             if (val === joinCommunity) {
-              vscode.commands.executeCommand(
-                "vscode.open",
+              vscode.env.openExternal(
                 vscode.Uri.parse(
                   "https://join.slack.com/t/codesettingssync/shared_invite/enQtMzE3MjY5NTczNDMwLTYwMTIwNGExOGE2MTJkZWU0OTU5MmI3ZTc4N2JkZjhjMzY1OTk5OGExZjkwMDMzMDU4ZTBlYjk5MGQwZmMyNzk"
                 )

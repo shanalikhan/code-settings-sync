@@ -14,6 +14,11 @@ export class InitService {
       const tokenAvailable = !!customSettings.token;
       const gistAvailable = !!extSettings.gist;
 
+      if (!customSettings.downloadPublicGist && !tokenAvailable) {
+        state.commons.webviewService.OpenLandingPage();
+        return;
+      }
+
       if (gistAvailable && extSettings.autoDownload) {
         await commands.executeCommand("extension.downloadSettings");
       }
