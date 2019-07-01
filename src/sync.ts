@@ -12,7 +12,7 @@ import { LocalConfig } from "./models/localConfig.model";
 import PragmaUtil from "./pragmaUtil";
 import { File, FileService } from "./service/file.service";
 import { GitHubService } from "./service/github.service";
-import { ExtensionInformation, PluginService } from "./service/pluginService";
+import { ExtensionInformation, PluginService } from "./service/plugin.service";
 import { state } from "./state";
 
 export class Sync {
@@ -31,6 +31,11 @@ export class Sync {
         startUpCustomSetting.token != null && startUpCustomSetting.token !== "";
       const gistAvailable: boolean =
         startUpSetting.gist != null && startUpSetting.gist !== "";
+
+      if (!startUpCustomSetting.downloadPublicGist && !tokenAvailable) {
+        state.commons.webviewService.OpenLandingPage();
+        return;
+      }
 
       if (gistAvailable) {
         if (startUpSetting.autoDownload) {
@@ -70,7 +75,7 @@ export class Sync {
     await state.commons.HandleStopWatching();
 
     try {
-      localConfig = await state.commons.InitalizeSettings(true, false);
+      localConfig = await state.commons.InitalizeSettings();
       localConfig.publicGist = false;
       if (args.length > 0) {
         if (args[0] === "publicGIST") {
@@ -398,7 +403,7 @@ export class Sync {
     await state.commons.HandleStopWatching();
 
     try {
-      localSettings = await state.commons.InitalizeSettings(true, true);
+      localSettings = await state.commons.InitalizeSettings();
       await StartDownload(localSettings.extConfig, localSettings.customConfig);
     } catch (err) {
       Commons.LogException(err, state.commons.ERROR_MESSAGE, true);
@@ -729,6 +734,11 @@ export class Sync {
           localize("cmd.resetSettings.info.settingClear")
         );
       }
+
+      state.commons.webviewService.UpdateSettingsPage(
+        localSettings,
+        extSettings
+      );
     } catch (err) {
       Commons.LogException(
         err,
@@ -766,6 +776,7 @@ export class Sync {
     const gistAvailable: boolean = setting.gist != null && setting.gist !== "";
 
     const items: string[] = [
+      "cmd.otherOptions.openSettingsPage",
       "cmd.otherOptions.editLocalSetting",
       "cmd.otherOptions.shareSetting",
       "cmd.otherOptions.downloadSetting",
@@ -793,8 +804,11 @@ export class Sync {
 
     const index = items.findIndex(v => v === item);
 
-    const handlerMap = {
-      0: async () => {
+    const handlerMap = [
+      async () => {
+        state.commons.webviewService.OpenSettingsPage(customSettings, setting);
+      },
+      async () => {
         const file: vscode.Uri = vscode.Uri.file(
           state.environment.FILE_CUSTOMIZEDSETTINGS
         );
@@ -806,7 +820,7 @@ export class Sync {
           true
         );
       },
-      1: async () => {
+      async () => {
         // share public gist
         const answer = await vscode.window.showInformationMessage(
           localize("cmd.otherOptions.shareSetting.beforeConfirm"),
@@ -822,32 +836,32 @@ export class Sync {
           await state.commons.SetCustomSettings(customSettings);
         }
       },
-      2: async () => {
+      async () => {
         // Download Settings from Public GIST
         selectedItem = 2;
         customSettings.downloadPublicGist = true;
         settingChanged = true;
         await state.commons.SetCustomSettings(customSettings);
       },
-      3: async () => {
+      async () => {
         // toggle force download
         selectedItem = 3;
         settingChanged = true;
         setting.forceDownload = !setting.forceDownload;
       },
-      4: async () => {
+      async () => {
         // toggle force upload
         selectedItem = 4;
         settingChanged = true;
         setting.forceUpload = !setting.forceUpload;
       },
-      5: async () => {
+      async () => {
         // toggle auto upload
         selectedItem = 5;
         settingChanged = true;
         setting.autoUpload = !setting.autoUpload;
       },
-      6: async () => {
+      async () => {
         // auto download on startup
         selectedItem = 6;
         settingChanged = true;
@@ -862,7 +876,7 @@ export class Sync {
 
         setting.autoDownload = !setting.autoDownload;
       },
-      7: async () => {
+      async () => {
         // page summary toggle
         selectedItem = 7;
         settingChanged = true;
@@ -873,7 +887,7 @@ export class Sync {
         }
         setting.quietSync = !setting.quietSync;
       },
-      8: async () => {
+      async () => {
         // add customized sync file
         const options: vscode.InputBoxOptions = {
           ignoreFocusOut: true,
@@ -898,7 +912,7 @@ export class Sync {
           }
         }
       },
-      9: async () => {
+      async () => {
         // Import customized sync file to workspace
         const customFiles = await this.getCustomFilesFromGist(
           customSettings,
@@ -942,7 +956,7 @@ export class Sync {
           }
         }
       },
-      10: async () => {
+      async () => {
         vscode.commands.executeCommand(
           "vscode.open",
           vscode.Uri.parse(
@@ -950,7 +964,7 @@ export class Sync {
           )
         );
       },
-      11: async () => {
+      async () => {
         vscode.commands.executeCommand(
           "vscode.open",
           vscode.Uri.parse(
@@ -958,7 +972,7 @@ export class Sync {
           )
         );
       },
-      12: async () => {
+      async () => {
         vscode.commands.executeCommand(
           "vscode.open",
           vscode.Uri.parse(
@@ -966,7 +980,7 @@ export class Sync {
           )
         );
       }
-    };
+    ];
 
     try {
       await handlerMap[index]();

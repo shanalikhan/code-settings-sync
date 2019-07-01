@@ -3,6 +3,7 @@
 const path = require("path");
 const { CleanWebpackPlugin } = require("clean-webpack-plugin");
 const webpack = require("webpack");
+const nodeExternals = require("webpack-node-externals");
 
 /** @type WebpackOptions */
 const config = {
@@ -17,7 +18,10 @@ const config = {
   resolve: {
     extensions: [".ts", ".js"],
     alias: {
-      deepmerge$: path.resolve(__dirname, "../node_modules/deepmerge/dist/umd.js")
+      deepmerge$: path.resolve(
+        __dirname,
+        "../node_modules/deepmerge/dist/umd.js"
+      )
     }
   },
   module: {
@@ -29,11 +33,14 @@ const config = {
       }
     ]
   },
-  externals: {
-    vscode: "commonjs vscode",
-    "vscode-fsevents": "commonjs vscode-fsevents",
-    "original-fs": "commonjs original-fs"
-  },
+  externals: [
+    {
+      vscode: "commonjs vscode",
+      "vscode-fsevents": "commonjs vscode-fsevents",
+      "original-fs": "commonjs original-fs"
+    },
+    nodeExternals()
+  ],
   plugins: [new CleanWebpackPlugin()]
 };
 
