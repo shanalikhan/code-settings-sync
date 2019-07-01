@@ -1,6 +1,7 @@
 import * as fs from "fs-extra";
 import * as path from "path";
 import { extensions } from "vscode";
+import { LoggerService } from "./service/logger.service";
 import { state } from "./state";
 
 interface IConfig {
@@ -46,6 +47,7 @@ export class Localize {
     }
 
     this.bundle = await this.resolveLanguagePack();
+    LoggerService.defaultError = this.localize("common.error.message");
   }
   /**
    * format the message

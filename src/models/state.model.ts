@@ -3,6 +3,8 @@ import Commons from "../commons";
 import { Environment } from "../environmentPath";
 import { AutoUploadService } from "../service/autoUpload.service";
 import { SettingsService } from "../service/settings.service";
+import { WebviewService } from "../service/webview.service";
+import { ISyncService } from "./sync.model";
 
 export interface IExtensionState {
   context?: ExtensionContext;
@@ -10,4 +12,6 @@ export interface IExtensionState {
   commons?: Commons;
   settings?: SettingsService;
   autoUpload?: AutoUploadService;
+  webview?: WebviewService;
+  syncService?: ISyncService;
 }

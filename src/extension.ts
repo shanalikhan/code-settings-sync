@@ -3,9 +3,10 @@
 import * as vscode from "vscode";
 import { Environment } from "./environmentPath";
 import { init as initLocalize } from "./localize";
+import { GistService } from "./service/gist.service";
 import { InitService } from "./service/init.service";
 import { SettingsService } from "./service/settings.service";
-import { SyncService } from "./service/sync.service";
+import { WebviewService } from "./service/webview.service";
 import { state } from "./state";
 
 export async function activate(context: vscode.ExtensionContext) {
@@ -14,39 +15,42 @@ export async function activate(context: vscode.ExtensionContext) {
 
   await initLocalize();
 
-  const syncService = new SyncService();
-  const settingsService = new SettingsService();
+  state.settings = new SettingsService();
+  state.webview = new WebviewService();
+  state.syncService = new GistService();
 
   InitService.init();
 
   context.subscriptions.push(
     vscode.commands.registerCommand(
       "extension.updateSettings",
-      syncService.UploadSettings.bind(syncService)
+      state.syncService.UploadSettings.bind(state.syncService)
     )
   );
   context.subscriptions.push(
     vscode.commands.registerCommand(
       "extension.downloadSettings",
-      syncService.DownloadSettings.bind(syncService)
+      state.syncService.DownloadSettings.bind(state.syncService)
     )
   );
   context.subscriptions.push(
     vscode.commands.registerCommand(
       "extension.resetSettings",
-      settingsService.ResetSettings.bind(settingsService)
+      state.settings.ResetSettings.bind(state.settings)
     )
   );
   context.subscriptions.push(
     vscode.commands.registerCommand(
       "extension.HowSettings",
-      settingsService.OpenHelp.bind(settingsService)
+      state.settings.OpenHelp.bind(state.settings)
     )
   );
   context.subscriptions.push(
     vscode.commands.registerCommand(
       "extension.otherOptions",
-      settingsService.OpenAdvancedOptions.bind(settingsService)
+      state.settings.OpenAdvancedOptions.bind(state.settings)
     )
   );
+
+  state.autoUpload = await state.commons.InitializeAutoUpload();
 }

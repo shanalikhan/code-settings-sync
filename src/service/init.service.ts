@@ -15,7 +15,7 @@ export class InitService {
       const gistAvailable = !!extSettings.gist;
 
       if (!customSettings.downloadPublicGist && !tokenAvailable) {
-        state.commons.webviewService.OpenLandingPage();
+        state.webview.OpenLandingPage();
         return;
       }
 

@@ -1,20 +1,54 @@
+import * as GitHubApi from "@octokit/rest";
+import * as HttpsProxyAgent from "https-proxy-agent";
 import * as vscode from "vscode";
 import localize from "../localize";
 import { CloudSettings } from "../models/cloudSettings.model";
 import { CustomConfig } from "../models/customConfig.model";
 import { ExtensionConfig } from "../models/extensionConfig.model";
+import { IEnv } from "../models/ienv.model";
+import { IFixGistResponse } from "../models/ifixgistresponse.model";
 import { LocalConfig } from "../models/localConfig.model";
 import { OsType } from "../models/os-type.model";
+import { ISyncService } from "../models/sync.model";
 import PragmaUtil from "../pragmaUtil";
 import { state } from "../state";
 import { File, FileService } from "./file.service";
-import { GitHubService } from "./github.service";
 import { LoggerService } from "./logger.service";
 import { ExtensionInformation, PluginService } from "./plugin.service";
 
-export class SyncService {
-  public async UploadSettings(options: string): Promise<void> {
-    let github: GitHubService = null;
+export class GistService implements ISyncService {
+  public id = "gist";
+
+  private githubApi: GitHubApi;
+  private emptyGist: any = {
+    description: "Visual Studio Code Sync Settings Gist",
+    public: false,
+    files: {
+      "settings.json": {
+        content: "// Empty"
+      },
+      "launch.json": {
+        content: "// Empty"
+      },
+      "keybindings.json": {
+        content: "// Empty"
+      },
+      "extensions.json": {
+        content: "// Empty"
+      },
+      "locale.json": {
+        content: "// Empty"
+      },
+      "keybindingsMac.json": {
+        content: "// Empty"
+      },
+      cloudSettings: {
+        content: "// Empty"
+      }
+    }
+  };
+
+  public async UploadSettings(options?: string): Promise<void> {
     let localConfig = new LocalConfig();
     const allSettingFiles: File[] = [];
     let uploadedExtensions: ExtensionInformation[] = [];
@@ -26,14 +60,11 @@ export class SyncService {
       localConfig = await state.commons.InitalizeSettings();
       localConfig.publicGist = options === "publicGIST";
 
-      github = new GitHubService(
-        localConfig.customConfig.token,
-        localConfig.customConfig.githubEnterpriseUrl
-      );
+      await this.Connect();
 
       if (!localConfig.extConfig.forceUpload) {
         if (
-          await github.IsGistNewer(
+          await this.IsGistNewer(
             localConfig.extConfig.gist,
             new Date(localConfig.customConfig.lastUpload)
           )
@@ -197,7 +228,7 @@ export class SyncService {
             customSettings.gistDescription = await state.commons.AskGistName();
           }
           newGIST = true;
-          const gistID = await github.CreateEmptyGIST(
+          const gistID = await this.CreateEmptyGIST(
             localConfig.publicGist,
             customSettings.gistDescription
           );
@@ -214,15 +245,15 @@ export class SyncService {
             return;
           }
         }
-        let gistObj = await github.ReadGist(syncSetting.gist);
+        let gistObj = await this.ReadGist(syncSetting.gist);
         if (!gistObj) {
           return;
         }
 
         if (gistObj.data.owner !== null) {
           const gistOwnerName: string = gistObj.data.owner.login.trim();
-          if (github.userName != null) {
-            const userName: string = github.userName.trim();
+          if (this.userName != null) {
+            const userName: string = this.userName.trim();
             if (gistOwnerName !== userName) {
               LoggerService.LogException(
                 null,
@@ -271,8 +302,8 @@ export class SyncService {
           3000
         );
 
-        gistObj = github.UpdateGIST(gistObj, allSettingFiles);
-        completed = await github.SaveGIST(gistObj.data);
+        gistObj = this.UpdateGIST(gistObj, allSettingFiles);
+        completed = await this.SaveGIST(gistObj.data);
         if (!completed) {
           vscode.window.showErrorMessage(
             localize("cmd.updateSettings.error.gistNotSave")
@@ -342,7 +373,11 @@ export class SyncService {
 
     try {
       localSettings = await state.commons.InitalizeSettings();
-      await StartDownload(localSettings.extConfig, localSettings.customConfig);
+      await StartDownload.call(
+        this,
+        localSettings.extConfig,
+        localSettings.customConfig
+      );
     } catch (err) {
       LoggerService.LogException(err, LoggerService.defaultError, true);
       return;
@@ -352,17 +387,14 @@ export class SyncService {
       syncSetting: ExtensionConfig,
       customSettings: CustomConfig
     ) {
-      const github = new GitHubService(
-        customSettings.token,
-        customSettings.githubEnterpriseUrl
-      );
+      await this.Connect();
       vscode.window.setStatusBarMessage("").dispose();
       vscode.window.setStatusBarMessage(
         localize("cmd.downloadSettings.info.readdingOnline"),
         2000
       );
 
-      const res = await github.ReadGist(syncSetting.gist);
+      const res = await this.ReadGist(syncSetting.gist);
 
       if (!res) {
         return;
@@ -637,5 +669,174 @@ export class SyncService {
         );
       }
     }
+  }
+
+  public async Connect(): Promise<void> {
+    const customSettings = await state.settings.GetCustomSettings();
+
+    const githubApiConfig: GitHubApi.Options = {};
+
+    const proxyURL: string =
+      vscode.workspace.getConfiguration("http").get("proxy") ||
+      (process.env as IEnv).http_proxy ||
+      (process.env as IEnv).HTTP_PROXY;
+    if (customSettings.githubEnterpriseUrl) {
+      githubApiConfig.baseUrl = customSettings.githubEnterpriseUrl;
+    }
+
+    if (proxyURL) {
+      githubApiConfig.agent = new HttpsProxyAgent(proxyURL);
+    }
+
+    if (customSettings.token) {
+      githubApiConfig.auth = `token ${customSettings.token}`;
+    }
+    try {
+      this.githubApi = new GitHubApi(githubApiConfig);
+    } catch (err) {
+      console.error(err);
+    }
+    if (customSettings.token) {
+      const res = await this.githubApi.users.getAuthenticated();
+      console.log(`Sync : Connected with user '${res.data.login}'`);
+    }
+  }
+
+  public AddFile(list: File[], gistData: any) {
+    for (const file of list) {
+      if (file.content !== "") {
+        gistData.files[file.gistName] = {};
+        gistData.files[file.gistName].content = file.content;
+      }
+    }
+    return gistData;
+  }
+
+  public async CreateEmptyGIST(
+    publicGist: boolean,
+    gistDescription: string
+  ): Promise<string> {
+    if (publicGist) {
+      this.emptyGist.public = true;
+    } else {
+      this.emptyGist.public = false;
+    }
+    if (gistDescription !== null && gistDescription !== "") {
+      this.emptyGist.description = gistDescription;
+    }
+
+    try {
+      const res = await this.githubApi.gists.create(this.emptyGist);
+      if (res.data && res.data.id) {
+        return res.data.id.toString();
+      } else {
+        console.error("ID is null");
+        console.log(`Sync: Response from GitHub is: ${res}`);
+      }
+    } catch (err) {
+      console.error(err);
+      throw err;
+    }
+  }
+
+  public async ReadGist(
+    GIST: string
+  ): Promise<GitHubApi.Response<IFixGistResponse>> {
+    const promise = this.githubApi.gists.get({ gist_id: GIST });
+    const res = await promise.catch(err => {
+      if (String(err).includes("HttpError: Not Found")) {
+        return LoggerService.LogException(err, "Sync: Invalid Gist ID", true);
+      }
+      LoggerService.LogException(err, LoggerService.defaultError, true);
+    });
+    if (res) {
+      return res;
+    }
+  }
+
+  public async IsGistNewer(
+    GIST: string,
+    localLastUpload: Date
+  ): Promise<boolean> {
+    const gist = await this.ReadGist(GIST);
+    if (!gist) {
+      return;
+    }
+    const gistLastUpload = new Date(
+      JSON.parse(gist.data.files.cloudSettings.content).lastUpload
+    );
+    if (!localLastUpload) {
+      return false;
+    }
+    return gistLastUpload > localLastUpload;
+  }
+
+  public UpdateGIST(gistObject: any, files: File[]): any {
+    const allFiles: string[] = Object.keys(gistObject.data.files);
+    for (const fileName of allFiles) {
+      let exists = false;
+
+      for (const settingFile of files) {
+        if (settingFile.gistName === fileName) {
+          exists = true;
+        }
+      }
+
+      if (!exists && !fileName.startsWith("keybindings")) {
+        gistObject.data.files[fileName] = null;
+      }
+    }
+
+    gistObject.data = this.AddFile(files, gistObject.data);
+    return gistObject;
+  }
+
+  public async SaveGIST(gistObject: any): Promise<boolean> {
+    gistObject.gist_id = gistObject.id;
+    const promise = this.githubApi.gists.update(gistObject);
+
+    const res = await promise.catch(err => {
+      if (String(err).includes("HttpError: Not Found")) {
+        return LoggerService.LogException(err, "Sync: Invalid Gist ID", true);
+      }
+      LoggerService.LogException(err, LoggerService.defaultError, true);
+    });
+
+    if (res) {
+      return true;
+    }
+  }
+
+  public async CustomFilesFromGist(
+    customSettings: CustomConfig,
+    syncSetting: ExtensionConfig
+  ): Promise<File[]> {
+    await this.Connect();
+    const res = await this.ReadGist(syncSetting.gist);
+    if (!res) {
+      return [];
+    }
+    const keys = Object.keys(res.data.files);
+    const customFiles: File[] = [];
+    keys.forEach(gistName => {
+      if (res.data.files[gistName]) {
+        if (res.data.files[gistName].content) {
+          const prefix = FileService.CUSTOMIZED_SYNC_PREFIX;
+          if (gistName.indexOf(prefix) > -1) {
+            const fileName = gistName.split(prefix).join(""); // |customized_sync|.htmlhintrc => .htmlhintrc
+            const f: File = new File(
+              fileName,
+              res.data.files[gistName].content,
+              fileName in customSettings.customFiles
+                ? customSettings.customFiles[fileName]
+                : null,
+              gistName
+            );
+            customFiles.push(f);
+          }
+        }
+      }
+    });
+    return customFiles;
   }
 }

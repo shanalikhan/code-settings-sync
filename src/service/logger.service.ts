@@ -4,7 +4,7 @@ import localize from "../localize";
 export class LoggerService {
   public static outputChannel: OutputChannel;
 
-  public static defaultError: string = localize("common.error.message");
+  public static defaultError: string;
 
   public static LogException(
     error: any,

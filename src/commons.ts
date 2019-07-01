@@ -8,13 +8,9 @@ import { AutoUploadService } from "./service/autoUpload.service";
 import { File, FileService } from "./service/file.service";
 import { LoggerService } from "./service/logger.service";
 import { ExtensionInformation } from "./service/plugin.service";
-import { WebviewService } from "./service/webview.service";
 import { state } from "./state";
 
 export default class Commons {
-  public autoUploadService: AutoUploadService;
-  public webviewService = new WebviewService();
-
   constructor() {
     this.InitializeAutoUpload();
   }
@@ -23,12 +19,12 @@ export default class Commons {
     const ignored = AutoUploadService.GetIgnoredItems(
       await state.settings.GetCustomSettings()
     );
-    this.autoUploadService = new AutoUploadService(ignored);
+    return new AutoUploadService(ignored);
   }
 
   public async HandleStartWatching() {
-    if (this.autoUploadService) {
-      this.autoUploadService.StartWatching();
+    if (state.autoUpload) {
+      state.autoUpload.StartWatching();
     } else {
       await this.InitializeAutoUpload();
       this.HandleStartWatching();
@@ -36,8 +32,8 @@ export default class Commons {
   }
 
   public async HandleStopWatching() {
-    if (this.autoUploadService) {
-      this.autoUploadService.StopWatching();
+    if (state.autoUpload) {
+      state.autoUpload.StopWatching();
     } else {
       await this.InitializeAutoUpload();
       this.HandleStopWatching();
@@ -54,7 +50,7 @@ export default class Commons {
         ? !extSettings.gist
         : !cusSettings.token || !extSettings.gist
     ) {
-      this.webviewService.OpenLandingPage();
+      state.webview.OpenLandingPage();
     }
 
     settings.customConfig = cusSettings;

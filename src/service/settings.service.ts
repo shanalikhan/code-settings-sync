@@ -4,8 +4,8 @@ import { CustomConfig } from "../models/customConfig.model";
 import { ExtensionConfig } from "../models/extensionConfig.model";
 import { LocalConfig } from "../models/localConfig.model";
 import { state } from "../state";
-import { File, FileService } from "./file.service";
-import { GitHubService } from "./github.service";
+import { FileService } from "./file.service";
+import { GistService } from "./gist.service";
 import { LoggerService } from "./logger.service";
 
 export class SettingsService {
@@ -163,7 +163,7 @@ export class SettingsService {
 
     const handlerMap = [
       async () => {
-        state.commons.webviewService.OpenSettingsPage(customSettings, setting);
+        state.webview.OpenSettingsPage(customSettings, setting);
       },
       async () => {
         const file: vscode.Uri = vscode.Uri.file(
@@ -267,46 +267,51 @@ export class SettingsService {
         }
       },
       async () => {
-        // Import customized sync file to workspace
-        const customFiles = await this.CustomFilesFromGist(
-          customSettings,
-          setting
-        );
-        if (customFiles.length < 1) {
-          return;
-        }
-        const options: vscode.QuickPickOptions = {
-          ignoreFocusOut: true,
-          placeHolder: localize(
-            "cmd.otherOptions.downloadCustomFile.placeholder"
-          )
-        };
-        const fileName = await vscode.window.showQuickPick(
-          customFiles.map(file => {
-            return file.fileName;
-          }),
-          options
-        );
-        // if not pick anyone, do nothing
-        if (!fileName) {
-          return;
-        }
-        const selected = customFiles.find(f => {
-          return f.fileName === fileName;
-        });
-        if (selected && vscode.workspace.rootPath) {
-          const downloadPath = FileService.ConcatPath(
-            vscode.workspace.rootPath,
-            selected.fileName
+        if (state.syncService.id === "gist") {
+          // Import customized sync file to workspace
+          const customFiles = await (state.syncService as GistService).CustomFilesFromGist(
+            customSettings,
+            setting
           );
-          const done = await FileService.WriteFile(
-            downloadPath,
-            selected.content
+          if (customFiles.length < 1) {
+            return;
+          }
+          const options: vscode.QuickPickOptions = {
+            ignoreFocusOut: true,
+            placeHolder: localize(
+              "cmd.otherOptions.downloadCustomFile.placeholder"
+            )
+          };
+          const fileName = await vscode.window.showQuickPick(
+            customFiles.map(file => {
+              return file.fileName;
+            }),
+            options
           );
-          if (done) {
-            vscode.window.showInformationMessage(
-              localize("cmd.otherOptions.downloadCustomFile.done", downloadPath)
+          // if not pick anyone, do nothing
+          if (!fileName) {
+            return;
+          }
+          const selected = customFiles.find(f => {
+            return f.fileName === fileName;
+          });
+          if (selected && vscode.workspace.rootPath) {
+            const downloadPath = FileService.ConcatPath(
+              vscode.workspace.rootPath,
+              selected.fileName
             );
+            const done = await FileService.WriteFile(
+              downloadPath,
+              selected.content
+            );
+            if (done) {
+              vscode.window.showInformationMessage(
+                localize(
+                  "cmd.otherOptions.downloadCustomFile.done",
+                  downloadPath
+                )
+              );
+            }
           }
         }
       },
@@ -428,41 +433,5 @@ export class SettingsService {
         "https://github.com/shanalikhan/code-settings-sync/wiki/Settings-Guide"
       )
     );
-  }
-
-  private async CustomFilesFromGist(
-    customSettings: CustomConfig,
-    syncSetting: ExtensionConfig
-  ): Promise<File[]> {
-    const github = new GitHubService(
-      customSettings.token,
-      customSettings.githubEnterpriseUrl
-    );
-    const res = await github.ReadGist(syncSetting.gist);
-    if (!res) {
-      return [];
-    }
-    const keys = Object.keys(res.data.files);
-    const customFiles: File[] = [];
-    keys.forEach(gistName => {
-      if (res.data.files[gistName]) {
-        if (res.data.files[gistName].content) {
-          const prefix = FileService.CUSTOMIZED_SYNC_PREFIX;
-          if (gistName.indexOf(prefix) > -1) {
-            const fileName = gistName.split(prefix).join(""); // |customized_sync|.htmlhintrc => .htmlhintrc
-            const f: File = new File(
-              fileName,
-              res.data.files[gistName].content,
-              fileName in customSettings.customFiles
-                ? customSettings.customFiles[fileName]
-                : null,
-              gistName
-            );
-            customFiles.push(f);
-          }
-        }
-      }
-    });
-    return customFiles;
   }
 }

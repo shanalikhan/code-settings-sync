@@ -61,7 +61,7 @@ export class GitHubOAuthService {
         const gists: any[] = await this.getGists(token, user, host);
 
         if (gists.length) {
-          state.commons.webviewService.OpenGistSelectionpage(gists);
+          state.webview.OpenGistSelectionpage(gists);
         }
       } catch (err) {
         const error = new Error(err);
