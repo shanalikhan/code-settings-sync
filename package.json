@@ -191,7 +191,6 @@
     "node-fetch": "^2.5.0",
     "recursive-readdir": "^2.2.2",
     "temp": "^0.9.0",
-    "vscode-chokidar": "^1.6.5",
-    "webpack-node-externals": "^1.7.2"
+    "vscode-chokidar": "^1.6.5"
   }
 }

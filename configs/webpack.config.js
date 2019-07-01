@@ -2,11 +2,12 @@
 
 const path = require("path");
 const { CleanWebpackPlugin } = require("clean-webpack-plugin");
-const webpack = require("webpack");
-const nodeExternals = require("webpack-node-externals");
 
 /** @type WebpackOptions */
 const config = {
+  stats: {
+    warningsFilter: /Critical dependency: the request of a dependency is an expression/
+  },
   target: "node",
   entry: "./src/extension.ts",
   output: {
@@ -33,14 +34,11 @@ const config = {
       }
     ]
   },
-  externals: [
-    {
-      vscode: "commonjs vscode",
-      "vscode-fsevents": "commonjs vscode-fsevents",
-      "original-fs": "commonjs original-fs"
-    },
-    nodeExternals()
-  ],
+  externals: {
+    vscode: "commonjs vscode",
+    "vscode-fsevents": "commonjs vscode-fsevents",
+    "original-fs": "commonjs original-fs"
+  },
   plugins: [new CleanWebpackPlugin()]
 };
 
