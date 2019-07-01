@@ -2,8 +2,8 @@ import * as express from "express";
 import { Server } from "http";
 import fetch from "node-fetch";
 import { URL, URLSearchParams } from "url";
-import Commons from "../commons";
 import { state } from "../state";
+import { LoggerService } from "./logger.service";
 
 export class GitHubOAuthService {
   public app: express.Express;
@@ -15,7 +15,7 @@ export class GitHubOAuthService {
   }
 
   public async StartProcess() {
-    const customSettings = await state.commons.GetCustomSettings();
+    const customSettings = await state.settings.GetCustomSettings();
     const host = customSettings.githubEnterpriseUrl
       ? new URL(customSettings.githubEnterpriseUrl)
       : new URL("https://github.com");
@@ -65,7 +65,7 @@ export class GitHubOAuthService {
         }
       } catch (err) {
         const error = new Error(err);
-        Commons.LogException(error, state.commons.ERROR_MESSAGE, true);
+        LoggerService.LogException(error, LoggerService.defaultError, true);
       }
     });
   }
@@ -82,7 +82,11 @@ export class GitHubOAuthService {
     });
 
     promise.catch(err => {
-      Commons.LogException(err, "Sync: Invalid GitHub Enterprise URL.", true);
+      LoggerService.LogException(
+        err,
+        "Sync: Invalid GitHub Enterprise URL.",
+        true
+      );
     });
 
     return promise;
@@ -95,7 +99,11 @@ export class GitHubOAuthService {
     });
 
     promise.catch(err => {
-      Commons.LogException(err, "Sync: Invalid GitHub Enterprise URL.", true);
+      LoggerService.LogException(
+        err,
+        "Sync: Invalid GitHub Enterprise URL.",
+        true
+      );
     });
 
     const res = await promise;
@@ -104,9 +112,9 @@ export class GitHubOAuthService {
   }
 
   public async saveToken(token: string) {
-    const currentSettings = await state.commons.GetCustomSettings();
+    const currentSettings = await state.settings.GetCustomSettings();
     currentSettings.token = token;
-    state.commons.SetCustomSettings(currentSettings);
+    state.settings.SetCustomSettings(currentSettings);
   }
 
   public async getUser(token: string, host: URL) {
@@ -116,7 +124,11 @@ export class GitHubOAuthService {
     });
 
     promise.catch(err => {
-      Commons.LogException(err, "Sync: Invalid GitHub Enterprise URL.", true);
+      LoggerService.LogException(
+        err,
+        "Sync: Invalid GitHub Enterprise URL.",
+        true
+      );
     });
 
     const res = await promise;

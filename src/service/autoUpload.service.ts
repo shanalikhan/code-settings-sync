@@ -31,7 +31,7 @@ export class AutoUploadService {
         } else {
           await lockfile.Lock(state.environment.FILE_SYNC_LOCK);
         }
-        const customConfig = await state.commons.GetCustomSettings();
+        const customConfig = await state.settings.GetCustomSettings();
         if (!customConfig.downloadPublicGist) {
           await this.InitiateAutoUpload();
         }
@@ -55,7 +55,7 @@ export class AutoUploadService {
           await lockfile.Lock(state.environment.FILE_SYNC_LOCK);
         }
 
-        const customConfig = await state.commons.GetCustomSettings();
+        const customConfig = await state.settings.GetCustomSettings();
         if (customConfig) {
           const fileType: string = path
             .substring(path.lastIndexOf("."), path.length)
@@ -81,7 +81,7 @@ export class AutoUploadService {
   }
 
   private async InitiateAutoUpload() {
-    const customSettings = await state.commons.GetCustomSettings();
+    const customSettings = await state.settings.GetCustomSettings();
 
     vscode.window.setStatusBarMessage("").dispose();
     vscode.window.setStatusBarMessage(

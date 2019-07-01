@@ -1,6 +1,6 @@
 import { expect } from "chai";
 import fs = require("fs");
-import { OsType } from "../../src/enums";
+import { OsType } from "../../src/models/os-type.model";
 import PragmaUtil from "../../src/pragmaUtil";
 
 let testSettings = null;
@@ -26,9 +26,7 @@ describe("Process before upload", function() {
       // "server": "http://exmaple.com
     `;
 
-    const result = await PragmaUtil.processBeforeUpload(
-      commentedSettings
-    );
+    const result = await PragmaUtil.processBeforeUpload(commentedSettings);
     await expect(result)
       .to.match(/\s+"window"/)
       .and.to.match(/\s+"server"/);
@@ -64,9 +62,7 @@ describe("Process before upload", function() {
   });
 
   it("should leave only settings that matches with os=mac host=mac2 env=TEST_ENV", async () => {
-    const processed = await PragmaUtil.processBeforeUpload(
-      testSettings
-    );
+    const processed = await PragmaUtil.processBeforeUpload(testSettings);
     // tslint:disable-next-line:no-string-literal
     process.env["TEST_ENV"] = "1";
     await expect(

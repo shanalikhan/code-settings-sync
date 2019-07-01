@@ -1,6 +1,6 @@
-import { OsType } from "./enums";
 import { osTypeFromString, SUPPORTED_OS } from "./environmentPath";
 import localize from "./localize";
+import { OsType } from "./models/os-type.model";
 
 /**
  * Comment/Uncomment lines if matches OS name or Hostname.

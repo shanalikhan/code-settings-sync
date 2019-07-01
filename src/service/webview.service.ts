@@ -2,7 +2,6 @@ import { readFileSync } from "fs-extra";
 import { has, set } from "lodash";
 import { URL } from "url";
 import * as vscode from "vscode";
-import Commons from "../commons";
 import localize from "../localize";
 import { CustomConfig } from "../models/customConfig.model";
 import { ExtensionConfig } from "../models/extensionConfig.model";
@@ -10,6 +9,7 @@ import { UISettingType } from "../models/settingType.model";
 import { IWebview } from "../models/webview.model";
 import { state } from "../state";
 import { GitHubOAuthService } from "./github.oauth.service";
+import { LoggerService } from "./logger.service";
 
 export class WebviewService {
   private globalSettings = [
@@ -235,8 +235,8 @@ export class WebviewService {
     settingsPanel.webview.onDidReceiveMessage(async message => {
       if (message === "openGist") {
         const [customConfig, extConfig] = await Promise.all([
-          state.commons.GetCustomSettings(),
-          state.commons.GetSettings()
+          state.settings.GetCustomSettings(),
+          state.settings.GetExtensionSettings()
         ]);
         const host = customConfig.githubEnterpriseUrl
           ? new URL(customConfig.githubEnterpriseUrl)
@@ -246,7 +246,7 @@ export class WebviewService {
           host
         );
         if (!username) {
-          return Commons.LogException(
+          return LoggerService.LogException(
             null,
             "Sync: Invalid Access Token.",
             true
@@ -297,11 +297,11 @@ export class WebviewService {
     if (message.type === "global") {
       if (has(customSettings, message.command)) {
         set(customSettings, message.command, value);
-        state.commons.SetCustomSettings(customSettings);
+        state.settings.SetCustomSettings(customSettings);
       }
     } else {
       extSettings[message.command] = value;
-      state.commons.SaveSettings(extSettings);
+      state.settings.SetExtensionSettings(extSettings);
     }
   }
 
@@ -331,7 +331,7 @@ export class WebviewService {
       switch (message.command) {
         case "loginWithGitHub":
           new GitHubOAuthService(54321).StartProcess();
-          const customSettings = await state.commons.GetCustomSettings();
+          const customSettings = await state.settings.GetCustomSettings();
           const host = customSettings.githubEnterpriseUrl
             ? new URL(customSettings.githubEnterpriseUrl)
             : new URL("https://github.com");
@@ -344,8 +344,8 @@ export class WebviewService {
           break;
         case "editConfiguration":
           this.OpenSettingsPage(
-            await state.commons.GetCustomSettings(),
-            await state.commons.GetSettings()
+            await state.settings.GetCustomSettings(),
+            await state.settings.GetExtensionSettings()
           );
           break;
       }
@@ -380,9 +380,9 @@ export class WebviewService {
     gistSelectionPanel.webview.html = content;
     gistSelectionPanel.webview.onDidReceiveMessage(async message => {
       if (!message.close) {
-        const extSettings = await state.commons.GetSettings();
+        const extSettings = await state.settings.GetExtensionSettings();
         extSettings.gist = message.id;
-        state.commons.SaveSettings(extSettings);
+        state.settings.SetExtensionSettings(extSettings);
       } else {
         gistSelectionPanel.dispose();
       }
