@@ -62,7 +62,11 @@ export class GistService implements ISyncService {
 
       await this.Connect();
 
-      if (localConfig.extConfig.gist && !localConfig.extConfig.forceUpload) {
+      if (
+        localConfig.extConfig.gist &&
+        localConfig.customConfig.GitHubGist.lastUpload &&
+        !localConfig.extConfig.forceUpload
+      ) {
         if (
           await this.IsGistNewer(
             localConfig.extConfig.gist,
