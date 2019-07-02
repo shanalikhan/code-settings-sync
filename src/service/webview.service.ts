@@ -348,6 +348,30 @@ export class WebviewService {
             await state.commons.GetSettings()
           );
           break;
+        case "downloadPublicGist":
+          const [extConfig, customConfig] = await Promise.all([
+            state.commons.GetSettings(),
+            state.commons.GetCustomSettings()
+          ]);
+          const publicGist = await vscode.window.showInputBox({
+            placeHolder: localize("common.placeholder.enterGistId"),
+            ignoreFocusOut: true
+          });
+          if (!publicGist) {
+            break;
+          }
+          await state.commons.SetCustomSettings({
+            ...customConfig,
+            downloadPublicGist: true
+          });
+          await state.commons.SaveSettings({
+            ...extConfig,
+            gist: publicGist
+          });
+          vscode.window.showInformationMessage(
+            localize("cmd.otherOptions.warning.tokenNotRequire")
+          );
+          break;
       }
     });
     landingPanel.webview.html = content;
