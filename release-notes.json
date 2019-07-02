@@ -1,64 +1,40 @@
 {
   "changes": [
     {
-      "details": "<b>Code OSS</b> Version Support Added",
-      "type": "FIX",
-      "color": "danger",
-      "author": "arnohovhannisyan",
-      "pullRequest": "859"
-    },
-    {
-      "details": "<b>Remote Development</b> Support Added",
-      "type": "NEW",
-      "color": "success",
-      "author": "mjbvz",
-      "pullRequest": "871"
-    },
-    {
-      "details": "Support <b>OS specific keybindings.json</b> in single file",
-      "type": "NEW",
-      "color": "success",
-      "author": "njkevlani",
-      "pullRequest": "854"
-    },
-    {
-      "details": "Improved <b>Auto Upload</b> Process",
-      "type": "FIX",
-      "color": "danger",
-      "author": "arnohovhannisyan",
-      "pullRequest": "909"
-    },
-    {
-      "details": "Improved <b>Pragma Util</b> to ignore some values",
-      "type": "FIX",
-      "color": "danger",
-      "author": "ioprotium",
-      "pullRequest": "872"
-    },
-    {
-      "details": "Ignore <b>auto-upload</b> process for some settings",
-      "type": "FIX",
-      "color": "danger",
-      "author": "ioprotium",
-      "pullRequest": "872"
-    },
-    {
-      "details": "<b>Language localization</b> improved and more <b>languages</b> added",
+      "details": "Settings Sync now use Webviews to allow you to configure settings",
       "type": "NEW",
       "color": "success",
       "author": "arnohovhannisyan",
-      "pullRequest": "915"
+      "pullRequest": "876"
     },
     {
-      "details": "Improved <b>Command line</b> text",
-      "type": "NEW",
-      "color": "success"
+      "details": "code snippets not being synced after update to 3.3.0",
+      "type": "FIX",
+      "color": "danger",
+      "author": "arnohovhannisyan",
+      "pullRequest": "928"
     },
     {
-      "details": "Small Improvements",
+      "details": "Implement upload delay setting",
       "type": "NEW",
-      "color": "success"
+      "color": "success",
+      "author": "arnohovhannisyan",
+      "pullRequest": "925"
+    },
+    {
+      "details": "Dont Upload If GIST and settings content are the same",
+      "type": "NEW",
+      "color": "danger",
+      "author": "arnohovhannisyan",
+      "pullRequest": "923"
+    },
+    {
+      "details": "Prevent accidental upload",
+      "type": "NEW",
+      "color": "danger",
+      "author": "arnohovhannisyan",
+      "pullRequest": "923"
     }
   ],
-  "currentVersion": "v3.3.1"
+  "currentVersion": "v3.4.0"
 }
