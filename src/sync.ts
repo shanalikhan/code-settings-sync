@@ -88,7 +88,10 @@ export class Sync {
         localConfig.customConfig.githubEnterpriseUrl
       );
 
-      if (!localConfig.extConfig.forceUpload) {
+      if (
+        localConfig.customConfig.lastUpload &&
+        !localConfig.extConfig.forceUpload
+      ) {
         if (
           await github.IsGistNewer(
             localConfig.extConfig.gist,
