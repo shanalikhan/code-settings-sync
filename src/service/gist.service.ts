@@ -66,7 +66,7 @@ export class GistService implements ISyncService {
         if (
           await this.IsGistNewer(
             localConfig.extConfig.gist,
-            new Date(localConfig.customConfig.lastUpload)
+            new Date(localConfig.customConfig.GitHubGist.lastUpload)
           )
         ) {
           const message = await vscode.window.showInformationMessage(
@@ -105,8 +105,8 @@ export class GistService implements ISyncService {
         2000
       );
 
-      if (customSettings.downloadPublicGist) {
-        if (customSettings.token == null || customSettings.token === "") {
+      if (customSettings.GitHubGist.downloadPublicGist) {
+        if (!customSettings.GitHubGist.token) {
           vscode.window.showInformationMessage(
             state.localize("cmd.updateSettings.warning.noToken")
           );
@@ -115,7 +115,7 @@ export class GistService implements ISyncService {
         }
       }
 
-      customSettings.lastUpload = currentDate;
+      customSettings.GitHubGist.lastUpload = currentDate;
       vscode.window.setStatusBarMessage(
         state.localize("cmd.updateSettings.info.readding"),
         2000
@@ -224,13 +224,13 @@ export class GistService implements ISyncService {
       let newGIST: boolean = false;
       try {
         if (syncSetting.gist == null || syncSetting.gist === "") {
-          if (customSettings.askGistName) {
-            customSettings.gistDescription = await state.commons.AskGistName();
+          if (customSettings.GitHubGist.askGistName) {
+            customSettings.GitHubGist.gistDescription = await state.commons.AskGistName();
           }
           newGIST = true;
           const gistID = await this.CreateEmptyGIST(
             localConfig.publicGist,
-            customSettings.gistDescription
+            customSettings.GitHubGist.gistDescription
           );
           if (gistID) {
             syncSetting.gist = gistID;
@@ -420,11 +420,11 @@ export class GistService implements ISyncService {
           cloudSettGist
         );
 
-        const lastUploadStr: string = customSettings.lastUpload
-          ? customSettings.lastUpload.toString()
+        const lastUploadStr: string = customSettings.GitHubGist.lastUpload
+          ? customSettings.GitHubGist.lastUpload.toString()
           : "";
-        const lastDownloadStr: string = customSettings.lastDownload
-          ? customSettings.lastDownload.toString()
+        const lastDownloadStr: string = customSettings.GitHubGist.lastDownload
+          ? customSettings.GitHubGist.lastDownload.toString()
           : "";
 
         let upToDate: boolean = false;
@@ -451,7 +451,7 @@ export class GistService implements ISyncService {
             return;
           }
         }
-        customSettings.lastDownload = cloudSett.lastUpload;
+        customSettings.GitHubGist.lastDownload = cloudSett.lastUpload;
       }
 
       keys.forEach(gistName => {
@@ -680,23 +680,23 @@ export class GistService implements ISyncService {
       vscode.workspace.getConfiguration("http").get("proxy") ||
       (process.env as IEnv).http_proxy ||
       (process.env as IEnv).HTTP_PROXY;
-    if (customSettings.githubEnterpriseUrl) {
-      githubApiConfig.baseUrl = customSettings.githubEnterpriseUrl;
+    if (customSettings.GitHubGist.githubEnterpriseUrl) {
+      githubApiConfig.baseUrl = customSettings.GitHubGist.githubEnterpriseUrl;
     }
 
     if (proxyURL) {
       githubApiConfig.agent = new HttpsProxyAgent(proxyURL);
     }
 
-    if (customSettings.token) {
-      githubApiConfig.auth = `token ${customSettings.token}`;
+    if (customSettings.GitHubGist.token) {
+      githubApiConfig.auth = `token ${customSettings.GitHubGist.token}`;
     }
     try {
       this.githubApi = new GitHubApi(githubApiConfig);
     } catch (err) {
       console.error(err);
     }
-    if (customSettings.token) {
+    if (customSettings.GitHubGist.token) {
       const res = await this.githubApi.users.getAuthenticated();
       console.log(`Sync : Connected with user '${res.data.login}'`);
     }
@@ -838,5 +838,19 @@ export class GistService implements ISyncService {
       }
     });
     return customFiles;
+  }
+
+  public async IsConfigured() {
+    const [extSettings, customSettings] = await Promise.all([
+      state.settings.GetExtensionSettings(),
+      state.settings.GetCustomSettings()
+    ]);
+
+    const tokenAvailable = !!customSettings.GitHubGist.token;
+    const gistAvailable = !!extSettings.gist;
+
+    return customSettings.GitHubGist.downloadPublicGist
+      ? gistAvailable
+      : tokenAvailable && gistAvailable;
   }
 }

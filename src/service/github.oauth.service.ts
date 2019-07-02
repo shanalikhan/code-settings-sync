@@ -16,8 +16,8 @@ export class GitHubOAuthService {
 
   public async StartProcess() {
     const customSettings = await state.settings.GetCustomSettings();
-    const host = customSettings.githubEnterpriseUrl
-      ? new URL(customSettings.githubEnterpriseUrl)
+    const host = customSettings.GitHubGist.githubEnterpriseUrl
+      ? new URL(customSettings.GitHubGist.githubEnterpriseUrl)
       : new URL("https://github.com");
 
     this.server = this.app.listen(this.port);
@@ -113,7 +113,7 @@ export class GitHubOAuthService {
 
   public async saveToken(token: string) {
     const currentSettings = await state.settings.GetCustomSettings();
-    currentSettings.token = token;
+    currentSettings.GitHubGist.token = token;
     state.settings.SetCustomSettings(currentSettings);
   }
 

@@ -254,11 +254,11 @@ export class WebviewService {
           state.settings.GetCustomSettings(),
           state.settings.GetExtensionSettings()
         ]);
-        const host = customConfig.githubEnterpriseUrl
-          ? new URL(customConfig.githubEnterpriseUrl)
+        const host = customConfig.GitHubGist.githubEnterpriseUrl
+          ? new URL(customConfig.GitHubGist.githubEnterpriseUrl)
           : new URL("https://github.com");
         const username = await new GitHubOAuthService(0).getUser(
-          customConfig.token,
+          customConfig.GitHubGist.token,
           host
         );
         if (!username) {
@@ -348,8 +348,8 @@ export class WebviewService {
         case "loginWithGitHub":
           new GitHubOAuthService(54321).StartProcess();
           const customSettings = await state.settings.GetCustomSettings();
-          const host = customSettings.githubEnterpriseUrl
-            ? new URL(customSettings.githubEnterpriseUrl)
+          const host = customSettings.GitHubGist.githubEnterpriseUrl
+            ? new URL(customSettings.GitHubGist.githubEnterpriseUrl)
             : new URL("https://github.com");
           vscode.commands.executeCommand(
             "vscode.open",

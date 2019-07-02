@@ -67,14 +67,15 @@ export class LoggerService {
     outputChannel.appendLine(`Version: ${Environment.version}`);
     outputChannel.appendLine(`--------------------`);
     outputChannel.appendLine(
-      `GitHub Token: ${syncSettings.customConfig.token || "Anonymous"}`
+      `GitHub Token: ${syncSettings.customConfig.GitHubGist.token ||
+        "Anonymous"}`
     );
     outputChannel.appendLine(`GitHub Gist: ${syncSettings.extConfig.gist}`);
     outputChannel.appendLine(
       `GitHub Gist Type: ${syncSettings.publicGist ? "Public" : "Secret"}`
     );
     outputChannel.appendLine(``);
-    if (!syncSettings.customConfig.token) {
+    if (!syncSettings.customConfig.GitHubGist.token) {
       outputChannel.appendLine(
         `Anonymous Gist cannot be edited, the extension will always create a new one during upload.`
       );

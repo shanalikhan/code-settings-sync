@@ -53,7 +53,7 @@ export default class Commons {
       if (state.context.globalState.get("synctoken")) {
         const token = state.context.globalState.get("synctoken");
         if (token !== "") {
-          customSettings.token = String(token);
+          customSettings.GitHubGist.token = String(token);
           state.context.globalState.update("synctoken", "");
           vscode.window.showInformationMessage(
             state.localize("common.info.setToken")

@@ -3,7 +3,7 @@
 import * as vscode from "vscode";
 import Commons from "./commons";
 import { Environment } from "./environment";
-import { GistService } from "./service/gist.service";
+import { FactoryService } from "./service/factory.service";
 import { InitService } from "./service/init.service";
 import { LocalizationService } from "./service/localization.service";
 import { SettingsService } from "./service/settings.service";
@@ -19,7 +19,12 @@ export async function activate(context: vscode.ExtensionContext) {
 
   state.settings = new SettingsService();
   state.webview = new WebviewService();
-  state.syncService = new GistService();
+
+  const customSettings = await state.settings.GetCustomSettings();
+
+  state.syncService = FactoryService.CreateSyncService(
+    customSettings.exportType
+  );
   state.commons = new Commons();
 
   context.subscriptions.push(

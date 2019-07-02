@@ -21,7 +21,6 @@ export class SettingsService {
         );
 
         Object.assign(customSettings, JSON.parse(customSettingStr));
-        customSettings.token = customSettings.token.trim();
       }
     } catch (e) {
       LoggerService.LogException(
@@ -90,11 +89,7 @@ export class SettingsService {
     const extSettings = state.settings.GetExtensionSettings();
     const cusSettings = await state.settings.GetCustomSettings();
 
-    if (
-      cusSettings.downloadPublicGist
-        ? !extSettings.gist
-        : !cusSettings.token || !extSettings.gist
-    ) {
+    if (!state.syncService.IsConfigured()) {
       state.webview.OpenLandingPage();
     }
 
@@ -146,9 +141,6 @@ export class SettingsService {
         });
     }
     const localSetting = new LocalConfig();
-    const tokenAvailable: boolean =
-      customSettings.token != null && customSettings.token !== "";
-    const gistAvailable: boolean = setting.gist != null && setting.gist !== "";
 
     const items: string[] = [
       "cmd.otherOptions.openSettingsPage",
@@ -206,14 +198,14 @@ export class SettingsService {
           settingChanged = true;
           setting.gist = "";
           selectedItem = 1;
-          customSettings.downloadPublicGist = false;
+          customSettings.GitHubGist.downloadPublicGist = false;
           await this.SetCustomSettings(customSettings);
         }
       },
       async () => {
         // Download Settings from Public GIST
         selectedItem = 2;
-        customSettings.downloadPublicGist = true;
+        customSettings.GitHubGist.downloadPublicGist = true;
         settingChanged = true;
         await this.SetCustomSettings(customSettings);
       },
@@ -239,11 +231,7 @@ export class SettingsService {
         // auto download on startup
         selectedItem = 6;
         settingChanged = true;
-        if (!setting) {
-          vscode.commands.executeCommand("extension.HowSettings");
-          return;
-        }
-        if (!gistAvailable) {
+        if (!state.syncService.IsConfigured() || !setting) {
           vscode.commands.executeCommand("extension.HowSettings");
           return;
         }
@@ -255,7 +243,7 @@ export class SettingsService {
         selectedItem = 7;
         settingChanged = true;
 
-        if (!tokenAvailable || !gistAvailable) {
+        if (!state.syncService.IsConfigured()) {
           vscode.commands.executeCommand("extension.HowSettings");
           return;
         }

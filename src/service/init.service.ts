@@ -14,18 +14,15 @@ export class InitService {
     AutoUploadService.Instantiate(customSettings);
 
     if (extSettings) {
-      const tokenAvailable = !!customSettings.token;
-      const gistAvailable = !!extSettings.gist;
-
-      if (!customSettings.downloadPublicGist && !tokenAvailable) {
+      if (!state.syncService.IsConfigured()) {
         state.webview.OpenLandingPage();
         return;
       }
 
-      if (gistAvailable && extSettings.autoDownload) {
+      if (extSettings.autoDownload) {
         await commands.executeCommand("extension.downloadSettings");
       }
-      if (extSettings.autoUpload && tokenAvailable && gistAvailable) {
+      if (extSettings.autoUpload) {
         await AutoUploadService.HandleStartWatching();
       }
     }

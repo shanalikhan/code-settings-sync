@@ -1,4 +1,6 @@
 import { Environment } from "../environment";
+import { GistConfig } from "./gistConfig.model";
+import { SyncMethod } from "./sync-method.model";
 
 export class CustomConfig {
   public ignoreUploadFiles: string[] = [
@@ -13,19 +15,13 @@ export class CustomConfig {
     "gpm_projects.json",
     "gpm-recentItems.json"
   ];
+  public exportType: SyncMethod = SyncMethod.GitHubGist;
+  public GitHubGist = new GistConfig();
   public ignoreUploadFolders: string[] = ["workspaceStorage"];
   public ignoreExtensions: string[] = [];
-  public gistDescription: string = "Visual Studio Code Settings Sync Gist";
   public version: number = Environment.CURRENT_VERSION;
-  public token: string = "";
-  public downloadPublicGist: boolean = false;
   public supportedFileExtensions: string[] = ["json", "code-snippets"];
-  public openTokenLink: boolean = true;
   public disableUpdateMessage: boolean = false;
-  public lastUpload: Date = null;
-  public lastDownload: Date = null;
-  public githubEnterpriseUrl: string = null;
-  public askGistName: boolean = false;
   public customFiles: { [key: string]: string } = {};
   public hostName: string = null;
   public universalKeybindings: boolean = false;
