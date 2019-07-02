@@ -118,7 +118,7 @@ export default class Commons {
       if (!customSettings.disableUpdateMessage) {
         vscode.window
           .showInformationMessage(
-            localize("common.info.updateTo", Environment.getVersion()),
+            localize("common.info.updateTo", Environment.version),
             releaseNotes,
             writeReview,
             support,
@@ -190,7 +190,7 @@ export default class Commons {
     outputChannel.appendLine(
       `CODE SETTINGS SYNC ${upload ? "UPLOAD" : "DOWNLOAD"} SUMMARY`
     );
-    outputChannel.appendLine(`Version: ${Environment.getVersion()}`);
+    outputChannel.appendLine(`Version: ${Environment.version}`);
     outputChannel.appendLine(`--------------------`);
     outputChannel.appendLine(
       `GitHub Token: ${syncSettings.customConfig.token || "Anonymous"}`

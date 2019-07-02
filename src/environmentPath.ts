@@ -17,14 +17,10 @@ export function osTypeFromString(osName: string): OsType {
 
 export class Environment {
   public static CURRENT_VERSION: number = 331;
-  public static getVersion(): string {
-    return (
-      Environment.CURRENT_VERSION.toString().slice(0, 1) +
-      "." +
-      Environment.CURRENT_VERSION.toString().slice(1, 2) +
-      "." +
-      Environment.CURRENT_VERSION.toString().slice(2, 3)
-    );
+  public static get version(): string {
+    return Environment.CURRENT_VERSION.toString()
+      .split("")
+      .join(".");
   }
 
   // public isInsiders: boolean = false;
