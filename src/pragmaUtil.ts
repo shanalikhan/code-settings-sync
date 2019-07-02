@@ -160,7 +160,7 @@ export default class PragmaUtil {
           if (!SUPPORTED_OS.includes(trimmed)) {
             console.warn("Sync: Invalid OS", osFromPragma);
             throw new Error(
-              state.localization.Localize(
+              state.localize(
                 "cmd.updateSettings.warning.OSNotSupported",
                 trimmed,
                 index + 1

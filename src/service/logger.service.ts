@@ -18,19 +18,19 @@ export class LoggerService {
     if (error) {
       console.error(error);
       if (error.status === 500) {
-        message = state.localization.Localize("common.error.connection");
+        message = state.localize("common.error.connection");
         showMessageBox = false;
       } else if (error.status === 401) {
         showMessageBox = true;
-        message = state.localization.Localize("common.error.invalidToken");
+        message = state.localize("common.error.invalidToken");
       } else if (error.status === 4) {
-        message = state.localization.Localize("common.error.canNotSave");
+        message = state.localize("common.error.canNotSave");
       } else if (error.message) {
         try {
           message = JSON.parse(error.message).message;
           if (message.toLowerCase() === "not found") {
             showMessageBox = true;
-            message = state.localization.Localize("common.error.invalidGistId");
+            message = state.localize("common.error.invalidGistId");
           }
         } catch (error) {
           //  message = error.message;

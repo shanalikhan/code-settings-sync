@@ -108,7 +108,7 @@ export class SettingsService {
     const localSettings = new CustomConfig();
 
     vscode.window.setStatusBarMessage(
-      state.localization.Localize("cmd.resetSettings.info.resetting"),
+      state.localize("cmd.resetSettings.info.resetting"),
       2000
     );
 
@@ -118,7 +118,7 @@ export class SettingsService {
 
       if (extSaved && customSaved) {
         vscode.window.showInformationMessage(
-          state.localization.Localize("cmd.resetSettings.info.settingClear")
+          state.localize("cmd.resetSettings.info.settingClear")
         );
       }
     } catch (err) {
@@ -136,11 +136,11 @@ export class SettingsService {
     if (customSettings == null) {
       vscode.window
         .showInformationMessage(
-          state.localization.Localize("cmd.otherOptions.triggerReset"),
-          state.localization.Localize("common.button.yes")
+          state.localize("cmd.otherOptions.triggerReset"),
+          state.localize("common.button.yes")
         )
         .then(val => {
-          if (val === state.localization.Localize("common.button.yes")) {
+          if (val === state.localize("common.button.yes")) {
             vscode.commands.executeCommand("extension.resetSettings");
           }
         });
@@ -165,7 +165,7 @@ export class SettingsService {
       "cmd.otherOptions.joinCommunity",
       "cmd.otherOptions.openIssue",
       "cmd.otherOptions.releaseNotes"
-    ].map(state.localization.Localize.bind(state.localization));
+    ].map(state.localize);
 
     let selectedItem: number = 0;
     let settingChanged: boolean = false;
@@ -197,9 +197,7 @@ export class SettingsService {
       async () => {
         // share public gist
         const answer = await vscode.window.showInformationMessage(
-          state.localization.Localize(
-            "cmd.otherOptions.shareSetting.beforeConfirm"
-          ),
+          state.localize("cmd.otherOptions.shareSetting.beforeConfirm"),
           "Yes"
         );
 
@@ -267,12 +265,10 @@ export class SettingsService {
         // add customized sync file
         const options: vscode.InputBoxOptions = {
           ignoreFocusOut: true,
-          placeHolder: state.localization.Localize(
+          placeHolder: state.localize(
             "cmd.otherOptions.customizedSync.placeholder"
           ),
-          prompt: state.localization.Localize(
-            "cmd.otherOptions.customizedSync.prompt"
-          )
+          prompt: state.localize("cmd.otherOptions.customizedSync.prompt")
         };
         const input = await vscode.window.showInputBox(options);
 
@@ -285,10 +281,7 @@ export class SettingsService {
           const done: boolean = await this.SetCustomSettings(customSettings);
           if (done) {
             vscode.window.showInformationMessage(
-              state.localization.Localize(
-                "cmd.otherOptions.customizedSync.done",
-                fileName
-              )
+              state.localize("cmd.otherOptions.customizedSync.done", fileName)
             );
           }
         }
@@ -305,7 +298,7 @@ export class SettingsService {
           }
           const options: vscode.QuickPickOptions = {
             ignoreFocusOut: true,
-            placeHolder: state.localization.Localize(
+            placeHolder: state.localize(
               "cmd.otherOptions.downloadCustomFile.placeholder"
             )
           };
@@ -333,7 +326,7 @@ export class SettingsService {
             );
             if (done) {
               vscode.window.showInformationMessage(
-                state.localization.Localize(
+                state.localize(
                   "cmd.otherOptions.downloadCustomFile.done",
                   downloadPath
                 )
@@ -386,9 +379,7 @@ export class SettingsService {
                 },
                 2: async () => {
                   return await vscode.window.showInformationMessage(
-                    state.localization.Localize(
-                      "cmd.otherOptions.warning.tokenNotRequire"
-                    )
+                    state.localize("cmd.otherOptions.warning.tokenNotRequire")
                   );
                 },
                 3: async () => {
@@ -396,7 +387,7 @@ export class SettingsService {
                     ? "cmd.otherOptions.toggleForceDownload.on"
                     : "cmd.otherOptions.toggleForceDownload.off";
                   return vscode.window.showInformationMessage(
-                    state.localization.Localize(message)
+                    state.localize(message)
                   );
                 },
                 4: async () => {
@@ -404,7 +395,7 @@ export class SettingsService {
                     ? "cmd.otherOptions.toggleForceUpload.on"
                     : "cmd.otherOptions.toggleForceUpload.off";
                   return vscode.window.showInformationMessage(
-                    state.localization.Localize(message)
+                    state.localize(message)
                   );
                 },
                 5: async () => {
@@ -412,7 +403,7 @@ export class SettingsService {
                     ? "cmd.otherOptions.toggleAutoUpload.on"
                     : "cmd.otherOptions.toggleAutoUpload.off";
                   return vscode.window.showInformationMessage(
-                    state.localization.Localize(message)
+                    state.localize(message)
                   );
                 },
                 6: async () => {
@@ -420,7 +411,7 @@ export class SettingsService {
                     ? "cmd.otherOptions.toggleAutoDownload.on"
                     : "cmd.otherOptions.toggleAutoDownload.off";
                   return vscode.window.showInformationMessage(
-                    state.localization.Localize(message)
+                    state.localize(message)
                   );
                 },
                 7: async () => {
@@ -428,7 +419,7 @@ export class SettingsService {
                     ? "cmd.otherOptions.quietSync.on"
                     : "cmd.otherOptions.quietSync.off";
                   return vscode.window.showInformationMessage(
-                    state.localization.Localize(message)
+                    state.localize(message)
                   );
                 }
               };
@@ -438,7 +429,7 @@ export class SettingsService {
               }
             } else {
               return vscode.window.showErrorMessage(
-                state.localization.Localize("cmd.otherOptions.error.toggleFail")
+                state.localize("cmd.otherOptions.error.toggleFail")
               );
             }
           })

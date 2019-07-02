@@ -111,9 +111,10 @@ export class AutoUploadService {
 
     vscode.window.setStatusBarMessage("").dispose();
     vscode.window.setStatusBarMessage(
-      state.localization
-        .Localize("common.info.initAutoUpload")
-        .replace("{0}", customSettings.autoUploadDelay.toString()),
+      state.localize(
+        "common.info.initAutoUpload",
+        customSettings.autoUploadDelay.toString()
+      ),
       5000
     );
 

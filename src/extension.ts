@@ -13,7 +13,10 @@ import { state } from "./state";
 export async function activate(context: vscode.ExtensionContext) {
   state.context = context;
   state.environment = new Environment();
-  state.localization = new LocalizationService();
+
+  const localizationService = new LocalizationService();
+  state.localize = localizationService.Localize.bind(localizationService);
+
   state.settings = new SettingsService();
   state.webview = new WebviewService();
   state.syncService = new GistService();

@@ -22,15 +22,13 @@ export default class Commons {
     // vscode.workspace.getConfiguration().update("sync.version", undefined, true);
 
     if (firstTime) {
-      const openExtensionPage = state.localization.Localize(
-        "common.action.openExtPage"
-      );
+      const openExtensionPage = state.localize("common.action.openExtPage");
       vscode.window.showInformationMessage(
-        state.localization.Localize("common.info.installed")
+        state.localize("common.info.installed")
       );
       vscode.window
         .showInformationMessage(
-          state.localization.Localize("common.info.needHelp"),
+          state.localize("common.info.needHelp"),
           openExtensionPage
         )
         .then((val: string) => {
@@ -58,28 +56,19 @@ export default class Commons {
           customSettings.token = String(token);
           state.context.globalState.update("synctoken", "");
           vscode.window.showInformationMessage(
-            state.localization.Localize("common.info.setToken")
+            state.localize("common.info.setToken")
           );
         }
       }
 
-      const releaseNotes = state.localization.Localize(
-        "common.action.releaseNotes"
-      );
-      const writeReview = state.localization.Localize(
-        "common.action.writeReview"
-      );
-      const support = state.localization.Localize("common.action.support");
-      const joinCommunity = state.localization.Localize(
-        "common.action.joinCommunity"
-      );
+      const releaseNotes = state.localize("common.action.releaseNotes");
+      const writeReview = state.localize("common.action.writeReview");
+      const support = state.localize("common.action.support");
+      const joinCommunity = state.localize("common.action.joinCommunity");
       if (!customSettings.disableUpdateMessage) {
         vscode.window
           .showInformationMessage(
-            state.localization.Localize(
-              "common.info.updateTo",
-              Environment.version
-            ),
+            state.localize("common.info.updateTo", Environment.version),
             releaseNotes,
             writeReview,
             support,
@@ -127,11 +116,9 @@ export default class Commons {
 
   public async AskGistName(): Promise<string> {
     return vscode.window.showInputBox({
-      prompt: state.localization.Localize("common.prompt.multipleGist"),
+      prompt: state.localize("common.prompt.multipleGist"),
       ignoreFocusOut: true,
-      placeHolder: state.localization.Localize(
-        "common.placeholder.multipleGist"
-      )
+      placeHolder: state.localize("common.placeholder.multipleGist")
     });
   }
 }
