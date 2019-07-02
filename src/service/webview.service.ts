@@ -371,6 +371,7 @@ export class WebviewService {
           vscode.window.showInformationMessage(
             localize("cmd.otherOptions.warning.tokenNotRequire")
           );
+          vscode.commands.executeCommand("extension.downloadSettings");
           break;
       }
     });
