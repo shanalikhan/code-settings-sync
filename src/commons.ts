@@ -40,7 +40,9 @@ export default class Commons {
             );
           }
         });
-    } else if (customSettings.version < Environment.CURRENT_VERSION) {
+    } else if (
+      customSettings.version < Number(Environment.version.split(".").join(""))
+    ) {
       fileChanged = true;
       // #TODO : Remove this in new update
       const newIgnoredList = new CustomConfig().ignoreUploadFiles;
@@ -108,7 +110,7 @@ export default class Commons {
     }
 
     if (fileChanged) {
-      customSettings.version = Environment.CURRENT_VERSION;
+      customSettings.version = Number(Environment.version.split(".").join(""));
       await state.settings.SetCustomSettings(customSettings);
     }
     return true;

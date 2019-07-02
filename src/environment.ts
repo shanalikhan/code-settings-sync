@@ -16,11 +16,9 @@ export function osTypeFromString(osName: string): OsType {
 }
 
 export class Environment {
-  public static CURRENT_VERSION: number = 331;
   public static get version(): string {
-    return Environment.CURRENT_VERSION.toString()
-      .split("")
-      .join(".");
+    return vscode.extensions.getExtension("Shan.code-settings-sync").packageJSON
+      .version;
   }
 
   // public isInsiders: boolean = false;

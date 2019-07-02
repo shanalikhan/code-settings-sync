@@ -34,4 +34,4 @@ releaseNotes.changes.forEach(change => {
 });
 
 const currentVersionElement = document.querySelector("#current-version");
-currentVersionElement.innerHTML = releaseNotes.currentVersion;
+currentVersionElement.innerHTML = "v" + releaseNotes.currentVersion;

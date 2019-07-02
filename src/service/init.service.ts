@@ -14,7 +14,7 @@ export class InitService {
     AutoUploadService.Instantiate(customSettings);
 
     if (extSettings) {
-      if (!state.syncService.IsConfigured()) {
+      if (!(await state.syncService.IsConfigured())) {
         state.webview.OpenLandingPage();
         return;
       }

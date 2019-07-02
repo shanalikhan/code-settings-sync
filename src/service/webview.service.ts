@@ -24,7 +24,7 @@ export class WebviewService {
         name: state.localize("ext.globalConfig.token.name"),
         placeholder: state.localize("ext.globalConfig.token.placeholder"),
         type: UISettingType.TextInput,
-        correspondingSetting: "token"
+        correspondingSetting: "GitHubGist.token"
       },
       {
         name: state.localize("ext.globalConfig.githubEnterpriseUrl.name"),
@@ -32,9 +32,8 @@ export class WebviewService {
           "ext.globalConfig.githubEnterpriseUrl.placeholder"
         ),
         type: UISettingType.TextInput,
-        correspondingSetting: "githubEnterpriseUrl"
+        correspondingSetting: "GitHubGist.githubEnterpriseUrl"
       },
-
       {
         name: state.localize("ext.globalConfig.ignoreUploadFolders.name"),
         placeholder: state.localize(
@@ -79,7 +78,7 @@ export class WebviewService {
           "ext.globalConfig.gistDescription.placeholder"
         ),
         type: UISettingType.TextInput,
-        correspondingSetting: "gistDescription"
+        correspondingSetting: "GitHubGist.gistDescription"
       },
       {
         name: state.localize("ext.globalConfig.autoUploadDelay.name"),
@@ -93,19 +92,19 @@ export class WebviewService {
         name: state.localize("ext.globalConfig.askGistName.name"),
         placeholder: "",
         type: UISettingType.Checkbox,
-        correspondingSetting: "askGistName"
+        correspondingSetting: "GitHubGist.askGistName"
       },
       {
         name: state.localize("ext.globalConfig.downloadPublicGist.name"),
         placeholder: "",
         type: UISettingType.Checkbox,
-        correspondingSetting: "downloadPublicGist"
+        correspondingSetting: "GitHubGist.downloadPublicGist"
       },
       {
         name: state.localize("ext.globalConfig.openTokenLink.name"),
         placeholder: "",
         type: UISettingType.Checkbox,
-        correspondingSetting: "openTokenLink"
+        correspondingSetting: "GitHubGist.openTokenLink"
       }
     ];
 
@@ -323,7 +322,11 @@ export class WebviewService {
 
   public OpenLandingPage() {
     const webview = this.webviews[0];
-    const releaseNotes = require("../../release-notes.json");
+    const releaseNotes = {
+      ...require("../../release-notes.json"),
+      currentVersion: vscode.extensions.getExtension("Shan.code-settings-sync")
+        .packageJSON.version
+    };
     const content: string = this.GenerateContent({
       content: webview.htmlContent,
       items: webview.replaceables,

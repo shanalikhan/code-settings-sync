@@ -19,7 +19,7 @@ export class CustomConfig {
   public GitHubGist = new GistConfig();
   public ignoreUploadFolders: string[] = ["workspaceStorage"];
   public ignoreExtensions: string[] = [];
-  public version: number = Environment.CURRENT_VERSION;
+  public version: number = Number(Environment.version.split(".").join(""));
   public supportedFileExtensions: string[] = ["json", "code-snippets"];
   public disableUpdateMessage: boolean = false;
   public customFiles: { [key: string]: string } = {};

@@ -2,6 +2,7 @@ import * as vscode from "vscode";
 import { CustomConfig } from "../models/customConfig.model";
 import { ExtensionConfig } from "../models/extensionConfig.model";
 import { LocalConfig } from "../models/localConfig.model";
+import { SyncMethod } from "../models/sync-method.model";
 import { state } from "../state";
 import { AutoUploadService } from "./autoUpload.service";
 import { FileService } from "./file.service";
@@ -89,7 +90,7 @@ export class SettingsService {
     const extSettings = state.settings.GetExtensionSettings();
     const cusSettings = await state.settings.GetCustomSettings();
 
-    if (!state.syncService.IsConfigured()) {
+    if (!(await state.syncService.IsConfigured())) {
       state.webview.OpenLandingPage();
     }
 
@@ -231,7 +232,7 @@ export class SettingsService {
         // auto download on startup
         selectedItem = 6;
         settingChanged = true;
-        if (!state.syncService.IsConfigured() || !setting) {
+        if (!(await state.syncService.IsConfigured()) || !setting) {
           vscode.commands.executeCommand("extension.HowSettings");
           return;
         }
@@ -243,7 +244,7 @@ export class SettingsService {
         selectedItem = 7;
         settingChanged = true;
 
-        if (!state.syncService.IsConfigured()) {
+        if (!(await state.syncService.IsConfigured())) {
           vscode.commands.executeCommand("extension.HowSettings");
           return;
         }
@@ -275,7 +276,7 @@ export class SettingsService {
         }
       },
       async () => {
-        if (state.syncService.id === "gist") {
+        if (customSettings.exportType === SyncMethod.GitHubGist) {
           // Import customized sync file to workspace
           const customFiles = await (state.syncService as GistService).CustomFilesFromGist(
             customSettings,
