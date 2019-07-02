@@ -55,13 +55,15 @@ document
 const selectionTemplate = `
 <button type="button" onclick="saveGistId('@id')" class="list-group-item list-group-item-action">@description (@id) – Updated @timestamp ago</button>`;
 
-gists.forEach(gist => {
-  const html = selectionTemplate
-    .replace(new RegExp("@description", "g"), gist.description)
-    .replace(new RegExp("@id", "g"), gist.id)
-    .replace(
-      new RegExp("@timestamp", "g"),
-      timeSince(new Date(gist.updated_at))
-    );
-  appendHTML(selectionContainer, html);
-});
+gists
+  .sort((a, b) => new Date(b.updated_at) - new Date(a.updated_at))
+  .forEach(gist => {
+    const html = selectionTemplate
+      .replace(new RegExp("@description", "g"), gist.description)
+      .replace(new RegExp("@id", "g"), gist.id)
+      .replace(
+        new RegExp("@timestamp", "g"),
+        timeSince(new Date(gist.updated_at))
+      );
+    appendHTML(selectionContainer, html);
+  });
