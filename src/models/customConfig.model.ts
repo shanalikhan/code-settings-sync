@@ -1,4 +1,4 @@
-import { Environment } from "../environmentPath";
+import { Environment } from "../environment";
 
 export class CustomConfig {
   public ignoreUploadFiles: string[] = [

@@ -1,14 +1,17 @@
 import { commands } from "vscode";
-import Commons from "../commons";
 import { state } from "../state";
+import { AutoUploadService } from "./autoUpload.service";
 
 export class InitService {
   public static async init(): Promise<void> {
-    state.commons = new Commons();
-
     await state.commons.StartMigrationProcess();
-    const extSettings = await state.settings.GetExtensionSettings();
-    const customSettings = await state.settings.GetCustomSettings();
+
+    const [extSettings, customSettings] = await Promise.all([
+      state.settings.GetExtensionSettings(),
+      state.settings.GetCustomSettings()
+    ]);
+
+    AutoUploadService.Instantiate(customSettings);
 
     if (extSettings) {
       const tokenAvailable = !!customSettings.token;
@@ -23,7 +26,7 @@ export class InitService {
         await commands.executeCommand("extension.downloadSettings");
       }
       if (extSettings.autoUpload && tokenAvailable && gistAvailable) {
-        await state.commons.HandleStartWatching();
+        await AutoUploadService.HandleStartWatching();
       }
     }
   }

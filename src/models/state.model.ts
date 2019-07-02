@@ -1,7 +1,8 @@
 import { ExtensionContext } from "vscode";
 import Commons from "../commons";
-import { Environment } from "../environmentPath";
+import { Environment } from "../environment";
 import { AutoUploadService } from "../service/autoUpload.service";
+import { LocalizationService } from "../service/localization.service";
 import { SettingsService } from "../service/settings.service";
 import { WebviewService } from "../service/webview.service";
 import { ISyncService } from "./sync.model";
@@ -14,4 +15,5 @@ export interface IExtensionState {
   autoUpload?: AutoUploadService;
   webview?: WebviewService;
   syncService?: ISyncService;
+  localization?: LocalizationService;
 }

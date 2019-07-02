@@ -1,5 +1,9 @@
 import { OutputChannel, window } from "vscode";
-import localize from "../localize";
+import { Environment } from "../environment";
+import { LocalConfig } from "../models/localConfig.model";
+import { state } from "../state";
+import { File } from "./file.service";
+import { ExtensionInformation } from "./plugin.service";
 
 export class LoggerService {
   public static outputChannel: OutputChannel;
@@ -14,19 +18,19 @@ export class LoggerService {
     if (error) {
       console.error(error);
       if (error.status === 500) {
-        message = localize("common.error.connection");
+        message = state.localization.Localize("common.error.connection");
         showMessageBox = false;
       } else if (error.status === 401) {
         showMessageBox = true;
-        message = localize("common.error.invalidToken");
+        message = state.localization.Localize("common.error.invalidToken");
       } else if (error.status === 4) {
-        message = localize("common.error.canNotSave");
+        message = state.localization.Localize("common.error.canNotSave");
       } else if (error.message) {
         try {
           message = JSON.parse(error.message).message;
           if (message.toLowerCase() === "not found") {
             showMessageBox = true;
-            message = localize("common.error.invalidGistId");
+            message = state.localization.Localize("common.error.invalidGistId");
           }
         } catch (error) {
           //  message = error.message;
@@ -40,5 +44,94 @@ export class LoggerService {
     } else {
       window.setStatusBarMessage(message, 5000);
     }
+  }
+
+  public static ShowSummaryOutput(
+    upload: boolean,
+    files: File[],
+    removedExtensions: ExtensionInformation[],
+    addedExtensions: ExtensionInformation[],
+    ignoredExtensions: ExtensionInformation[],
+    syncSettings: LocalConfig
+  ) {
+    if (!LoggerService.outputChannel) {
+      LoggerService.outputChannel = window.createOutputChannel(
+        "Code Settings Sync"
+      );
+    }
+
+    const outputChannel = LoggerService.outputChannel;
+    outputChannel.appendLine(
+      `CODE SETTINGS SYNC ${upload ? "UPLOAD" : "DOWNLOAD"} SUMMARY`
+    );
+    outputChannel.appendLine(`Version: ${Environment.version}`);
+    outputChannel.appendLine(`--------------------`);
+    outputChannel.appendLine(
+      `GitHub Token: ${syncSettings.customConfig.token || "Anonymous"}`
+    );
+    outputChannel.appendLine(`GitHub Gist: ${syncSettings.extConfig.gist}`);
+    outputChannel.appendLine(
+      `GitHub Gist Type: ${syncSettings.publicGist ? "Public" : "Secret"}`
+    );
+    outputChannel.appendLine(``);
+    if (!syncSettings.customConfig.token) {
+      outputChannel.appendLine(
+        `Anonymous Gist cannot be edited, the extension will always create a new one during upload.`
+      );
+    }
+    outputChannel.appendLine(
+      `Restarting Visual Studio Code may be required to apply color and file icon theme.`
+    );
+    outputChannel.appendLine(`--------------------`);
+
+    outputChannel.appendLine(`Files ${upload ? "Upload" : "Download"}ed:`);
+    files
+      .filter(item => item.fileName.indexOf(".") > 0)
+      .forEach(item => {
+        outputChannel.appendLine(`  ${item.fileName} > ${item.gistName}`);
+      });
+
+    outputChannel.appendLine(``);
+    outputChannel.appendLine(`Extensions Ignored:`);
+
+    if (!ignoredExtensions || ignoredExtensions.length === 0) {
+      outputChannel.appendLine(`  No extensions ignored.`);
+    } else {
+      ignoredExtensions.forEach(extn => {
+        outputChannel.appendLine(`  ${extn.name} v${extn.version}`);
+      });
+    }
+
+    outputChannel.appendLine(``);
+    outputChannel.appendLine(`Extensions Removed:`);
+
+    if (!syncSettings.extConfig.removeExtensions) {
+      outputChannel.appendLine(`  Feature Disabled.`);
+    } else {
+      if (!removedExtensions || removedExtensions.length === 0) {
+        outputChannel.appendLine(`  No extensions removed.`);
+      } else {
+        removedExtensions.forEach(extn => {
+          outputChannel.appendLine(`  ${extn.name} v${extn.version}`);
+        });
+      }
+    }
+
+    if (addedExtensions) {
+      outputChannel.appendLine(``);
+      outputChannel.appendLine(`Extensions Added:`);
+
+      if (addedExtensions.length === 0) {
+        outputChannel.appendLine(`  No extensions installed.`);
+      }
+
+      addedExtensions.forEach(extn => {
+        outputChannel.appendLine(`  ${extn.name} v${extn.version}`);
+      });
+    }
+
+    outputChannel.appendLine(`--------------------`);
+    outputChannel.append(`Done.`);
+    outputChannel.show(true);
   }
 }

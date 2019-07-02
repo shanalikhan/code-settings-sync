@@ -1,6 +1,5 @@
 import * as vscode from "vscode";
 import { watch } from "vscode-chokidar";
-import localize from "../localize";
 import lockfile from "../lockfile";
 import { CustomConfig } from "../models/customConfig.model";
 import { state } from "../state";
@@ -13,6 +12,33 @@ export class AutoUploadService {
       ...customSettings.ignoreUploadFolders.map(folder => `**/${folder}/**`),
       ...customSettings.ignoreUploadFiles.map(file => `**/${file}`)
     ];
+  }
+
+  public static async Instantiate(customSettings?: CustomConfig) {
+    if (!customSettings) {
+      customSettings = await state.settings.GetCustomSettings();
+    }
+    state.autoUpload = new AutoUploadService(
+      AutoUploadService.GetIgnoredItems(customSettings)
+    );
+  }
+
+  public static async HandleStartWatching() {
+    if (state.autoUpload) {
+      state.autoUpload.StartWatching();
+    } else {
+      await this.Instantiate();
+      this.HandleStartWatching();
+    }
+  }
+
+  public static async HandleStopWatching() {
+    if (state.autoUpload) {
+      state.autoUpload.StopWatching();
+    } else {
+      await this.Instantiate();
+      this.HandleStopWatching();
+    }
   }
 
   public watching = false;
@@ -85,10 +111,9 @@ export class AutoUploadService {
 
     vscode.window.setStatusBarMessage("").dispose();
     vscode.window.setStatusBarMessage(
-      localize("common.info.initAutoUpload").replace(
-        "{0}",
-        customSettings.autoUploadDelay
-      ),
+      state.localization
+        .Localize("common.info.initAutoUpload")
+        .replace("{0}", customSettings.autoUploadDelay.toString()),
       5000
     );
 

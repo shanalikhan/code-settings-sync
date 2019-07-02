@@ -1,63 +1,11 @@
 "use strict";
 import * as vscode from "vscode";
-import { Environment } from "./environmentPath";
-import localize from "./localize";
+import { Environment } from "./environment";
 import { CustomConfig } from "./models/customConfig.model";
-import { LocalConfig } from "./models/localConfig.model";
-import { AutoUploadService } from "./service/autoUpload.service";
-import { File, FileService } from "./service/file.service";
-import { LoggerService } from "./service/logger.service";
-import { ExtensionInformation } from "./service/plugin.service";
+import { FileService } from "./service/file.service";
 import { state } from "./state";
 
 export default class Commons {
-  constructor() {
-    this.InitializeAutoUpload();
-  }
-
-  public async InitializeAutoUpload() {
-    const ignored = AutoUploadService.GetIgnoredItems(
-      await state.settings.GetCustomSettings()
-    );
-    return new AutoUploadService(ignored);
-  }
-
-  public async HandleStartWatching() {
-    if (state.autoUpload) {
-      state.autoUpload.StartWatching();
-    } else {
-      await this.InitializeAutoUpload();
-      this.HandleStartWatching();
-    }
-  }
-
-  public async HandleStopWatching() {
-    if (state.autoUpload) {
-      state.autoUpload.StopWatching();
-    } else {
-      await this.InitializeAutoUpload();
-      this.HandleStopWatching();
-    }
-  }
-
-  public async InitalizeSettings(): Promise<LocalConfig> {
-    const settings = new LocalConfig();
-    const extSettings = state.settings.GetExtensionSettings();
-    const cusSettings = await state.settings.GetCustomSettings();
-
-    if (
-      cusSettings.downloadPublicGist
-        ? !extSettings.gist
-        : !cusSettings.token || !extSettings.gist
-    ) {
-      state.webview.OpenLandingPage();
-    }
-
-    settings.customConfig = cusSettings;
-    settings.extConfig = extSettings;
-    return settings;
-  }
-
   public async StartMigrationProcess(): Promise<boolean> {
     const fileExist: boolean = await FileService.FileExists(
       state.environment.FILE_CUSTOMIZEDSETTINGS
@@ -74,11 +22,15 @@ export default class Commons {
     // vscode.workspace.getConfiguration().update("sync.version", undefined, true);
 
     if (firstTime) {
-      const openExtensionPage = localize("common.action.openExtPage");
-      vscode.window.showInformationMessage(localize("common.info.installed"));
+      const openExtensionPage = state.localization.Localize(
+        "common.action.openExtPage"
+      );
+      vscode.window.showInformationMessage(
+        state.localization.Localize("common.info.installed")
+      );
       vscode.window
         .showInformationMessage(
-          localize("common.info.needHelp"),
+          state.localization.Localize("common.info.needHelp"),
           openExtensionPage
         )
         .then((val: string) => {
@@ -106,19 +58,28 @@ export default class Commons {
           customSettings.token = String(token);
           state.context.globalState.update("synctoken", "");
           vscode.window.showInformationMessage(
-            localize("common.info.setToken")
+            state.localization.Localize("common.info.setToken")
           );
         }
       }
 
-      const releaseNotes = localize("common.action.releaseNotes");
-      const writeReview = localize("common.action.writeReview");
-      const support = localize("common.action.support");
-      const joinCommunity = localize("common.action.joinCommunity");
+      const releaseNotes = state.localization.Localize(
+        "common.action.releaseNotes"
+      );
+      const writeReview = state.localization.Localize(
+        "common.action.writeReview"
+      );
+      const support = state.localization.Localize("common.action.support");
+      const joinCommunity = state.localization.Localize(
+        "common.action.joinCommunity"
+      );
       if (!customSettings.disableUpdateMessage) {
         vscode.window
           .showInformationMessage(
-            localize("common.info.updateTo", Environment.version),
+            state.localization.Localize(
+              "common.info.updateTo",
+              Environment.version
+            ),
             releaseNotes,
             writeReview,
             support,
@@ -166,98 +127,11 @@ export default class Commons {
 
   public async AskGistName(): Promise<string> {
     return vscode.window.showInputBox({
-      prompt: localize("common.prompt.multipleGist"),
+      prompt: state.localization.Localize("common.prompt.multipleGist"),
       ignoreFocusOut: true,
-      placeHolder: localize("common.placeholder.multipleGist")
+      placeHolder: state.localization.Localize(
+        "common.placeholder.multipleGist"
+      )
     });
-  }
-
-  public ShowSummaryOutput(
-    upload: boolean,
-    files: File[],
-    removedExtensions: ExtensionInformation[],
-    addedExtensions: ExtensionInformation[],
-    ignoredExtensions: ExtensionInformation[],
-    syncSettings: LocalConfig
-  ) {
-    if (!LoggerService.outputChannel) {
-      LoggerService.outputChannel = vscode.window.createOutputChannel(
-        "Code Settings Sync"
-      );
-    }
-
-    const outputChannel = LoggerService.outputChannel;
-    outputChannel.appendLine(
-      `CODE SETTINGS SYNC ${upload ? "UPLOAD" : "DOWNLOAD"} SUMMARY`
-    );
-    outputChannel.appendLine(`Version: ${Environment.version}`);
-    outputChannel.appendLine(`--------------------`);
-    outputChannel.appendLine(
-      `GitHub Token: ${syncSettings.customConfig.token || "Anonymous"}`
-    );
-    outputChannel.appendLine(`GitHub Gist: ${syncSettings.extConfig.gist}`);
-    outputChannel.appendLine(
-      `GitHub Gist Type: ${syncSettings.publicGist ? "Public" : "Secret"}`
-    );
-    outputChannel.appendLine(``);
-    if (!syncSettings.customConfig.token) {
-      outputChannel.appendLine(
-        `Anonymous Gist cannot be edited, the extension will always create a new one during upload.`
-      );
-    }
-    outputChannel.appendLine(
-      `Restarting Visual Studio Code may be required to apply color and file icon theme.`
-    );
-    outputChannel.appendLine(`--------------------`);
-
-    outputChannel.appendLine(`Files ${upload ? "Upload" : "Download"}ed:`);
-    files
-      .filter(item => item.fileName.indexOf(".") > 0)
-      .forEach(item => {
-        outputChannel.appendLine(`  ${item.fileName} > ${item.gistName}`);
-      });
-
-    outputChannel.appendLine(``);
-    outputChannel.appendLine(`Extensions Ignored:`);
-
-    if (!ignoredExtensions || ignoredExtensions.length === 0) {
-      outputChannel.appendLine(`  No extensions ignored.`);
-    } else {
-      ignoredExtensions.forEach(extn => {
-        outputChannel.appendLine(`  ${extn.name} v${extn.version}`);
-      });
-    }
-
-    outputChannel.appendLine(``);
-    outputChannel.appendLine(`Extensions Removed:`);
-
-    if (!syncSettings.extConfig.removeExtensions) {
-      outputChannel.appendLine(`  Feature Disabled.`);
-    } else {
-      if (!removedExtensions || removedExtensions.length === 0) {
-        outputChannel.appendLine(`  No extensions removed.`);
-      } else {
-        removedExtensions.forEach(extn => {
-          outputChannel.appendLine(`  ${extn.name} v${extn.version}`);
-        });
-      }
-    }
-
-    if (addedExtensions) {
-      outputChannel.appendLine(``);
-      outputChannel.appendLine(`Extensions Added:`);
-
-      if (addedExtensions.length === 0) {
-        outputChannel.appendLine(`  No extensions installed.`);
-      }
-
-      addedExtensions.forEach(extn => {
-        outputChannel.appendLine(`  ${extn.name} v${extn.version}`);
-      });
-    }
-
-    outputChannel.appendLine(`--------------------`);
-    outputChannel.append(`Done.`);
-    outputChannel.show(true);
   }
 }

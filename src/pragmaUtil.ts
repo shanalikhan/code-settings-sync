@@ -1,6 +1,6 @@
-import { osTypeFromString, SUPPORTED_OS } from "./environmentPath";
-import localize from "./localize";
+import { osTypeFromString, SUPPORTED_OS } from "./environment";
 import { OsType } from "./models/os-type.model";
+import { state } from "./state";
 
 /**
  * Comment/Uncomment lines if matches OS name or Hostname.
@@ -160,7 +160,7 @@ export default class PragmaUtil {
           if (!SUPPORTED_OS.includes(trimmed)) {
             console.warn("Sync: Invalid OS", osFromPragma);
             throw new Error(
-              localize(
+              state.localization.Localize(
                 "cmd.updateSettings.warning.OSNotSupported",
                 trimmed,
                 index + 1

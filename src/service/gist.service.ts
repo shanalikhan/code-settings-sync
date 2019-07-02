@@ -1,17 +1,17 @@
 import * as GitHubApi from "@octokit/rest";
 import * as HttpsProxyAgent from "https-proxy-agent";
 import * as vscode from "vscode";
-import localize from "../localize";
 import { CloudSettings } from "../models/cloudSettings.model";
 import { CustomConfig } from "../models/customConfig.model";
 import { ExtensionConfig } from "../models/extensionConfig.model";
-import { IEnv } from "../models/ienv.model";
-import { IFixGistResponse } from "../models/ifixgistresponse.model";
+import { IFixGistResponse } from "../models/fix-gist-response.model";
+import { IEnv } from "../models/gist-env.model";
 import { LocalConfig } from "../models/localConfig.model";
 import { OsType } from "../models/os-type.model";
 import { ISyncService } from "../models/sync.model";
 import PragmaUtil from "../pragmaUtil";
 import { state } from "../state";
+import { AutoUploadService } from "./autoUpload.service";
 import { File, FileService } from "./file.service";
 import { LoggerService } from "./logger.service";
 import { ExtensionInformation, PluginService } from "./plugin.service";
@@ -54,10 +54,10 @@ export class GistService implements ISyncService {
     let uploadedExtensions: ExtensionInformation[] = [];
     const ignoredExtensions: ExtensionInformation[] = [];
     const currentDate = new Date();
-    await state.commons.HandleStopWatching();
+    await AutoUploadService.HandleStopWatching;
 
     try {
-      localConfig = await state.commons.InitalizeSettings();
+      localConfig = await state.settings.GetLocalConfig();
       localConfig.publicGist = options === "publicGIST";
 
       await this.Connect();
@@ -70,7 +70,7 @@ export class GistService implements ISyncService {
           )
         ) {
           const message = await vscode.window.showInformationMessage(
-            localize("common.prompt.gistNewer"),
+            state.localization.Localize("common.prompt.gistNewer"),
             "Yes"
           );
           if (message === "Yes") {
@@ -78,7 +78,9 @@ export class GistService implements ISyncService {
             await state.settings.SetExtensionSettings(localConfig.extConfig);
           } else {
             vscode.window.setStatusBarMessage(
-              localize("cmd.updateSettings.info.uploadCanceled"),
+              state.localization.Localize(
+                "cmd.updateSettings.info.uploadCanceled"
+              ),
               3
             );
             return;
@@ -101,14 +103,14 @@ export class GistService implements ISyncService {
       customSettings: CustomConfig
     ) {
       vscode.window.setStatusBarMessage(
-        localize("cmd.updateSettings.info.uploading"),
+        state.localization.Localize("cmd.updateSettings.info.uploading"),
         2000
       );
 
       if (customSettings.downloadPublicGist) {
         if (customSettings.token == null || customSettings.token === "") {
           vscode.window.showInformationMessage(
-            localize("cmd.updateSettings.warning.noToken")
+            state.localization.Localize("cmd.updateSettings.warning.noToken")
           );
 
           return;
@@ -117,7 +119,7 @@ export class GistService implements ISyncService {
 
       customSettings.lastUpload = currentDate;
       vscode.window.setStatusBarMessage(
-        localize("cmd.updateSettings.info.readding"),
+        state.localization.Localize("cmd.updateSettings.info.readding"),
         2000
       );
 
@@ -235,12 +237,16 @@ export class GistService implements ISyncService {
           if (gistID) {
             syncSetting.gist = gistID;
             vscode.window.setStatusBarMessage(
-              localize("cmd.updateSettings.info.newGistCreated"),
+              state.localization.Localize(
+                "cmd.updateSettings.info.newGistCreated"
+              ),
               2000
             );
           } else {
             vscode.window.showInformationMessage(
-              localize("cmd.updateSettings.error.newGistCreateFail")
+              state.localization.Localize(
+                "cmd.updateSettings.error.newGistCreateFail"
+              )
             );
             return;
           }
@@ -257,7 +263,7 @@ export class GistService implements ISyncService {
             if (gistOwnerName !== userName) {
               LoggerService.LogException(
                 null,
-                "Sync : You cant edit GIST for user : " + gistOwnerName,
+                `Sync : You can't edit a Gist owned by '${gistOwnerName}'`,
                 true
               );
               console.log(`Sync: Current user is '${userName}'`);
@@ -290,7 +296,9 @@ export class GistService implements ISyncService {
         ) {
           if (!localConfig.extConfig.forceUpload) {
             vscode.window.setStatusBarMessage(
-              localize("cmd.updateSettings.info.uploadCanceled"),
+              state.localization.Localize(
+                "cmd.updateSettings.info.uploadCanceled"
+              ),
               3
             );
             return;
@@ -298,7 +306,7 @@ export class GistService implements ISyncService {
         }
 
         vscode.window.setStatusBarMessage(
-          localize("cmd.updateSettings.info.uploadingFile"),
+          state.localization.Localize("cmd.updateSettings.info.uploadingFile"),
           3000
         );
 
@@ -306,7 +314,7 @@ export class GistService implements ISyncService {
         completed = await this.SaveGIST(gistObj.data);
         if (!completed) {
           vscode.window.showErrorMessage(
-            localize("cmd.updateSettings.error.gistNotSave")
+            state.localization.Localize("cmd.updateSettings.error.gistNotSave")
           );
           return;
         }
@@ -326,7 +334,7 @@ export class GistService implements ISyncService {
           if (settingsUpdated && customSettingsUpdated) {
             if (newGIST) {
               vscode.window.showInformationMessage(
-                localize(
+                state.localization.Localize(
                   "cmd.updateSettings.info.uploadingDone",
                   syncSetting.gist
                 )
@@ -335,12 +343,12 @@ export class GistService implements ISyncService {
 
             if (localConfig.publicGist) {
               vscode.window.showInformationMessage(
-                localize("cmd.updateSettings.info.shareGist")
+                state.localization.Localize("cmd.updateSettings.info.shareGist")
               );
             }
 
             if (!syncSetting.quietSync) {
-              state.commons.ShowSummaryOutput(
+              LoggerService.ShowSummaryOutput(
                 true,
                 allSettingFiles,
                 null,
@@ -352,12 +360,14 @@ export class GistService implements ISyncService {
             } else {
               vscode.window.setStatusBarMessage("").dispose();
               vscode.window.setStatusBarMessage(
-                localize("cmd.updateSettings.info.uploadingSuccess"),
+                state.localization.Localize(
+                  "cmd.updateSettings.info.uploadingSuccess"
+                ),
                 5000
               );
             }
             if (syncSetting.autoUpload) {
-              await state.commons.HandleStartWatching();
+              await AutoUploadService.HandleStartWatching;
             }
           }
         } catch (err) {
@@ -369,10 +379,10 @@ export class GistService implements ISyncService {
 
   public async DownloadSettings(): Promise<void> {
     let localSettings: LocalConfig = new LocalConfig();
-    await state.commons.HandleStopWatching();
+    await AutoUploadService.HandleStopWatching;
 
     try {
-      localSettings = await state.commons.InitalizeSettings();
+      localSettings = await state.settings.GetLocalConfig();
       await StartDownload.call(
         this,
         localSettings.extConfig,
@@ -390,7 +400,7 @@ export class GistService implements ISyncService {
       await this.Connect();
       vscode.window.setStatusBarMessage("").dispose();
       vscode.window.setStatusBarMessage(
-        localize("cmd.downloadSettings.info.readdingOnline"),
+        state.localization.Localize("cmd.downloadSettings.info.readdingOnline"),
         2000
       );
 
@@ -445,7 +455,9 @@ export class GistService implements ISyncService {
           if (upToDate) {
             vscode.window.setStatusBarMessage("").dispose();
             vscode.window.setStatusBarMessage(
-              localize("cmd.downloadSettings.info.gotLatestVersion"),
+              state.localization.Localize(
+                "cmd.downloadSettings.info.gotLatestVersion"
+              ),
               5000
             );
             return;
@@ -519,7 +531,9 @@ export class GistService implements ISyncService {
                   );
                 } catch (err) {
                   vscode.window.showErrorMessage(
-                    localize("cmd.downloadSettings.error.removeExtFail")
+                    state.localization.Localize(
+                      "cmd.downloadSettings.error.removeExtFail"
+                    )
                   );
                   throw new Error(err);
                 }
@@ -636,7 +650,7 @@ export class GistService implements ISyncService {
       );
       if (settingsUpdated && customSettingsUpdated) {
         if (!syncSetting.quietSync) {
-          state.commons.ShowSummaryOutput(
+          LoggerService.ShowSummaryOutput(
             false,
             updatedFiles,
             deletedExtensions,
@@ -645,7 +659,7 @@ export class GistService implements ISyncService {
             localSettings
           );
           const message = await vscode.window.showInformationMessage(
-            localize("common.prompt.restartCode"),
+            state.localization.Localize("common.prompt.restartCode"),
             "Yes"
           );
 
@@ -656,16 +670,16 @@ export class GistService implements ISyncService {
         } else {
           vscode.window.setStatusBarMessage("").dispose();
           vscode.window.setStatusBarMessage(
-            localize("cmd.downloadSettings.info.downloaded"),
+            state.localization.Localize("cmd.downloadSettings.info.downloaded"),
             5000
           );
         }
         if (syncSetting.autoUpload) {
-          await state.commons.HandleStartWatching();
+          await AutoUploadService.HandleStartWatching;
         }
       } else {
         vscode.window.showErrorMessage(
-          localize("cmd.downloadSettings.error.unableSave")
+          state.localization.Localize("cmd.downloadSettings.error.unableSave")
         );
       }
     }

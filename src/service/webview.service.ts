@@ -2,200 +2,238 @@ import { readFileSync } from "fs-extra";
 import { has, set } from "lodash";
 import { URL } from "url";
 import * as vscode from "vscode";
-import localize from "../localize";
 import { CustomConfig } from "../models/customConfig.model";
 import { ExtensionConfig } from "../models/extensionConfig.model";
 import { UISettingType } from "../models/settingType.model";
+import { IWebviewSetting } from "../models/webview-setting.model";
 import { IWebview } from "../models/webview.model";
 import { state } from "../state";
 import { GitHubOAuthService } from "./github.oauth.service";
 import { LoggerService } from "./logger.service";
 
 export class WebviewService {
-  private globalSettings = [
-    {
-      name: localize("ext.globalConfig.token.name"),
-      placeholder: localize("ext.globalConfig.token.placeholder"),
-      type: UISettingType.TextInput,
-      correspondingSetting: "token"
-    },
-    {
-      name: localize("ext.globalConfig.githubEnterpriseUrl.name"),
-      placeholder: localize("ext.globalConfig.githubEnterpriseUrl.placeholder"),
-      type: UISettingType.TextInput,
-      correspondingSetting: "githubEnterpriseUrl"
-    },
+  private globalSettings: IWebviewSetting[];
 
-    {
-      name: localize("ext.globalConfig.ignoreUploadFolders.name"),
-      placeholder: localize("ext.globalConfig.ignoreUploadFolders.placeholder"),
-      type: UISettingType.TextArea,
-      correspondingSetting: "ignoreUploadFolders"
-    },
-    {
-      name: localize("ext.globalConfig.ignoreExtensions.name"),
-      placeholder: localize("ext.globalConfig.ignoreExtensions.placeholder"),
-      type: UISettingType.TextArea,
-      correspondingSetting: "ignoreExtensions"
-    },
-    {
-      name: localize("ext.globalConfig.hostName.name"),
-      placeholder: localize("ext.globalConfig.hostName.placeholder"),
-      type: UISettingType.TextInput,
-      correspondingSetting: "hostName"
-    },
-    {
-      name: localize("ext.globalConfig.ignoreUploadFiles.name"),
-      placeholder: localize("ext.globalConfig.ignoreUploadFiles.placeholder"),
-      type: UISettingType.TextArea,
-      correspondingSetting: "ignoreUploadFiles"
-    },
-    {
-      name: localize("ext.globalConfig.supportedFileExtensions.name"),
-      placeholder: localize(
-        "ext.globalConfig.supportedFileExtensions.placeholder"
-      ),
-      type: UISettingType.TextArea,
-      correspondingSetting: "supportedFileExtensions"
-    },
-    {
-      name: localize("ext.globalConfig.gistDescription.name"),
-      placeholder: localize("ext.globalConfig.gistDescription.placeholder"),
-      type: UISettingType.TextInput,
-      correspondingSetting: "gistDescription"
-    },
-    {
-      name: localize("ext.globalConfig.autoUploadDelay.name"),
-      placeholder: localize("ext.globalConfig.autoUploadDelay.placeholder"),
-      type: UISettingType.NumberInput,
-      correspondingSetting: "autoUploadDelay"
-    },
-    {
-      name: localize("ext.globalConfig.askGistName.name"),
-      placeholder: "",
-      type: UISettingType.Checkbox,
-      correspondingSetting: "askGistName"
-    },
-    {
-      name: localize("ext.globalConfig.downloadPublicGist.name"),
-      placeholder: "",
-      type: UISettingType.Checkbox,
-      correspondingSetting: "downloadPublicGist"
-    },
-    {
-      name: localize("ext.globalConfig.openTokenLink.name"),
-      placeholder: "",
-      type: UISettingType.Checkbox,
-      correspondingSetting: "openTokenLink"
-    }
-  ];
+  private environmentSettings: IWebviewSetting[];
 
-  private environmentSettings = [
-    {
-      name: localize("ext.config.gist.name"),
-      placeholder: localize("ext.config.gist.placeholder"),
-      type: UISettingType.TextInput,
-      correspondingSetting: "gist",
-      tooltip: localize("ext.config.gist")
-    },
-    {
-      name: localize("ext.config.autoDownload.name"),
-      placeholder: "",
-      type: UISettingType.Checkbox,
-      correspondingSetting: "autoDownload",
-      tooltip: localize("ext.config.autoDownload")
-    },
-    {
-      name: localize("ext.config.autoUpload.name"),
-      placeholder: "",
-      type: UISettingType.Checkbox,
-      correspondingSetting: "autoUpload",
-      tooltip: localize("ext.config.autoUpload")
-    },
-    {
-      name: localize("ext.config.forceDownload.name"),
-      placeholder: "",
-      type: UISettingType.Checkbox,
-      correspondingSetting: "forceDownload",
-      tooltip: localize("ext.config.forceDownload")
-    },
-    {
-      name: localize("ext.config.forceUpload.name"),
-      placeholder: "",
-      type: UISettingType.Checkbox,
-      correspondingSetting: "forceUpload",
-      tooltip: localize("ext.config.forceUpload")
-    },
-    {
-      name: localize("ext.config.quietSync.name"),
-      placeholder: "",
-      type: UISettingType.Checkbox,
-      correspondingSetting: "quietSync",
-      tooltip: localize("ext.config.quietSync")
-    },
-    {
-      name: localize("ext.config.removeExtensions.name"),
-      placeholder: "",
-      type: UISettingType.Checkbox,
-      correspondingSetting: "removeExtensions",
-      tooltip: localize("ext.config.removeExtensions")
-    },
-    {
-      name: localize("ext.config.syncExtensions.name"),
-      placeholder: "",
-      type: UISettingType.Checkbox,
-      correspondingSetting: "syncExtensions",
-      tooltip: localize("ext.config.syncExtensions")
-    }
-  ];
-
-  private webviews: IWebview[] = [
-    {
-      name: "landing-page",
-      htmlPath: "landing-page.html",
-      replaceables: [
-        {
-          find: "@RELEASE_NOTES",
-          replace: "releaseNotes"
-        }
-      ]
-    },
-    {
-      name: "settings",
-      htmlPath: "settings.html",
-      replaceables: [
-        {
-          find: "@GLOBAL_DATA",
-          replace: "customSettings"
-        },
-        {
-          find: "@ENV_DATA",
-          replace: "extSettings"
-        },
-        {
-          find: "@GLOBAL_MAP",
-          replace: this.globalSettings
-        },
-        {
-          find: "@ENV_MAP",
-          replace: this.environmentSettings
-        }
-      ]
-    },
-    {
-      name: "gist-selection",
-      htmlPath: "gist-selection.html",
-      replaceables: [
-        {
-          find: "@GISTS",
-          replace: "gists"
-        }
-      ]
-    }
-  ];
+  private webviews: IWebview[];
 
   constructor() {
-    this.webviews = this.webviews.map(view => {
+    this.globalSettings = [
+      {
+        name: state.localization.Localize("ext.globalConfig.token.name"),
+        placeholder: state.localization.Localize(
+          "ext.globalConfig.token.placeholder"
+        ),
+        type: UISettingType.TextInput,
+        correspondingSetting: "token"
+      },
+      {
+        name: state.localization.Localize(
+          "ext.globalConfig.githubEnterpriseUrl.name"
+        ),
+        placeholder: state.localization.Localize(
+          "ext.globalConfig.githubEnterpriseUrl.placeholder"
+        ),
+        type: UISettingType.TextInput,
+        correspondingSetting: "githubEnterpriseUrl"
+      },
+
+      {
+        name: state.localization.Localize(
+          "ext.globalConfig.ignoreUploadFolders.name"
+        ),
+        placeholder: state.localization.Localize(
+          "ext.globalConfig.ignoreUploadFolders.placeholder"
+        ),
+        type: UISettingType.TextArea,
+        correspondingSetting: "ignoreUploadFolders"
+      },
+      {
+        name: state.localization.Localize(
+          "ext.globalConfig.ignoreExtensions.name"
+        ),
+        placeholder: state.localization.Localize(
+          "ext.globalConfig.ignoreExtensions.placeholder"
+        ),
+        type: UISettingType.TextArea,
+        correspondingSetting: "ignoreExtensions"
+      },
+      {
+        name: state.localization.Localize("ext.globalConfig.hostName.name"),
+        placeholder: state.localization.Localize(
+          "ext.globalConfig.hostName.placeholder"
+        ),
+        type: UISettingType.TextInput,
+        correspondingSetting: "hostName"
+      },
+      {
+        name: state.localization.Localize(
+          "ext.globalConfig.ignoreUploadFiles.name"
+        ),
+        placeholder: state.localization.Localize(
+          "ext.globalConfig.ignoreUploadFiles.placeholder"
+        ),
+        type: UISettingType.TextArea,
+        correspondingSetting: "ignoreUploadFiles"
+      },
+      {
+        name: state.localization.Localize(
+          "ext.globalConfig.supportedFileExtensions.name"
+        ),
+        placeholder: state.localization.Localize(
+          "ext.globalConfig.supportedFileExtensions.placeholder"
+        ),
+        type: UISettingType.TextArea,
+        correspondingSetting: "supportedFileExtensions"
+      },
+      {
+        name: state.localization.Localize(
+          "ext.globalConfig.gistDescription.name"
+        ),
+        placeholder: state.localization.Localize(
+          "ext.globalConfig.gistDescription.placeholder"
+        ),
+        type: UISettingType.TextInput,
+        correspondingSetting: "gistDescription"
+      },
+      {
+        name: state.localization.Localize(
+          "ext.globalConfig.autoUploadDelay.name"
+        ),
+        placeholder: state.localization.Localize(
+          "ext.globalConfig.autoUploadDelay.placeholder"
+        ),
+        type: UISettingType.NumberInput,
+        correspondingSetting: "autoUploadDelay"
+      },
+      {
+        name: state.localization.Localize("ext.globalConfig.askGistName.name"),
+        placeholder: "",
+        type: UISettingType.Checkbox,
+        correspondingSetting: "askGistName"
+      },
+      {
+        name: state.localization.Localize(
+          "ext.globalConfig.downloadPublicGist.name"
+        ),
+        placeholder: "",
+        type: UISettingType.Checkbox,
+        correspondingSetting: "downloadPublicGist"
+      },
+      {
+        name: state.localization.Localize(
+          "ext.globalConfig.openTokenLink.name"
+        ),
+        placeholder: "",
+        type: UISettingType.Checkbox,
+        correspondingSetting: "openTokenLink"
+      }
+    ];
+
+    this.environmentSettings = [
+      {
+        name: state.localization.Localize("ext.config.gist.name"),
+        placeholder: state.localization.Localize("ext.config.gist.placeholder"),
+        type: UISettingType.TextInput,
+        correspondingSetting: "gist",
+        tooltip: state.localization.Localize("ext.config.gist")
+      },
+      {
+        name: state.localization.Localize("ext.config.autoDownload.name"),
+        placeholder: "",
+        type: UISettingType.Checkbox,
+        correspondingSetting: "autoDownload",
+        tooltip: state.localization.Localize("ext.config.autoDownload")
+      },
+      {
+        name: state.localization.Localize("ext.config.autoUpload.name"),
+        placeholder: "",
+        type: UISettingType.Checkbox,
+        correspondingSetting: "autoUpload",
+        tooltip: state.localization.Localize("ext.config.autoUpload")
+      },
+      {
+        name: state.localization.Localize("ext.config.forceDownload.name"),
+        placeholder: "",
+        type: UISettingType.Checkbox,
+        correspondingSetting: "forceDownload",
+        tooltip: state.localization.Localize("ext.config.forceDownload")
+      },
+      {
+        name: state.localization.Localize("ext.config.forceUpload.name"),
+        placeholder: "",
+        type: UISettingType.Checkbox,
+        correspondingSetting: "forceUpload",
+        tooltip: state.localization.Localize("ext.config.forceUpload")
+      },
+      {
+        name: state.localization.Localize("ext.config.quietSync.name"),
+        placeholder: "",
+        type: UISettingType.Checkbox,
+        correspondingSetting: "quietSync",
+        tooltip: state.localization.Localize("ext.config.quietSync")
+      },
+      {
+        name: state.localization.Localize("ext.config.removeExtensions.name"),
+        placeholder: "",
+        type: UISettingType.Checkbox,
+        correspondingSetting: "removeExtensions",
+        tooltip: state.localization.Localize("ext.config.removeExtensions")
+      },
+      {
+        name: state.localization.Localize("ext.config.syncExtensions.name"),
+        placeholder: "",
+        type: UISettingType.Checkbox,
+        correspondingSetting: "syncExtensions",
+        tooltip: state.localization.Localize("ext.config.syncExtensions")
+      }
+    ];
+
+    this.webviews = [
+      {
+        name: "landing-page",
+        htmlPath: "landing-page.html",
+        replaceables: [
+          {
+            find: "@RELEASE_NOTES",
+            replace: "releaseNotes"
+          }
+        ]
+      },
+      {
+        name: "settings",
+        htmlPath: "settings.html",
+        replaceables: [
+          {
+            find: "@GLOBAL_DATA",
+            replace: "customSettings"
+          },
+          {
+            find: "@ENV_DATA",
+            replace: "extSettings"
+          },
+          {
+            find: "@GLOBAL_MAP",
+            replace: this.globalSettings
+          },
+          {
+            find: "@ENV_MAP",
+            replace: this.environmentSettings
+          }
+        ]
+      },
+      {
+        name: "gist-selection",
+        htmlPath: "gist-selection.html",
+        replaceables: [
+          {
+            find: "@GISTS",
+            replace: "gists"
+          }
+        ]
+      }
+    ].map(view => {
       return {
         ...view,
         htmlContent: readFileSync(

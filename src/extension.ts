@@ -1,10 +1,11 @@
 "use strict";
 
 import * as vscode from "vscode";
-import { Environment } from "./environmentPath";
-import { init as initLocalize } from "./localize";
+import Commons from "./commons";
+import { Environment } from "./environment";
 import { GistService } from "./service/gist.service";
 import { InitService } from "./service/init.service";
+import { LocalizationService } from "./service/localization.service";
 import { SettingsService } from "./service/settings.service";
 import { WebviewService } from "./service/webview.service";
 import { state } from "./state";
@@ -12,14 +13,11 @@ import { state } from "./state";
 export async function activate(context: vscode.ExtensionContext) {
   state.context = context;
   state.environment = new Environment();
-
-  await initLocalize();
-
+  state.localization = new LocalizationService();
   state.settings = new SettingsService();
   state.webview = new WebviewService();
   state.syncService = new GistService();
-
-  InitService.init();
+  state.commons = new Commons();
 
   context.subscriptions.push(
     vscode.commands.registerCommand(
@@ -52,5 +50,5 @@ export async function activate(context: vscode.ExtensionContext) {
     )
   );
 
-  state.autoUpload = await state.commons.InitializeAutoUpload();
+  await InitService.init();
 }
