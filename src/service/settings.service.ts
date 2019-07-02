@@ -147,21 +147,12 @@ export class SettingsService {
       "cmd.otherOptions.openSettingsPage",
       "cmd.otherOptions.editLocalSetting",
       "cmd.otherOptions.shareSetting",
-      "cmd.otherOptions.downloadSetting",
-      "cmd.otherOptions.toggleForceDownload",
-      "cmd.otherOptions.toggleForceUpload",
-      "cmd.otherOptions.toggleAutoUpload",
-      "cmd.otherOptions.toggleAutoDownload",
-      "cmd.otherOptions.toggleSummaryPage",
       "cmd.otherOptions.customizedSync",
       "cmd.otherOptions.downloadCustomFile",
       "cmd.otherOptions.joinCommunity",
       "cmd.otherOptions.openIssue",
       "cmd.otherOptions.releaseNotes"
     ].map(state.localize);
-
-    let selectedItem: number = 0;
-    let settingChanged: boolean = false;
 
     const item = await vscode.window.showQuickPick(items);
 
@@ -196,59 +187,17 @@ export class SettingsService {
 
         if (answer === "Yes") {
           localSetting.publicGist = true;
-          settingChanged = true;
           setting.gist = "";
-          selectedItem = 1;
           customSettings.GitHubGist.downloadPublicGist = false;
+
           await this.SetCustomSettings(customSettings);
+          await AutoUploadService.HandleStopWatching();
+          await this.SetExtensionSettings(setting);
+          await vscode.commands.executeCommand(
+            "extension.updateSettings",
+            "publicGIST"
+          );
         }
-      },
-      async () => {
-        // Download Settings from Public GIST
-        selectedItem = 2;
-        customSettings.GitHubGist.downloadPublicGist = true;
-        settingChanged = true;
-        await this.SetCustomSettings(customSettings);
-      },
-      async () => {
-        // toggle force download
-        selectedItem = 3;
-        settingChanged = true;
-        setting.forceDownload = !setting.forceDownload;
-      },
-      async () => {
-        // toggle force upload
-        selectedItem = 4;
-        settingChanged = true;
-        setting.forceUpload = !setting.forceUpload;
-      },
-      async () => {
-        // toggle auto upload
-        selectedItem = 5;
-        settingChanged = true;
-        setting.autoUpload = !setting.autoUpload;
-      },
-      async () => {
-        // auto download on startup
-        selectedItem = 6;
-        settingChanged = true;
-        if (!(await state.syncService.IsConfigured()) || !setting) {
-          vscode.commands.executeCommand("extension.HowSettings");
-          return;
-        }
-
-        setting.autoDownload = !setting.autoDownload;
-      },
-      async () => {
-        // page summary toggle
-        selectedItem = 7;
-        settingChanged = true;
-
-        if (!(await state.syncService.IsConfigured())) {
-          vscode.commands.executeCommand("extension.HowSettings");
-          return;
-        }
-        setting.quietSync = !setting.quietSync;
       },
       async () => {
         // add customized sync file
@@ -352,84 +301,6 @@ export class SettingsService {
 
     try {
       await handlerMap[index]();
-      if (settingChanged) {
-        if (selectedItem === 1) {
-          await AutoUploadService.HandleStopWatching();
-        }
-        await this.SetExtensionSettings(setting)
-          .then((added: boolean) => {
-            if (added) {
-              const callbackMap = {
-                1: async () => {
-                  return await vscode.commands.executeCommand(
-                    "extension.updateSettings",
-                    "publicGIST"
-                  );
-                },
-                2: async () => {
-                  return await vscode.window.showInformationMessage(
-                    state.localize("cmd.otherOptions.warning.tokenNotRequire")
-                  );
-                },
-                3: async () => {
-                  const message = setting.forceDownload
-                    ? "cmd.otherOptions.toggleForceDownload.on"
-                    : "cmd.otherOptions.toggleForceDownload.off";
-                  return vscode.window.showInformationMessage(
-                    state.localize(message)
-                  );
-                },
-                4: async () => {
-                  const message = setting.forceUpload
-                    ? "cmd.otherOptions.toggleForceUpload.on"
-                    : "cmd.otherOptions.toggleForceUpload.off";
-                  return vscode.window.showInformationMessage(
-                    state.localize(message)
-                  );
-                },
-                5: async () => {
-                  const message = setting.autoUpload
-                    ? "cmd.otherOptions.toggleAutoUpload.on"
-                    : "cmd.otherOptions.toggleAutoUpload.off";
-                  return vscode.window.showInformationMessage(
-                    state.localize(message)
-                  );
-                },
-                6: async () => {
-                  const message = setting.autoDownload
-                    ? "cmd.otherOptions.toggleAutoDownload.on"
-                    : "cmd.otherOptions.toggleAutoDownload.off";
-                  return vscode.window.showInformationMessage(
-                    state.localize(message)
-                  );
-                },
-                7: async () => {
-                  const message = setting.quietSync
-                    ? "cmd.otherOptions.quietSync.on"
-                    : "cmd.otherOptions.quietSync.off";
-                  return vscode.window.showInformationMessage(
-                    state.localize(message)
-                  );
-                }
-              };
-
-              if (callbackMap[selectedItem]) {
-                return callbackMap[selectedItem]();
-              }
-            } else {
-              return vscode.window.showErrorMessage(
-                state.localize("cmd.otherOptions.error.toggleFail")
-              );
-            }
-          })
-          .catch(err => {
-            LoggerService.LogException(
-              err,
-              "Sync : Unable to toggle. Please open an issue.",
-              true
-            );
-          });
-      }
     } catch (err) {
       LoggerService.LogException(err, "Error", true);
       return;

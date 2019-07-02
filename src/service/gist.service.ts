@@ -54,7 +54,7 @@ export class GistService implements ISyncService {
     let uploadedExtensions: ExtensionInformation[] = [];
     const ignoredExtensions: ExtensionInformation[] = [];
     const currentDate = new Date();
-    await AutoUploadService.HandleStopWatching;
+    await AutoUploadService.HandleStopWatching();
 
     try {
       localConfig = await state.settings.GetLocalConfig();
@@ -361,7 +361,7 @@ export class GistService implements ISyncService {
               );
             }
             if (syncSetting.autoUpload) {
-              await AutoUploadService.HandleStartWatching;
+              await AutoUploadService.HandleStartWatching();
             }
           }
         } catch (err) {
@@ -373,7 +373,7 @@ export class GistService implements ISyncService {
 
   public async DownloadSettings(): Promise<void> {
     let localSettings: LocalConfig = new LocalConfig();
-    await AutoUploadService.HandleStopWatching;
+    await AutoUploadService.HandleStopWatching();
 
     try {
       localSettings = await state.settings.GetLocalConfig();
@@ -665,7 +665,7 @@ export class GistService implements ISyncService {
           );
         }
         if (syncSetting.autoUpload) {
-          await AutoUploadService.HandleStartWatching;
+          await AutoUploadService.HandleStartWatching();
         }
       } else {
         vscode.window.showErrorMessage(
