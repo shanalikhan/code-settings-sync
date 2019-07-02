@@ -86,7 +86,7 @@ export class GistService implements ISyncService {
         }
       }
 
-      await startGitProcess.call(
+      await StartUpload.call(
         this,
         localConfig.extConfig,
         localConfig.customConfig
@@ -96,7 +96,7 @@ export class GistService implements ISyncService {
       return;
     }
 
-    async function startGitProcess(
+    async function StartUpload(
       syncSetting: ExtensionConfig,
       customSettings: CustomConfig
     ) {
