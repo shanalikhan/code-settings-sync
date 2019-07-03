@@ -1,7 +1,7 @@
 import * as vscode from "vscode";
 import { watch } from "vscode-chokidar";
 import lockfile from "../lockfile";
-import { CustomConfig } from "../models/customConfig.model";
+import { CustomConfig } from "../models/custom-config.model";
 import { state } from "../state";
 import { Util } from "../util";
 import { FileService } from "./file.service";

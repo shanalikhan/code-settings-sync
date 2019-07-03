@@ -1,5 +1,5 @@
-import { CustomConfig } from "./customConfig.model";
-import { ExtensionConfig } from "./extensionConfig.model";
+import { CustomConfig } from "./custom-config.model";
+import { ExtensionConfig } from "./extension-config.model";
 
 export class LocalConfig {
   public publicGist: boolean = false;

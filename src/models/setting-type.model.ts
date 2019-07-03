@@ -1,7 +1,6 @@
-export enum SettingType {
-  Settings = 1,
-  Launch,
-  KeyBindings,
-  Locale,
-  Extensions
+export enum UISettingType {
+  TextInput = "textinput",
+  NumberInput = "numberinput",
+  Checkbox = "checkbox",
+  TextArea = "textarea"
 }

@@ -1,12 +1,12 @@
 import * as GitHubApi from "@octokit/rest";
 import * as HttpsProxyAgent from "https-proxy-agent";
 import * as vscode from "vscode";
-import { CloudSettings } from "../models/cloudSettings.model";
-import { CustomConfig } from "../models/customConfig.model";
-import { ExtensionConfig } from "../models/extensionConfig.model";
+import { CloudSettings } from "../models/cloud-settings.model";
+import { CustomConfig } from "../models/custom-config.model";
+import { ExtensionConfig } from "../models/extension-config.model";
 import { IFixGistResponse } from "../models/fix-gist-response.model";
 import { IEnv } from "../models/gist-env.model";
-import { LocalConfig } from "../models/localConfig.model";
+import { LocalConfig } from "../models/local-config.model";
 import { OsType } from "../models/os-type.model";
 import { ISyncService } from "../models/sync.model";
 import PragmaUtil from "../pragmaUtil";

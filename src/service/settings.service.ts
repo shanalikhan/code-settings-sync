@@ -1,7 +1,7 @@
 import * as vscode from "vscode";
-import { CustomConfig } from "../models/customConfig.model";
-import { ExtensionConfig } from "../models/extensionConfig.model";
-import { LocalConfig } from "../models/localConfig.model";
+import { CustomConfig } from "../models/custom-config.model";
+import { ExtensionConfig } from "../models/extension-config.model";
+import { LocalConfig } from "../models/local-config.model";
 import { SyncMethod } from "../models/sync-method.model";
 import { state } from "../state";
 import { AutoUploadService } from "./autoUpload.service";

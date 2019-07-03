@@ -1,5 +1,5 @@
 import { Environment } from "../environment";
-import { GistConfig } from "./gistConfig.model";
+import { GistConfig } from "./gist-config.model";
 import { SyncMethod } from "./sync-method.model";
 
 export class CustomConfig {

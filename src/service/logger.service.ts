@@ -1,6 +1,6 @@
 import { OutputChannel, window } from "vscode";
 import { Environment } from "../environment";
-import { LocalConfig } from "../models/localConfig.model";
+import { LocalConfig } from "../models/local-config.model";
 import { state } from "../state";
 import { File } from "./file.service";
 import { ExtensionInformation } from "./plugin.service";

@@ -1,7 +1,7 @@
 "use strict";
 import * as vscode from "vscode";
 import { Environment } from "./environment";
-import { CustomConfig } from "./models/customConfig.model";
+import { CustomConfig } from "./models/custom-config.model";
 import { FileService } from "./service/file.service";
 import { state } from "./state";
 

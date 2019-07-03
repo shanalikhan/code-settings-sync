@@ -3,7 +3,7 @@
 import * as fs from "fs-extra";
 import * as path from "path";
 import * as recursiveRead from "recursive-readdir";
-import { CustomConfig } from "../models/customConfig.model";
+import { CustomConfig } from "../models/custom-config.model";
 
 export class File {
   constructor(

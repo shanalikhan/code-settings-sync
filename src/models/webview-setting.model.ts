@@ -1,4 +1,4 @@
-import { UISettingType } from "./settingType.model";
+import { UISettingType } from "./setting-type.model";
 
 export interface IWebviewSetting {
   name: string;
