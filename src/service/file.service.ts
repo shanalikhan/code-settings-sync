@@ -10,7 +10,7 @@ export class File {
     public fileName: string,
     public content: string,
     public filePath: string,
-    public gistName: string
+    public remoteName: string
   ) {}
 }
 export class FileService {

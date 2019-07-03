@@ -141,7 +141,6 @@ export class SettingsService {
           }
         });
     }
-    const localSetting = new LocalConfig();
 
     const items: string[] = [
       "cmd.otherOptions.openSettingsPage",
@@ -186,13 +185,15 @@ export class SettingsService {
         );
 
         if (answer === "Yes") {
-          localSetting.publicGist = true;
-          setting.gist = "";
-          customSettings.GitHubGist.downloadPublicGist = false;
-
-          await this.SetCustomSettings(customSettings);
+          await this.SetCustomSettings({
+            ...customSettings,
+            GitHubGist: {
+              ...customSettings.GitHubGist,
+              downloadPublicGist: false
+            }
+          });
           await AutoUploadService.HandleStopWatching();
-          await this.SetExtensionSettings(setting);
+          await this.SetExtensionSettings({ ...setting, gist: "" });
           await vscode.commands.executeCommand(
             "extension.updateSettings",
             "publicGIST"

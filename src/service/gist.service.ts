@@ -58,7 +58,6 @@ export class GistService implements ISyncService {
 
     try {
       localConfig = await state.settings.GetLocalConfig();
-      localConfig.publicGist = options === "publicGIST";
 
       await this.Connect();
 
@@ -108,6 +107,8 @@ export class GistService implements ISyncService {
         state.localize("cmd.updateSettings.info.uploading"),
         2000
       );
+
+      let publicGist = options === "publicGIST";
 
       if (customSettings.GitHubGist.downloadPublicGist) {
         if (!customSettings.GitHubGist.token) {
@@ -189,7 +190,7 @@ export class GistService implements ISyncService {
             if (
               snippetFile.fileName === state.environment.FILE_KEYBINDING_NAME
             ) {
-              snippetFile.gistName =
+              snippetFile.remoteName =
                 state.environment.OsType === OsType.Mac &&
                 !customSettings.universalKeybindings
                   ? state.environment.FILE_KEYBINDING_MAC
@@ -233,7 +234,7 @@ export class GistService implements ISyncService {
           }
           newGIST = true;
           const gistID = await this.CreateEmptyGIST(
-            localConfig.publicGist,
+            publicGist,
             customSettings.GitHubGist.gistDescription
           );
           if (gistID) {
@@ -271,9 +272,7 @@ export class GistService implements ISyncService {
           }
         }
 
-        if (gistObj.data.public === true) {
-          localConfig.publicGist = true;
-        }
+        publicGist = gistObj.data.public;
 
         if (
           !allSettingFiles.some(fileToUpload => {
@@ -337,7 +336,7 @@ export class GistService implements ISyncService {
               );
             }
 
-            if (localConfig.publicGist) {
+            if (publicGist) {
               vscode.window.showInformationMessage(
                 state.localize("cmd.updateSettings.info.shareGist")
               );
@@ -411,9 +410,6 @@ export class GistService implements ISyncService {
       const updatedFiles: File[] = [];
       const actionList: Array<Promise<void | boolean>> = [];
 
-      if (res.data.public === true) {
-        localSettings.publicGist = true;
-      }
       const keys = Object.keys(res.data.files);
       if (keys.indexOf(state.environment.FILE_CLOUDSETTINGS_NAME) > -1) {
         const cloudSettGist: object = JSON.parse(
@@ -513,7 +509,7 @@ export class GistService implements ISyncService {
         let content: string = file.content;
 
         if (content !== "") {
-          if (file.gistName === state.environment.FILE_EXTENSION_NAME) {
+          if (file.remoteName === state.environment.FILE_EXTENSION_NAME) {
             if (syncSetting.syncExtensions) {
               if (syncSetting.removeExtensions) {
                 try {
@@ -568,20 +564,20 @@ export class GistService implements ISyncService {
           } else {
             writeFile = true;
             if (
-              file.gistName === state.environment.FILE_KEYBINDING_DEFAULT ||
-              file.gistName === state.environment.FILE_KEYBINDING_MAC
+              file.remoteName === state.environment.FILE_KEYBINDING_DEFAULT ||
+              file.remoteName === state.environment.FILE_KEYBINDING_MAC
             ) {
               let test: string = "";
               state.environment.OsType === OsType.Mac &&
               !customSettings.universalKeybindings
                 ? (test = state.environment.FILE_KEYBINDING_MAC)
                 : (test = state.environment.FILE_KEYBINDING_DEFAULT);
-              if (file.gistName !== test) {
+              if (file.remoteName !== test) {
                 writeFile = false;
               }
             }
             if (writeFile) {
-              if (file.gistName === state.environment.FILE_KEYBINDING_MAC) {
+              if (file.remoteName === state.environment.FILE_KEYBINDING_MAC) {
                 file.fileName = state.environment.FILE_KEYBINDING_DEFAULT;
               }
               let filePath: string = "";
@@ -595,9 +591,9 @@ export class GistService implements ISyncService {
               }
 
               if (
-                file.gistName === state.environment.FILE_SETTING_NAME ||
-                file.gistName === state.environment.FILE_KEYBINDING_MAC ||
-                file.gistName === state.environment.FILE_KEYBINDING_DEFAULT
+                file.remoteName === state.environment.FILE_SETTING_NAME ||
+                file.remoteName === state.environment.FILE_KEYBINDING_MAC ||
+                file.remoteName === state.environment.FILE_KEYBINDING_DEFAULT
               ) {
                 const fileExists = await FileService.FileExists(filePath);
 
@@ -709,8 +705,8 @@ export class GistService implements ISyncService {
   public AddFile(list: File[], gistData: any) {
     for (const file of list) {
       if (file.content !== "") {
-        gistData.files[file.gistName] = {};
-        gistData.files[file.gistName].content = file.content;
+        gistData.files[file.remoteName] = {};
+        gistData.files[file.remoteName].content = file.content;
       }
     }
     return gistData;
@@ -720,12 +716,9 @@ export class GistService implements ISyncService {
     publicGist: boolean,
     gistDescription: string
   ): Promise<string> {
-    if (publicGist) {
-      this.emptyGist.public = true;
-    } else {
-      this.emptyGist.public = false;
-    }
-    if (gistDescription !== null && gistDescription !== "") {
+    this.emptyGist.public = !!publicGist;
+
+    if (gistDescription) {
       this.emptyGist.description = gistDescription;
     }
 
@@ -781,7 +774,7 @@ export class GistService implements ISyncService {
       let exists = false;
 
       for (const settingFile of files) {
-        if (settingFile.gistName === fileName) {
+        if (settingFile.remoteName === fileName) {
           exists = true;
         }
       }

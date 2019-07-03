@@ -73,8 +73,8 @@
   "common.error.canNotSave": "Sync: não é Possível Salvar as Configurações. Por favor, certifique-se de que você tem válidos JSON configurações.json arquivo. (por exemplo: Sem a vírgula decimal)",
   "common.error.connection": "Sincronização: a Internet Não está Conectado ou não é Possível Conectar-se para o GitHub. Exceção Registrada no Console",
   "common.error.gistNotSave": "Sincronização: A Essência Não Salvos.",
-  "common.error.invalidGistId": "Sincronização: Erro De Essência De Identificação Inseridos. Verifique a sua essência: https://gist.github.com/<your_userName>/<gist_id>.",
-  "common.error.invalidToken": "Sincronização: Inválido Ou Expirou GitHub Token. Por favor, gerar novo token com âmbitos mencionados no leia-me. Exceção Registrada no Console.",
+  "common.error.invalidGistId": "Sincronização: erro de Essência de IDENTIFICAÇÃO.",
+  "common.error.invalidToken": "Sincronização: Inválido Ou Expirou GitHub Token.",
   "common.error.message": "Sincronização: Erro Registrado No Console (menu Ajuda > Alternância de Ferramentas do Desenvolvedor).",
   "common.error.tokenNotSave": "Sincronização: Token Não Salvos.",
   "common.info.donate": "Sincronização: você gosta de esta extensão? Que tal escrever um comentário ou enviando um donativo? ",
@@ -140,4 +140,3 @@
   "ext.globalConfig.token.name": "Token De Acesso",
   "ext.globalConfig.token.placeholder": "Digite Token"
 }
-

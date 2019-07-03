@@ -213,23 +213,25 @@ export class PluginService {
   ): Promise<ExtensionInformation[]> {
     const addedExtensions: ExtensionInformation[] = [];
     const missingExtensionsCount = missingExtensions.length;
-    notificationCallBack("TOTAL EXTENSIONS : " + missingExtensionsCount);
+    notificationCallBack(
+      `Total amount of extensions: ${missingExtensionsCount}`
+    );
     notificationCallBack("");
     notificationCallBack("");
     for (const ext of missingExtensions) {
       const name = ext.publisher + "." + ext.name;
       try {
         notificationCallBack("");
-        notificationCallBack(`[x] - EXTENSION: ${ext.name} - INSTALLING`);
+        notificationCallBack(`Extension: '${ext.name}' Installing...`);
         await vscode.commands.executeCommand(
           "workbench.extensions.installExtension",
           name
         );
         notificationCallBack("");
-        notificationCallBack(`[x] - EXTENSION: ${ext.name} INSTALLED.`);
+        notificationCallBack(`Extension '${ext.name}' Installed.`);
         notificationCallBack(
-          `      ${missingExtensions.indexOf(ext) +
-            1} OF ${missingExtensionsCount} INSTALLED`,
+          `${missingExtensions.indexOf(ext) +
+            1} of ${missingExtensionsCount} Installed`,
           true
         );
         notificationCallBack("");
