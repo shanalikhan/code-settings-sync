@@ -323,11 +323,22 @@ export class Sync {
           })
         ) {
           if (!localConfig.extConfig.forceUpload) {
-            vscode.window.setStatusBarMessage(
-              localize("cmd.updateSettings.info.uploadCanceled"),
-              3
+            const message = await vscode.window.showInformationMessage(
+              localize("common.prompt.gistNewer"),
+              "Yes"
             );
-            return;
+            if (message === "Yes") {
+              await state.commons.SaveSettings({
+                ...localConfig.extConfig,
+                forceUpload: true
+              });
+            } else {
+              vscode.window.setStatusBarMessage(
+                localize("cmd.updateSettings.info.uploadCanceled"),
+                3
+              );
+              return;
+            }
           }
         }
 
@@ -351,46 +362,40 @@ export class Sync {
 
       if (completed) {
         try {
-          const settingsUpdated = await state.commons.SaveSettings(syncSetting);
-          const customSettingsUpdated = await state.commons.SetCustomSettings(
-            customSettings
-          );
-          if (settingsUpdated && customSettingsUpdated) {
-            if (newGIST) {
-              vscode.window.showInformationMessage(
-                localize(
-                  "cmd.updateSettings.info.uploadingDone",
-                  syncSetting.gist
-                )
-              );
-            }
+          if (newGIST) {
+            vscode.window.showInformationMessage(
+              localize(
+                "cmd.updateSettings.info.uploadingDone",
+                syncSetting.gist
+              )
+            );
+          }
 
-            if (localConfig.publicGist) {
-              vscode.window.showInformationMessage(
-                localize("cmd.updateSettings.info.shareGist")
-              );
-            }
+          if (localConfig.publicGist) {
+            vscode.window.showInformationMessage(
+              localize("cmd.updateSettings.info.shareGist")
+            );
+          }
 
-            if (!syncSetting.quietSync) {
-              state.commons.ShowSummaryOutput(
-                true,
-                allSettingFiles,
-                null,
-                uploadedExtensions,
-                ignoredExtensions,
-                localConfig
-              );
-              vscode.window.setStatusBarMessage("").dispose();
-            } else {
-              vscode.window.setStatusBarMessage("").dispose();
-              vscode.window.setStatusBarMessage(
-                localize("cmd.updateSettings.info.uploadingSuccess"),
-                5000
-              );
-            }
-            if (syncSetting.autoUpload) {
-              await state.commons.HandleStartWatching();
-            }
+          if (!syncSetting.quietSync) {
+            state.commons.ShowSummaryOutput(
+              true,
+              allSettingFiles,
+              null,
+              uploadedExtensions,
+              ignoredExtensions,
+              localConfig
+            );
+            vscode.window.setStatusBarMessage("").dispose();
+          } else {
+            vscode.window.setStatusBarMessage("").dispose();
+            vscode.window.setStatusBarMessage(
+              localize("cmd.updateSettings.info.uploadingSuccess"),
+              5000
+            );
+          }
+          if (syncSetting.autoUpload) {
+            await state.commons.HandleStartWatching();
           }
         } catch (err) {
           Commons.LogException(err, state.commons.ERROR_MESSAGE, true);
