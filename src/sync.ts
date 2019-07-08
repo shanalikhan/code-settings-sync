@@ -92,19 +92,32 @@ export class Sync {
         localConfig.customConfig.lastUpload &&
         !localConfig.extConfig.forceUpload
       ) {
-        if (
-          await github.IsGistNewer(
-            localConfig.extConfig.gist,
-            new Date(localConfig.customConfig.lastUpload)
-          )
-        ) {
+        const gistNewer = await github.IsGistNewer(
+          localConfig.extConfig.gist,
+          new Date(localConfig.customConfig.lastUpload)
+        );
+        if (gistNewer) {
+          if (
+            state.context.globalState.get<boolean>(
+              "gistNewer.dontShowThisAgain"
+            )
+          ) {
+            return;
+          }
           const message = await vscode.window.showInformationMessage(
             localize("common.prompt.gistNewer"),
-            "Yes"
+            "Yes",
+            "Don't Show This Again"
           );
           if (message === "Yes") {
             localConfig.extConfig.forceUpload = true;
             await state.commons.SaveSettings(localConfig.extConfig);
+          } else if (message === "Don't Show This Again") {
+            await state.context.globalState.update(
+              "gistNewer.dontShowThisAgain",
+              true
+            );
+            return;
           } else {
             vscode.window.setStatusBarMessage(
               localize("cmd.updateSettings.info.uploadCanceled"),
@@ -323,15 +336,29 @@ export class Sync {
           })
         ) {
           if (!localConfig.extConfig.forceUpload) {
+            if (
+              state.context.globalState.get<boolean>(
+                "gistNewer.dontShowThisAgain"
+              )
+            ) {
+              return;
+            }
             const message = await vscode.window.showInformationMessage(
               localize("common.prompt.gistNewer"),
-              "Yes"
+              "Yes",
+              "Don't Show This Again"
             );
             if (message === "Yes") {
               await state.commons.SaveSettings({
                 ...localConfig.extConfig,
                 forceUpload: true
               });
+            } else if (message === "Don't Show This Again") {
+              await state.context.globalState.update(
+                "gistNewer.dontShowThisAgain",
+                true
+              );
+              return;
             } else {
               vscode.window.setStatusBarMessage(
                 localize("cmd.updateSettings.info.uploadCanceled"),
