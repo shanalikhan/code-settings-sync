@@ -747,6 +747,11 @@ export class Sync {
       extSettings = new ExtensionConfig();
       localSettings = new CustomConfig();
 
+      await state.context.globalState.update(
+        "gistNewer.dontShowThisAgain",
+        false
+      );
+
       const extSaved: boolean = await state.commons.SaveSettings(extSettings);
       const customSaved: boolean = await state.commons.SetCustomSettings(
         localSettings
