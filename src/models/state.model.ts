@@ -14,5 +14,5 @@ export interface IExtensionState {
   autoUpload?: AutoUploadService;
   webview?: WebviewService;
   syncService?: ISyncService;
-  localize?: (key: string, ...args: any[]) => string;
+  localize: (key: string, ...args: any[]) => string;
 }

@@ -116,6 +116,7 @@ export class SettingsService {
         vscode.window.showInformationMessage(
           state.localize("cmd.resetSettings.info.settingClear")
         );
+        state.webview.UpdateSettingsPage(localSettings, extSettings);
       }
     } catch (err) {
       LoggerService.LogException(

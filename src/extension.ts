@@ -5,7 +5,6 @@ import Commons from "./commons";
 import { Environment } from "./environment";
 import { FactoryService } from "./service/factory.service";
 import { InitService } from "./service/init.service";
-import { LocalizationService } from "./service/localization.service";
 import { SettingsService } from "./service/settings.service";
 import { WebviewService } from "./service/webview.service";
 import { state } from "./state";
@@ -13,9 +12,6 @@ import { state } from "./state";
 export async function activate(context: vscode.ExtensionContext) {
   state.context = context;
   state.environment = new Environment();
-
-  const localizationService = new LocalizationService();
-  state.localize = localizationService.Localize.bind(localizationService);
 
   state.settings = new SettingsService();
   state.webview = new WebviewService();
@@ -25,6 +21,7 @@ export async function activate(context: vscode.ExtensionContext) {
   state.syncService = FactoryService.CreateSyncService(
     customSettings.exportType
   );
+
   state.commons = new Commons();
 
   context.subscriptions.push(

@@ -1,3 +1,3 @@
-interface ILanguagePack {
+export interface ILanguagePack {
   [key: string]: string;
 }
