@@ -1,7 +1,6 @@
 "use strict";
 
 import * as vscode from "vscode";
-import Commons from "./commons";
 import { Environment } from "./environment";
 import { FactoryService } from "./service/factory.service";
 import { InitService } from "./service/init.service";
@@ -21,8 +20,6 @@ export async function activate(context: vscode.ExtensionContext) {
   state.syncService = FactoryService.CreateSyncService(
     customSettings.exportType
   );
-
-  state.commons = new Commons();
 
   context.subscriptions.push(
     vscode.commands.registerCommand(

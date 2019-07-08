@@ -230,7 +230,7 @@ export class GistService implements ISyncService {
       try {
         if (syncSetting.gist == null || syncSetting.gist === "") {
           if (customSettings.GitHubGist.askGistName) {
-            customSettings.GitHubGist.gistDescription = await state.commons.AskGistName();
+            customSettings.GitHubGist.gistDescription = await this.GetGistDescription();
           }
           newGIST = true;
           const gistID = await this.CreateEmptyGIST(
@@ -852,5 +852,13 @@ export class GistService implements ISyncService {
     return customSettings.GitHubGist.downloadPublicGist
       ? gistAvailable
       : tokenAvailable && gistAvailable;
+  }
+
+  public async GetGistDescription(): Promise<string> {
+    return vscode.window.showInputBox({
+      prompt: state.localize("common.prompt.multipleGist"),
+      ignoreFocusOut: true,
+      placeHolder: state.localize("common.placeholder.multipleGist")
+    });
   }
 }

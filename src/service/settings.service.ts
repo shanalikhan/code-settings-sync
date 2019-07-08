@@ -1,4 +1,5 @@
 import * as vscode from "vscode";
+import { Environment } from "../environment";
 import { CustomConfig } from "../models/custom-config.model";
 import { ExtensionConfig } from "../models/extension-config.model";
 import { LocalConfig } from "../models/local-config.model";
@@ -78,6 +79,17 @@ export class SettingsService {
 
     try {
       await Promise.all(allKeysUpdated);
+      if (state.context.globalState.get("syncCounter")) {
+        const counter = state.context.globalState.get("syncCounter");
+        let count: number = parseInt(counter + "", 10);
+        if (count % 450 === 0) {
+          this.ShowDonationMessage();
+        }
+        count = count + 1;
+        state.context.globalState.update("syncCounter", count);
+      } else {
+        state.context.globalState.update("syncCounter", 1);
+      }
       return true;
     } catch (err) {
       LoggerService.LogException(err, LoggerService.defaultError, true);
@@ -315,5 +327,57 @@ export class SettingsService {
         "https://github.com/shanalikhan/code-settings-sync/wiki/Settings-Guide"
       )
     );
+  }
+
+  public async MigrateSettings() {
+    const customSettings = await state.settings.GetCustomSettings();
+    const newVersion = Number(Environment.version.split(".").join(""));
+
+    if (customSettings.version < newVersion) {
+      const defaultIgnoreUploadFiles = new CustomConfig().ignoreUploadFiles;
+      defaultIgnoreUploadFiles.forEach(file => {
+        if (!customSettings.ignoreUploadFiles.includes(file)) {
+          customSettings.ignoreUploadFiles.push(file);
+        }
+      });
+
+      const defaultIgnoreUploadFolders = new CustomConfig().ignoreUploadFolders;
+      defaultIgnoreUploadFolders.forEach(file => {
+        if (!customSettings.ignoreUploadFolders.includes(file)) {
+          customSettings.ignoreUploadFolders.push(file);
+        }
+      });
+
+      await state.settings.SetCustomSettings({
+        ...customSettings,
+        version: newVersion
+      });
+    }
+  }
+
+  public async ShowDonationMessage(): Promise<void> {
+    const donateNow = state.localize("common.action.donate");
+    const writeReview = state.localize("common.action.writeReview");
+    const res = await vscode.window.showInformationMessage(
+      state.localize("common.info.donate"),
+      donateNow,
+      writeReview
+    );
+
+    if (res === donateNow) {
+      vscode.env.openExternal(
+        vscode.Uri.parse(
+          "https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=4W3EWHHBSYMM8&lc=IE&item_name=Code%20Settings%20Sync&item_number=visual%20studio%20code%20settings%20sync&currency_code=USD&bn=PP-DonationsBF:btn_donate_SM.gif:NonHosted"
+        )
+      );
+    }
+
+    if (res === writeReview) {
+      vscode.env.openExternal(
+        vscode.Uri.parse(
+          "https://marketplace.visualstudio.com/items?itemName=Shan.code-settings-sync#review-details"
+        )
+      );
+    }
   }
 }

@@ -9,7 +9,7 @@ export class LocalizationService {
 
   public Localize(key: string, ...args: string[]): string {
     const message = this.bundle[key] || key;
-    return this.Format(message, args.flat());
+    return this.Format(message, args);
   }
 
   private Init() {

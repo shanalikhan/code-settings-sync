@@ -4,7 +4,7 @@ import { AutoUploadService } from "./autoUpload.service";
 
 export class InitService {
   public static async init(): Promise<void> {
-    await state.commons.StartMigrationProcess();
+    await state.settings.MigrateSettings();
 
     const [extSettings, customSettings] = await Promise.all([
       state.settings.GetExtensionSettings(),
