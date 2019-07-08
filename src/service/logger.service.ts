@@ -8,7 +8,7 @@ import { ExtensionInformation } from "./plugin.service";
 export class LoggerService {
   public static outputChannel: OutputChannel;
 
-  public static defaultError: string;
+  public static defaultError = state.localize("common.error.message");
 
   public static statusMap = {
     500: "common.error.connection",

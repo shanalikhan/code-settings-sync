@@ -12,205 +12,201 @@ import { GitHubOAuthService } from "./github.oauth.service";
 import { LoggerService } from "./logger.service";
 
 export class WebviewService {
-  private globalSettings: IWebviewSetting[];
+  private globalSettings: IWebviewSetting[] = [
+    {
+      name: state.localize("ext.globalConfig.token.name"),
+      placeholder: state.localize("ext.globalConfig.token.placeholder"),
+      type: UISettingType.TextInput,
+      correspondingSetting: "GitHubGist.token"
+    },
+    {
+      name: state.localize("ext.globalConfig.githubEnterpriseUrl.name"),
+      placeholder: state.localize(
+        "ext.globalConfig.githubEnterpriseUrl.placeholder"
+      ),
+      type: UISettingType.TextInput,
+      correspondingSetting: "GitHubGist.githubEnterpriseUrl"
+    },
+    {
+      name: state.localize("ext.globalConfig.ignoreUploadFolders.name"),
+      placeholder: state.localize(
+        "ext.globalConfig.ignoreUploadFolders.placeholder"
+      ),
+      type: UISettingType.TextArea,
+      correspondingSetting: "ignoreUploadFolders"
+    },
+    {
+      name: state.localize("ext.globalConfig.ignoreExtensions.name"),
+      placeholder: state.localize(
+        "ext.globalConfig.ignoreExtensions.placeholder"
+      ),
+      type: UISettingType.TextArea,
+      correspondingSetting: "ignoreExtensions"
+    },
+    {
+      name: state.localize("ext.globalConfig.hostName.name"),
+      placeholder: state.localize("ext.globalConfig.hostName.placeholder"),
+      type: UISettingType.TextInput,
+      correspondingSetting: "hostName"
+    },
+    {
+      name: state.localize("ext.globalConfig.ignoreUploadFiles.name"),
+      placeholder: state.localize(
+        "ext.globalConfig.ignoreUploadFiles.placeholder"
+      ),
+      type: UISettingType.TextArea,
+      correspondingSetting: "ignoreUploadFiles"
+    },
+    {
+      name: state.localize("ext.globalConfig.supportedFileExtensions.name"),
+      placeholder: state.localize(
+        "ext.globalConfig.supportedFileExtensions.placeholder"
+      ),
+      type: UISettingType.TextArea,
+      correspondingSetting: "supportedFileExtensions"
+    },
+    {
+      name: state.localize("ext.globalConfig.gistDescription.name"),
+      placeholder: state.localize(
+        "ext.globalConfig.gistDescription.placeholder"
+      ),
+      type: UISettingType.TextInput,
+      correspondingSetting: "GitHubGist.gistDescription"
+    },
+    {
+      name: state.localize("ext.globalConfig.autoUploadDelay.name"),
+      placeholder: state.localize(
+        "ext.globalConfig.autoUploadDelay.placeholder"
+      ),
+      type: UISettingType.NumberInput,
+      correspondingSetting: "autoUploadDelay"
+    },
+    {
+      name: state.localize("ext.globalConfig.askGistName.name"),
+      placeholder: "",
+      type: UISettingType.Checkbox,
+      correspondingSetting: "GitHubGist.askGistName"
+    },
+    {
+      name: state.localize("ext.globalConfig.downloadPublicGist.name"),
+      placeholder: "",
+      type: UISettingType.Checkbox,
+      correspondingSetting: "GitHubGist.downloadPublicGist"
+    },
+    {
+      name: state.localize("ext.globalConfig.openTokenLink.name"),
+      placeholder: "",
+      type: UISettingType.Checkbox,
+      correspondingSetting: "GitHubGist.openTokenLink"
+    }
+  ];
 
-  private environmentSettings: IWebviewSetting[];
+  private environmentSettings: IWebviewSetting[] = [
+    {
+      name: state.localize("ext.config.gist.name"),
+      placeholder: state.localize("ext.config.gist.placeholder"),
+      type: UISettingType.TextInput,
+      correspondingSetting: "gist",
+      tooltip: state.localize("ext.config.gist")
+    },
+    {
+      name: state.localize("ext.config.autoDownload.name"),
+      placeholder: "",
+      type: UISettingType.Checkbox,
+      correspondingSetting: "autoDownload",
+      tooltip: state.localize("ext.config.autoDownload")
+    },
+    {
+      name: state.localize("ext.config.autoUpload.name"),
+      placeholder: "",
+      type: UISettingType.Checkbox,
+      correspondingSetting: "autoUpload",
+      tooltip: state.localize("ext.config.autoUpload")
+    },
+    {
+      name: state.localize("ext.config.forceDownload.name"),
+      placeholder: "",
+      type: UISettingType.Checkbox,
+      correspondingSetting: "forceDownload",
+      tooltip: state.localize("ext.config.forceDownload")
+    },
+    {
+      name: state.localize("ext.config.forceUpload.name"),
+      placeholder: "",
+      type: UISettingType.Checkbox,
+      correspondingSetting: "forceUpload",
+      tooltip: state.localize("ext.config.forceUpload")
+    },
+    {
+      name: state.localize("ext.config.quietSync.name"),
+      placeholder: "",
+      type: UISettingType.Checkbox,
+      correspondingSetting: "quietSync",
+      tooltip: state.localize("ext.config.quietSync")
+    },
+    {
+      name: state.localize("ext.config.removeExtensions.name"),
+      placeholder: "",
+      type: UISettingType.Checkbox,
+      correspondingSetting: "removeExtensions",
+      tooltip: state.localize("ext.config.removeExtensions")
+    },
+    {
+      name: state.localize("ext.config.syncExtensions.name"),
+      placeholder: "",
+      type: UISettingType.Checkbox,
+      correspondingSetting: "syncExtensions",
+      tooltip: state.localize("ext.config.syncExtensions")
+    }
+  ];
 
-  private webviews: IWebview[];
+  private webviews: IWebview[] = [
+    {
+      name: "landing-page",
+      htmlPath: "landing-page.html",
+      replaceables: [
+        {
+          find: "@RELEASE_NOTES",
+          replace: "releaseNotes"
+        }
+      ]
+    },
+    {
+      name: "settings",
+      htmlPath: "settings.html",
+      replaceables: [
+        {
+          find: "@GLOBAL_DATA",
+          replace: "customSettings"
+        },
+        {
+          find: "@ENV_DATA",
+          replace: "extSettings"
+        },
+        {
+          find: "@GLOBAL_MAP",
+          replace: this.globalSettings
+        },
+        {
+          find: "@ENV_MAP",
+          replace: this.environmentSettings
+        }
+      ]
+    },
+    {
+      name: "gist-selection",
+      htmlPath: "gist-selection.html",
+      replaceables: [
+        {
+          find: "@GISTS",
+          replace: "gists"
+        }
+      ]
+    }
+  ];
 
   constructor() {
-    this.globalSettings = [
-      {
-        name: state.localize("ext.globalConfig.token.name"),
-        placeholder: state.localize("ext.globalConfig.token.placeholder"),
-        type: UISettingType.TextInput,
-        correspondingSetting: "GitHubGist.token"
-      },
-      {
-        name: state.localize("ext.globalConfig.githubEnterpriseUrl.name"),
-        placeholder: state.localize(
-          "ext.globalConfig.githubEnterpriseUrl.placeholder"
-        ),
-        type: UISettingType.TextInput,
-        correspondingSetting: "GitHubGist.githubEnterpriseUrl"
-      },
-      {
-        name: state.localize("ext.globalConfig.ignoreUploadFolders.name"),
-        placeholder: state.localize(
-          "ext.globalConfig.ignoreUploadFolders.placeholder"
-        ),
-        type: UISettingType.TextArea,
-        correspondingSetting: "ignoreUploadFolders"
-      },
-      {
-        name: state.localize("ext.globalConfig.ignoreExtensions.name"),
-        placeholder: state.localize(
-          "ext.globalConfig.ignoreExtensions.placeholder"
-        ),
-        type: UISettingType.TextArea,
-        correspondingSetting: "ignoreExtensions"
-      },
-      {
-        name: state.localize("ext.globalConfig.hostName.name"),
-        placeholder: state.localize("ext.globalConfig.hostName.placeholder"),
-        type: UISettingType.TextInput,
-        correspondingSetting: "hostName"
-      },
-      {
-        name: state.localize("ext.globalConfig.ignoreUploadFiles.name"),
-        placeholder: state.localize(
-          "ext.globalConfig.ignoreUploadFiles.placeholder"
-        ),
-        type: UISettingType.TextArea,
-        correspondingSetting: "ignoreUploadFiles"
-      },
-      {
-        name: state.localize("ext.globalConfig.supportedFileExtensions.name"),
-        placeholder: state.localize(
-          "ext.globalConfig.supportedFileExtensions.placeholder"
-        ),
-        type: UISettingType.TextArea,
-        correspondingSetting: "supportedFileExtensions"
-      },
-      {
-        name: state.localize("ext.globalConfig.gistDescription.name"),
-        placeholder: state.localize(
-          "ext.globalConfig.gistDescription.placeholder"
-        ),
-        type: UISettingType.TextInput,
-        correspondingSetting: "GitHubGist.gistDescription"
-      },
-      {
-        name: state.localize("ext.globalConfig.autoUploadDelay.name"),
-        placeholder: state.localize(
-          "ext.globalConfig.autoUploadDelay.placeholder"
-        ),
-        type: UISettingType.NumberInput,
-        correspondingSetting: "autoUploadDelay"
-      },
-      {
-        name: state.localize("ext.globalConfig.askGistName.name"),
-        placeholder: "",
-        type: UISettingType.Checkbox,
-        correspondingSetting: "GitHubGist.askGistName"
-      },
-      {
-        name: state.localize("ext.globalConfig.downloadPublicGist.name"),
-        placeholder: "",
-        type: UISettingType.Checkbox,
-        correspondingSetting: "GitHubGist.downloadPublicGist"
-      },
-      {
-        name: state.localize("ext.globalConfig.openTokenLink.name"),
-        placeholder: "",
-        type: UISettingType.Checkbox,
-        correspondingSetting: "GitHubGist.openTokenLink"
-      }
-    ];
-
-    this.environmentSettings = [
-      {
-        name: state.localize("ext.config.gist.name"),
-        placeholder: state.localize("ext.config.gist.placeholder"),
-        type: UISettingType.TextInput,
-        correspondingSetting: "gist",
-        tooltip: state.localize("ext.config.gist")
-      },
-      {
-        name: state.localize("ext.config.autoDownload.name"),
-        placeholder: "",
-        type: UISettingType.Checkbox,
-        correspondingSetting: "autoDownload",
-        tooltip: state.localize("ext.config.autoDownload")
-      },
-      {
-        name: state.localize("ext.config.autoUpload.name"),
-        placeholder: "",
-        type: UISettingType.Checkbox,
-        correspondingSetting: "autoUpload",
-        tooltip: state.localize("ext.config.autoUpload")
-      },
-      {
-        name: state.localize("ext.config.forceDownload.name"),
-        placeholder: "",
-        type: UISettingType.Checkbox,
-        correspondingSetting: "forceDownload",
-        tooltip: state.localize("ext.config.forceDownload")
-      },
-      {
-        name: state.localize("ext.config.forceUpload.name"),
-        placeholder: "",
-        type: UISettingType.Checkbox,
-        correspondingSetting: "forceUpload",
-        tooltip: state.localize("ext.config.forceUpload")
-      },
-      {
-        name: state.localize("ext.config.quietSync.name"),
-        placeholder: "",
-        type: UISettingType.Checkbox,
-        correspondingSetting: "quietSync",
-        tooltip: state.localize("ext.config.quietSync")
-      },
-      {
-        name: state.localize("ext.config.removeExtensions.name"),
-        placeholder: "",
-        type: UISettingType.Checkbox,
-        correspondingSetting: "removeExtensions",
-        tooltip: state.localize("ext.config.removeExtensions")
-      },
-      {
-        name: state.localize("ext.config.syncExtensions.name"),
-        placeholder: "",
-        type: UISettingType.Checkbox,
-        correspondingSetting: "syncExtensions",
-        tooltip: state.localize("ext.config.syncExtensions")
-      }
-    ];
-
-    this.webviews = [
-      {
-        name: "landing-page",
-        htmlPath: "landing-page.html",
-        replaceables: [
-          {
-            find: "@RELEASE_NOTES",
-            replace: "releaseNotes"
-          }
-        ]
-      },
-      {
-        name: "settings",
-        htmlPath: "settings.html",
-        replaceables: [
-          {
-            find: "@GLOBAL_DATA",
-            replace: "customSettings"
-          },
-          {
-            find: "@ENV_DATA",
-            replace: "extSettings"
-          },
-          {
-            find: "@GLOBAL_MAP",
-            replace: this.globalSettings
-          },
-          {
-            find: "@ENV_MAP",
-            replace: this.environmentSettings
-          }
-        ]
-      },
-      {
-        name: "gist-selection",
-        htmlPath: "gist-selection.html",
-        replaceables: [
-          {
-            find: "@GISTS",
-            replace: "gists"
-          }
-        ]
-      }
-    ].map(view => {
+    this.webviews = this.webviews.map(view => {
       return {
         ...view,
         htmlContent: readFileSync(
@@ -369,26 +365,26 @@ export class WebviewService {
           break;
         case "downloadPublicGist":
           const [extConfig, customConfig] = await Promise.all([
-            state.commons.GetSettings(),
-            state.commons.GetCustomSettings()
+            state.settings.GetExtensionSettings(),
+            state.settings.GetCustomSettings()
           ]);
           const publicGist = await vscode.window.showInputBox({
-            placeHolder: localize("common.placeholder.enterGistId"),
+            placeHolder: state.localize("common.placeholder.enterGistId"),
             ignoreFocusOut: true
           });
           if (!publicGist) {
             break;
           }
-          await state.commons.SetCustomSettings({
+          await state.settings.SetCustomSettings({
             ...customConfig,
-            downloadPublicGist: true
+            GitHubGist: { ...customConfig.GitHubGist, downloadPublicGist: true }
           });
-          await state.commons.SaveSettings({
+          await state.settings.SetExtensionSettings({
             ...extConfig,
             gist: publicGist
           });
           vscode.window.showInformationMessage(
-            localize("cmd.otherOptions.warning.tokenNotRequire")
+            state.localize("cmd.otherOptions.warning.tokenNotRequire")
           );
           vscode.commands.executeCommand("extension.downloadSettings");
           break;
