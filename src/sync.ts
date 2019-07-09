@@ -111,7 +111,6 @@ export class Sync {
           );
           if (message === "Yes") {
             localConfig.extConfig.forceUpload = true;
-            await state.commons.SaveSettings(localConfig.extConfig);
           } else if (message === "Don't Show This Again") {
             await state.context.globalState.update(
               "gistNewer.dontShowThisAgain",
@@ -349,10 +348,7 @@ export class Sync {
               "Don't Show This Again"
             );
             if (message === "Yes") {
-              await state.commons.SaveSettings({
-                ...localConfig.extConfig,
-                forceUpload: true
-              });
+              syncSetting.forceUpload = true;
             } else if (message === "Don't Show This Again") {
               await state.context.globalState.update(
                 "gistNewer.dontShowThisAgain",
