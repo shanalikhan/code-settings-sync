@@ -389,6 +389,8 @@ export class Sync {
 
       if (completed) {
         try {
+          await state.commons.SaveSettings(syncSetting);
+          await state.commons.SetCustomSettings(customSettings);
           if (newGIST) {
             vscode.window.showInformationMessage(
               localize(
