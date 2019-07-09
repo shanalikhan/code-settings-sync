@@ -124,6 +124,8 @@ export class SettingsService {
       const extSaved: boolean = await this.SetExtensionSettings(extSettings);
       const customSaved: boolean = await this.SetCustomSettings(localSettings);
 
+      state.syncService.Reset();
+
       if (extSaved && customSaved) {
         vscode.window.showInformationMessage(
           state.localize("cmd.resetSettings.info.settingClear")

@@ -66,19 +66,31 @@ export class GistService implements ISyncService {
         localConfig.customConfig.GitHubGist.lastUpload &&
         !localConfig.extConfig.forceUpload
       ) {
-        if (
-          await this.IsGistNewer(
-            localConfig.extConfig.gist,
-            new Date(localConfig.customConfig.GitHubGist.lastUpload)
-          )
-        ) {
+        const gistNewer = await this.IsGistNewer(
+          localConfig.extConfig.gist,
+          new Date(localConfig.customConfig.GitHubGist.lastUpload)
+        );
+        if (gistNewer) {
+          if (
+            state.context.globalState.get<boolean>(
+              "gistNewer.dontShowThisAgain"
+            )
+          ) {
+            return;
+          }
           const message = await vscode.window.showInformationMessage(
             state.localize("common.prompt.gistNewer"),
-            "Yes"
+            "Yes",
+            "Don't Show This Again"
           );
           if (message === "Yes") {
             localConfig.extConfig.forceUpload = true;
-            await state.settings.SetExtensionSettings(localConfig.extConfig);
+          } else if (message === "Don't Show This Again") {
+            await state.context.globalState.update(
+              "gistNewer.dontShowThisAgain",
+              true
+            );
+            return;
           } else {
             vscode.window.setStatusBarMessage(
               state.localize("cmd.updateSettings.info.uploadCanceled"),
@@ -100,7 +112,7 @@ export class GistService implements ISyncService {
     }
 
     async function StartUpload(
-      syncSetting: ExtensionConfig,
+      extSettings: ExtensionConfig,
       customSettings: CustomConfig
     ) {
       vscode.window.setStatusBarMessage(
@@ -128,7 +140,7 @@ export class GistService implements ISyncService {
 
       // var remoteList = ExtensionInformation.fromJSONList(file.content);
       // var deletedList = PluginService.GetDeletedExtensions(uploadedExtensions);
-      if (syncSetting.syncExtensions) {
+      if (extSettings.syncExtensions) {
         uploadedExtensions = PluginService.CreateExtensionList();
         if (
           customSettings.ignoreExtensions &&
@@ -228,7 +240,7 @@ export class GistService implements ISyncService {
 
       let newGIST: boolean = false;
       try {
-        if (syncSetting.gist == null || syncSetting.gist === "") {
+        if (extSettings.gist == null || extSettings.gist === "") {
           if (customSettings.GitHubGist.askGistName) {
             customSettings.GitHubGist.gistDescription = await this.GetGistDescription();
           }
@@ -238,7 +250,7 @@ export class GistService implements ISyncService {
             customSettings.GitHubGist.gistDescription
           );
           if (gistID) {
-            syncSetting.gist = gistID;
+            extSettings.gist = gistID;
             vscode.window.setStatusBarMessage(
               state.localize("cmd.updateSettings.info.newGistCreated"),
               2000
@@ -250,7 +262,7 @@ export class GistService implements ISyncService {
             return;
           }
         }
-        let gistObj = await this.ReadGist(syncSetting.gist);
+        let gistObj = await this.ReadGist(extSettings.gist);
         if (!gistObj) {
           return;
         }
@@ -292,15 +304,26 @@ export class GistService implements ISyncService {
           })
         ) {
           if (!localConfig.extConfig.forceUpload) {
+            if (
+              state.context.globalState.get<boolean>(
+                "gistNewer.dontShowThisAgain"
+              )
+            ) {
+              return;
+            }
             const message = await vscode.window.showInformationMessage(
               state.localize("common.prompt.gistNewer"),
-              "Yes"
+              "Yes",
+              "Don't Show This Again"
             );
             if (message === "Yes") {
-              await state.settings.SetExtensionSettings({
-                ...localConfig.extConfig,
-                forceUpload: true
-              });
+              extSettings.forceUpload = true;
+            } else if (message === "Don't Show This Again") {
+              await state.context.globalState.update(
+                "gistNewer.dontShowThisAgain",
+                true
+              );
+              return;
             } else {
               vscode.window.setStatusBarMessage(
                 state.localize("cmd.updateSettings.info.uploadCanceled"),
@@ -331,11 +354,13 @@ export class GistService implements ISyncService {
 
       if (completed) {
         try {
+          await state.settings.SetExtensionSettings(extSettings);
+          await state.settings.SetCustomSettings(customSettings);
           if (newGIST) {
             vscode.window.showInformationMessage(
               state.localize(
                 "cmd.updateSettings.info.uploadingDone",
-                syncSetting.gist
+                extSettings.gist
               )
             );
           }
@@ -346,7 +371,7 @@ export class GistService implements ISyncService {
             );
           }
 
-          if (!syncSetting.quietSync) {
+          if (!extSettings.quietSync) {
             LoggerService.ShowSummaryOutput(
               true,
               allSettingFiles,
@@ -363,7 +388,7 @@ export class GistService implements ISyncService {
               5000
             );
           }
-          if (syncSetting.autoUpload) {
+          if (extSettings.autoUpload) {
             await AutoUploadService.HandleStartWatching();
           }
         } catch (err) {
@@ -860,5 +885,12 @@ export class GistService implements ISyncService {
       ignoreFocusOut: true,
       placeHolder: state.localize("common.placeholder.multipleGist")
     });
+  }
+
+  public async Reset(): Promise<void> {
+    await state.context.globalState.update(
+      "gistNewer.dontShowThisAgain",
+      false
+    );
   }
 }
