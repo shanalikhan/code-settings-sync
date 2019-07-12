@@ -92,12 +92,6 @@ export class WebviewService {
       placeholder: "",
       type: UISettingType.Checkbox,
       correspondingSetting: "GitHubGist.downloadPublicGist"
-    },
-    {
-      name: state.localize("ext.globalConfig.openTokenLink.name"),
-      placeholder: "",
-      type: UISettingType.Checkbox,
-      correspondingSetting: "GitHubGist.openTokenLink"
     }
   ];
 
@@ -249,8 +243,8 @@ export class WebviewService {
           state.settings.GetCustomSettings(),
           state.settings.GetExtensionSettings()
         ]);
-        const host = customConfig.GitHubGist.githubEnterpriseUrl
-          ? new URL(customConfig.GitHubGist.githubEnterpriseUrl)
+        const host = customConfig.GitHubGist.githubEndpoint
+          ? new URL(customConfig.GitHubGist.githubEndpoint)
           : new URL("https://github.com");
         const username = await new GitHubOAuthService(0).getUser(
           customConfig.GitHubGist.token,
@@ -347,8 +341,8 @@ export class WebviewService {
         case "loginWithGitHub":
           new GitHubOAuthService(54321).StartProcess();
           const customSettings = await state.settings.GetCustomSettings();
-          const host = customSettings.GitHubGist.githubEnterpriseUrl
-            ? new URL(customSettings.GitHubGist.githubEnterpriseUrl)
+          const host = customSettings.GitHubGist.githubEndpoint
+            ? new URL(customSettings.GitHubGist.githubEndpoint)
             : new URL("https://github.com");
           vscode.commands.executeCommand(
             "vscode.open",

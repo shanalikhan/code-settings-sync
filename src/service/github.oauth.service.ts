@@ -16,8 +16,8 @@ export class GitHubOAuthService {
 
   public async StartProcess() {
     const customSettings = await state.settings.GetCustomSettings();
-    const host = customSettings.GitHubGist.githubEnterpriseUrl
-      ? new URL(customSettings.GitHubGist.githubEnterpriseUrl)
+    const host = customSettings.GitHubGist.githubEndpoint
+      ? new URL(customSettings.GitHubGist.githubEndpoint)
       : new URL("https://github.com");
 
     this.server = this.app.listen(this.port);

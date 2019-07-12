@@ -704,8 +704,8 @@ export class GistService implements ISyncService {
       vscode.workspace.getConfiguration("http").get("proxy") ||
       (process.env as IEnv).http_proxy ||
       (process.env as IEnv).HTTP_PROXY;
-    if (customSettings.GitHubGist.githubEnterpriseUrl) {
-      githubApiConfig.baseUrl = customSettings.GitHubGist.githubEnterpriseUrl;
+    if (customSettings.GitHubGist.githubEndpoint) {
+      githubApiConfig.baseUrl = customSettings.GitHubGist.githubEndpoint;
     }
 
     if (proxyURL) {
