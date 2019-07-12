@@ -6,7 +6,6 @@ import { CustomConfig } from "../models/custom-config.model";
 import { ExtensionConfig } from "../models/extension-config.model";
 import { IFixGistResponse } from "../models/fix-gist-response.model";
 import { IEnv } from "../models/gist-env.model";
-import { LocalConfig } from "../models/local-config.model";
 import { OsType } from "../models/os-type.model";
 import { ISyncService } from "../models/sync.model";
 import PragmaUtil from "../pragmaUtil";
@@ -49,7 +48,7 @@ export class GistService implements ISyncService {
   };
 
   public async UploadSettings(options?: string): Promise<void> {
-    let localConfig = new LocalConfig();
+    const localConfig = await state.settings.GetLocalConfig();
     const allSettingFiles: File[] = [];
     let uploadedExtensions: ExtensionInformation[] = [];
     const ignoredExtensions: ExtensionInformation[] = [];
@@ -57,8 +56,6 @@ export class GistService implements ISyncService {
     await AutoUploadService.HandleStopWatching();
 
     try {
-      localConfig = await state.settings.GetLocalConfig();
-
       await this.Connect();
 
       if (
@@ -399,11 +396,10 @@ export class GistService implements ISyncService {
   }
 
   public async DownloadSettings(): Promise<void> {
-    let localSettings: LocalConfig = new LocalConfig();
+    const localSettings = await state.settings.GetLocalConfig();
     await AutoUploadService.HandleStopWatching();
 
     try {
-      localSettings = await state.settings.GetLocalConfig();
       await StartDownload.call(
         this,
         localSettings.extConfig,

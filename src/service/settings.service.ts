@@ -2,7 +2,7 @@ import * as vscode from "vscode";
 import { Environment } from "../environment";
 import { CustomConfig } from "../models/custom-config.model";
 import { ExtensionConfig } from "../models/extension-config.model";
-import { LocalConfig } from "../models/local-config.model";
+import { ILocalConfig } from "../models/local-config.model";
 import { SyncMethod } from "../models/sync-method.model";
 import { state } from "../state";
 import { AutoUploadService } from "./autoUpload.service";
@@ -97,17 +97,16 @@ export class SettingsService {
     }
   }
 
-  public async GetLocalConfig(): Promise<LocalConfig> {
-    const settings = new LocalConfig();
-    const extSettings = state.settings.GetExtensionSettings();
-    const cusSettings = await state.settings.GetCustomSettings();
+  public async GetLocalConfig(): Promise<ILocalConfig> {
+    const settings: ILocalConfig = {
+      extConfig: state.settings.GetExtensionSettings(),
+      customConfig: await state.settings.GetCustomSettings()
+    };
 
     if (!(await state.syncService.IsConfigured())) {
       state.webview.OpenLandingPage();
     }
 
-    settings.customConfig = cusSettings;
-    settings.extConfig = extSettings;
     return settings;
   }
 

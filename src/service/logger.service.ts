@@ -1,6 +1,6 @@
 import { OutputChannel, window } from "vscode";
 import { Environment } from "../environment";
-import { LocalConfig } from "../models/local-config.model";
+import { ILocalConfig } from "../models/local-config.model";
 import { state } from "../state";
 import { File } from "./file.service";
 import { ExtensionInformation } from "./plugin.service";
@@ -42,7 +42,7 @@ export class LoggerService {
     removedExtensions: ExtensionInformation[],
     addedExtensions: ExtensionInformation[],
     ignoredExtensions: ExtensionInformation[],
-    syncSettings: LocalConfig
+    localConfig: ILocalConfig
   ) {
     if (!LoggerService.outputChannel) {
       this.outputChannel = window.createOutputChannel("Settings Sync");
@@ -55,7 +55,7 @@ export class LoggerService {
     outputChannel.appendLine(`Version: ${Environment.version}`);
     outputChannel.appendLine(`--------------------`);
     outputChannel.appendLine(
-      `Export Type: ${syncSettings.customConfig.exportType}`
+      `Export Type: ${localConfig.customConfig.exportType}`
     );
     outputChannel.appendLine(``);
     outputChannel.appendLine(
@@ -84,7 +84,7 @@ export class LoggerService {
     outputChannel.appendLine(``);
     outputChannel.appendLine(`Extensions Removed:`);
 
-    if (!syncSettings.extConfig.removeExtensions) {
+    if (!localConfig.extConfig.removeExtensions) {
       outputChannel.appendLine(`  Feature Disabled.`);
     } else {
       if (!removedExtensions || removedExtensions.length === 0) {
