@@ -134,9 +134,9 @@
   "ext.globalConfig.ignoreUploadFiles.placeholder": "Введите один файл на строку",
   "ext.globalConfig.ignoreUploadFolders.name": "Игнорируемые папки",
   "ext.globalConfig.ignoredUploadFolders.placeholder": "Введите по одной папке на строку",
-  "ext.globalConfig.openTokenLink.name": "Открыть ссылку по токену",
+  "ext.globalConfig.openTokenLink.name": "Open Token Link",
   "ext.globalConfig.supportedFileExtensions.name": "Поддерживаемые расширения файлов",
   "ext.globalConfig.supportedFileExtensions.placeholder": "Введите расширение файла на строку",
-  "ext.globalConfig.token.name": "Токен Доступа",
+  "ext.globalConfig.token.name": "Токен доступа",
   "ext.globalConfig.token.placeholder": "Введите Токен"
 }
