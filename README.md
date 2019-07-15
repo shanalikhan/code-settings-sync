@@ -70,31 +70,53 @@ All extensions and complete User Folder that Contains
 2. Download Key : Shift + Alt + D
 ```
 
-## Upload Your Settings For the first time
+## Configure Settings Sync
 
-**Press Shift + Alt + U it will ask your GitHub account access token.**
+Settings Sync Configuration page will be opened automatically on code start and requires two things to setup:
 
-> Type ">Sync" In Command Palette into order download / upload
+1. Github Token
+2. Github GIST ID
 
-When downloading or uploading for the first time, the welcome page will automatically open, where you can log in with GitHub.
+Github Token needs to be retrived by your Github account while Settings Sync creates GIST if you are first time user.
 
-![Login with GitHub](images/login-with-github.png)
+Following are the steps you need to perform to configure.
+
+- Click on `Login with Github` .
+- Login Github on Browser and close the browser tab once you get Success message.
+- If you are using Settings Sync first time GIST will be created automatically - Configuration Completed.
+- If you already have GIST, new window will be opened to allow you to select the GIST or `Skip` to create new GIST - Configurartion Completed.
+
+
+![Login with GitHub](https://shanalikhan.github.io/img/login-with-github.png)
+
+
+![Existing Gist](https://shanalikhan.github.io/img/existing-gist.png)
+
 
 You can always **verify created gist** by going to `https://gist.github.com` and checking for a gist named `cloudSettings`
 
-## Download your Settings
+
+## Upload Your Settings
+
+**Press Shift + Alt + U**
 
 > Type ">Sync" In Command Palette into order download / upload
 
-**Login with GitHub**
+When downloading or uploading for the first time, the welcome page will automatically open, where you can configure the Settings Sync.
 
-**Choose your existing Gist**
+Once you select upload, after uploading the settings. You will see the Summary details with the list of each files and extensions uploaded.
 
-![Existing Gist](images/existing-gist.png)
+## Download your Settings
 
-**Settings Downloaded.**
+**Press Shift + Alt + D**
 
-You are Done! All your files are downloaded
+> Type ">Sync" In Command Palette into order download / upload
+
+When downloading or uploading for the first time, the welcome page will automatically open, where you can configure the Settings Sync.
+
+Once you select download, after downloading. Settings Sync will display you Summary containing the list of each files and extension being downloaded.
+
+New popup will be opened to allow you to restart the code to apply the settings.
 
 ## Reset Extension Settings
 

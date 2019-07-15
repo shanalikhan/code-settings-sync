@@ -1,5 +1,6 @@
 import * as GitHubApi from "@octokit/rest";
 import * as HttpsProxyAgent from "https-proxy-agent";
+import { URL } from "url";
 import * as vscode from "vscode";
 import { CloudSettings } from "../models/cloud-settings.model";
 import { CustomConfig } from "../models/custom-config.model";
@@ -12,12 +13,11 @@ import PragmaUtil from "../pragmaUtil";
 import { state } from "../state";
 import { AutoUploadService } from "./autoUpload.service";
 import { File, FileService } from "./file.service";
+import { GitHubOAuthService } from "./github.oauth.service";
 import { LoggerService } from "./logger.service";
 import { ExtensionInformation, PluginService } from "./plugin.service";
 
 export class GistService implements ISyncService {
-  public id = "gist";
-
   private githubApi: GitHubApi;
   private emptyGist: any = {
     description: "Visual Studio Code Sync Settings Gist",
@@ -237,7 +237,7 @@ export class GistService implements ISyncService {
 
       let newGIST: boolean = false;
       try {
-        if (extSettings.gist == null || extSettings.gist === "") {
+        if (!extSettings.gist) {
           if (customSettings.GitHubGist.askGistName) {
             customSettings.GitHubGist.gistDescription = await this.GetGistDescription();
           }
@@ -266,18 +266,24 @@ export class GistService implements ISyncService {
 
         if (gistObj.data.owner !== null) {
           const gistOwnerName: string = gistObj.data.owner.login.trim();
-          if (this.userName != null) {
-            const userName: string = this.userName.trim();
-            if (gistOwnerName !== userName) {
-              LoggerService.LogException(
-                null,
-                `Sync : You can't edit a Gist owned by '${gistOwnerName}'`,
-                true
-              );
-              console.log(`Sync: Current user is '${userName}'`);
-              console.log(`Sync: Gist owner is '${gistOwnerName}'`);
-              return;
-            }
+          const host = new URL(
+            customSettings.GitHubGist.githubEndpoint
+              ? customSettings.GitHubGist.githubEndpoint
+              : "https://github.com"
+          );
+          const userName = await new GitHubOAuthService(0).getUser(
+            customSettings.GitHubGist.token,
+            host
+          );
+          if (userName && gistOwnerName !== userName) {
+            LoggerService.LogException(
+              null,
+              `Sync : You can't edit a Gist owned by '${gistOwnerName}'`,
+              true
+            );
+            console.log(`Sync: Current user is '${userName}'`);
+            console.log(`Sync: Gist owner is '${gistOwnerName}'`);
+            return;
           }
         }
 
