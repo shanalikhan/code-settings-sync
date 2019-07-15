@@ -2,6 +2,15 @@
 
 [![Version](https://vsmarketplacebadge.apphb.com/version/Shan.code-settings-sync.svg)](https://marketplace.visualstudio.com/items?itemName=Shan.code-settings-sync) [![Travis](https://img.shields.io/travis/rust-lang/rust.svg)](https://marketplace.visualstudio.com/items?itemName=Shan.code-settings-sync) [![Master course](https://img.shields.io/badge/Supported%20by-VSCode%20Power%20User%20Course%20%E2%86%92-gray.svg?colorA=444444&colorB=4F44D6)](https://t.co/8BEMyhpKU5?amp=1)
 
+
+#### v3.4.0 - July 15, 2019
+
+* Settings Sync now use Webviews to allow you to configure settings [#506](https://github.com/shanalikhan/code-settings-sync/issues/506) - Thanks for PR [#876](https://github.com/shanalikhan/code-settings-sync/pull/876) by [@arnohovhannisyan](https://github.com/arnohovhannisyan)
+* code snippets not being synced after update to 3.3.0 [#927](https://github.com/shanalikhan/code-settings-sync/issues/927) - Thanks for PR [#928](https://github.com/shanalikhan/code-settings-sync/pull/928) by [@arnohovhannisyan](https://github.com/arnohovhannisyan)
+* Implement upload delay setting [#390](https://github.com/shanalikhan/code-settings-sync/issues/390) - Thanks for PR [#925](https://github.com/shanalikhan/code-settings-sync/pull/925) by [@arnohovhannisyan](https://github.com/arnohovhannisyan)
+* Dont Upload If GIST and settings content are the same. [#316](https://github.com/shanalikhan/code-settings-sync/issues/316) - Thanks for PR [#923](https://github.com/shanalikhan/code-settings-sync/pull/923) by [@arnohovhannisyan](https://github.com/arnohovhannisyan)
+* Prevent accidental upload [#350](https://github.com/shanalikhan/code-settings-sync/issues/350) - Thanks for PR [#923](https://github.com/shanalikhan/code-settings-sync/pull/923) by [@arnohovhannisyan](https://github.com/arnohovhannisyan)
+
 #### v3.3.1 - June 25,2019
 * Small Improvements
 
