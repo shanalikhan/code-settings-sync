@@ -70,31 +70,50 @@ All extensions and complete User Folder that Contains
 2. Download Key : Shift + Alt + D
 ```
 
-## Upload Your Settings For the first time
+## Configure Settings Sync
+
+Settings Sync Configuration page will be opened automatically on code start and requires two things to setup:
+
+1. Github Token
+2. Github GIST ID
+
+Github Token needs to be retrived by your Github account while Settings Sync creates GIST if you are first time user.
+
+Following are the steps you need to perform to configure.
+
+- Click on `Login with Github` .
+- Login Github on Browser and close the browser tab once you get Success message.
+- If you are using Settings Sync first time GIST will be created automatically - Configuration Completed.
+- If you already have GIST, new window will be opened to allow you to select the GIST or `Skip` to create new GIST - Configurartion Completed.
+
+
+![Login with GitHub](images/login-with-github.png)
+
+
+![Existing Gist](images/existing-gist.png)
+
+
+You can always **verify created gist** by going to `https://gist.github.com` and checking for a gist named `cloudSettings`
+
+## Upload Your Settings
 
 **Press Shift + Alt + U it will ask your GitHub account access token.**
 
 > Type ">Sync" In Command Palette into order download / upload
 
-When downloading or uploading for the first time, the welcome page will automatically open, where you can log in with GitHub.
+When downloading or uploading for the first time, the welcome page will automatically open, where you can configure the Settings Sync.
 
-![Login with GitHub](images/login-with-github.png)
-
-You can always **verify created gist** by going to `https://gist.github.com` and checking for a gist named `cloudSettings`
+Once you select upload, after uploading the settings. You will see the Summary details with the list of each files and extensions uploaded.
 
 ## Download your Settings
 
 > Type ">Sync" In Command Palette into order download / upload
 
-**Login with GitHub**
+When downloading or uploading for the first time, the welcome page will automatically open, where you can configure the Settings Sync.
 
-**Choose your existing Gist**
+Once you select download, after downloading. Settings Sync will display you Summary containing the list of each files and extension being downloaded.
 
-![Existing Gist](images/existing-gist.png)
-
-**Settings Downloaded.**
-
-You are Done! All your files are downloaded
+New popup will be opened to allow you to restart the code to apply the settings.
 
 ## Reset Extension Settings
 
