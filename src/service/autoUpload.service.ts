@@ -32,7 +32,7 @@ export class AutoUploadService {
           await lockfile.Lock(state.environment.FILE_SYNC_LOCK);
         }
         const customConfig = await state.commons.GetCustomSettings();
-        if (customConfig) {
+        if (!customConfig.downloadPublicGist) {
           await this.InitiateAutoUpload();
         }
         await lockfile.Unlock(state.environment.FILE_SYNC_LOCK);
@@ -60,7 +60,10 @@ export class AutoUploadService {
           const fileType: string = path
             .substring(path.lastIndexOf("."), path.length)
             .slice(1);
-          if (customConfig.supportedFileExtensions.indexOf(fileType) !== -1) {
+          if (
+            customConfig.supportedFileExtensions.includes(fileType) &&
+            !customConfig.downloadPublicGist
+          ) {
             await this.InitiateAutoUpload();
           }
         }
@@ -78,13 +81,18 @@ export class AutoUploadService {
   }
 
   private async InitiateAutoUpload() {
+    const customSettings = await state.commons.GetCustomSettings();
+
     vscode.window.setStatusBarMessage("").dispose();
     vscode.window.setStatusBarMessage(
-      localize("common.info.initAutoUpload"),
+      localize("common.info.initAutoUpload").replace(
+        "{0}",
+        customSettings.autoUploadDelay
+      ),
       5000
     );
 
-    await Util.Sleep(5000);
+    await Util.Sleep(customSettings.autoUploadDelay * 1000);
 
     vscode.commands.executeCommand("extension.updateSettings", "forceUpdate");
   }

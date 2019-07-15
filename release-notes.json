@@ -1,0 +1,40 @@
+{
+  "changes": [
+    {
+      "details": "Settings Sync now use Webviews to allow you to configure settings",
+      "type": "NEW",
+      "color": "success",
+      "author": "arnohovhannisyan",
+      "pullRequest": "876"
+    },
+    {
+      "details": "code snippets not being synced after update to 3.3.0",
+      "type": "FIX",
+      "color": "danger",
+      "author": "arnohovhannisyan",
+      "pullRequest": "928"
+    },
+    {
+      "details": "Implement upload delay setting",
+      "type": "NEW",
+      "color": "success",
+      "author": "arnohovhannisyan",
+      "pullRequest": "925"
+    },
+    {
+      "details": "Dont Upload If GIST and settings content are the same",
+      "type": "NEW",
+      "color": "danger",
+      "author": "arnohovhannisyan",
+      "pullRequest": "923"
+    },
+    {
+      "details": "Prevent accidental upload",
+      "type": "NEW",
+      "color": "danger",
+      "author": "arnohovhannisyan",
+      "pullRequest": "923"
+    }
+  ],
+  "currentVersion": "v3.4.0"
+}

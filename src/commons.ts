@@ -7,7 +7,8 @@ import { ExtensionConfig } from "./models/extensionConfig.model";
 import { LocalConfig } from "./models/localConfig.model";
 import { AutoUploadService } from "./service/autoUpload.service";
 import { File, FileService } from "./service/file.service";
-import { ExtensionInformation } from "./service/pluginService";
+import { ExtensionInformation } from "./service/plugin.service";
+import { WebviewService } from "./service/webview.service";
 import { state } from "./state";
 
 export default class Commons {
@@ -74,6 +75,7 @@ export default class Commons {
   }
 
   public autoUploadService: AutoUploadService;
+  public webviewService = new WebviewService();
 
   public ERROR_MESSAGE: string = localize("common.error.message");
 
@@ -106,47 +108,19 @@ export default class Commons {
     }
   }
 
-  public async InitalizeSettings(
-    askToken: boolean,
-    askGist: boolean
-  ): Promise<LocalConfig> {
+  public async InitalizeSettings(): Promise<LocalConfig> {
     const settings = new LocalConfig();
     const extSettings = this.GetSettings();
     const cusSettings = await this.GetCustomSettings();
 
-    if (cusSettings.token === "") {
-      if (askToken === true) {
-        askToken = !cusSettings.downloadPublicGist;
-      }
-
-      if (askToken) {
-        if (cusSettings.openTokenLink) {
-          vscode.commands.executeCommand(
-            "vscode.open",
-            vscode.Uri.parse("https://github.com/settings/tokens")
-          );
-        }
-        const tokTemp: string = await this.GetTokenAndSave(cusSettings);
-        if (!tokTemp) {
-          const msg = localize("common.error.tokenNotSave");
-          vscode.window.showErrorMessage(msg);
-          throw new Error(msg);
-        }
-        cusSettings.token = tokTemp;
-      }
+    if (
+      cusSettings.downloadPublicGist
+        ? !extSettings.gist
+        : !cusSettings.token || !extSettings.gist
+    ) {
+      this.webviewService.OpenLandingPage();
     }
 
-    if (extSettings.gist === "") {
-      if (askGist) {
-        const gistTemp: string = await this.GetGistAndSave(extSettings);
-        if (!gistTemp) {
-          const msg = localize("common.error.gistNotSave");
-          vscode.window.showErrorMessage(msg);
-          throw new Error(msg);
-        }
-        extSettings.gist = gistTemp;
-      }
-    }
     settings.customConfig = cusSettings;
     settings.extConfig = extSettings;
     return settings;

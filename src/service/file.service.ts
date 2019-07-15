@@ -2,6 +2,8 @@
 
 import * as fs from "fs-extra";
 import * as path from "path";
+import * as recursiveRead from "recursive-readdir";
+import { CustomConfig } from "../models/customConfig.model";
 
 export class File {
   constructor(
@@ -95,46 +97,36 @@ export class FileService {
 
   public static async ListFiles(
     directory: string,
-    depth: number,
-    fullDepth: number,
-    fileExtensions: string[]
+    customSettings: CustomConfig
   ): Promise<File[]> {
-    const fileList = await fs.readdir(directory);
-
-    const files: File[] = [];
-    for (const fileName of fileList) {
-      const fullPath: string = directory.concat(fileName);
-      if (await FileService.IsDirectory(fullPath)) {
-        if (depth < fullDepth) {
-          for (const element of await FileService.ListFiles(
-            fullPath + "/",
-            depth + 1,
-            fullDepth,
-            fileExtensions
-          )) {
-            files.push(element);
-          }
-        }
-      } else {
-        const hasExtension: boolean = fullPath.lastIndexOf(".") > 0;
-        let allowedFile: boolean = false;
-        if (hasExtension) {
-          const extension: string = fullPath
-            .substr(fullPath.lastIndexOf(".") + 1, fullPath.length)
-            .toLowerCase();
-          allowedFile = fileExtensions.filter(m => m === extension).length > 0;
-        } else {
-          allowedFile = fileExtensions.filter(m => m === "").length > 0;
-        }
-
-        if (allowedFile) {
-          const file: File = await FileService.GetFile(fullPath, fileName);
-          files.push(file);
-        }
+    function folderMatcher(file: string, stats: fs.Stats) {
+      if (stats.isDirectory()) {
+        return customSettings.ignoreUploadFolders.some(fold => {
+          return file.split(path.sep).includes(fold);
+        });
       }
+      return false;
     }
-
-    return files;
+    function fileExtensionMatcher(file: string, stats: fs.Stats) {
+      if (stats.isDirectory()) {
+        return false;
+      }
+      const ext = path.extname(file).slice(1);
+      if (!customSettings.supportedFileExtensions.includes(ext)) {
+        return true;
+      }
+      return false;
+    }
+    const files = await recursiveRead(directory, [
+      ...customSettings.ignoreUploadFiles,
+      folderMatcher,
+      fileExtensionMatcher
+    ]);
+    return Promise.all(
+      files.map(file => {
+        return FileService.GetFile(file, path.basename(file));
+      })
+    );
   }
 
   public static async CreateDirTree(

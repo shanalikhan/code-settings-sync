@@ -29,4 +29,5 @@ export class CustomConfig {
   public customFiles: { [key: string]: string } = {};
   public hostName: string = null;
   public universalKeybindings: boolean = false;
+  public autoUploadDelay: number = 20;
 }

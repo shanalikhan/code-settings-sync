@@ -1,130 +1,86 @@
-import * as fs from "fs-extra";
-import * as path from "path";
+import { existsSync, readFileSync } from "fs-extra";
+import { resolve } from "path";
 import { extensions } from "vscode";
-import { state } from "./state";
-
-interface IConfig {
-  locale?: string;
-}
-
-interface ILanguagePack {
-  [key: string]: string;
-}
+import { ILanguagePack } from "./models/language-pack.model";
 
 export class Localize {
-  private bundle: ILanguagePack;
-  private options: IConfig;
-  /**
-   * translate the key
-   * @param key
-   * @param args
-   */
-  public localize(key: string, ...args: any[]): string {
-    const languagePack = this.bundle;
-    const message: string = languagePack[key] || key;
+  private bundle = this.resolveLanguagePack();
+  private options: { locale: string };
+
+  public localize(key: string, ...args: string[]): string {
+    const message = this.bundle[key] || key;
     return this.format(message, args);
   }
-  public async init() {
-    this.options = {
-      locale: "en"
-    };
 
+  private init() {
     try {
-      const pathToLocale = path.resolve(
-        state.environment.USER_FOLDER,
-        "locale.json"
-      );
-      if (fs.existsSync(pathToLocale)) {
-        const contents = fs.readFileSync(pathToLocale, "utf-8");
-        this.options = {
-          ...this.options,
-          ...(contents ? JSON.parse(contents) : {})
-        };
-      }
+      this.options = {
+        ...this.options,
+        ...JSON.parse(process.env.VSCODE_NLS_CONFIG || "{}")
+      };
     } catch (err) {
-      //
+      throw err;
     }
+  }
 
-    this.bundle = await this.resolveLanguagePack();
+  private format(message: string, args: string[] = []): string {
+    return args.length
+      ? message.replace(
+          /\{(\d+)\}/g,
+          (match, rest: any[]) => args[rest[0]] || match
+        )
+      : message;
   }
-  /**
-   * format the message
-   * @param message
-   * @param args
-   */
-  private format(message: string, args: any[] = []): string {
-    let result: string;
-    if (args.length === 0) {
-      result = message;
-    } else {
-      result = message.replace(/\{(\d+)\}/g, (match, rest: any[]) => {
-        const index = rest[0];
-        return typeof args[index] !== "undefined" ? args[index] : match;
-      });
-    }
-    return result;
-  }
-  /**
-   * Get language pack
-   */
-  private async resolveLanguagePack(): Promise<ILanguagePack> {
-    const defaultResvoleLanguage = ".nls.json";
-    let resolvedLanguage: string = "";
-    // TODO: it should read the extension root path from context
+
+  private resolveLanguagePack(): ILanguagePack {
+    this.init();
+
+    const languageFormat = "package.nls{0}.json";
+    const defaultLanguage = languageFormat.replace("{0}", "");
+
     const rootPath = extensions.getExtension("Shan.code-settings-sync")
       .extensionPath;
-    const file = path.join(rootPath, "package");
-    const options = this.options;
 
-    if (!options.locale) {
-      resolvedLanguage = defaultResvoleLanguage;
-    } else {
-      let locale: string | null = options.locale;
-      while (locale) {
-        const candidate = ".nls." + locale + ".json";
-        if (await fs.pathExists(file + candidate)) {
-          resolvedLanguage = candidate;
-          break;
-        } else {
-          const index = locale.lastIndexOf("-");
-          if (index > 0) {
-            locale = locale.substring(0, index);
-          } else {
-            resolvedLanguage = ".nls.json";
-            locale = null;
-          }
-        }
-      }
-    }
+    const resolvedLanguage = this.recurseCandidates(
+      rootPath,
+      languageFormat,
+      this.options.locale
+    );
 
-    let defaultLanguageBundle = {};
+    const languageFilePath = resolve(rootPath, resolvedLanguage);
 
-    // if not use default language
-    // then merger the Language pack
-    // just in case the resolveLanguage bundle missing the translation and fallback with default language
-    if (resolvedLanguage !== defaultResvoleLanguage) {
-      defaultLanguageBundle = JSON.parse(
-        fs.readFileSync(path.join(file + defaultResvoleLanguage), "utf-8")
+    try {
+      const defaultLanguageBundle = JSON.parse(
+        resolvedLanguage !== defaultLanguage
+          ? readFileSync(resolve(rootPath, defaultLanguage), "utf-8")
+          : "{}"
       );
+
+      const resolvedLanguageBundle = JSON.parse(
+        readFileSync(languageFilePath, "utf-8")
+      );
+
+      return { ...defaultLanguageBundle, ...resolvedLanguageBundle };
+    } catch (err) {
+      throw err;
     }
+  }
 
-    const languageFilePath = path.join(file + resolvedLanguage);
-
-    const isExistResolvedLanguage = await fs.pathExists(languageFilePath);
-
-    const ResolvedLanguageBundle = isExistResolvedLanguage
-      ? JSON.parse(fs.readFileSync(languageFilePath, "utf-8"))
-      : {};
-
-    // merger with default language bundle
-    return { ...defaultLanguageBundle, ...ResolvedLanguageBundle };
+  private recurseCandidates(
+    rootPath: string,
+    format: string,
+    candidate: string
+  ): string {
+    const filename = format.replace("{0}", `.${candidate}`);
+    const filepath = resolve(rootPath, filename);
+    if (existsSync(filepath)) {
+      return filename;
+    }
+    if (candidate.split("-")[0] !== candidate) {
+      return this.recurseCandidates(rootPath, format, candidate.split("-")[0]);
+    }
+    return format.replace("{0}", "");
   }
 }
 
-const instance = new Localize();
-
-const init = instance.init.bind(instance);
-
-export default instance.localize.bind(instance);
-
-export { init };
+export default Localize.prototype.localize.bind(new Localize());

@@ -2,7 +2,6 @@
 
 [![Version](https://vsmarketplacebadge.apphb.com/version/Shan.code-settings-sync.svg)](https://marketplace.visualstudio.com/items?itemName=Shan.code-settings-sync) [![Travis](https://img.shields.io/travis/rust-lang/rust.svg)](https://marketplace.visualstudio.com/items?itemName=Shan.code-settings-sync) [![Master course](https://img.shields.io/badge/Supported%20by-VSCode%20Power%20User%20Course%20%E2%86%92-gray.svg?colorA=444444&colorB=4F44D6)](https://t.co/8BEMyhpKU5?amp=1)
 
-
 #### v3.4.0 - July 15, 2019
 
 * Settings Sync now use Webviews to allow you to configure settings [#506](https://github.com/shanalikhan/code-settings-sync/issues/506) - Thanks for PR [#876](https://github.com/shanalikhan/code-settings-sync/pull/876) by [@arnohovhannisyan](https://github.com/arnohovhannisyan)
