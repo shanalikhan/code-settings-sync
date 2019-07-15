@@ -87,10 +87,10 @@ Following are the steps you need to perform to configure.
 - If you already have GIST, new window will be opened to allow you to select the GIST or `Skip` to create new GIST - Configurartion Completed.
 
 
-![Login with GitHub](images/login-with-github.png)
+![Login with GitHub](https://shanalikhan.github.io/img/login-with-github.png)
 
 
-![Existing Gist](images/existing-gist.png)
+![Existing Gist](https://shanalikhan.github.io/img/existing-gist.png)
 
 
 You can always **verify created gist** by going to `https://gist.github.com` and checking for a gist named `cloudSettings`
