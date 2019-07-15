@@ -95,9 +95,10 @@ Following are the steps you need to perform to configure.
 
 You can always **verify created gist** by going to `https://gist.github.com` and checking for a gist named `cloudSettings`
 
+
 ## Upload Your Settings
 
-**Press Shift + Alt + U it will ask your GitHub account access token.**
+**Press Shift + Alt + U**
 
 > Type ">Sync" In Command Palette into order download / upload
 
@@ -106,6 +107,8 @@ When downloading or uploading for the first time, the welcome page will automati
 Once you select upload, after uploading the settings. You will see the Summary details with the list of each files and extensions uploaded.
 
 ## Download your Settings
+
+**Press Shift + Alt + D**
 
 > Type ">Sync" In Command Palette into order download / upload
 
