@@ -124,7 +124,7 @@
   "ext.globalConfig.downloadPublicGist.name": "下载公开的 Gist",
   "ext.globalConfig.gistDescription.name": "Gist 备注",
   "ext.globalConfig.gistDescription.placeholder": "请输入 Gist 备注",
-  "ext.globalConfig.githubEnterpriseUrl.name": "企业版 Github (可选)",
+  "ext.globalConfig.githubEnterpriseUrl.name": "GitHub Enterprise (可选)",
   "ext.globalConfig.githubEnterpriseUrl.placeholder": "输入 GitHub Enterprise 地址",
   "ext.globalConfig.hostName.name": "主机名(可选)",
   "ext.globalConfig.hostName.placeholder": "输入主机名",
