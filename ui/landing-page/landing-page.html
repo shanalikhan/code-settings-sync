@@ -120,12 +120,6 @@
             ><br />
             <a href="https://twitter.com/itsShanKhan">Follow me on Twitter</a
             ><br />
-            <a
-              href="#"
-              onclick="sendCommand('dontShowThisAgain')"
-              title="Don't show this again"
-              >Don't show this again</a
-            ><br />
           </div>
         </div>
       </div>
@@ -142,9 +136,7 @@
         <br />
       </div>
       <div class="col col-two">
-        <h3 class="mx-auto mb-3 text-white-50a">
-          Sponsors
-        </h3>
+        <h3 class="mb-3">Sponsors</h3>
         <p class="mx-auto mt-2 mb-3 text-white-50a">
           Settings Sync is looking for sponsors to display here. Contact me on
           <a href="https://twitter.com/itsShanKhan">Twitter</a> or
@@ -152,6 +144,20 @@
         </p>
       </div>
     </footer>
+    <form class="form dock-bottom-right">
+      <div class="custom-control custom-checkbox">
+        <input
+          class="custom-control-input checkbox"
+          type="checkbox"
+          id="customCheck1"
+          checked="true"
+          onclick="sendCommand('dontShowThisAgain', !this.checked)"
+        />
+        <label for="customCheck1" class="custom-control-label">
+          Show this page on startup
+        </label>
+      </div>
+    </form>
     <script defer src="@PWD/ui/shared/page-header.js"></script>
     <script defer src="@PWD/ui/shared/fonts.js"></script>
     <font-injector></font-injector>

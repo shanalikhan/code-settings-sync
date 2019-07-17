@@ -382,9 +382,8 @@ export class WebviewService {
         case "dontShowThisAgain":
           await state.context.globalState.update(
             "landingPage.dontShowThisAgain",
-            true
+            message.data
           );
-          landingPanel.dispose();
           break;
       }
     });
