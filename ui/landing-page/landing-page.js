@@ -36,3 +36,5 @@ releaseNotes.changes.forEach(change => {
 
 const currentVersionElement = document.querySelector("#current-version");
 currentVersionElement.innerHTML = releaseNotes.currentVersion;
+
+document.querySelector("#customCheck1").checked = checked === "true";

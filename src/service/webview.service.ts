@@ -157,6 +157,10 @@ export class WebviewService {
         {
           find: "@RELEASE_NOTES",
           replace: "releaseNotes"
+        },
+        {
+          find: "@CHECKED",
+          replace: "checked"
         }
       ]
     },
@@ -189,6 +193,10 @@ export class WebviewService {
         {
           find: "@GISTS",
           replace: "gists"
+        },
+        {
+          find: "@SKIP",
+          replace: "skip"
         }
       ]
     }
@@ -306,28 +314,24 @@ export class WebviewService {
   }
 
   public IsLandingPageEnabled(): boolean {
-    const dontShowThisAgain = state.context.globalState.get<boolean>(
+    return !state.context.globalState.get<boolean>(
       "landingPage.dontShowThisAgain"
     );
-    if (dontShowThisAgain) {
-      return false;
-    } else {
-      return true;
-    }
   }
 
-  public OpenLandingPage() {
+  public OpenLandingPage(cmd?: string) {
     const webview = this.webviews[0];
     const releaseNotes = require("../../release-notes.json");
     const content: string = this.GenerateContent({
       content: webview.htmlContent,
       items: webview.replaceables,
-      releaseNotes
+      releaseNotes,
+      checked: this.IsLandingPageEnabled()
     });
     if (webview.webview) {
       webview.webview.webview.html = content;
       webview.webview.reveal();
-      return webview;
+      return webview.webview;
     }
     const landingPanel = vscode.window.createWebviewPanel(
       "landingPage",
@@ -341,7 +345,7 @@ export class WebviewService {
     landingPanel.webview.onDidReceiveMessage(async message => {
       switch (message.command) {
         case "loginWithGitHub":
-          new GitHubOAuthService(54321).StartProcess();
+          new GitHubOAuthService(54321).StartProcess(cmd);
           const customSettings = await state.commons.GetCustomSettings();
           const host = customSettings.githubEnterpriseUrl
             ? new URL(customSettings.githubEnterpriseUrl)
@@ -398,17 +402,21 @@ export class WebviewService {
     return landingPanel;
   }
 
-  public OpenGistSelectionpage(gists: any) {
+  public OpenGistSelectionpage(gists: any, cmd?: string) {
     const webview = this.webviews[2];
     const content: string = this.GenerateContent({
       content: webview.htmlContent,
       items: webview.replaceables,
-      gists
+      gists,
+      skip:
+        cmd !== "extension.downloadSettings"
+          ? `<a href="#" onclick="vscode.postMessage({close: true});" title="Skip (new one will be created upon first upload)" class="btn btn-primary mt-4">Skip (new one will be created upon first upload)</a>`
+          : ""
     });
     if (webview.webview) {
       webview.webview.webview.html = content;
       webview.webview.reveal();
-      return webview;
+      return webview.webview;
     }
     const gistSelectionPanel = vscode.window.createWebviewPanel(
       "selectGist",
@@ -427,6 +435,9 @@ export class WebviewService {
         state.commons.SaveSettings(extSettings);
       } else {
         gistSelectionPanel.dispose();
+      }
+      if (cmd) {
+        vscode.commands.executeCommand(cmd);
       }
     });
     webview.webview = gistSelectionPanel;

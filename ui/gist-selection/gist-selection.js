@@ -1,5 +1,14 @@
 // @ts-nocheck
 
+function appendHTML(parent, html) {
+  var div = document.createElement("div");
+  div.innerHTML = html;
+  while (div.children.length > 0) {
+    parent.appendChild(div.children[0]);
+  }
+  div.remove();
+}
+
 const vscode = acquireVsCodeApi();
 
 /* https://stackoverflow.com/questions/3177836/how-to-format-time-since-xxx-e-g-4-minutes-ago-similar-to-stack-exchange-site */
@@ -51,6 +60,9 @@ document
   .classList.add(
     document.body.className.includes("vscode-dark") ? "bg-dark" : "bg-light"
   );
+
+const skipContainer = document.querySelector("#skipContainer");
+appendHTML(skipContainer, skip);
 
 const selectionTemplate = `
 <button type="button" onclick="saveGistId('@id')" class="list-group-item list-group-item-action">@description (@id) – Updated @timestamp ago</button>`;
