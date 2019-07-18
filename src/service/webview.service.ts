@@ -305,13 +305,18 @@ export class WebviewService {
     }
   }
 
-  public OpenLandingPage() {
+  public IsLandingPageEnabled(): boolean {
     const dontShowThisAgain = state.context.globalState.get<boolean>(
       "landingPage.dontShowThisAgain"
     );
     if (dontShowThisAgain) {
-      return;
+      return false;
+    } else {
+      return true;
     }
+  }
+
+  public OpenLandingPage() {
     const webview = this.webviews[0];
     const releaseNotes = require("../../release-notes.json");
     const content: string = this.GenerateContent({

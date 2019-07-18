@@ -33,8 +33,10 @@ export class Sync {
         startUpSetting.gist != null && startUpSetting.gist !== "";
 
       if (!startUpCustomSetting.downloadPublicGist && !tokenAvailable) {
-        state.commons.webviewService.OpenLandingPage();
-        return;
+        if (state.commons.webviewService.IsLandingPageEnabled()) {
+          state.commons.webviewService.OpenLandingPage();
+          return;
+        }
       }
 
       if (gistAvailable) {
