@@ -14,7 +14,7 @@ export class GitHubOAuthService {
     this.app.use(express.json(), express.urlencoded({ extended: false }));
   }
 
-  public async StartProcess() {
+  public async StartProcess(cmd?: string) {
     const customSettings = await state.commons.GetCustomSettings();
     const host = customSettings.githubEnterpriseUrl
       ? new URL(customSettings.githubEnterpriseUrl)
@@ -60,9 +60,7 @@ export class GitHubOAuthService {
 
         const gists: any[] = await this.getGists(token, user, host);
 
-        if (gists.length) {
-          state.commons.webviewService.OpenGistSelectionpage(gists);
-        }
+        state.commons.webviewService.OpenGistSelectionpage(gists, cmd)
       } catch (err) {
         const error = new Error(err);
         Commons.LogException(error, state.commons.ERROR_MESSAGE, true);

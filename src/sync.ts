@@ -69,7 +69,13 @@ export class Sync {
     // @ts-ignore
     const args = arguments;
     let github: GitHubService = null;
-    let localConfig = new LocalConfig();
+    const localConfig = await state.commons.InitalizeSettings();
+
+    if (!localConfig.customConfig.token) {
+      state.commons.webviewService.OpenLandingPage("extension.updateSettings");
+      return;
+    }
+
     const allSettingFiles: File[] = [];
     let uploadedExtensions: ExtensionInformation[] = [];
     const ignoredExtensions: ExtensionInformation[] = [];
@@ -77,7 +83,6 @@ export class Sync {
     await state.commons.HandleStopWatching();
 
     try {
-      localConfig = await state.commons.InitalizeSettings();
       localConfig.publicGist = false;
       if (args.length > 0) {
         if (args[0] === "publicGIST") {
@@ -434,11 +439,22 @@ export class Sync {
    * Download setting from github gist
    */
   public async download(): Promise<void> {
-    let localSettings: LocalConfig = new LocalConfig();
+    const localSettings: LocalConfig = await state.commons.InitalizeSettings();
+
+    if (
+      localSettings.customConfig.downloadPublicGist
+        ? !localSettings.extConfig.gist
+        : !localSettings.customConfig.token || !localSettings.extConfig.gist
+    ) {
+      state.commons.webviewService.OpenLandingPage(
+        "extension.downloadSettings"
+      );
+      return;
+    }
+
     await state.commons.HandleStopWatching();
 
     try {
-      localSettings = await state.commons.InitalizeSettings();
       await StartDownload(localSettings.extConfig, localSettings.customConfig);
     } catch (err) {
       Commons.LogException(err, state.commons.ERROR_MESSAGE, true);
