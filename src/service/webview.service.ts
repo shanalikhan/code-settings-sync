@@ -306,6 +306,12 @@ export class WebviewService {
   }
 
   public OpenLandingPage() {
+    const dontShowThisAgain = state.context.globalState.get<boolean>(
+      "landingPage.dontShowThisAgain"
+    );
+    if (dontShowThisAgain) {
+      return;
+    }
     const webview = this.webviews[0];
     const releaseNotes = require("../../release-notes.json");
     const content: string = this.GenerateContent({
@@ -372,6 +378,12 @@ export class WebviewService {
             localize("cmd.otherOptions.warning.tokenNotRequire")
           );
           vscode.commands.executeCommand("extension.downloadSettings");
+          break;
+        case "dontShowThisAgain":
+          await state.context.globalState.update(
+            "landingPage.dontShowThisAgain",
+            message.data
+          );
           break;
       }
     });

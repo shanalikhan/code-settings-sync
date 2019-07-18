@@ -745,18 +745,16 @@ export class Sync {
       extSettings = new ExtensionConfig();
       localSettings = new CustomConfig();
 
-      await state.context.globalState.update(
-        "gistNewer.dontShowThisAgain",
-        false
-      );
+      await Promise.all([
+        state.context.globalState.update("gistNewer.dontShowThisAgain", false),
+        state.context.globalState.update("landingPage.dontShowThisAgain", false)
+      ]);
 
-      const extSaved: boolean = await state.commons.SaveSettings(extSettings);
-      const customSaved: boolean = await state.commons.SetCustomSettings(
-        localSettings
-      );
-      const lockExist: boolean = await FileService.FileExists(
-        state.environment.FILE_SYNC_LOCK
-      );
+      const [extSaved, customSaved, lockExist] = await Promise.all([
+        state.commons.SaveSettings(extSettings),
+        state.commons.SetCustomSettings(localSettings),
+        FileService.FileExists(state.environment.FILE_SYNC_LOCK)
+      ]);
 
       if (!lockExist) {
         fs.closeSync(fs.openSync(state.environment.FILE_SYNC_LOCK, "w"));

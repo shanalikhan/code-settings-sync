@@ -1,9 +1,10 @@
 // @ts-nocheck
 const vscode = acquireVsCodeApi();
 
-function sendCommand(args) {
+function sendCommand(command, data) {
   vscode.postMessage({
-    command: args
+    command,
+    data
   });
 }
 
