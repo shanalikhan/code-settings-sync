@@ -60,7 +60,7 @@ export class GitHubOAuthService {
 
         const gists: any[] = await this.getGists(token, user, host);
 
-        state.commons.webviewService.OpenGistSelectionpage(gists, cmd)
+        state.commons.webviewService.OpenGistSelectionpage(gists, cmd);
       } catch (err) {
         const error = new Error(err);
         Commons.LogException(error, state.commons.ERROR_MESSAGE, true);

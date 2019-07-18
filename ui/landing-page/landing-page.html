@@ -134,7 +134,8 @@
           >Questions & Issues</a
         >
         <br />
-        <a href="https://github.com/shanalikhan/code-settings-sync/blob/master/CONTRIBUTING.md"
+        <a
+          href="https://github.com/shanalikhan/code-settings-sync/blob/master/CONTRIBUTING.md"
           >Contribute</a
         >
         <br />
@@ -154,7 +155,6 @@
           class="custom-control-input checkbox"
           type="checkbox"
           id="customCheck1"
-          checked="true"
           onclick="sendCommand('dontShowThisAgain', !this.checked)"
         />
         <label for="customCheck1" class="custom-control-label">
@@ -167,6 +167,7 @@
     <font-injector></font-injector>
     <script defer>
       const releaseNotes = JSON.parse(`@RELEASE_NOTES`);
+      const checked = "@CHECKED";
     </script>
     <script defer src="@PWD/ui/landing-page/landing-page.js"></script>
   </body>

@@ -157,6 +157,10 @@ export class WebviewService {
         {
           find: "@RELEASE_NOTES",
           replace: "releaseNotes"
+        },
+        {
+          find: "@CHECKED",
+          replace: "checked"
         }
       ]
     },
@@ -310,14 +314,9 @@ export class WebviewService {
   }
 
   public IsLandingPageEnabled(): boolean {
-    const dontShowThisAgain = state.context.globalState.get<boolean>(
+    return !state.context.globalState.get<boolean>(
       "landingPage.dontShowThisAgain"
     );
-    if (dontShowThisAgain) {
-      return false;
-    } else {
-      return true;
-    }
   }
 
   public OpenLandingPage(cmd?: string) {
@@ -326,7 +325,8 @@ export class WebviewService {
     const content: string = this.GenerateContent({
       content: webview.htmlContent,
       items: webview.replaceables,
-      releaseNotes
+      releaseNotes,
+      checked: this.IsLandingPageEnabled()
     });
     if (webview.webview) {
       webview.webview.webview.html = content;
@@ -408,9 +408,10 @@ export class WebviewService {
       content: webview.htmlContent,
       items: webview.replaceables,
       gists,
-      skip: cmd !== "extension.downloadSettings"
-      ? `<a href="#" onclick="vscode.postMessage({close: true});" title="Skip (new one will be created upon first upload)" class="btn btn-primary mt-4">Skip (new one will be created upon first upload)</a>`
-      : ""
+      skip:
+        cmd !== "extension.downloadSettings"
+          ? `<a href="#" onclick="vscode.postMessage({close: true});" title="Skip (new one will be created upon first upload)" class="btn btn-primary mt-4">Skip (new one will be created upon first upload)</a>`
+          : ""
     });
     if (webview.webview) {
       webview.webview.webview.html = content;
