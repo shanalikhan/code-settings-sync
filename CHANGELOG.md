@@ -2,6 +2,13 @@
 
 [![Version](https://vsmarketplacebadge.apphb.com/version/Shan.code-settings-sync.svg)](https://marketplace.visualstudio.com/items?itemName=Shan.code-settings-sync) [![Travis](https://img.shields.io/travis/rust-lang/rust.svg)](https://marketplace.visualstudio.com/items?itemName=Shan.code-settings-sync) [![Master course](https://img.shields.io/badge/Supported%20by-VSCode%20Power%20User%20Course%20%E2%86%92-gray.svg?colorA=444444&colorB=4F44D6)](https://t.co/8BEMyhpKU5?amp=1)
 
+
+#### v3.4.1 - July 18, 2019
+
+* Turn off notifications on code startup [#959](https://github.com/shanalikhan/code-settings-sync/issues/959) - Thanks for PR [#960](https://github.com/shanalikhan/code-settings-sync/pull/960) by [@arnohovhannisyan](https://github.com/arnohovhannisyan)
+* Chinese Translation Improved  - Thanks for PR [#966](https://github.com/shanalikhan/code-settings-sync/pull/966) by [@linsui](https://github.com/linsui) and [#961](https://github.com/shanalikhan/code-settings-sync/pull/961) by [@ziofat](https://github.com/ziofat)
+* Russian Translation Improved - Thanks for PR [#957](https://github.com/shanalikhan/code-settings-sync/pull/957) by [@AndreyWV](https://github.com/AndreyWV)
+
 #### v3.4.0 - July 15, 2019
 
 * Settings Sync now use Webviews to allow you to configure settings [#506](https://github.com/shanalikhan/code-settings-sync/issues/506) - Thanks for PR [#876](https://github.com/shanalikhan/code-settings-sync/pull/876) by [@arnohovhannisyan](https://github.com/arnohovhannisyan)

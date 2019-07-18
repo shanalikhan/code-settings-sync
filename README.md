@@ -83,8 +83,10 @@ Following are the steps you need to perform to configure.
 
 - Click on `Login with Github` .
 - Login Github on Browser and close the browser tab once you get Success message.
-- If you are using Settings Sync first time GIST will be created automatically - Configuration Completed.
-- If you already have GIST, new window will be opened to allow you to select the GIST or `Skip` to create new GIST - Configurartion Completed.
+- If you are using Settings Sync first time GIST will be created automatically.
+- If you already have GIST, new window will be opened to allow you to select the GIST or `Skip` to create new GIST.
+
+Your Github Token and GIST ID has been configured to use for download and upload processes.
 
 
 ![Login with GitHub](https://shanalikhan.github.io/img/login-with-github.png)
@@ -205,11 +207,6 @@ You can customize the settings in gist settings like:
 
 Global settings are present in `syncLocalSettings.json` inside `User` folder. These settings will be shared across multiple Gist Environments.
 
-On Windows, this is `%APPDATA%\Code\User\syncLocalSettings.json`.
-
-Mac, `$HOME/Library/Application Support/Code/User/syncLocalSettings.json`.
-
-Linux, `~/.config/Code/User/syncLocalSettings.json`.
 
 You can customize the sync:
 
@@ -223,31 +220,37 @@ You can customize the sync:
 
 ```json
 {
-  "ignoreUploadFiles": [
-    "state.*",
-    "syncLocalSettings.json",
-    ".DS_Store",
-    "sync.lock",
-    "projects.json",
-    "projects_cache_vscode.json",
-    "projects_cache_git.json",
-    "projects_cache_svn.json",
-    "gpm_projects.json",
-    "gpm-recentItems.json"
-  ],
-  "ignoreUploadFolders": ["workspaceStorage"],
-  "ignoreExtensions": ["ignored_extension_name"],
-  "gistDescription": "Visual Studio Code Settings Sync Gist",
-  "version": 310,
-  "token": "YOUR_GITHUB_TOKEN_HERE",
-  "downloadPublicGist": false,
-  "supportedFileExtensions": ["json", "code-snippets"],
-  "openTokenLink": true,
-  "lastUpload": null,
-  "lastDownload": null,
-  "githubEnterpriseUrl": null,
-  "hostName": null,
-  "autoUploadDelay": 20
+    "ignoreUploadFiles": [
+        "state.*",
+        "syncLocalSettings.json",
+        ".DS_Store",
+        "sync.lock",
+        "projects.json",
+        "projects_cache_vscode.json",
+        "projects_cache_git.json",
+        "projects_cache_svn.json",
+        "gpm_projects.json",
+        "gpm-recentItems.json"
+    ],
+    "ignoreUploadFolders": [
+        "workspaceStorage"
+    ],
+    "ignoreExtensions": [],
+    "gistDescription": "Visual Studio Code Settings Sync Gist",
+    "version": 340,
+    "token": "YOUR_GITHUB_TOKEN",
+    "downloadPublicGist": false,
+    "supportedFileExtensions": [ "json", "code-snippets" ],
+    "openTokenLink": true,
+    "disableUpdateMessage": false,
+    "lastUpload": null,
+    "lastDownload": null,
+    "githubEnterpriseUrl": null,
+    "askGistName": false,
+    "customFiles": {},
+    "hostName": null,
+    "universalKeybindings": false,
+    "autoUploadDelay": 20
 }
 ```
 
