@@ -72,6 +72,7 @@ All extensions and complete User Folder that Contains
 
 ## Configure Settings Sync
 
+
 Settings Sync Configuration page will be opened automatically on code start and requires two things to setup:
 
 1. Github Token
