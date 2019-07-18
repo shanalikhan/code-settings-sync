@@ -75,7 +75,7 @@ All extensions and complete User Folder that Contains
 Settings Sync Configuration page will be opened automatically on code start and requires two things to setup:
 
 1. Github Token
-2. Github GIST ID
+2. Github Gist Id
 
 Github Token needs to be retrived by your Github account while Settings Sync creates GIST if you are first time user.
 
@@ -83,10 +83,9 @@ Following are the steps you need to perform to configure.
 
 - Click on `Login with Github` .
 - Login Github on Browser and close the browser tab once you get Success message.
-- If you are using Settings Sync first time GIST will be created automatically.
-- If you already have GIST, new window will be opened to allow you to select the GIST or `Skip` to create new GIST.
+- If you are using Settings Sync first time GIST will be created automatically when you upload your settings.
+- If you already have Github Gist, new window will be opened to allow you to select the Github Gist or `Skip` to create new Gist.
 
-Your Github Token and GIST ID has been configured to use for download and upload processes.
 
 
 ![Login with GitHub](https://shanalikhan.github.io/img/login-with-github.png)
