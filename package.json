@@ -187,7 +187,7 @@
     "fs-extra": "^8.0.1",
     "https-proxy-agent": "^2.2.1",
     "lockfile": "^1.0.4",
-    "lodash": "^4.17.11",
+    "lodash": "^4.17.15",
     "node-fetch": "^2.5.0",
     "recursive-readdir": "^2.2.2",
     "temp": "^0.9.0",
