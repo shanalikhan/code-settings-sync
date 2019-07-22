@@ -436,12 +436,14 @@ export class WebviewService {
       } else {
         gistSelectionPanel.dispose();
       }
+    });
+    webview.webview = gistSelectionPanel;
+    gistSelectionPanel.onDidDispose(() => {
+      webview.webview = null;
       if (cmd) {
         vscode.commands.executeCommand(cmd);
       }
     });
-    webview.webview = gistSelectionPanel;
-    gistSelectionPanel.onDidDispose(() => (webview.webview = null));
     return gistSelectionPanel;
   }
 
