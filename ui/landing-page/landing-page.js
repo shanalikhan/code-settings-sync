@@ -1,9 +1,10 @@
 // @ts-nocheck
 const vscode = acquireVsCodeApi();
 
-function sendCommand(args) {
+function sendCommand(command, data) {
   vscode.postMessage({
-    command: args
+    command,
+    data
   });
 }
 
@@ -35,3 +36,5 @@ releaseNotes.changes.forEach(change => {
 
 const currentVersionElement = document.querySelector("#current-version");
 currentVersionElement.innerHTML = releaseNotes.currentVersion;
+
+document.querySelector("#customCheck1").checked = checked === "true";

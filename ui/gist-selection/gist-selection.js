@@ -1,5 +1,14 @@
 // @ts-nocheck
 
+function appendHTML(parent, html) {
+  var div = document.createElement("div");
+  div.innerHTML = html;
+  while (div.children.length > 0) {
+    parent.appendChild(div.children[0]);
+  }
+  div.remove();
+}
+
 const vscode = acquireVsCodeApi();
 
 /* https://stackoverflow.com/questions/3177836/how-to-format-time-since-xxx-e-g-4-minutes-ago-similar-to-stack-exchange-site */
@@ -52,10 +61,19 @@ document
     document.body.className.includes("vscode-dark") ? "bg-dark" : "bg-light"
   );
 
+const skipContainer = document.querySelector("#skipContainer");
+appendHTML(skipContainer, skip);
+
 const selectionTemplate = `
 <button type="button" onclick="saveGistId('@id')" class="list-group-item list-group-item-action">@description (@id) – Updated @timestamp ago</button>`;
 
-gists
+if (!gists.length) {
+  appendHTML(
+    selectionContainer,
+    "<p>No Gists found on your account. Skip this window and upload the settings to create a new Gist.</p>"
+  );
+} else {
+  gists
   .sort((a, b) => new Date(b.updated_at) - new Date(a.updated_at))
   .forEach(gist => {
     const html = selectionTemplate
@@ -67,3 +85,5 @@ gists
       );
     appendHTML(selectionContainer, html);
   });
+}
+

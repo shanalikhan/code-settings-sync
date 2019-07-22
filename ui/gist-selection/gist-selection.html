@@ -30,13 +30,7 @@
         Select Your Existing Gist
       </h3>
       <div id="selectionContainer" class="list-group mx-auto text-left"></div>
-      <a
-        href="#"
-        onclick="vscode.postMessage({close: true});"
-        title="Skip (new one will be created automatically)"
-        class="btn btn-primary mt-4"
-        >Skip (new one will be created automatically)</a
-      >
+      <div id="skipContainer"></div>
     </div>
     <div
       class="modal fade"
@@ -90,6 +84,7 @@
     <font-injector></font-injector>
     <script defer>
       const gists = JSON.parse(`@GISTS`);
+      const skip = @SKIP;
     </script>
     <script defer src="@PWD/ui/gist-selection/gist-selection.js"></script>
   </body>

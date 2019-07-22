@@ -1,40 +1,33 @@
 {
   "changes": [
     {
-      "details": "Settings Sync now use Webviews to allow you to configure settings",
+      "details": "Improved UI : Don't show again button",
       "type": "NEW",
       "color": "success",
       "author": "arnohovhannisyan",
-      "pullRequest": "876"
+      "pullRequest": "960"
     },
     {
-      "details": "code snippets not being synced after update to 3.3.0",
+      "details": "Chinese localization improved.",
       "type": "FIX",
       "color": "danger",
-      "author": "arnohovhannisyan",
-      "pullRequest": "928"
+      "author": "ziofat",
+      "pullRequest": "961"
     },
     {
-      "details": "Implement upload delay setting",
-      "type": "NEW",
-      "color": "success",
-      "author": "arnohovhannisyan",
-      "pullRequest": "925"
-    },
-    {
-      "details": "Dont Upload If GIST and settings content are the same",
-      "type": "NEW",
+      "details": "Chinese localization improved.",
+      "type": "FIX",
       "color": "danger",
-      "author": "arnohovhannisyan",
-      "pullRequest": "923"
+      "author": "linsui",
+      "pullRequest": "966"
     },
     {
-      "details": "Prevent accidental upload",
-      "type": "NEW",
+      "details": "Russian localization improved.",
+      "type": "FIX",
       "color": "danger",
-      "author": "arnohovhannisyan",
-      "pullRequest": "923"
+      "author": "AndreyWV",
+      "pullRequest": "957"
     }
   ],
-  "currentVersion": "v3.4.0"
+  "currentVersion": "v3.4.1"
 }
