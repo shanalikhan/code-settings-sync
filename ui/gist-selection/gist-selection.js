@@ -67,7 +67,13 @@ appendHTML(skipContainer, skip);
 const selectionTemplate = `
 <button type="button" onclick="saveGistId('@id')" class="list-group-item list-group-item-action">@description (@id) – Updated @timestamp ago</button>`;
 
-gists
+if (!gists.length) {
+  appendHTML(
+    selectionContainer,
+    "<p>No Gists found on your account. Skip this window and upload the settings to create a new Gist.</p>"
+  );
+} else {
+  gists
   .sort((a, b) => new Date(b.updated_at) - new Date(a.updated_at))
   .forEach(gist => {
     const html = selectionTemplate
@@ -79,3 +85,5 @@ gists
       );
     appendHTML(selectionContainer, html);
   });
+}
+
