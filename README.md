@@ -176,7 +176,7 @@ Other users can give your Gist Id to download the Gist, but they can't upload th
 Settings can be changed through the settings page, which can be accessed through **"> Sync : Advanced Options > Open Settings Page"**
 
 There are two types of settings in Settings Sync.
-I will recommend you to read the configurations details [here](https://medium.com/@itsShanKhan/visual-studio-code-settings-sync-configurations-ed8dd6fd9753).
+I will recommend you to read the configurations details [here](https://dev.to/shanalikhan/visual-studio-code-settings-sync-configurations-mn0).
 
 ### Gist Settings
 
@@ -254,7 +254,7 @@ You can customize the sync:
 }
 ```
 
-I will recommend you to read the configurations details [here](https://medium.com/@itsShanKhan/visual-studio-code-settings-sync-configurations-ed8dd6fd9753).
+I will recommend you to read the configurations details [here](https://dev.to/shanalikhan/visual-studio-code-settings-sync-configurations-mn0).
 
 ### Troubleshooting
 
