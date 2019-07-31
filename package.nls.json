@@ -38,7 +38,7 @@
   "cmd.resetSettings.info.resetting": "Sync: Resetting Your Settings.",
   "cmd.resetSettings.info.settingClear": "Sync: Settings Cleared.",
   "cmd.otherOptions.title": "Sync: Advanced Options",
-  "cmd.otherOptions.openSettingsPage": "Sync : Open Settings",
+  "cmd.otherOptions.openSettingsPage": "Sync: Open Settings",
   "cmd.otherOptions.editLocalSetting": "Sync: Edit Extension Local Settings",
   "cmd.otherOptions.shareSetting": "Sync: Share Settings with Public GIST",
   "cmd.otherOptions.shareSetting.beforeConfirm": "Sync: This will remove current GIST and upload settings on new public GIST. Do you want to continue?",
