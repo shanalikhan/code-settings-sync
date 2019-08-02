@@ -129,11 +129,6 @@
           "default": false,
           "description": "%ext.config.quietSync%"
         },
-        "sync.askGistName": {
-          "type": "boolean",
-          "default": false,
-          "description": "%ext.config.askGistName%"
-        },
         "sync.removeExtensions": {
           "type": "boolean",
           "default": true,

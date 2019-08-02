@@ -95,7 +95,6 @@
   "common.prompt.gistNewer": "Sincronización: Gist tiene una o más reciente versión idéntica de su configuración. ¿Desea habilitar forceUpload para anular este?",
   "common.prompt.multipleGist": "Permite identificar las opciones de configuración si tiene varios gist.",
   "common.prompt.restartCode": "¿Desea volver a cargar para aplicar extensiones y configuraciones?",
-  "ext.config.askGistName": "Pida a los gist nombre sobre la creación. Ayuda a identificar la esencia si tiene varios fundamentos.",
   "ext.config.autoDownload": "Conjunto es cierto para Descargar automáticamente los ajustes en el código de inicio. [Código Necesario Reiniciar]",
   "ext.config.autoDownload.name": "Descarga Automática",
   "ext.config.autoUpload": "Conjunto es cierto para Carga Automática en la configuración de cambio. [Código Necesario Reiniciar]",

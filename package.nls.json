@@ -10,7 +10,6 @@
   "ext.config.host": "Set it to your GitHub Enterprise host if you want to use GHE.",
   "ext.config.pathPrefix": "Set it to your GitHub Enterprise API prefix if you want to use GHE. Normally '/api/v3'. Only used when host is set.",
   "ext.config.quietSync": "When set to true, will show the result in status bar instead of summary page.",
-  "ext.config.askGistName": "Ask gist name upon creating. Helps you to identify the gist if you have multiple gists.",
   "ext.config.removeExtensions": "Set it to false if you don't want to remove extensions while downloading.",
   "ext.config.syncExtensions": "Set it to false if you don't want to upload/download the extensions.",
   "cmd.howSetting.title": "Sync: How To Configure",

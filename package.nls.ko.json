@@ -10,7 +10,6 @@
   "ext.config.host": "GHE를 사용하고 싶다면 그것을 당신의 GitHub 엔터프라이즈 호스트로 설정하세요.",
   "ext.config.pathPrefix": "GHE를 사용하고 싶다면 그것을 당신의 GitHub 엔터프라이즈 API prefix(접두사)로 설정하세요. 보통 '/api/v3'와 같습니다. 오직 호스트가 설정되었을 때 전용입니다.",
   "ext.config.quietSync": "True로 설정하게 되면 요약 페이지가 아니라 상태 표시줄에 결과가 표시됩니다.",
-  "ext.config.askGistName": "생성에 앞서 Gist 이름을 물어봅니다. 이는 당신이 여러 개의 Gist를 가지고 있을 때, Gist 식별에 도움이 됩니다.",
   "ext.config.removeExtensions": "동기화 다운로드로 인해 확장(extension)이 삭제되는 걸 막고 싶다면 False로 설정하세요.", 
   "ext.config.syncExtensions": "만약 확장(extension)이 업로드/다운로드되는 걸 원하지 않으면 False로 설정하세요.",
   "cmd.howSetting.title": "Sync: 환경설정 방법",

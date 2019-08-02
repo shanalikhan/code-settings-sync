@@ -95,7 +95,6 @@
   "common.prompt.gistNewer": "Sync: Gist a une nouvelle ou identique à la version de vos paramètres. Voulez-vous activer forceUpload pour remplacer ce?",
   "common.prompt.multipleGist": "Vous permet d'identifier les paramètres si vous avez plusieurs de gist.",
   "common.prompt.restartCode": "Voulez-vous recharger d'appliquer les extensions et les configurations?",
-  "ext.config.askGistName": "Demandez gist nom lors de la création. Vous aide à identifier l'essentiel, si vous avez plusieurs gist.",
   "ext.config.autoDownload": "Fixé la valeur à true pour Télécharger automatiquement les paramètres de code de démarrage. [Code Redémarrage Nécessaire]",
   "ext.config.autoDownload.name": "Téléchargement Automatique",
   "ext.config.autoUpload": "Jeu-il vrai de Téléchargement Automatique sur la modification des paramètres. [Code Redémarrage Nécessaire]",
