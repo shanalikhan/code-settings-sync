@@ -10,7 +10,6 @@
   "ext.config.host": "GHE を使用する場合は GitHub Enterprise のホストを設定してください",
   "ext.config.pathPrefix": "GHE を使用する場合は GitHub Enterprise API のプレフィックスを設定してください。通常は '/api/v3' です。ホストが設定されている場合にのみ使用されます",
   "ext.config.quietSync": "結果をサマリーページではなくステータスバーに表示します",
-  "ext.config.askGistName": "作成時に Gist 名を確認することで、複数 Gist が存在する際に識別しやすくなります",
   "ext.config.removeExtensions": "ダウンロード中に拡張機能を削除します",
   "ext.config.syncExtensions": "拡張機能をアップロード・ダウンロードします",
   "cmd.howSetting.title": "Sync: Settings Sync の設定方法を参照",

@@ -95,7 +95,6 @@
   "common.prompt.gistNewer": "Sync: Gist hat einen neueren oder gleichen version Ihrer Einstellungen. Wollen Sie aktivieren forceUpload, dies zu ändern?",
   "common.prompt.multipleGist": "Ermöglicht Ihnen, Einstellungen identifizieren, wenn Sie mehrere wesentliche.",
   "common.prompt.restartCode": "Wollen Sie laden sich zu bewerben Erweiterungen und Konfigurationen?",
-  "ext.config.askGistName": "Fragen gist Namen auf erstellen. Hilft Ihnen zu identifizieren, das wesentliche, wenn Sie mehrere Gist.",
   "ext.config.autoDownload": "Gesetzt, es wahr zu Automatischen Download der settings auf den code starten. [Code-Neustart Erforderlich]",
   "ext.config.autoDownload.name": "Auto-Download",
   "ext.config.autoUpload": "Legen Sie true, um die Automatische Upload über die settings ändern. [Code-Neustart Erforderlich]",

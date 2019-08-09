@@ -95,7 +95,6 @@
   "common.prompt.gistNewer": "Çeviri: Özü ayarlarınızı yeni veya benzer bir versiyonu var. ForceUpload bu geçersiz kılmak için etkinleştirmek istiyor musunuz?",
   "common.prompt.multipleGist": "Birden çok fikri varsa ayarları belirlemenizi sağlar.",
   "common.prompt.restartCode": "Uzantıları ve yapılandırmaları uygulamak için yeniden yüklemek ister misiniz?",
-  "ext.config.askGistName": "Oluştururken özü adını sor. Eğer birden fazla gists varsa özü tanımlamak için yardımcı olur.",
   "ext.config.autoDownload": "Ayarlamak true Otomatik kod başlangıç ayarları İndirmek. [Kod Yeniden Başlatma Gerekli]",
   "ext.config.autoDownload.name": "Otomatik İndirme",
   "ext.config.autoUpload": "Doğru ayarları değiştir Yükleme Otomatik olarak ayarlayın. [Kod Yeniden Başlatma Gerekli]",
