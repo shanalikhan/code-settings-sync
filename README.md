@@ -18,14 +18,13 @@ While being free and open source, if you find it useful, please consider support
       </a>
       <br>
     </td>
-      <td> 
+      <td>
         <a href="https://opencollective.com/code-settings-sync/order/3848" target="_blank">
             <img src="https://opencollective.com/webpack/donate/button.png?color=blue" width=200 />
         </a>
           <br>
           *2$ Per Month
       </td>
-     
   </tr>
 </table>
 <br>
@@ -75,17 +74,17 @@ All extensions and complete User Folder that Contains
 
 Settings Sync Configuration page will be opened automatically on code start and requires two things to setup:
 
-1. Github Token
-2. Github Gist Id
+1. GitHub Token
+2. GitHub Gist Id
 
-Github Token needs to be retrived by your Github account while Settings Sync creates GIST if you are first time user.
+GitHub Token needs to be retrived by your GitHub account while Settings Sync creates GIST if you are first time user.
 
 Following are the steps you need to perform to configure.
 
-- Click on `Login with Github` .
-- Login Github on Browser and close the browser tab once you get Success message.
+- Click on `Login with GitHub` .
+- Login GitHub on Browser and close the browser tab once you get Success message.
 - If you are using Settings Sync first time GIST will be created automatically when you upload your settings.
-- If you already have Github Gist, new window will be opened to allow you to select the Github Gist or `Skip` to create new Gist.
+- If you already have GitHub Gist, new window will be opened to allow you to select the GitHub Gist or `Skip` to create new Gist.
 
 
 
@@ -185,7 +184,7 @@ You can customize the settings in gist settings like:
 
 ```
 1. Configure Gist Id (Environment)
-2. Configure auto upload / download for Github Gist
+2. Configure auto upload / download for GitHub Gist
 3. Configure extension sync behaviour
 4. Configure force download
 4. Configure force upload
@@ -215,7 +214,7 @@ You can customize the sync:
 2. Configure default Gist Environment name.
 3. Replace the code settings after downloading.
 4. Change the Gist description while creating new one in github.
-5. Configure Github Enterprise Url
+5. Configure GitHub Enterprise Url
 ```
 
 ```json
