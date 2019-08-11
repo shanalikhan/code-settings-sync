@@ -95,7 +95,6 @@
   "common.prompt.gistNewer": "Sync: Le Gist a une version nouvelle ou identique à celle de vos paramètres. Voulez-vous activer forceUpload pour le remplacer?",
   "common.prompt.multipleGist": "Vous permet d'identifier les paramètres si vous avez plusieurs de gist.",
   "common.prompt.restartCode": "Voulez-vous recharger afin d'appliquer les extensions et les configurations?",
-  "ext.config.askGistName": "Demande le nom du gist lors de la création. Vous aide à identifier le gist, si vous en avez plusieurs.",
   "ext.config.autoDownload": "Changez la valeur à true pour télécharger automatiquement les paramètres lors du démarrage de VSCode. [Redémarrage de VSCode Nécessaire]",
   "ext.config.autoDownload.name": "Téléchargement Automatique",
   "ext.config.autoUpload": "Changez la valeur à true afin d'uploader automatiquement lors de modification des paramètres. [Redémarrage de VSCode Nécessaire]",
