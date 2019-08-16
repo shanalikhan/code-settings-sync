@@ -63,7 +63,7 @@ There might be several issue present on the [IssueHunt](https://issuehunt.io/rep
 
 You can contribute me financially by two ways:
 
-1. Sending donation directly to my Paypal
+1. Sending donation directly to my PayPal
 
 [<img src="https://www.paypalobjects.com/en_US/i/btn/btn_donateCC_LG.gif">](https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=4W3EWHHBSYMM8&lc=IE&item_name=Code%20Settings%20Sync&item_number=visual%20studio%20code%20settings%20sync&currency_code=USD&bn=PP%2dDonationsBF%3abtn_donate_SM%2egif%3aNonHosted)
 

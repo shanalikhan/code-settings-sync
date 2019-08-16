@@ -95,7 +95,6 @@
   "common.prompt.gistNewer": "Sync: Gist hat einen neueren oder gleichen Version Ihrer Einstellungen. Wollen Sie aktivieren forceUpload, dies zu ändern?",
   "common.prompt.multipleGist": "Ermöglicht Ihnen die richtigen Einstellungen zu identifizieren, sollten mehrer vorhanden sein.",
   "common.prompt.restartCode": "Wollen Sie das Programm neustarten um die neuen Einstellungen und Erweiterungen zu übernehmen?",
-  "ext.config.askGistName": "Erfragt einen Namen für den GIST beim Erstellen selbiger. Dies Hilft Ihnen dabei einen GIST zu identifizieren, sollten Sie mehrer erstellt haben.",
   "ext.config.autoDownload": "Aktivieren um die Einstellungen automatisch herunterladen beim Starten von VSCode",
   "ext.config.autoDownload.name": "Automatisches herunterladen",
   "ext.config.autoUpload": "Aktivieren um die Einstellungen automatisch hochzuladen sobald Einstellungen geändert werden.",
