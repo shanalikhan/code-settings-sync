@@ -100,15 +100,16 @@ export default class PragmaUtil {
     }
     // check is a valid JSON
 
+    // remove comments and trailing comma
+    const uncommented = this.removeAllComments(result).replace(/,\s*\}/g, " }");
     try {
-      // remove comments and trailing comma
-      const uncommented = this.removeAllComments(result).replace(
-        /,\s*\}/g,
-        " }"
-      );
       JSON.parse(uncommented);
     } catch (e) {
-      console.error("Sync: Result content is not a valid JSON.", e.message);
+      console.error(
+        "Sync: Result content is not a valid JSON.",
+        e.message,
+        uncommented
+      );
     }
 
     return result;
@@ -223,7 +224,7 @@ export default class PragmaUtil {
   }
 
   public static removeAllComments(text: string): string {
-    return text.replace(/\s*(\/\/.+)|(\/\*.+\*\/)/g, "");
+    return text.replace(/(?<!["'].*)\s*(\/\/.+)|(\/\*.+\*\/)(?!["'].*)/g, "");
   }
 
   private static readonly PragmaRegExp: RegExp = /\/{2}[\s\t]*\@sync[\s\t]+(?:os=.+[\s\t]*)?(?:host=.+[\s\t]*)?(?:env=.+[\s\t]*)?/;
@@ -231,6 +232,9 @@ export default class PragmaUtil {
   private static readonly HostPragmaWhiteSpacesSupportRegExp = /(?:host=(.+)os=)|(?:host=(.+)env=)|host=(.+)\n?/;
   private static readonly OSPragmaWhiteSpacesSupportRegExp = /(?:os=(.+)host=)|(?:os=(.+)env=)|os=(.+)\n?/;
   private static readonly EnvPragmaWhiteSpacesSupportRegExp = /(?:env=(.+)host=)|(?:env=(.+)os=)|env=(.+)\n?/;
+  private static readonly OpenBlockRegExp = /['"]\s*?:\s*[{\[]+\n*/;
+  // Use negative lookahead/behind to avoid errors with strings containing closing brackets
+  private static readonly CloseBlockRegExp = /(?<!["'].*)[}\]]+(?!["'].*)/;
 
   private static toggleComments(line: string, shouldComment: boolean) {
     const isCommented = line.trim().startsWith("//");
@@ -264,25 +268,21 @@ export default class PragmaUtil {
       parsedLines.push(this.toggleComments(currentLine, shouldComment));
     }
 
-    const opensCurlyBraces = /{/.test(currentLine);
-    const opensBrackets = /".+"\s*:\s*\[/.test(currentLine);
-
-    let openedBlock = opensCurlyBraces || opensBrackets;
-    if (openedBlock) {
-      while (openedBlock) {
-        currentLine = lines[++currentIndex];
-        if (
-          (opensCurlyBraces && currentLine.indexOf("}") !== -1) ||
-          (opensBrackets && currentLine.indexOf("]") !== -1)
-        ) {
-          if (checkTrailingComma && !currentLine.trim().endsWith(",")) {
-            currentLine = currentLine.trimRight() + ","; // we add a coma to avoid parse error when we paste the ignored settings at the beginning of the file
-          }
-          openedBlock = false;
+    let openBlocks = this.OpenBlockRegExp.test(currentLine) ? 1 : 0;
+    while (openBlocks > 0) {
+      currentLine = lines[++currentIndex];
+      if (this.OpenBlockRegExp.test(currentLine)) {
+        ++openBlocks;
+      } else if (this.CloseBlockRegExp.test(currentLine)) {
+        --openBlocks;
+        if (checkTrailingComma && !currentLine.trim().endsWith(",")) {
+          // we add a coma to avoid parse error when we paste the ignored settings at the
+          // beginning of the file
+          currentLine = currentLine.trimRight() + ",";
         }
-        if (!shouldIgnore) {
-          parsedLines.push(this.toggleComments(currentLine, shouldComment));
-        }
+      }
+      if (!shouldIgnore) {
+        parsedLines.push(this.toggleComments(currentLine, shouldComment));
       }
     }
 
