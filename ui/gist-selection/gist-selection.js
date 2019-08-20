@@ -1,5 +1,6 @@
-// @ts-nocheck
+//import { debug } from "vscode";
 
+// @ts-nocheck
 function appendHTML(parent, html) {
   var div = document.createElement("div");
   div.innerHTML = html;
@@ -10,7 +11,6 @@ function appendHTML(parent, html) {
 }
 
 const vscode = acquireVsCodeApi();
-
 /* https://stackoverflow.com/questions/3177836/how-to-format-time-since-xxx-e-g-4-minutes-ago-similar-to-stack-exchange-site */
 function timeSince(date) {
   var seconds = Math.floor((new Date() - date) / 1000);
