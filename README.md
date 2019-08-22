@@ -161,14 +161,6 @@ You may turn it off in order to make a upload and download process clean and qui
 
 Select Command **"Sync : Advanced Options > Show Summary Page On Upload / Download"** command to Turn ON / OFF the auto download.
 
-## Create Public Gist To Share Settings
-
-By default, it creates secret Gist so only you can see it but if you want to share your Gist with other users, you can set it to public.
-You can't change the exiting Gist type from secret to public so it will reset the Gist ID so you can create new Gist with all existing editor settings.
-
-Select Command **"Sync : Advanced Options > Share Settings with Public GIST"**
-
-Other users can give your Gist Id to download the Gist, but they can't upload their settings on your Gist.
 
 ## Settings
 
@@ -176,6 +168,7 @@ Settings can be changed through the settings page, which can be accessed through
 
 There are two types of settings in Settings Sync.
 I will recommend you to read the configurations details [here](https://dev.to/shanalikhan/visual-studio-code-settings-sync-configurations-mn0).
+
 
 ### Gist Settings
 
@@ -254,6 +247,18 @@ You can customize the sync:
 ```
 
 I will recommend you to read the configurations details [here](https://dev.to/shanalikhan/visual-studio-code-settings-sync-configurations-mn0).
+
+### Custom Sync
+
+Settings Sync allows you to sync the files other from `User` folder. For example, your workspace settings and much more. Its upon you to utilize the full potential of Settings Sync across your machins or your teams machines. Read about custom sync [here](https://github.com/shanalikhan/code-settings-sync/wiki/Custom-Sync).
+
+### Sync Pragmas
+
+You can even manage which settings you want to ignore from being upload or download. Settings Sync even allows you to manage your `home` and `office` computer specific settings even OS related settings in single GitHub Gist. Read details about [Sync Pragmas here](https://github.com/shanalikhan/code-settings-sync/wiki/Sync-Pragmas).
+
+### Share Settings Across Teams & Users
+
+If you are looking to share your settings. Read the details [here](https://dev.to/shanalikhan/how-to-share-your-visual-studio-code-settings-and-extensions-39k). Settings Sync needs to create new Public GitHub Gist to share your settings with other users.
 
 ### Troubleshooting
 
