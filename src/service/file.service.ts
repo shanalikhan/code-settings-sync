@@ -136,12 +136,19 @@ export class FileService {
     let fullPath: string = userFolder;
     let result: string;
 
+    let paths: string[] = null;
     if (fileName.indexOf("|") > -1) {
-      const paths: string[] = fileName.split("|");
+      paths = fileName.split("|");
+    } else if (fileName.indexOf("//") > -1) {
+      paths = fileName.split("//");
+    } else if (fileName.indexOf("\\") > -1) {
+      paths = fileName.split("\\");
+    }
 
+    if (paths != null) {
       for (let i = 0; i < paths.length - 1; i++) {
         const element = paths[i];
-        fullPath += element + "/";
+        fullPath += element + path.sep;
         await FileService.CreateDirectory(fullPath);
       }
 
