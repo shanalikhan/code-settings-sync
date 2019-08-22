@@ -1,33 +1,32 @@
 {
   "changes": [
     {
-      "details": "Improved UI : Don't show again button",
+      "details": "Github Token is now hidden from Summary",
       "type": "NEW",
-      "color": "success",
-      "author": "arnohovhannisyan",
-      "pullRequest": "960"
+      "color": "success"
     },
     {
-      "details": "Chinese localization improved.",
-      "type": "FIX",
-      "color": "danger",
-      "author": "ziofat",
-      "pullRequest": "961"
+      "details": "Only Show Share GIST Dialog on the creation of Public Gist",
+      "type": "NEW",
+      "color": "success"
     },
     {
-      "details": "Chinese localization improved.",
+      "details": "Gist List UI Disppear Fixed",
       "type": "FIX",
-      "color": "danger",
-      "author": "linsui",
-      "pullRequest": "966"
+      "color": "danger"
     },
     {
-      "details": "Russian localization improved.",
+      "details": "Sync Pragma Improved",
       "type": "FIX",
       "color": "danger",
-      "author": "AndreyWV",
-      "pullRequest": "957"
+      "author": "protium-dev",
+      "pullRequest": "1012"
+    },
+    {
+      "details": "Languages Improved.",
+      "type": "FIX",
+      "color": "danger"
     }
   ],
-  "currentVersion": "v3.4.1"
+  "currentVersion": "v3.4.2"
 }

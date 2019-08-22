@@ -4,6 +4,7 @@ import * as GitHubApi from "@octokit/rest";
 import * as HttpsProxyAgent from "https-proxy-agent";
 import * as vscode from "vscode";
 import Commons from "../commons";
+import { CloudSettings } from "../models/cloudSettings.model";
 import { state } from "../state";
 import { File } from "./file.service";
 
@@ -150,13 +151,17 @@ export class GitHubService {
     if (!gist) {
       return;
     }
-    const gistLastUpload = new Date(
-      JSON.parse(gist.data.files.cloudSettings.content).lastUpload
-    );
-    if (!localLastUpload) {
+    let gistCloudSetting: CloudSettings = null;
+    try {
+      gistCloudSetting = JSON.parse(gist.data.files.cloudSettings.content);
+      const gistLastUpload = new Date(gistCloudSetting.lastUpload);
+      if (!localLastUpload) {
+        return false;
+      }
+      return gistLastUpload >= localLastUpload;
+    } catch (err) {
       return false;
     }
-    return gistLastUpload > localLastUpload;
   }
 
   public UpdateGIST(gistObject: any, files: File[]): any {

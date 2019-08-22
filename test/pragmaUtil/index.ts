@@ -26,9 +26,7 @@ describe("Process before upload", function() {
       // "server": "http://exmaple.com
     `;
 
-    const result = await PragmaUtil.processBeforeUpload(
-      commentedSettings
-    );
+    const result = await PragmaUtil.processBeforeUpload(commentedSettings);
     await expect(result)
       .to.match(/\s+"window"/)
       .and.to.match(/\s+"server"/);
@@ -64,9 +62,7 @@ describe("Process before upload", function() {
   });
 
   it("should leave only settings that matches with os=mac host=mac2 env=TEST_ENV", async () => {
-    const processed = await PragmaUtil.processBeforeUpload(
-      testSettings
-    );
+    const processed = await PragmaUtil.processBeforeUpload(testSettings);
     // tslint:disable-next-line:no-string-literal
     process.env["TEST_ENV"] = "1";
     await expect(
@@ -84,11 +80,14 @@ describe("Process before upload", function() {
   it("should parse multi-line settings", () => {
     const commentedSettings = `{
       // @sync os=linux
-      // "multi": {
+      "multi": {
             "setting": false,
-          },
+            "settingWithBrackets": "{} []",
+            "multi": {
+            }
+      },
       // @sync os=mac
-        "mac": 1
+      "mac": 1
     }`;
     const processed = PragmaUtil.processBeforeWrite(
       commentedSettings,
@@ -98,8 +97,8 @@ describe("Process before upload", function() {
     );
     expect(processed)
       .to.match(/\/{2}\s+"multi"/)
-      .and.to.match(/\/{2}\s+"multi"/)
       .and.to.match(/\/{2}\s+"setting"/)
+      .and.to.match(/\/{2}\s+"settingWithBrackets"/)
       .and.to.match(/\/{2}\s+},/)
       .and.to.match(/\s+"mac"/);
   });

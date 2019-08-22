@@ -95,7 +95,6 @@
   "common.prompt.gistNewer": "Sync: Gist 具有较新的或相同版本的设置。你是否想要启用强制上传覆盖它？",
   "common.prompt.multipleGist": "如果你有多个 Gist 设置，使你可以识别设置",
   "common.prompt.restartCode": "你是否要重新加载 VSCode 来应用扩展和设置？",
-  "ext.config.askGistName": "在创建时询问 Gist 的名称。能够帮助你识别设置。",
   "ext.config.autoDownload": "设置为 true 在编辑器打开时自动下载远程配置。[需要重启]",
   "ext.config.autoDownload.name": "自动下载",
   "ext.config.autoUpload": "设置为 true 在编辑器打开时自动上传本地配置。[需要重启]",

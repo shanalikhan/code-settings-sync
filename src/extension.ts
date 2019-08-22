@@ -16,7 +16,9 @@ export async function activate(context: vscode.ExtensionContext) {
   context.subscriptions.push(
     vscode.commands.registerCommand(
       "extension.updateSettings",
-      sync.upload.bind(sync)
+      (optArgument?: string) => {
+        sync.upload.bind(sync, optArgument)();
+      }
     )
   );
   context.subscriptions.push(

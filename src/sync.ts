@@ -65,9 +65,9 @@ export class Sync {
   /**
    * Upload setting to github gist
    */
-  public async upload(): Promise<void> {
+  public async upload(optArgument?: string): Promise<void> {
     // @ts-ignore
-    const args = arguments;
+    // const args = arguments;
     let github: GitHubService = null;
     const localConfig = await state.commons.InitalizeSettings();
 
@@ -84,8 +84,8 @@ export class Sync {
 
     try {
       localConfig.publicGist = false;
-      if (args.length > 0) {
-        if (args[0] === "publicGIST") {
+      if (optArgument) {
+        if (optArgument === "publicGIST") {
           localConfig.publicGist = true;
         }
       }
@@ -94,45 +94,6 @@ export class Sync {
         localConfig.customConfig.token,
         localConfig.customConfig.githubEnterpriseUrl
       );
-
-      if (
-        localConfig.customConfig.lastUpload &&
-        !localConfig.extConfig.forceUpload
-      ) {
-        const gistNewer = await github.IsGistNewer(
-          localConfig.extConfig.gist,
-          new Date(localConfig.customConfig.lastUpload)
-        );
-        if (gistNewer) {
-          if (
-            state.context.globalState.get<boolean>(
-              "gistNewer.dontShowThisAgain"
-            )
-          ) {
-            return;
-          }
-          const message = await vscode.window.showInformationMessage(
-            localize("common.prompt.gistNewer"),
-            "Yes",
-            "Don't Show This Again"
-          );
-          if (message === "Yes") {
-            localConfig.extConfig.forceUpload = true;
-          } else if (message === "Don't Show This Again") {
-            await state.context.globalState.update(
-              "gistNewer.dontShowThisAgain",
-              true
-            );
-            return;
-          } else {
-            vscode.window.setStatusBarMessage(
-              localize("cmd.updateSettings.info.uploadCanceled"),
-              3
-            );
-            return;
-          }
-        }
-      }
 
       await startGitProcess.call(
         this,
@@ -163,7 +124,6 @@ export class Sync {
         }
       }
 
-      customSettings.lastUpload = dateNow;
       vscode.window.setStatusBarMessage(
         localize("cmd.updateSettings.info.readding"),
         2000
@@ -293,7 +253,48 @@ export class Sync {
             return;
           }
         }
+
+        if (customSettings.lastUpload && !syncSetting.forceUpload) {
+          if (syncSetting.gist != null && syncSetting.gist !== "") {
+            const gistNewer = await github.IsGistNewer(
+              syncSetting.gist,
+              new Date(customSettings.lastUpload)
+            );
+            if (gistNewer) {
+              if (
+                state.context.globalState.get<boolean>(
+                  "gistNewer.dontShowThisAgain"
+                )
+              ) {
+                return;
+              }
+              const message = await vscode.window.showInformationMessage(
+                localize("common.prompt.gistNewer"),
+                "Yes",
+                "Don't Show This Again"
+              );
+              if (message === "Yes") {
+                syncSetting.forceUpload = true;
+              } else if (message === "Don't Show This Again") {
+                await state.context.globalState.update(
+                  "gistNewer.dontShowThisAgain",
+                  true
+                );
+                return;
+              } else {
+                vscode.window.setStatusBarMessage(
+                  localize("cmd.updateSettings.info.uploadCanceled"),
+                  3
+                );
+                return;
+              }
+            }
+          }
+        }
+
+        customSettings.lastUpload = dateNow;
         let gistObj = await github.ReadGist(syncSetting.gist);
+
         if (!gistObj) {
           return;
         }
@@ -403,7 +404,7 @@ export class Sync {
             );
           }
 
-          if (localConfig.publicGist) {
+          if (optArgument) {
             vscode.window.showInformationMessage(
               localize("cmd.updateSettings.info.shareGist")
             );
@@ -721,13 +722,14 @@ export class Sync {
             null,
             localSettings
           );
-          const message = await vscode.window.showInformationMessage(
-            localize("common.prompt.restartCode"),
-            "Yes"
-          );
-
-          if (message === "Yes") {
-            vscode.commands.executeCommand("workbench.action.reloadWindow");
+          if (deletedExtensions.length > 0 || addedExtensions.length > 0) {
+            const message = await vscode.window.showInformationMessage(
+              localize("common.prompt.restartCode"),
+              "Yes"
+            );
+            if (message === "Yes") {
+              vscode.commands.executeCommand("workbench.action.reloadWindow");
+            }
           }
           vscode.window.setStatusBarMessage("").dispose();
         } else {

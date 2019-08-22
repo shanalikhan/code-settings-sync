@@ -95,7 +95,6 @@
   "common.prompt.gistNewer": "Sync: Gist è più recente o identica versione delle impostazioni. Se si vuole attivare forceUpload per eseguire l'override di questo?",
   "common.prompt.multipleGist": "Consente di identificare le impostazioni, se si dispone di più gist.",
   "common.prompt.restartCode": "Vuoi ricaricare per applicare le estensioni e le configurazioni?",
-  "ext.config.askGistName": "Chiedi gist nome al momento della creazione. Aiuta a identificare la sostanza, se si dispone di più i gist.",
   "ext.config.autoDownload": "Il Set e ' vero per il Download Automatico le impostazioni del codice di avvio. [Codice Di Riavvio Richiesto]",
   "ext.config.autoDownload.name": "Il Download Automatico",
   "ext.config.autoUpload": "Impostare la verità Upload Automatico su modifica impostazioni. [Codice Di Riavvio Richiesto]",

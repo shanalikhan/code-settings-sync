@@ -2,6 +2,13 @@
 
 [![Version](https://vsmarketplacebadge.apphb.com/version/Shan.code-settings-sync.svg)](https://marketplace.visualstudio.com/items?itemName=Shan.code-settings-sync) [![Travis](https://img.shields.io/travis/rust-lang/rust.svg)](https://marketplace.visualstudio.com/items?itemName=Shan.code-settings-sync) [![Master course](https://img.shields.io/badge/Supported%20by-VSCode%20Power%20User%20Course%20%E2%86%92-gray.svg?colorA=444444&colorB=4F44D6)](https://t.co/8BEMyhpKU5?amp=1)
 
+#### v3.4.2 - August 21, 2019
+
+* Multiple Lanugages Support Improved [#1009](https://github.com/shanalikhan/code-settings-sync/pull/1009) by [@ XanatosX](https://github.com/XanatosX ) , [#999](https://github.com/shanalikhan/code-settings-sync/pull/999) by [@o3LL](https://github.com/o3LL) , [#994](https://github.com/shanalikhan/code-settings-sync/pull/994) by [@mijien0179](https://github.com/mijien0179) , [#981](https://github.com/shanalikhan/code-settings-sync/pull/981) by [@ryul1206](https://github.com/ryul1206)
+* Hide GitHub Token on Summary [#974](https://github.com/shanalikhan/code-settings-sync/issues/974) 
+* Only Show "Share Gist" Dialog when Public Gist is created [#977](https://github.com/shanalikhan/code-settings-sync/issues/977) 
+* Sync Pragma Improved [#1003](https://github.com/shanalikhan/code-settings-sync/issues/1003) - Thanks for PR [#1012](https://github.com/shanalikhan/code-settings-sync/pull/1012) by [@protium-dev](https://github.com/protium-dev)
+* UI Bug Fix where users were unable to select GIST [#983](https://github.com/shanalikhan/code-settings-sync/issues/983)
 
 #### v3.4.1 - July 22, 2019
 

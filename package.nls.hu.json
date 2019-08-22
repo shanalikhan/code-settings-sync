@@ -95,7 +95,6 @@
   "common.prompt.gistNewer": "Fordította: Lényeget egy újabb vagy azonos változata a beállításokat. Szeretné engedélyezni a forceUpload, hogy ezt felül?",
   "common.prompt.multipleGist": "Lehetővé teszi, hogy azonosítsa a beállítások ha több lényeget.",
   "common.prompt.restartCode": "Akarod, hogy újra alkalmazni fájlokat, konfigurációk?",
-  "ext.config.askGistName": "Kérdezd meg lényeget neve után létrehozása. Segít azonosítani a lényeg, ha több gists.",
   "ext.config.autoDownload": "Állítsa igaz, hogy az Automatikus Letöltés beállításai kód kezdeni. [Kód Újraindítás Szükséges]",
   "ext.config.autoDownload.name": "Automatikus Letöltés",
   "ext.config.autoUpload": "Állítsa igaz, hogy az Automatikus Feltöltés a beállítások módosítása. [Kód Újraindítás Szükséges]",
