@@ -3,7 +3,7 @@
   "displayName": "Settings Sync",
   "description": "Synchronize Settings, Snippets, Themes, File Icons, Launch, Keybindings, Workspaces and Extensions Across Multiple Machines Using GitHub Gist.",
   "version": "3.4.2",
-  "icon": "images/cloud.png",
+  "icon": "images/logo-128.png",
   "publisher": "Shan",
   "author": {
     "name": "Shan Khan",
