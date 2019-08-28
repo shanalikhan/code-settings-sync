@@ -118,7 +118,7 @@ I also welcome financial contributions in case of special feature requests on my
 
 You may join slack community and disscus the ideas over there.
 
-<a href="https://join.slack.com/t/codesettingssync/shared_invite/enQtMzE3MjY5NTczNDMwLTYwMTIwNGExOGE2MTJkZWU0OTU5MmI3ZTc4N2JkZjhjMzY1OTk5OGExZjkwMDMzMDU4ZTBlYjk5MGQwZmMyNzk">
+<a href="https://join.slack.com/t/codesettingssync/shared_invite/enQtNzQyODMzMzI5MDQ3LWNmZjVkZjE2YTg0MzY1Y2EyYzVmYThmNzg2YjZkNjhhZWY3ZTEzN2I3ZTAxMjkwNWU0ZjMyZGFhMjdiZDI3ODU">
 <img src="https://i.imgur.com/1QWdtcX.png" alt="Drawing" style="width: 150px;"/>
 </a>
 
