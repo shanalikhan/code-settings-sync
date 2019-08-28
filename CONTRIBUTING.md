@@ -12,7 +12,7 @@ I encourage you to create new pages or make helpful edits to all parts of the wi
 
 Join our public Slack:
 
-<a href="https://join.slack.com/t/codesettingssync/shared_invite/enQtMzE3MjY5NTczNDMwLTYwMTIwNGExOGE2MTJkZWU0OTU5MmI3ZTc4N2JkZjhjMzY1OTk5OGExZjkwMDMzMDU4ZTBlYjk5MGQwZmMyNzk">
+<a href="https://join.slack.com/t/codesettingssync/shared_invite/enQtNzQyODMzMzI5MDQ3LWNmZjVkZjE2YTg0MzY1Y2EyYzVmYThmNzg2YjZkNjhhZWY3ZTEzN2I3ZTAxMjkwNWU0ZjMyZGFhMjdiZDI3ODU">
 <img src="https://shanalikhan.github.io/img/slack.PNG" alt="Drawing" style="width: 50px;"/>
 </a>
 
