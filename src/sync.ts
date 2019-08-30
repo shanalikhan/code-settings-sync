@@ -328,17 +328,17 @@ export class Sync {
 
         if (
           !allSettingFiles.some(fileToUpload => {
-            if (fileToUpload.fileName === "cloudSettings") {
+            if (fileToUpload.gistName === "cloudSettings") {
               return false;
             }
-            if (!gistObj.data.files[fileToUpload.fileName]) {
+            if (!gistObj.data.files[fileToUpload.gistName]) {
               return true;
             }
             if (
-              gistObj.data.files[fileToUpload.fileName].content !==
+              gistObj.data.files[fileToUpload.gistName].content !==
               fileToUpload.content
             ) {
-              console.info(`Sync: file ${fileToUpload.fileName} has changed`);
+              console.info(`Sync: file ${fileToUpload.gistName} has changed`);
               return true;
             }
           })
