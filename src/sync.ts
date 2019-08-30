@@ -284,7 +284,7 @@ export class Sync {
               } else {
                 vscode.window.setStatusBarMessage(
                   localize("cmd.updateSettings.info.uploadCanceled"),
-                  3
+                  3000
                 );
                 return;
               }
@@ -367,7 +367,7 @@ export class Sync {
             } else {
               vscode.window.setStatusBarMessage(
                 localize("cmd.updateSettings.info.uploadCanceled"),
-                3
+                3000
               );
               return;
             }
