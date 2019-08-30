@@ -145,7 +145,7 @@ export class GitHubService {
 
   public async IsGistNewer(
     GIST: string,
-    localLastUpload: Date
+    localLastDownload: Date
   ): Promise<boolean> {
     const gist = await this.ReadGist(GIST);
     if (!gist) {
@@ -155,10 +155,10 @@ export class GitHubService {
     try {
       gistCloudSetting = JSON.parse(gist.data.files.cloudSettings.content);
       const gistLastUpload = new Date(gistCloudSetting.lastUpload);
-      if (!localLastUpload) {
+      if (!localLastDownload) {
         return false;
       }
-      return gistLastUpload >= localLastUpload;
+      return gistLastUpload > localLastDownload;
     } catch (err) {
       return false;
     }

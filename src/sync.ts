@@ -258,7 +258,7 @@ export class Sync {
           if (syncSetting.gist != null && syncSetting.gist !== "") {
             const gistNewer = await github.IsGistNewer(
               syncSetting.gist,
-              new Date(customSettings.lastUpload)
+              new Date(customSettings.lastDownload)
             );
             if (gistNewer) {
               if (
@@ -293,6 +293,7 @@ export class Sync {
         }
 
         customSettings.lastUpload = dateNow;
+        customSettings.lastDownload = dateNow;
         let gistObj = await github.ReadGist(syncSetting.gist);
 
         if (!gistObj) {
