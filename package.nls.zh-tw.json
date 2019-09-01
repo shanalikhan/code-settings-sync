@@ -19,7 +19,7 @@
   "cmd.otherOptions.joinCommunity": "Sync: 加入社群",
   "cmd.otherOptions.openIssue": "Sync: 打開 Issue",
   "cmd.otherOptions.openSettingsPage": "Sync: 打開設定",
-  "cmd.otherOptions.preserve": "Sync: 下載線上設定時，保留本機設定  ",
+  "cmd.otherOptions.preserve": "Sync: 保存電腦裡的設定，避免被下載的設定覆蓋",
   "cmd.otherOptions.preserve.info.done1": "Sync: 完成。下載完成後將從 setting.json 中刪除 {0}",
   "cmd.otherOptions.preserve.info.done2": "Sync: 完成。下載完成後延伸模組將在 settings.json 中保留 {0}:{1} 。",
   "cmd.otherOptions.preserve.placeholder": "輸入 settings.json 中的任意欄位以保留",
