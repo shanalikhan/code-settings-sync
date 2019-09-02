@@ -68,6 +68,8 @@ All extensions and complete User Folder that Contains
 ```
 1. Upload Key : Shift + Alt + U
 2. Download Key : Shift + Alt + D
+
+(on macOS: Shift + Option + U / Shift + Option + D
 ```
 
 ## Configure Settings Sync
@@ -100,7 +102,7 @@ You can always **verify created gist** by going to `https://gist.github.com` and
 
 ## Upload Your Settings
 
-**Press Shift + Alt + U**
+**Press Shift + Alt + U** (macOS: Shift + Option + U)
 
 > Type ">Sync" In Command Palette into order download / upload
 
@@ -110,7 +112,7 @@ Once you select upload, after uploading the settings. You will see the Summary d
 
 ## Download your Settings
 
-**Press Shift + Alt + D**
+**Press Shift + Alt + D** (macOS: Shift + Option + D)
 
 > Type ">Sync" In Command Palette into order download / upload
 
