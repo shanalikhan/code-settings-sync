@@ -117,7 +117,7 @@
   "ext.config.syncExtensions": "Definido para false se você não quiser fazer o upload/download de extensões.",
   "ext.config.syncExtensions.name": "Sincronização De Extensões",
   "ext.config.title": "Código De Definições De Sincronização De Definições De Configuração",
-  "ext.globalConfig.askGistName.name": "Pergunte Gist Nome",
+  "ext.globalConfig.askGistDescription.name": "Pergunte Gist Nome",
   "ext.globalConfig.autoUploadDelay.name": "Upload Automático De Atraso",
   "ext.globalConfig.autoUploadDelay.placeholder": "Insira a quantidade de segundos de atraso auto-upload",
   "ext.globalConfig.downloadPublicGist.name": "Download Pública Essência",

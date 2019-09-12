@@ -117,7 +117,7 @@
   "ext.config.syncExtensions": "设置为 false 如果你不想上传/下载扩展。",
   "ext.config.syncExtensions.name": "同步扩展",
   "ext.config.title": "代码同步配置",
-  "ext.globalConfig.askGistName.name": "创建 Gist 时询问名称，这可以帮助您在您的多个 Gist 中找到这个配置",
+  "ext.globalConfig.askGistDescription.name": "创建 Gist 时询问名称，这可以帮助您在您的多个 Gist 中找到这个配置",
   "ext.globalConfig.autoUploadDelay.name": "自动上传延迟",
   "ext.globalConfig.autoUploadDelay.placeholder": "输入延迟的秒数",
   "ext.globalConfig.downloadPublicGist.name": "下载公开 Gist",

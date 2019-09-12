@@ -117,7 +117,7 @@
   "ext.config.syncExtensions": "Установите значение true для синхронизации расширений.",
   "ext.config.syncExtensions.name": "Синхронизация расширений",
   "ext.config.title": "Настройки расширения Code Settings Sync",
-  "ext.globalConfig.askGistName.name": "Задать имя Gist",
+  "ext.globalConfig.askGistDescription.name": "Задать имя Gist",
   "ext.globalConfig.autoUploadDelay.name": "Задержка перед автозагрузкой",
   "ext.globalConfig.autoUploadDelay.placeholder": "Введите количество секунд для задержки перед автозагрузкой",
   "ext.globalConfig.downloadPublicGist.name": "Скачать настройки из публичного Gist",

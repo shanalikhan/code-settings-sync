@@ -117,7 +117,7 @@
   "ext.config.syncExtensions": "Deaktivieren Sie diese Einstellungen, wenn sie Ihre Erweiterungen nicht hochladen möchten.",
   "ext.config.syncExtensions.name": "Erweiterungen Synchronisieren",
   "ext.config.title": "Einstellungen von VSCode Synchronisieren",
-  "ext.globalConfig.askGistName.name": "Fragen Gist Namen",
+  "ext.globalConfig.askGistDescription.name": "Fragen Gist Namen",
   "ext.globalConfig.autoUploadDelay.name": "Verzögerung für das automatischen Hochladen",
   "ext.globalConfig.autoUploadDelay.placeholder": "Geben Sie die Anzahl der Sekunden für die Verzögerung ein",
   "ext.globalConfig.downloadPublicGist.name": "Herunterladen eines Public Gist",

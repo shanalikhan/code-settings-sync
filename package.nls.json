@@ -126,7 +126,7 @@
   "ext.globalConfig.gistDescription.placeholder": "Enter Gist Description",
   "ext.globalConfig.autoUploadDelay.name": "Auto Upload Delay",
   "ext.globalConfig.autoUploadDelay.placeholder": "Enter the amount of seconds to delay auto-upload",
-  "ext.globalConfig.askGistName.name": "Ask Gist Name",
+  "ext.globalConfig.askGistDescription.name": "Ask Gist Name",
   "ext.globalConfig.downloadPublicGist.name": "Download Public Gist",
   "ext.globalConfig.openTokenLink.name": "Open Token Link",
   "ext.config.gist.name": "Gist ID",

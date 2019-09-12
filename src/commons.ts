@@ -426,9 +426,9 @@ export default class Commons {
   }
 
   /**
-   * AskGistName
+   * AskGistDescription
    */
-  public async AskGistName(): Promise<string> {
+  public async AskGistDescription(): Promise<string> {
     return vscode.window.showInputBox({
       prompt: localize("common.prompt.multipleGist"),
       ignoreFocusOut: true,

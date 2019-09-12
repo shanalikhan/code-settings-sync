@@ -117,7 +117,7 @@
   "ext.config.syncExtensions": "Állítsa be, hogy hamis, ha nem akarod, hogy a feltöltés/letöltés a fájlokat.",
   "ext.config.syncExtensions.name": "Fordította: Z",
   "ext.config.title": "Kód Beállítások A Szinkronizálás Konfigurációs Beállítások",
-  "ext.globalConfig.askGistName.name": "Kérdezd Meg Lényeget Név",
+  "ext.globalConfig.askGistDescription.name": "Kérdezd Meg Lényeget Név",
   "ext.globalConfig.autoUploadDelay.name": "Automatikus Feltöltés Késedelem",
   "ext.globalConfig.autoUploadDelay.placeholder": "Adja meg az összeget másodperc késleltetés az automatikus feltöltés",
   "ext.globalConfig.downloadPublicGist.name": "Letöltés Nyilvános Gist",

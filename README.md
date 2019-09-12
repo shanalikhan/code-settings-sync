@@ -203,7 +203,7 @@ You can customize the sync:
     "lastUpload": null,
     "lastDownload": null,
     "githubEnterpriseUrl": null,
-    "askGistName": false,
+    "askGistDescription": false,
     "customFiles": {},
     "hostName": null,
     "universalKeybindings": false,

@@ -126,7 +126,7 @@
   "ext.globalConfig.gistDescription.placeholder": "Gist の説明を入力してください",
   "ext.globalConfig.autoUploadDelay.name": "自動アップロードの遅延",
   "ext.globalConfig.autoUploadDelay.placeholder": "自動アップロードの遅延時間 (秒) を入力してください",
-  "ext.globalConfig.askGistName.name": "Gist Name の確認",
+  "ext.globalConfig.askGistDescription.name": "Gist Name の確認",
   "ext.globalConfig.downloadPublicGist.name": "公開 Gist のダウンロード",
   "ext.globalConfig.openTokenLink.name": "トークンのリンクを開く",
   "ext.config.gist.name": "Gist ID",

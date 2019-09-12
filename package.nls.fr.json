@@ -116,7 +116,7 @@
   "ext.config.syncExtensions": "Changez la valeur à false si vous ne voulez pas uploader/télécharger l'extensions.",
   "ext.config.syncExtensions.name": "Synchronisation Des Extensions",
   "ext.config.title": "Paramètres de configuration de la synchronisation des paramètres VSCode",
-  "ext.globalConfig.askGistName.name": "Demande le nom du Gist",
+  "ext.globalConfig.askGistDescription.name": "Demande le nom du Gist",
   "ext.globalConfig.autoUploadDelay.name": "Délai de l'upload automatique",
   "ext.globalConfig.autoUploadDelay.placeholder": "Entrez le montant de secondes avant chaque upload automatique",
   "ext.globalConfig.downloadPublicGist.name": "Télécharger un Gist Public",

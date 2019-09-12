@@ -117,7 +117,7 @@
   "ext.config.syncExtensions": "Eğer/uzantıları karşıdan yüklemek istemiyorsan false olarak ayarlayın.",
   "ext.config.syncExtensions.name": "Sync Uzantıları",
   "ext.config.title": "Kod Ayarları Eşitleme Yapılandırma Ayarları",
-  "ext.globalConfig.askGistName.name": "Özü Adını Sor ",
+  "ext.globalConfig.askGistDescription.name": "Özü Adını Sor ",
   "ext.globalConfig.autoUploadDelay.name": "Otomatik Yükleme Gecikme",
   "ext.globalConfig.autoUploadDelay.placeholder": "Otomatik gecikme için upload saniye miktarını girin",
   "ext.globalConfig.downloadPublicGist.name": "İndir Kamu Özü",

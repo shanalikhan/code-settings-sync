@@ -232,8 +232,8 @@ export class Sync {
       let newGIST: boolean = false;
       try {
         if (syncSetting.gist == null || syncSetting.gist === "") {
-          if (customSettings.askGistName) {
-            customSettings.gistDescription = await state.commons.AskGistName();
+          if (customSettings.askGistDescription) {
+            customSettings.gistDescription = await state.commons.AskGistDescription();
           }
           newGIST = true;
           const gistID = await github.CreateEmptyGIST(
