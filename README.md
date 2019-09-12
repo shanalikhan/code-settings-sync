@@ -69,7 +69,7 @@ All extensions and complete User Folder that Contains
 1. Upload Key : Shift + Alt + U
 2. Download Key : Shift + Alt + D
 
-(on macOS: Shift + Option + U / Shift + Option + D
+(on macOS: Shift + Option + U / Shift + Option + D)
 ```
 
 ## Configure Settings Sync

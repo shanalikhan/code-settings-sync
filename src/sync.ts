@@ -258,7 +258,7 @@ export class Sync {
           if (syncSetting.gist != null && syncSetting.gist !== "") {
             const gistNewer = await github.IsGistNewer(
               syncSetting.gist,
-              new Date(customSettings.lastUpload)
+              new Date(customSettings.lastDownload)
             );
             if (gistNewer) {
               if (
@@ -284,7 +284,7 @@ export class Sync {
               } else {
                 vscode.window.setStatusBarMessage(
                   localize("cmd.updateSettings.info.uploadCanceled"),
-                  3
+                  3000
                 );
                 return;
               }
@@ -293,6 +293,7 @@ export class Sync {
         }
 
         customSettings.lastUpload = dateNow;
+        customSettings.lastDownload = dateNow;
         let gistObj = await github.ReadGist(syncSetting.gist);
 
         if (!gistObj) {
@@ -327,17 +328,17 @@ export class Sync {
 
         if (
           !allSettingFiles.some(fileToUpload => {
-            if (fileToUpload.fileName === "cloudSettings") {
+            if (fileToUpload.gistName === "cloudSettings") {
               return false;
             }
-            if (!gistObj.data.files[fileToUpload.fileName]) {
+            if (!gistObj.data.files[fileToUpload.gistName]) {
               return true;
             }
             if (
-              gistObj.data.files[fileToUpload.fileName].content !==
+              gistObj.data.files[fileToUpload.gistName].content !==
               fileToUpload.content
             ) {
-              console.info(`Sync: file ${fileToUpload.fileName} has changed`);
+              console.info(`Sync: file ${fileToUpload.gistName} has changed`);
               return true;
             }
           })
@@ -366,7 +367,7 @@ export class Sync {
             } else {
               vscode.window.setStatusBarMessage(
                 localize("cmd.updateSettings.info.uploadCanceled"),
-                3
+                3000
               );
               return;
             }
