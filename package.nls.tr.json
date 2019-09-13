@@ -51,6 +51,7 @@
   "cmd.updateSettings.error.gistNotSave": "Çeviri: ÖZÜ KAYITLI DEĞİL ",
   "cmd.updateSettings.error.newGistCreateFail": "Konusunu oluşturulamadı çeviri:.",
   "cmd.updateSettings.error.readGistFail": "OKUMAK İÇİN {0} MÜMKÜN çeviren: ESAS NUMARASI:.",
+  "cmd.updateSettings.info.gotLatestVersion": "Çeviri: Kayıtlı ayarların en son sürümünü zaten yüklediniz.",
   "cmd.updateSettings.info.newGistCreated": "Oluşturulan Sync: Yeni fikri.",
   "cmd.updateSettings.info.readding": "Çeviri: Okuma Ayarları ve Uzantıları.",
   "cmd.updateSettings.info.shareGist": "Sync: diğer abone ile ayarları paylaşmak Kimliği Paylaşımı.",

@@ -22,6 +22,7 @@
   "cmd.updateSettings.info.readding": "Sync: Reading Settings and Extensions.",
   "cmd.updateSettings.info.uploadCanceled": "Sync: Upload Process Cancelled.",
   "cmd.updateSettings.info.newGistCreated": "Sync: New gist created.",
+  "cmd.updateSettings.info.gotLatestVersion": "Sync: You have already uploaded the latest version of saved settings.",
   "cmd.updateSettings.warning.noToken": "Sync: Set GitHub Token or disable 'downloadPublicGist' from local Sync settings file.",
   "cmd.updateSettings.warning.OSNotSupported": "Sync Pragma OS value {0} not supported at line {1}",
   "cmd.updateSettings.error.newGistCreateFail": "Sync: Unable to create Gist.",

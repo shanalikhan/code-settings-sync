@@ -51,6 +51,7 @@
   "cmd.updateSettings.error.gistNotSave": "Sincronização: a ESSÊNCIA NÃO SALVO",
   "cmd.updateSettings.error.newGistCreateFail": "Sync: não é Possível criar Essência.",
   "cmd.updateSettings.error.readGistFail": "Sincronização: a ESSÊNCIA ID: {0} não é POSSÍVEL LER.",
+  "cmd.updateSettings.info.gotLatestVersion": "Sincronização: Você já fez o upload da versão mais recente das configurações salvas.",
   "cmd.updateSettings.info.newGistCreated": "Sincronização: a Nova essência criado.",
   "cmd.updateSettings.info.readding": "Sincronização: Definições de Leitura e de Extensões.",
   "cmd.updateSettings.info.shareGist": "Sincronização: Compartilhar a Identificação com outra extensão do blog para compartilhar as configurações.",

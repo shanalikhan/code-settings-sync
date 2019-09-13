@@ -22,6 +22,7 @@
   "cmd.updateSettings.info.readding": "Sync: 設定を拡張機能を読み込んでいます",
   "cmd.updateSettings.info.uploadCanceled": "Sync: アップロードがキャンセルされました",
   "cmd.updateSettings.info.newGistCreated": "Sync: 新規 Gist を作成しました",
+  "cmd.updateSettings.info.gotLatestVersion": "Sync: 保存済み設定の最新バージョンはすでにアップロードされています。",
   "cmd.updateSettings.warning.noToken": "Sync: GitHub トークンを設定するか、ローカルの同期設定ファイルから 'downloadPublicGist' を無効にしてください",
   "cmd.updateSettings.warning.OSNotSupported": "Sync: {1} 行目の値 {0} はサポートされていません",
   "cmd.updateSettings.error.newGistCreateFail": "Sync: Gist を作成できません",

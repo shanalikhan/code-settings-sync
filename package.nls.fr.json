@@ -51,6 +51,7 @@
   "cmd.updateSettings.error.gistNotSave": "Sync: GIST NON ENREGISTRÉ",
   "cmd.updateSettings.error.newGistCreateFail": "Sync: Impossible de créer le Gist.",
   "cmd.updateSettings.error.readGistFail": "Sync: GIST ID: {0} NE PEUT ETRE LU.",
+  "cmd.updateSettings.info.gotLatestVersion": "Sync: Vous avez déjà téléchargé la dernière version des paramètres enregistrés.",
   "cmd.updateSettings.info.newGistCreated": "Sync: Nouveau gist créé.",
   "cmd.updateSettings.info.readding": "Sync: Lecture des paramètres et des extensions.",
   "cmd.updateSettings.info.shareGist": "Sync: Partager l'Id avec un autre utilisateur de l'extension pour partager les paramètres.",

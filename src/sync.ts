@@ -344,6 +344,10 @@ export class Sync {
           })
         ) {
           if (!localConfig.extConfig.forceUpload) {
+            vscode.window.setStatusBarMessage(
+              localize("cmd.updateSettings.info.gotLatestVersion"),
+              5000
+            );
             if (
               state.context.globalState.get<boolean>(
                 "gistNewer.dontShowThisAgain"

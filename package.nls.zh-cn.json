@@ -51,6 +51,7 @@
   "cmd.updateSettings.error.gistNotSave": "Sync: Gist 没有保存",
   "cmd.updateSettings.error.newGistCreateFail": "Sync: 无法创建 Gist。",
   "cmd.updateSettings.error.readGistFail": "Sync: 无法读取 Gist ID:{0}。",
+  "cmd.updateSettings.info.gotLatestVersion": "Sync: 您已經上傳了最新版本的已保存設置。",
   "cmd.updateSettings.info.newGistCreated": "Sync: 已创建新的 Gist。",
   "cmd.updateSettings.info.readding": "Sync: 正在读取设置和扩展",
   "cmd.updateSettings.info.shareGist": "Sync: 与其他用户分享 Gist ID 来共享配置",

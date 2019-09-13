@@ -23,6 +23,7 @@
     "cmd.updateSettings.info.readding": "Sync: 설정과 확장을 읽고 있습니다.",
     "cmd.updateSettings.info.uploadCanceled": "Sync: 업로드 동작이 취소되었습니다.",
     "cmd.updateSettings.info.newGistCreated": "Sync: 새로운 Gist가 생성되었습니다.",
+    "cmd.updateSettings.info.gotLatestVersion": "Sync: 저장된 설정의 최신 버전을 이미 업로드했습니다.",
     "cmd.updateSettings.warning.noToken": "Sync: 로컬 설정 동기화 파일에서 'downloadPublicGist'를 끄거나 GitHub 토큰을 설정하세요.",
     "cmd.updateSettings.warning.OSNotSupported": "동기화 Pragma 운영체제 값 {0} 는 line {1} 에서 지원되지 않습니다.",
     "cmd.updateSettings.error.newGistCreateFail": "Sync: 새로운 Gist 생성에 실패했습니다.",

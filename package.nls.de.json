@@ -51,6 +51,7 @@
   "cmd.updateSettings.error.gistNotSave": "Sync: GIST WURDE NICHT GESPEICHERT",
   "cmd.updateSettings.error.newGistCreateFail": "Sync: Es konnte kein neuer GIST erstellt werden.",
   "cmd.updateSettings.error.readGistFail": "Sync: die GIST-ID: {0} kann NICHT GELESEN WERDEN.",
+  "cmd.updateSettings.info.gotLatestVersion": "Sync: Sie haben bereits die neueste Version der gespeicherten Einstellungen hochgeladen.",
   "cmd.updateSettings.info.newGistCreated": "Sync: Es wurde ein neuer GIST erstellt.",
   "cmd.updateSettings.info.readding": "Sync: Lesen der Online Einstellungen und Erweiterungen.",
   "cmd.updateSettings.info.shareGist": "Sync: Teilen Sie die Id mit anderen Benutzern dieser Erweiterung, um Ihre Einstellungen mit diesen zu teilen.",

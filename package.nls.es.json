@@ -51,6 +51,7 @@
   "cmd.updateSettings.error.gistNotSave": "Sincronización: los GIST NO se GUARDAN",
   "cmd.updateSettings.error.newGistCreateFail": "Sincronización: no se puede crear el Gist.",
   "cmd.updateSettings.error.readGistFail": "Sincronización: GIST ID: {0} no se puede LEER.",
+  "cmd.updateSettings.info.gotLatestVersion": "Sincronización: Ya has subido la última versión de la configuración guardada.",
   "cmd.updateSettings.info.newGistCreated": "Sincronización: Nueva esencia creada.",
   "cmd.updateSettings.info.readding": "Sincronización: Ajustes de Lectura y Extensiones.",
   "cmd.updateSettings.info.shareGist": "Sincronización: Compartir la Identificación con otros usuarios de la extensión para compartir la configuración.",

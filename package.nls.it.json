@@ -51,6 +51,7 @@
   "cmd.updateSettings.error.gistNotSave": "Sync: GIST NON SALVATI",
   "cmd.updateSettings.error.newGistCreateFail": "Sync: Impossibile creare il Gist.",
   "cmd.updateSettings.error.readGistFail": "Sync: GIST ID: {0} non RIESCE A LEGGERE.",
+  "cmd.updateSettings.info.gotLatestVersion": "Sync: Hai già caricato l'ultima versione delle impostazioni salvate.",
   "cmd.updateSettings.info.newGistCreated": "Sync: Nuovo gist creato.",
   "cmd.updateSettings.info.readding": "Sync: Impostazioni di Lettura e le Estensioni.",
   "cmd.updateSettings.info.shareGist": "Sync: Condividere l'Id con altra estensione agli utenti di condividere le impostazioni.",

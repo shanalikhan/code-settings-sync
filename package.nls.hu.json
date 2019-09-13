@@ -51,6 +51,7 @@
   "cmd.updateSettings.error.gistNotSave": "Fordította: LÉNYEGET NEM MENTETT",
   "cmd.updateSettings.error.newGistCreateFail": "Fordította: Nem sikerült létrehozni Lényeget.",
   "cmd.updateSettings.error.readGistFail": "Fordította: LÉNYEGET ID: {0} NEM OLVASTAM.",
+  "cmd.updateSettings.info.gotLatestVersion": "Fordította: Már feltöltötte a mentett beállítások legújabb verzióját.",
   "cmd.updateSettings.info.newGistCreated": "Fordította: Új lényeget létre.",
   "cmd.updateSettings.info.readding": "Fordította: Olvasási Beállítások, majd a Fájlokat.",
   "cmd.updateSettings.info.shareGist": "Fordította: oszd meg az Id más kiterjesztését a felhasználók számára, hogy megosszák a beállításokat.",
