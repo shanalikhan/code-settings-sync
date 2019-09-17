@@ -254,46 +254,6 @@ export class Sync {
           }
         }
 
-        if (customSettings.lastUpload && !syncSetting.forceUpload) {
-          if (syncSetting.gist != null && syncSetting.gist !== "") {
-            const gistNewer = await github.IsGistNewer(
-              syncSetting.gist,
-              new Date(customSettings.lastDownload)
-            );
-            if (gistNewer) {
-              if (
-                state.context.globalState.get<boolean>(
-                  "gistNewer.dontShowThisAgain"
-                )
-              ) {
-                return;
-              }
-              const message = await vscode.window.showInformationMessage(
-                localize("common.prompt.gistNewer"),
-                "Yes",
-                "Don't Show This Again"
-              );
-              if (message === "Yes") {
-                syncSetting.forceUpload = true;
-              } else if (message === "Don't Show This Again") {
-                await state.context.globalState.update(
-                  "gistNewer.dontShowThisAgain",
-                  true
-                );
-                return;
-              } else {
-                vscode.window.setStatusBarMessage(
-                  localize("cmd.updateSettings.info.uploadCanceled"),
-                  3000
-                );
-                return;
-              }
-            }
-          }
-        }
-
-        customSettings.lastUpload = dateNow;
-        customSettings.lastDownload = dateNow;
         let gistObj = await github.ReadGist(syncSetting.gist);
 
         if (!gistObj) {
@@ -343,39 +303,41 @@ export class Sync {
             }
           })
         ) {
+          // Gist files are the same as the local files.
           if (!localConfig.extConfig.forceUpload) {
             vscode.window.setStatusBarMessage(
               localize("cmd.updateSettings.info.gotLatestVersion"),
               5000
             );
-            if (
-              state.context.globalState.get<boolean>(
-                "gistNewer.dontShowThisAgain"
-              )
-            ) {
-              return;
-            }
+            // Exit early to avoid unneeded upload.
+            return;
+          }
+          // Fall through to upload code for forced upload case.
+        } else {
+          // Gist files are different from the local files.
+          const gistNewer = await github.IsGistNewer(
+            syncSetting.gist,
+            new Date(customSettings.lastDownload)
+          );
+          if (gistNewer) {
+            // Last local download is prior to the last gist upload, so
+            // the local settings may be out of date.
             const message = await vscode.window.showInformationMessage(
               localize("common.prompt.gistNewer"),
-              "Yes",
-              "Don't Show This Again"
+              localize("common.button.yes"),
+              localize("common.button.no"),
             );
-            if (message === "Yes") {
-              syncSetting.forceUpload = true;
-            } else if (message === "Don't Show This Again") {
-              await state.context.globalState.update(
-                "gistNewer.dontShowThisAgain",
-                true
-              );
-              return;
-            } else {
+            if (message !== "Yes") {
               vscode.window.setStatusBarMessage(
                 localize("cmd.updateSettings.info.uploadCanceled"),
                 3000
               );
               return;
             }
+            // Fall through to upload code for one-time forced update.
           }
+          // !gistNewer: Last local download is later or the same as last Gist upload,
+          // so OK to update - fall through to upload code below.
         }
 
         vscode.window.setStatusBarMessage(
@@ -398,6 +360,8 @@ export class Sync {
 
       if (completed) {
         try {
+          customSettings.lastUpload = dateNow;
+          customSettings.lastDownload = dateNow;
           await state.commons.SaveSettings(syncSetting);
           await state.commons.SetCustomSettings(customSettings);
           if (newGIST) {
@@ -771,7 +735,6 @@ export class Sync {
       localSettings = new CustomConfig();
 
       await Promise.all([
-        state.context.globalState.update("gistNewer.dontShowThisAgain", false),
         state.context.globalState.update("landingPage.dontShowThisAgain", false)
       ]);
 
