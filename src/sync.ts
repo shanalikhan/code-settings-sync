@@ -569,6 +569,11 @@ export class Sync {
         }
       });
 
+      if (syncSetting.showDiff) {
+        state.commons.webviewService.OpenDiffSummaryPage(Object.keys(updatedFiles));
+        return;
+      }
+
       for (const file of updatedFiles) {
         let writeFile: boolean = false;
         let content: string = file.content;
