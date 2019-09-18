@@ -319,13 +319,13 @@ export class Sync {
             syncSetting.gist,
             customSettings.lastDownload
           );
-          if (gistNewer) {
+          if (gistNewer && !localConfig.extConfig.forceUpload) {
             // Last local download is prior to the last gist upload, so
             // the local settings may be out of date.
             const message = await vscode.window.showInformationMessage(
               localize("common.prompt.gistNewer"),
               localize("common.button.yes"),
-              localize("common.button.no"),
+              localize("common.button.no")
             );
             if (message !== "Yes") {
               vscode.window.setStatusBarMessage(
