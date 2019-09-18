@@ -32,8 +32,8 @@ export class GitHubOAuthService {
         <html lang="en">
           <head>
             <meta charset="utf-8">
-            <meta 
-              http-equiv="Content-Security-Policy" 
+            <meta
+              http-equiv="Content-Security-Policy"
               content="default-src vscode-resource:; form-action vscode-resource:; frame-ancestors vscode-resource:; img-src vscode-resource: https:; script-src 'self' 'unsafe-inline' vscode-resource:; style-src 'self' 'unsafe-inline' vscode-resource:;"
             />
             <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
