@@ -317,7 +317,7 @@ export class Sync {
           // Gist files are different from the local files.
           const gistNewer = await github.IsGistNewer(
             syncSetting.gist,
-            new Date(customSettings.lastDownload)
+            customSettings.lastDownload
           );
           if (gistNewer) {
             // Last local download is prior to the last gist upload, so
