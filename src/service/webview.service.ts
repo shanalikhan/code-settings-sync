@@ -146,6 +146,13 @@ export class WebviewService {
       type: UISettingType.Checkbox,
       correspondingSetting: "syncExtensions",
       tooltip: localize("ext.config.syncExtensions")
+    },
+    {
+      name: localize("ext.config.showDiff.name"),
+      placeholder: "",
+      type: UISettingType.Checkbox,
+      correspondingSetting: "showDiff",
+      tooltip: localize("ext.config.showDiff")
     }
   ];
 
@@ -201,8 +208,8 @@ export class WebviewService {
       ]
     },
     {
-      name: "gist-diff-summary",
-      htmlPath: "gist-diff-summary.html",
+      name: "diff-summary",
+      htmlPath: "diff-summary.html",
       replaceables: [
         {
           find: "@DIFFGISTS",
@@ -412,6 +419,39 @@ export class WebviewService {
     return landingPanel;
   }
 
+  public OpenDiffSummaryPage(diffSettingsList: string[]) {
+    const webview = this.webviews[3];
+    const content: string = this.GenerateContent({
+      content: webview.htmlContent,
+      items: webview.replaceables,
+      diffSettingsList
+    });
+    if (webview.webview) {
+      webview.webview.webview.html = content;
+      webview.webview.reveal();
+      return webview.webview;
+    }
+    const diffSummaryPanel = vscode.window.createWebviewPanel(
+      "diffSummaryPage",
+      "Differences summary between local and cloud settings",
+      vscode.ViewColumn.One,
+      {
+        retainContextWhenHidden: true,
+        enableScripts: true
+      }
+    );
+    diffSummaryPanel.webview.onDidReceiveMessage(async message => {
+      switch (message.command) {
+        case "SyncAll":
+          break;
+      }
+    });
+    diffSummaryPanel.webview.html = content;
+    webview.webview = diffSummaryPanel;
+    diffSummaryPanel.onDidDispose(() => (webview.webview = null));
+    return diffSummaryPanel;
+  }
+
   public OpenGistSelectionpage(gists: any, cmd?: string) {
     const webview = this.webviews[2];
     const content: string = this.GenerateContent({
@@ -486,38 +526,4 @@ export class WebviewService {
           .toString()
       );
   }
-
-  public OpenDiffSummaryPage(diffSettingsList: string[]) {
-    const webview = this.webviews[3];
-    const content: string = this.GenerateContent({
-      content: webview.htmlContent,
-      items: webview.replaceables,
-      diffSettingsList
-    });
-    if (webview.webview) {
-      webview.webview.webview.html = content;
-      webview.webview.reveal();
-      return webview.webview;
-    }
-    const diffSummaryPanel = vscode.window.createWebviewPanel(
-      "diffSummaryPage",
-      "Differences summary between local and cloud settings",
-      vscode.ViewColumn.One,
-      {
-        retainContextWhenHidden: true,
-        enableScripts: true
-      }
-    );
-    diffSummaryPanel.webview.onDidReceiveMessage(async message => {
-      switch (message.command) {
-        case "SyncAll":
-          break;
-      }
-    });
-    diffSummaryPanel.webview.html = content;
-    webview.webview = diffSummaryPanel;
-    diffSummaryPanel.onDidDispose(() => (webview.webview = null));
-    return diffSummaryPanel;
-  }
-
 }

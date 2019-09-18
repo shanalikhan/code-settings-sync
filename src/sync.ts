@@ -570,7 +570,9 @@ export class Sync {
       });
 
       if (syncSetting.showDiff) {
-        state.commons.webviewService.OpenDiffSummaryPage(Object.keys(updatedFiles));
+        state.commons.webviewService.OpenDiffSummaryPage(
+          Object.keys(updatedFiles)
+        );
         return;
       }
 

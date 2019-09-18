@@ -12,6 +12,7 @@
   "ext.config.quietSync": "When set to true, will show the result in status bar instead of summary page.",
   "ext.config.removeExtensions": "Set it to false if you don't want to remove extensions while downloading.",
   "ext.config.syncExtensions": "Set it to false if you don't want to upload/download the extensions.",
+  "ext.config.showDiff": "Set it to true if you want to see the differences in extensions while upload/download",
   "cmd.howSetting.title": "Sync: How To Configure",
   "cmd.updateSettings.title": "Sync: Update/Upload Settings",
   "cmd.updateSettings.info.uploading": "Sync: Uploading/Updating Your Settings In GitHub.",

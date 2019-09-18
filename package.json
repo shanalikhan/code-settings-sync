@@ -138,6 +138,11 @@
           "type": "boolean",
           "default": true,
           "description": "%ext.config.syncExtensions%"
+        },
+        "sync.showDiff": {
+          "type": "boolean",
+          "default": true,
+          "description": "%ext.config.showDiff%"
         }
       },
       "title": "%ext.config.title%"
