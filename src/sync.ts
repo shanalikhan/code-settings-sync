@@ -404,7 +404,7 @@ export class Sync {
             );
           }
 
-          if (optArgument) {
+          if (!syncSetting.quietSync && optArgument) {
             vscode.window.showInformationMessage(
               localize("cmd.updateSettings.info.shareGist")
             );
