@@ -94,6 +94,7 @@
   "common.placeholder.multipleGist": "Имя Gist (Например: Personal Settings)",
   "common.prompt.enterGistId": "Введите Gist ID от ранее сохраненных настроек. Вы также можете вручную задать его в параметрах (sync.gist). Нажмите [Enter] или [Esc] для отмены.",
   "common.prompt.enterGithubAccessToken": "Вы также можете вручную добавить токен (User Folder/syncLocalSettings.json). Нажмите [Enter] или [Esc] для отмены.",
+  "common.prompt.gistForceUpload": "Sync: Загрузка заменит настройки в GitHub Gist. Попробуйте загрузить настройки или выполнить принудительную загрузку. Вы все еще хотите загружать принудительно?",
   "common.prompt.gistNewer": "Sync: Настройки в Gist изменились с момента их последней загрузки. Вы хотите загрузить текущие локальные настройки в Gist?",
   "common.prompt.multipleGist": "Поможет определить настройки если Вы используете несколько репозиториев для сохранения настроек.",
   "common.prompt.restartCode": "Перезагрузить VSCode для применения расширений и параметров?",

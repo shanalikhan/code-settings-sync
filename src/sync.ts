@@ -319,7 +319,23 @@ export class Sync {
             syncSetting.gist,
             customSettings.lastDownload
           );
-          if (gistNewer && !localConfig.extConfig.forceUpload) {
+          if (!customSettings.lastDownload) {
+            // Unable to compare the last gist upload time with the
+            // last download time, so ask user to force upload.
+            const message = await vscode.window.showInformationMessage(
+              localize("common.prompt.gistForceUpload"),
+              localize("common.button.yes"),
+              localize("common.button.no")
+            );
+            if (message !== localize("common.button.yes")) {
+              vscode.window.setStatusBarMessage(
+                localize("cmd.updateSettings.info.uploadCanceled"),
+                3000
+              );
+              return;
+            }
+            // Fall through to upload code for one-time forced upload.
+          } else if (gistNewer && !localConfig.extConfig.forceUpload) {
             // Last local download is prior to the last gist upload, so
             // the local settings may be out of date.
             const message = await vscode.window.showInformationMessage(
@@ -334,10 +350,10 @@ export class Sync {
               );
               return;
             }
-            // Fall through to upload code for one-time forced update.
+            // Fall through to upload code for one-time forced upload.
           }
           // !gistNewer: Last local download is later or the same as last Gist upload,
-          // so OK to update - fall through to upload code below.
+          // so OK to upload - fall through to upload code below.
         }
 
         vscode.window.setStatusBarMessage(

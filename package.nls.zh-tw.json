@@ -94,6 +94,7 @@
   "common.placeholder.multipleGist": "Gist 名 [ 例如 : Personal Settings ]",
   "common.prompt.enterGistId": "請輸入上一次上傳設定的 Gist Id 。你也可以手動增加到 VSCode 的設定檔案 (sync.gist 欄位) 。按下 [Enter] 確認或者 輸入 'esc' 取消",
   "common.prompt.enterGithubAccessToken": "連結打開了！你可以手動增加到用戶目錄/syncLocalSettings.json 。按下 [Enter] 確認或者 輸入 'esc' 取消",
+  "common.prompt.gistForceUpload": "Sync: 上傳將替換GitHub Gist中的設置。 考慮下載設置或強制上傳。 你還想強力上傳嗎？",
   "common.prompt.gistNewer": "Sync: 自上次下載以來，Gist中的設置已更改。 您是否要將當前的本地設置上傳到Gist？",
   "common.prompt.multipleGist": "如果你有多個 Gist 設定，使你可以識別設定",
   "common.prompt.restartCode": "你是否要重新啟動 VSCode 以應用延伸模組和設定？",

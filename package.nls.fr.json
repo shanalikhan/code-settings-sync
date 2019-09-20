@@ -94,6 +94,7 @@
   "common.placeholder.multipleGist": "Gist Name (par exemple: Paramètres Personnels)",
   "common.prompt.enterGistId": "Entrez le Gist Id de vos paramètres précédemment uploadé. Vous pouvez également définir le manuellement dans les paramètres de VSCode (sync.gist). Appuyez sur la touche [Enter] ou [Esc] pour annuler.",
   "common.prompt.enterGithubAccessToken": "Vous aussi ajouter manuellement un token (Dossier Utilisateur/syncLocalSettings.json). Appuyez sur la touche [Enter] ou [Esc] pour annuler.",
+  "common.prompt.gistForceUpload": "Sync: Le téléchargement remplacera les paramètres dans GitHub Gist. Pensez à télécharger les paramètres ou à effectuer un téléchargement forcé. Voulez-vous toujours télécharger avec force?",
   "common.prompt.gistNewer": "Sync: Les paramètres dans Gist ont changé depuis votre dernier téléchargement. Voulez-vous quand même télécharger vos paramètres locaux actuels dans Gist?",
   "common.prompt.multipleGist": "Vous permet d'identifier les paramètres si vous avez plusieurs de gist.",
   "common.prompt.restartCode": "Voulez-vous recharger afin d'appliquer les extensions et les configurations?",

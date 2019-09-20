@@ -94,6 +94,7 @@
   "common.placeholder.multipleGist": "Gist Nome (por exemplo: Definições Pessoais)",
   "common.prompt.enterGistId": "Digite Essência Identificação de carregado anteriormente configurações. Você também pode definir manualmente no código (configurações de sincronização.gist). Pressione [Enter] ou a tecla [Esc] para cancelar.",
   "common.prompt.enterGithubAccessToken": "Você também adicionar manualmente um token (Pasta de Usuário/syncLocalSettings.json). Pressione [Enter] ou a tecla [Esc] para cancelar.",
+  "common.prompt.gistForceUpload": "Sincronização: O upload substituirá as configurações no GitHub Gist. Considere baixar as configurações ou fazer um upload forçado. Você ainda deseja fazer o upload com força?",
   "common.prompt.gistNewer": "Sincronização: As configurações no Gist foram alteradas desde o último download. Deseja fazer o upload de suas configurações locais atuais para o Gist?",
   "common.prompt.multipleGist": "Permite identificar as configurações se você tiver vários essência.",
   "common.prompt.restartCode": "Você deseja recarregar para aplicar extensões e configurações?",
