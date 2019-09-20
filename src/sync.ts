@@ -84,10 +84,8 @@ export class Sync {
 
     try {
       localConfig.publicGist = false;
-      if (optArgument) {
-        if (optArgument === "publicGIST") {
-          localConfig.publicGist = true;
-        }
+      if (optArgument && optArgument === "publicGIST") {
+        localConfig.publicGist = true;
       }
 
       github = new GitHubService(
@@ -405,7 +403,7 @@ export class Sync {
             );
           }
 
-          if (optArgument) {
+          if (optArgument && optArgument === "publicGIST") {
             vscode.window.showInformationMessage(
               localize("cmd.updateSettings.info.shareGist")
             );
