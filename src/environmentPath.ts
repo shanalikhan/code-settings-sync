@@ -16,7 +16,7 @@ export function osTypeFromString(osName: string): OsType {
 }
 
 export class Environment {
-  public static CURRENT_VERSION: number = 342;
+  public static CURRENT_VERSION: number = 343;
   public static getVersion(): string {
     return (
       Environment.CURRENT_VERSION.toString().slice(0, 1) +
