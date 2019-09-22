@@ -158,7 +158,7 @@ export class GitHubService {
       if (!localLastDownload) {
         return false;
       }
-      return gistLastUpload > localLastDownload;
+      return gistLastUpload > new Date(localLastDownload);
     } catch (err) {
       return false;
     }

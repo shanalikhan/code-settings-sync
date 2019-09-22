@@ -64,7 +64,7 @@ export class FileService {
 
     arr.forEach((element, index) => {
       if (index < arr.length - 1) {
-        gistName += element + path.sep;
+        gistName += element + "|";
       } else {
         gistName += element;
       }
