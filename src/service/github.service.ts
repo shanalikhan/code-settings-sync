@@ -145,7 +145,7 @@ export class GitHubService {
 
   public async IsGistNewer(
     GIST: string,
-    localLastUpload: Date
+    localLastDownload: Date
   ): Promise<boolean> {
     const gist = await this.ReadGist(GIST);
     if (!gist) {
@@ -155,10 +155,10 @@ export class GitHubService {
     try {
       gistCloudSetting = JSON.parse(gist.data.files.cloudSettings.content);
       const gistLastUpload = new Date(gistCloudSetting.lastUpload);
-      if (!localLastUpload) {
+      if (!localLastDownload) {
         return false;
       }
-      return gistLastUpload >= localLastUpload;
+      return gistLastUpload > new Date(localLastDownload);
     } catch (err) {
       return false;
     }
@@ -186,8 +186,9 @@ export class GitHubService {
 
   public async SaveGIST(gistObject: any): Promise<boolean> {
     gistObject.gist_id = gistObject.id;
-    const promise = this.github.gists.update(gistObject);
-
+    // tslint:disable-next-line:comment-format
+    //TODO : use github.gists.update when issue is fixed.
+    const promise = this.github.request("PATCH /gists/:gist_id", gistObject);
     const res = await promise.catch(err => {
       if (String(err).includes("HttpError: Not Found")) {
         return Commons.LogException(err, "Sync: Invalid Gist ID", true);

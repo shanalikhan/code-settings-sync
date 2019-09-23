@@ -25,7 +25,7 @@ export class CustomConfig {
   public lastUpload: Date = null;
   public lastDownload: Date = null;
   public githubEnterpriseUrl: string = null;
-  public askGistName: boolean = false;
+  public askGistDescription: boolean = false;
   public customFiles: { [key: string]: string } = {};
   public hostName: string = null;
   public universalKeybindings: boolean = false;

@@ -28,7 +28,7 @@ While being free and open source, if you find it useful, please consider support
   </tr>
 </table>
 <br>
- <a href="https://join.slack.com/t/codesettingssync/shared_invite/enQtMzE3MjY5NTczNDMwLTYwMTIwNGExOGE2MTJkZWU0OTU5MmI3ZTc4N2JkZjhjMzY1OTk5OGExZjkwMDMzMDU4ZTBlYjk5MGQwZmMyNzk">
+ <a href="https://join.slack.com/t/codesettingssync/shared_invite/enQtNzQyODMzMzI5MDQ3LWNmZjVkZjE2YTg0MzY1Y2EyYzVmYThmNzg2YjZkNjhhZWY3ZTEzN2I3ZTAxMjkwNWU0ZjMyZGFhMjdiZDI3ODU">
 <img src="https://i.imgur.com/1QWdtcX.png" alt="Drawing" style="width: 150px;"/>
 </a>
 <br>
@@ -48,6 +48,7 @@ While being free and open source, if you find it useful, please consider support
 7. Supports GitHub Enterprise
 8. Support pragmas with @sync keywords: host, os and env are supported.
 9. GUI for changing settings / logging in
+10. Allows you to Sync any file across your machines.
 ```
 
 ## It Syncs
@@ -67,6 +68,8 @@ All extensions and complete User Folder that Contains
 ```
 1. Upload Key : Shift + Alt + U
 2. Download Key : Shift + Alt + D
+
+(on macOS: Shift + Option + U / Shift + Option + D)
 ```
 
 ## Configure Settings Sync
@@ -99,7 +102,7 @@ You can always **verify created gist** by going to `https://gist.github.com` and
 
 ## Upload Your Settings
 
-**Press Shift + Alt + U**
+**Press Shift + Alt + U** (macOS: Shift + Option + U)
 
 > Type ">Sync" In Command Palette into order download / upload
 
@@ -109,7 +112,7 @@ Once you select upload, after uploading the settings. You will see the Summary d
 
 ## Download your Settings
 
-**Press Shift + Alt + D**
+**Press Shift + Alt + D** (macOS: Shift + Option + D)
 
 > Type ">Sync" In Command Palette into order download / upload
 
@@ -123,52 +126,6 @@ New popup will be opened to allow you to restart the code to apply the settings.
 
 > Select **"> Sync : Reset Extension Settings"** in the Command Palette to reset your settings
 
-## Toggle Auto Download
-
-Auto Download is **disabled by default**. It will sync all the setting by default when the editor starts.
-Please make sure you have valid github Token and Gist available to make it work properly.
-
-Select Command **"Sync : Advanced Options > Toggle Auto-Download On Startup"** command to Turn ON / OFF the auto download.
-
-## Toggle Force Download
-
-Force Download is **disabled by default**. By default, extension won't download the latest settings if you already have the latest downloaded version, but sometimes when you delete some extension locally and don't upload the settings it will still show that you have latest versions by date or time checks, by turning this ON it will always download the cloud settings on startup.
-
-Please make sure you have valid github Token and Gist available to make it work properly.
-
-Select Command **"Sync : Advanced Options > Toggle Force Download"** command to Turn ON / OFF the force download.
-
-## Toggle Force Upload
-
-Force Upload is **disabled by default**. By default, extension won't upload the settings if the gist has newer or identical content. By turning this ON it will always upload without checking for newer settings in the gist.
-
-Please make sure you have valid github Token and Gist available to make it work properly.
-
-Select Command **"Sync : Advanced Options > Toggle Force Upload"** command to Turn ON / OFF the force upload.
-
-## Toggle Auto-Upload on change
-
-Auto-upload is **disabled by default**. When the settings are changed and saved this feature will automatically start the upload process and save the settings online.
-
-Please make sure you have valid github Token and Gist available to make it work properly.
-
-Select Command **"Sync : Advanced Options > Toggle Auto-Upload on Settings Change"** command to Turn ON / OFF the auto-upload.
-
-## Toggle Summary
-
-Summary is **enabled by default** which shows all files and extensions that are added or deleted on a single page.
-You may turn it off in order to make a upload and download process clean and quiet.
-
-Select Command **"Sync : Advanced Options > Show Summary Page On Upload / Download"** command to Turn ON / OFF the auto download.
-
-## Create Public Gist To Share Settings
-
-By default, it creates secret Gist so only you can see it but if you want to share your Gist with other users, you can set it to public.
-You can't change the exiting Gist type from secret to public so it will reset the Gist ID so you can create new Gist with all existing editor settings.
-
-Select Command **"Sync : Advanced Options > Share Settings with Public GIST"**
-
-Other users can give your Gist Id to download the Gist, but they can't upload their settings on your Gist.
 
 ## Settings
 
@@ -176,6 +133,7 @@ Settings can be changed through the settings page, which can be accessed through
 
 There are two types of settings in Settings Sync.
 I will recommend you to read the configurations details [here](https://dev.to/shanalikhan/visual-studio-code-settings-sync-configurations-mn0).
+
 
 ### Gist Settings
 
@@ -245,7 +203,7 @@ You can customize the sync:
     "lastUpload": null,
     "lastDownload": null,
     "githubEnterpriseUrl": null,
-    "askGistName": false,
+    "askGistDescription": false,
     "customFiles": {},
     "hostName": null,
     "universalKeybindings": false,
@@ -254,6 +212,60 @@ You can customize the sync:
 ```
 
 I will recommend you to read the configurations details [here](https://dev.to/shanalikhan/visual-studio-code-settings-sync-configurations-mn0).
+
+
+## Features
+
+### Toggle Auto-Upload on change
+
+Auto-upload is **disabled by default**. When the settings are changed and saved this feature will automatically start the upload process and save the settings online.
+
+Please make sure you have valid github Token and Gist available to make it work properly.
+
+Select Command **"Sync : Advanced Options > Toggle Auto-Upload on Settings Change"** command to Turn ON / OFF the auto-upload.
+
+### Toggle Auto Download
+
+Auto Download is **disabled by default**. It will sync all the setting by default when the editor starts.
+Please make sure you have valid github Token and Gist available to make it work properly.
+
+Select Command **"Sync : Advanced Options > Toggle Auto-Download On Startup"** command to Turn ON / OFF the auto download.
+
+### Toggle Force Download
+
+Force Download is **disabled by default**. By default, extension won't download the latest settings if you already have the latest downloaded version, but sometimes when you delete some extension locally and don't upload the settings it will still show that you have latest versions by date or time checks, by turning this ON it will always download the cloud settings on startup.
+
+Please make sure you have valid github Token and Gist available to make it work properly.
+
+Select Command **"Sync : Advanced Options > Toggle Force Download"** command to Turn ON / OFF the force download.
+
+### Toggle Force Upload
+
+Force Upload is **disabled by default**. By default, extension won't upload the settings if the gist has newer or identical content. By turning this ON it will always upload without checking for newer settings in the gist.
+
+Please make sure you have valid github Token and Gist available to make it work properly.
+
+Select Command **"Sync : Advanced Options > Toggle Force Upload"** command to Turn ON / OFF the force upload.
+
+### Toggle Summary
+
+Summary is **enabled by default** which shows all files and extensions that are added or deleted on a single page.
+You may turn it off in order to make a upload and download process clean and quiet.
+
+Select Command **"Sync : Advanced Options > Show Summary Page On Upload / Download"** command to Turn ON / OFF the auto download.
+
+
+### Custom Sync
+
+Settings Sync allows you to sync the files other from `User` folder. For example, your workspace settings and much more. Its upon you to utilize the full potential of Settings Sync across your machines or your teams machines. Read about custom sync [here](https://github.com/shanalikhan/code-settings-sync/wiki/Custom-Sync).
+
+### Sync Pragmas
+
+You can even manage which settings you want to ignore from being upload or download. Settings Sync even allows you to manage your `home` and `office` computer specific settings even OS related settings in single GitHub Gist. Read details about [Sync Pragmas here](https://github.com/shanalikhan/code-settings-sync/wiki/Sync-Pragmas).
+
+### Share Settings Across Teams & Users
+
+If you are looking to share your settings. Read the details [here](https://dev.to/shanalikhan/how-to-share-your-visual-studio-code-settings-and-extensions-39k). Settings Sync needs to create new Public GitHub Gist to share your settings with other users.
 
 ### Troubleshooting
 
@@ -299,6 +311,6 @@ Thank you to all our sponsors! (please ask your company to also support this ope
 
 [![Master course](https://img.shields.io/badge/Supported%20by-VSCode%20Power%20User%20Course%20%E2%86%92-gray.svg?colorA=444444&colorB=4F44D6)](https://t.co/8BEMyhpKU5?amp=1)
 
-<a href="https://join.slack.com/t/codesettingssync/shared_invite/enQtMzE3MjY5NTczNDMwLTYwMTIwNGExOGE2MTJkZWU0OTU5MmI3ZTc4N2JkZjhjMzY1OTk5OGExZjkwMDMzMDU4ZTBlYjk5MGQwZmMyNzk">
+<a href="https://join.slack.com/t/codesettingssync/shared_invite/enQtNzQyODMzMzI5MDQ3LWNmZjVkZjE2YTg0MzY1Y2EyYzVmYThmNzg2YjZkNjhhZWY3ZTEzN2I3ZTAxMjkwNWU0ZjMyZGFhMjdiZDI3ODU">
 <img src="https://shanalikhan.github.io/img/slack.PNG" alt="Drawing" style="width: 150px;"/>
 </a>

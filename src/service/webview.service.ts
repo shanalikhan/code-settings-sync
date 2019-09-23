@@ -71,10 +71,10 @@ export class WebviewService {
       correspondingSetting: "autoUploadDelay"
     },
     {
-      name: localize("ext.globalConfig.askGistName.name"),
+      name: localize("ext.globalConfig.askGistDescription.name"),
       placeholder: "",
       type: UISettingType.Checkbox,
-      correspondingSetting: "askGistName"
+      correspondingSetting: "askGistDescription"
     },
     {
       name: localize("ext.globalConfig.downloadPublicGist.name"),

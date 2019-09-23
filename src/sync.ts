@@ -84,10 +84,8 @@ export class Sync {
 
     try {
       localConfig.publicGist = false;
-      if (optArgument) {
-        if (optArgument === "publicGIST") {
-          localConfig.publicGist = true;
-        }
+      if (optArgument && optArgument === "publicGIST") {
+        localConfig.publicGist = true;
       }
 
       github = new GitHubService(
@@ -232,8 +230,8 @@ export class Sync {
       let newGIST: boolean = false;
       try {
         if (syncSetting.gist == null || syncSetting.gist === "") {
-          if (customSettings.askGistName) {
-            customSettings.gistDescription = await state.commons.AskGistName();
+          if (customSettings.askGistDescription) {
+            customSettings.gistDescription = await state.commons.AskGistDescription();
           }
           newGIST = true;
           const gistID = await github.CreateEmptyGIST(
@@ -254,45 +252,6 @@ export class Sync {
           }
         }
 
-        if (customSettings.lastUpload && !syncSetting.forceUpload) {
-          if (syncSetting.gist != null && syncSetting.gist !== "") {
-            const gistNewer = await github.IsGistNewer(
-              syncSetting.gist,
-              new Date(customSettings.lastUpload)
-            );
-            if (gistNewer) {
-              if (
-                state.context.globalState.get<boolean>(
-                  "gistNewer.dontShowThisAgain"
-                )
-              ) {
-                return;
-              }
-              const message = await vscode.window.showInformationMessage(
-                localize("common.prompt.gistNewer"),
-                "Yes",
-                "Don't Show This Again"
-              );
-              if (message === "Yes") {
-                syncSetting.forceUpload = true;
-              } else if (message === "Don't Show This Again") {
-                await state.context.globalState.update(
-                  "gistNewer.dontShowThisAgain",
-                  true
-                );
-                return;
-              } else {
-                vscode.window.setStatusBarMessage(
-                  localize("cmd.updateSettings.info.uploadCanceled"),
-                  3
-                );
-                return;
-              }
-            }
-          }
-        }
-
-        customSettings.lastUpload = dateNow;
         let gistObj = await github.ReadGist(syncSetting.gist);
 
         if (!gistObj) {
@@ -327,50 +286,72 @@ export class Sync {
 
         if (
           !allSettingFiles.some(fileToUpload => {
-            if (fileToUpload.fileName === "cloudSettings") {
+            if (fileToUpload.gistName === "cloudSettings") {
               return false;
             }
-            if (!gistObj.data.files[fileToUpload.fileName]) {
+            if (!gistObj.data.files[fileToUpload.gistName]) {
               return true;
             }
             if (
-              gistObj.data.files[fileToUpload.fileName].content !==
+              gistObj.data.files[fileToUpload.gistName].content !==
               fileToUpload.content
             ) {
-              console.info(`Sync: file ${fileToUpload.fileName} has changed`);
+              console.info(`Sync: file ${fileToUpload.gistName} has changed`);
               return true;
             }
           })
         ) {
+          // Gist files are the same as the local files.
           if (!localConfig.extConfig.forceUpload) {
-            if (
-              state.context.globalState.get<boolean>(
-                "gistNewer.dontShowThisAgain"
-              )
-            ) {
-              return;
-            }
-            const message = await vscode.window.showInformationMessage(
-              localize("common.prompt.gistNewer"),
-              "Yes",
-              "Don't Show This Again"
+            vscode.window.setStatusBarMessage(
+              localize("cmd.updateSettings.info.gotLatestVersion"),
+              5000
             );
-            if (message === "Yes") {
-              syncSetting.forceUpload = true;
-            } else if (message === "Don't Show This Again") {
-              await state.context.globalState.update(
-                "gistNewer.dontShowThisAgain",
-                true
-              );
-              return;
-            } else {
+            // Exit early to avoid unneeded upload.
+            return;
+          }
+          // Fall through to upload code for forced upload case.
+        } else {
+          // Gist files are different from the local files.
+          const gistNewer = await github.IsGistNewer(
+            syncSetting.gist,
+            customSettings.lastDownload
+          );
+          if (!customSettings.lastDownload) {
+            // Unable to compare the last gist upload time with the
+            // last download time, so ask user to force upload.
+            const message = await vscode.window.showInformationMessage(
+              localize("common.prompt.gistForceUpload"),
+              localize("common.button.yes"),
+              localize("common.button.no")
+            );
+            if (message !== localize("common.button.yes")) {
               vscode.window.setStatusBarMessage(
                 localize("cmd.updateSettings.info.uploadCanceled"),
-                3
+                3000
               );
               return;
             }
+            // Fall through to upload code for one-time forced upload.
+          } else if (gistNewer && !localConfig.extConfig.forceUpload) {
+            // Last local download is prior to the last gist upload, so
+            // the local settings may be out of date.
+            const message = await vscode.window.showInformationMessage(
+              localize("common.prompt.gistNewer"),
+              localize("common.button.yes"),
+              localize("common.button.no")
+            );
+            if (message !== localize("common.button.yes")) {
+              vscode.window.setStatusBarMessage(
+                localize("cmd.updateSettings.info.uploadCanceled"),
+                3000
+              );
+              return;
+            }
+            // Fall through to upload code for one-time forced upload.
           }
+          // !gistNewer: Last local download is later or the same as last Gist upload,
+          // so OK to upload - fall through to upload code below.
         }
 
         vscode.window.setStatusBarMessage(
@@ -393,6 +374,8 @@ export class Sync {
 
       if (completed) {
         try {
+          customSettings.lastUpload = dateNow;
+          customSettings.lastDownload = dateNow;
           await state.commons.SaveSettings(syncSetting);
           await state.commons.SetCustomSettings(customSettings);
           if (newGIST) {
@@ -404,7 +387,7 @@ export class Sync {
             );
           }
 
-          if (optArgument) {
+          if (optArgument && optArgument === "publicGIST") {
             vscode.window.showInformationMessage(
               localize("cmd.updateSettings.info.shareGist")
             );
@@ -766,7 +749,6 @@ export class Sync {
       localSettings = new CustomConfig();
 
       await Promise.all([
-        state.context.globalState.update("gistNewer.dontShowThisAgain", false),
         state.context.globalState.update("landingPage.dontShowThisAgain", false)
       ]);
 
@@ -1016,7 +998,7 @@ export class Sync {
         vscode.commands.executeCommand(
           "vscode.open",
           vscode.Uri.parse(
-            "https://join.slack.com/t/codesettingssync/shared_invite/enQtMzE3MjY5NTczNDMwLTYwMTIwNGExOGE2MTJkZWU0OTU5MmI3ZTc4N2JkZjhjMzY1OTk5OGExZjkwMDMzMDU4ZTBlYjk5MGQwZmMyNzk"
+            "https://join.slack.com/t/codesettingssync/shared_invite/enQtNzQyODMzMzI5MDQ3LWNmZjVkZjE2YTg0MzY1Y2EyYzVmYThmNzg2YjZkNjhhZWY3ZTEzN2I3ZTAxMjkwNWU0ZjMyZGFhMjdiZDI3ODU"
           )
         );
       },
