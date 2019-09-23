@@ -2,6 +2,22 @@
 
 [![Version](https://vsmarketplacebadge.apphb.com/version/Shan.code-settings-sync.svg)](https://marketplace.visualstudio.com/items?itemName=Shan.code-settings-sync) [![Travis](https://img.shields.io/travis/rust-lang/rust.svg)](https://marketplace.visualstudio.com/items?itemName=Shan.code-settings-sync) [![Master course](https://img.shields.io/badge/Supported%20by-VSCode%20Power%20User%20Course%20%E2%86%92-gray.svg?colorA=444444&colorB=4F44D6)](https://t.co/8BEMyhpKU5?amp=1)
 
+#### v3.4.3 - September 23,2019
+
+* Share GitHub Gist ID message Fixed [#1033](https://github.com/shanalikhan/code-settings-sync/issues/1033) 
+* Consistency between GitHub Gist and Description across extension readme [#1023](https://github.com/shanalikhan/code-settings-sync/issues/1023)
+* Snippets Sync. Fixed [#993](https://github.com/shanalikhan/code-settings-sync/issues/993) 
+* GitHub Api connection improved [#1027](https://github.com/shanalikhan/code-settings-sync/issues/1027) 
+* Extension always asks to enable Force Upload [#1016](https://github.com/shanalikhan/code-settings-sync/issues/1016) - Thanks for PR [#1026](https://github.com/shanalikhan/code-settings-sync/pull/1026) by [@karl-lunarg](https://github.com/karl-lunarg)
+* UX Improved for the Force Upload [#1035](https://github.com/shanalikhan/code-settings-sync/issues/1035) - Thanks for PR [#1042](https://github.com/shanalikhan/code-settings-sync/pull/1042) by [@karl-lunarg](https://github.com/karl-lunarg)
+* Webview does not set a content security policy [#1010](https://github.com/shanalikhan/code-settings-sync/issues/1010) - Thanks for PR [#1020](https://github.com/shanalikhan/code-settings-sync/pull/1020) by [@ParkourKarthik](https://github.com/ParkourKarthik)
+* Icon Improved - Thanks for PR [#1022](https://github.com/shanalikhan/code-settings-sync/pull/1022) by [@Pustur](https://github.com/Pustur)
+* Improved German Languauge Support - Thanks for PR [#1040](https://github.com/shanalikhan/code-settings-sync/pull/1040) by [@Pustjan-diur](https://github.com/jan-di)
+* Improved Chinese Language Support - Thanks for PR [#1028](https://github.com/shanalikhan/code-settings-sync/pull/1028) by [@Pustur](https://github.com/YunChaoTsai)
+* Readme Improved - Thanks for PR [#1031](https://github.com/shanalikhan/code-settings-sync/pull/1031) by [@faliure](https://github.com/faliure)
+* Slack Link Updated
+* Node Modules Updated
+
 #### v3.4.2 - August 21, 2019
 
 * Multiple Lanugages Support Improved [#1009](https://github.com/shanalikhan/code-settings-sync/pull/1009) by [@ XanatosX](https://github.com/XanatosX ) , [#999](https://github.com/shanalikhan/code-settings-sync/pull/999) by [@o3LL](https://github.com/o3LL) , [#994](https://github.com/shanalikhan/code-settings-sync/pull/994) by [@mijien0179](https://github.com/mijien0179) , [#981](https://github.com/shanalikhan/code-settings-sync/pull/981) by [@ryul1206](https://github.com/ryul1206)
