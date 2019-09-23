@@ -12,8 +12,8 @@
 * UX Improved for the Force Upload [#1035](https://github.com/shanalikhan/code-settings-sync/issues/1035) - Thanks for PR [#1042](https://github.com/shanalikhan/code-settings-sync/pull/1042) by [@karl-lunarg](https://github.com/karl-lunarg)
 * Webview does not set a content security policy [#1010](https://github.com/shanalikhan/code-settings-sync/issues/1010) - Thanks for PR [#1020](https://github.com/shanalikhan/code-settings-sync/pull/1020) by [@ParkourKarthik](https://github.com/ParkourKarthik)
 * Icon Improved - Thanks for PR [#1022](https://github.com/shanalikhan/code-settings-sync/pull/1022) by [@Pustur](https://github.com/Pustur)
-* Improved German Languauge Support - Thanks for PR [#1040](https://github.com/shanalikhan/code-settings-sync/pull/1040) by [@Pustjan-diur](https://github.com/jan-di)
-* Improved Chinese Language Support - Thanks for PR [#1028](https://github.com/shanalikhan/code-settings-sync/pull/1028) by [@Pustur](https://github.com/YunChaoTsai)
+* Improved German Languauge Support - Thanks for PR [#1040](https://github.com/shanalikhan/code-settings-sync/pull/1040) by [@jan-di](https://github.com/jan-di)
+* Improved Chinese Language Support - Thanks for PR [#1028](https://github.com/shanalikhan/code-settings-sync/pull/1028) by [@YunChaoTsai](https://github.com/YunChaoTsai)
 * Readme Improved - Thanks for PR [#1031](https://github.com/shanalikhan/code-settings-sync/pull/1031) by [@faliure](https://github.com/faliure)
 * Slack Link Updated
 * Node Modules Updated
