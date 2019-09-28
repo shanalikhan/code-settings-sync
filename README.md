@@ -89,13 +89,7 @@ Following are the steps you need to perform to configure.
 - If you are using Settings Sync first time GIST will be created automatically when you upload your settings.
 - If you already have GitHub Gist, new window will be opened to allow you to select the GitHub Gist or `Skip` to create new Gist.
 
-
-
-![Login with GitHub](https://shanalikhan.github.io/img/login-with-github.png)
-
-
-![Existing Gist](https://shanalikhan.github.io/img/existing-gist.png)
-
+![Setup the extension](images/setup.gif)
 
 You can always **verify created gist** by going to `https://gist.github.com` and checking for a gist named `cloudSettings`
 
@@ -110,6 +104,8 @@ When downloading or uploading for the first time, the welcome page will automati
 
 Once you select upload, after uploading the settings. You will see the Summary details with the list of each files and extensions uploaded.
 
+![Upload your settings](images/upload.gif)
+
 ## Download your Settings
 
 **Press Shift + Alt + D** (macOS: Shift + Option + D)
@@ -121,6 +117,8 @@ When downloading or uploading for the first time, the welcome page will automati
 Once you select download, after downloading. Settings Sync will display you Summary containing the list of each files and extension being downloaded.
 
 New popup will be opened to allow you to restart the code to apply the settings.
+
+![Download your settings](images/download.gif)
 
 ## Reset Extension Settings
 
