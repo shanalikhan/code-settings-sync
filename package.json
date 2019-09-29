@@ -124,15 +124,20 @@
           "default": false,
           "description": "%ext.config.forceUpload%"
         },
-        "sync.quietSync": {
+        "sync.quietsync": {
           "type": "boolean",
           "default": false,
-          "description": "%ext.config.quietSync%"
+          "description": "%ext.config.quietsync%"
         },
         "sync.removeExtensions": {
           "type": "boolean",
           "default": true,
           "description": "%ext.config.removeExtensions%"
+        },
+        "sync.sortAlphabetically": {
+          "type": "boolean",
+          "default": false,
+          "description": ""
         },
         "sync.syncExtensions": {
           "type": "boolean",

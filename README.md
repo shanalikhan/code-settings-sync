@@ -154,6 +154,7 @@ You can customize the settings in gist settings like:
     "sync.forceDownload": false,
     "sync.forceUpload": false,
     "sync.quietSync": false,
+    "sync.sortAlphabetically", false,
     "sync.removeExtensions": true,
     "sync.syncExtensions": true
 ```
