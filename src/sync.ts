@@ -230,7 +230,18 @@ export class Sync {
       let newGIST: boolean = false;
       try {
         if (syncSetting.sortAlphabetically) {
-          await this.sortFilesAlphabetically(allSettingFiles);
+          for (const file of allSettingFiles) {
+            const content = await FileService.ReadFile(file.fileName);
+            const jsonFile = JSON.parse(content);
+            const sortedJSONFile = {};
+            const sortedData = Object.keys(content).sort();
+
+            sortedData.map(data => (sortedJSONFile[data] = jsonFile[data]));
+            await FileService.WriteFile(
+              file.fileName,
+              JSON.stringify(sortedJSONFile)
+            );
+          }
         }
 
         if (syncSetting.gist == null || syncSetting.gist === "") {
@@ -1145,20 +1156,5 @@ export class Sync {
       }
     });
     return customFiles;
-  }
-
-  private async sortFilesAlphabetically(files: File[]) {
-    for (const file of files) {
-      const content = await FileService.ReadFile(file.fileName);
-      const jsonFile = JSON.parse(content);
-      const sortedJSONFile = {};
-      const sortedData = Object.keys(content).sort();
-
-      sortedData.map(data => (sortedJSONFile[data] = jsonFile[data]));
-      await FileService.WriteFile(
-        file.fileName,
-        JSON.stringify(sortedJSONFile)
-      );
-    }
   }
 }
