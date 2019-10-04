@@ -21,22 +21,14 @@
       <h3>
         Settings with Sync changes.
       </h3>
-      <div class="container p-0 mb-3">
-        <div class="row">
+      <div class="container p-0 mb-3 mt-3">
           <div id="diffFiles"></div>
           <div class="col">
-            <a href="#" onclick="sendCommand('SyncAll')" title="Sync All Settings"
+            <a href="#" onclick="sendCommand('SyncAll')" title="Sync"
               class="btn btn-primary font-weight-bold">
               Sync All
             </a>
           </div>
-          <!--           <div class="col">
-            <a href="#" onclick="sendCommand('editConfiguration')" title="Edit Configuration"
-              class="btn btn-primary font-weight-bold">
-              Edit Configuration
-            </a>
-          </div> -->
-        </div>
       </div>
     </div>
   </div>
@@ -45,7 +37,7 @@
   <script defer>
     const diffGists = JSON.parse(`@DIFFGISTS`);
   </script>
-  <script defer src="@PWD/ui/landing-page/diff-summary.js"></script>
+  <script defer src="@PWD/ui/diff-summary/diff-summary.js"></script>
 </body>
 
 </html>

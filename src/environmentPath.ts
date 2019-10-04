@@ -64,6 +64,7 @@ export class Environment {
   public FILE_CLOUDSETTINGS_NAME: string = "cloudSettings";
 
   public FOLDER_SNIPPETS: string = null;
+  public FOLDER_TEMP_GISTS: string = null;
 
   constructor() {
     state.context.globalState.update("_", undefined); // Make sure the global state folder exists. This is needed for using this.context.globalStoragePath to access user folder
@@ -185,6 +186,7 @@ export class Environment {
     this.FILE_KEYBINDING = this.USER_FOLDER.concat(this.FILE_KEYBINDING_NAME);
     this.FILE_LOCALE = this.USER_FOLDER.concat(this.FILE_LOCALE_NAME);
     this.FOLDER_SNIPPETS = this.USER_FOLDER.concat("/snippets/");
+    this.FOLDER_TEMP_GISTS = this.USER_FOLDER.concat("/gists/");
     this.FILE_CLOUDSETTINGS = this.USER_FOLDER.concat(
       this.FILE_CLOUDSETTINGS_NAME
     );

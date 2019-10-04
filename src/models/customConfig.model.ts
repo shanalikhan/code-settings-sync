@@ -30,4 +30,5 @@ export class CustomConfig {
   public hostName: string = null;
   public universalKeybindings: boolean = false;
   public autoUploadDelay: number = 20;
+  public diffPageOpen: boolean = false;
 }

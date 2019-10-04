@@ -569,9 +569,9 @@ export class Sync {
         }
       });
 
-      if (syncSetting.showDiff) {
+      if (syncSetting.showDiff && !customSettings.diffPageOpen) {
         state.commons.webviewService.OpenDiffSummaryPage(
-          Object.keys(updatedFiles)
+          updatedFiles.map((file) => { return file.fileName; })
         );
         return;
       }
@@ -739,6 +739,38 @@ export class Sync {
       }
     }
   }
+
+  /**
+   * showdiff
+   */
+  public async showdiff() {
+    const localSettings: LocalConfig = await state.commons.InitalizeSettings();
+
+    if (
+      localSettings.customConfig.downloadPublicGist
+        ? !localSettings.extConfig.gist
+        : !localSettings.customConfig.token || !localSettings.extConfig.gist
+    ) {
+      state.commons.webviewService.OpenLandingPage(
+        "extension.downloadSettings"
+      );
+      return;
+    }
+
+    const github = new GitHubService(
+      localSettings.customConfig.token,
+      localSettings.customConfig.githubEnterpriseUrl
+    );
+    vscode.window.setStatusBarMessage("").dispose();
+    vscode.window.setStatusBarMessage(
+      localize("cmd.downloadSettings.info.readdingOnline"),
+      2000
+    );
+
+    const res = await github.ReadGist(localSettings.extConfig.gist);
+      res.data['settings.json'];
+  }
+
   /**
    * Reset the setting to Sync
    */

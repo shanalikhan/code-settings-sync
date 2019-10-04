@@ -443,6 +443,8 @@ export class WebviewService {
     diffSummaryPanel.webview.onDidReceiveMessage(async message => {
       switch (message.command) {
         case "SyncAll":
+          vscode.commands.executeCommand("vscode.diff", vscode.Uri.file(state.environment.FILE_SETTING),
+          vscode.Uri.file(state.environment.FILE_SETTING), 'old -> new')
           break;
       }
     });
