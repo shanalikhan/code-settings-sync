@@ -193,7 +193,7 @@ export class Sync {
             ) {
               snippetFile.gistName =
                 state.environment.OsType === OsType.Mac &&
-                !customSettings.universalKeybindings
+                  !customSettings.universalKeybindings
                   ? state.environment.FILE_KEYBINDING_MAC
                   : state.environment.FILE_KEYBINDING_DEFAULT;
             }
@@ -266,7 +266,7 @@ export class Sync {
               Commons.LogException(
                 null,
                 "Sync : You cant edit GIST for user : " +
-                  gistObj.data.owner.login,
+                gistObj.data.owner.login,
                 true,
                 () => {
                   console.log("Sync : Current User : " + "'" + userName + "'");
@@ -503,7 +503,7 @@ export class Sync {
           upToDate =
             upToDate ||
             new Date(lastUploadStr).getTime() ===
-              new Date(cloudSett.lastUpload).getTime();
+            new Date(cloudSett.lastUpload).getTime();
         }
 
         if (!syncSetting.forceDownload) {
@@ -570,9 +570,31 @@ export class Sync {
       });
 
       if (syncSetting.showDiff && !customSettings.diffPageOpen) {
+        for (const file of updatedFiles) {
+          let filePath: string = state.environment.FOLDER_GISTS_CACHE;
+          if (file.filePath !== null) {
+            filePath = state.environment.FOLDER_GISTS_CACHE.concat(filePath);
+          }
+          await Promise.resolve(FileService.CreateDirectory(filePath));
+
+          actionList.push(
+            FileService.WriteFile(filePath.concat(file.fileName), file.content)
+              .then(() => {
+                // TODO : add Name attribute in File and show information message here with name , when required.
+              })
+              .catch(err => {
+                Commons.LogException(err, state.commons.ERROR_MESSAGE, true);
+                return;
+              })
+          );
+        }
+        customSettings.diffPageOpen = true;
         state.commons.webviewService.OpenDiffSummaryPage(
-          updatedFiles.map((file) => { return file.fileName; })
+          updatedFiles.map(file => {
+            return file.fileName;
+          })
         );
+        await Promise.all(actionList);
         return;
       }
 
@@ -639,7 +661,7 @@ export class Sync {
             ) {
               let test: string = "";
               state.environment.OsType === OsType.Mac &&
-              !customSettings.universalKeybindings
+                !customSettings.universalKeybindings
                 ? (test = state.environment.FILE_KEYBINDING_MAC)
                 : (test = state.environment.FILE_KEYBINDING_DEFAULT);
               if (file.gistName !== test) {
@@ -743,32 +765,26 @@ export class Sync {
   /**
    * showdiff
    */
-  public async showdiff() {
-    const localSettings: LocalConfig = await state.commons.InitalizeSettings();
+  public async showdiff(fileName: string, syncMode: string): Promise<void> {
+    const cacheFilePath = state.environment.FOLDER_GISTS_CACHE.concat(fileName);
+    const localFilePath = state.environment.USER_FOLDER.concat(fileName);
+    if (FileService.FileExists(cacheFilePath)) {
+      if (syncMode) {
+        vscode.commands.executeCommand(
+          "vscode.diff",
+          vscode.Uri.file(localFilePath),
+          vscode.Uri.file(cacheFilePath),
+          `local -> cloud`
+        );
+      }
 
-    if (
-      localSettings.customConfig.downloadPublicGist
-        ? !localSettings.extConfig.gist
-        : !localSettings.customConfig.token || !localSettings.extConfig.gist
-    ) {
+      vscode.Uri.file(cacheFilePath);
+    } else {
       state.commons.webviewService.OpenLandingPage(
         "extension.downloadSettings"
       );
-      return;
     }
-
-    const github = new GitHubService(
-      localSettings.customConfig.token,
-      localSettings.customConfig.githubEnterpriseUrl
-    );
-    vscode.window.setStatusBarMessage("").dispose();
-    vscode.window.setStatusBarMessage(
-      localize("cmd.downloadSettings.info.readdingOnline"),
-      2000
-    );
-
-    const res = await github.ReadGist(localSettings.extConfig.gist);
-      res.data['settings.json'];
+    return;
   }
 
   /**

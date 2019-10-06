@@ -29,6 +29,14 @@ export async function activate(context: vscode.ExtensionContext) {
   );
   context.subscriptions.push(
     vscode.commands.registerCommand(
+      "extension.showDiff",
+      (fileName: string, syncMode: string) => {
+        sync.showdiff.bind(sync, fileName, syncMode)();
+      }
+    )
+  );
+  context.subscriptions.push(
+    vscode.commands.registerCommand(
       "extension.resetSettings",
       sync.reset.bind(sync)
     )

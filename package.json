@@ -75,6 +75,10 @@
         "title": "%cmd.downloadSettings.title%"
       },
       {
+        "command": "extension.showDiff",
+        "title": "%cmd.showDiff.title%"
+      },
+      {
         "command": "extension.updateSettings",
         "title": "%cmd.updateSettings.title%"
       },

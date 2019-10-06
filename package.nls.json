@@ -35,6 +35,7 @@
   "cmd.downloadSettings.info.gotLatestVersion": "Sync: You already have the latest version of saved settings.",
   "cmd.downloadSettings.error.removeExtFail": "Sync: Unable to remove some extensions.",
   "cmd.downloadSettings.error.unableSave": "Sync: Unable to save extension settings file.",
+  "cmd.showDiff.title": "Sync: Show Diff",
   "cmd.resetSettings.title": "Sync: Reset Extension Settings",
   "cmd.resetSettings.info.resetting": "Sync: Resetting Your Settings.",
   "cmd.resetSettings.info.settingClear": "Sync: Settings Cleared.",

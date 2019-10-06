@@ -17,7 +17,7 @@ function appendHTML(parent, html) {
   div.remove();
 }
 
-const diffListTemplate = `<h5 class="text-white-50a mx-auto mt-2 mb-2">@GIST</h5>`;
+const diffListTemplate = `<h5 class="text-white-50a mx-auto mt-2 mb-2"><a href=# onclick="sendCommand('ShowDiff',{ fileName: '@GIST', syncMode: 'download'})">@GIST</a></h5>`;
 
 const diffElement = document.querySelector("#diffFiles");
 if(!diffGists.length) {

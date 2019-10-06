@@ -433,7 +433,7 @@ export class WebviewService {
     }
     const diffSummaryPanel = vscode.window.createWebviewPanel(
       "diffSummaryPage",
-      "Differences summary between local and cloud settings",
+      "Summary of changed files",
       vscode.ViewColumn.One,
       {
         retainContextWhenHidden: true,
@@ -441,10 +441,22 @@ export class WebviewService {
       }
     );
     diffSummaryPanel.webview.onDidReceiveMessage(async message => {
+      const customSettings = await state.commons.GetCustomSettings();
       switch (message.command) {
+        case "ShowDiff":
+          vscode.commands.executeCommand(
+            "extension.showDiff",
+            message.data.fileName,
+            message.data.syncMode
+          );
+          break;
         case "SyncAll":
-          vscode.commands.executeCommand("vscode.diff", vscode.Uri.file(state.environment.FILE_SETTING),
-          vscode.Uri.file(state.environment.FILE_SETTING), 'old -> new')
+          customSettings.diffPageOpen = false;
+          state.commons.webviewService.OpenLandingPage(
+            "extension.downloadSettings"
+          );
+          // vscode.commands.executeCommand("vscode.diff", vscode.Uri.file(state.environment.FILE_SETTING),
+          // vscode.Uri.file(state.environment.FILE_SETTING), 'old -> new')
           break;
       }
     });
