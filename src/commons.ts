@@ -131,7 +131,17 @@ export default class Commons {
         const tempObj = JSON.parse(customSettingStr);
 
         Object.assign(customSettings, tempObj);
-        customSettings.token = customSettings.token.trim();
+        if (customSettings.token) {
+          customSettings.token = customSettings.token.trim();
+        } else {
+          Commons.LogException(
+            null,
+            "Sync : Can not detect token at " +
+              state.environment.FILE_CUSTOMIZEDSETTINGS_NAME +
+              ". Make sure you have a GitHub token.",
+            true
+          )
+        }
       }
     } catch (e) {
       customSettings = null;
@@ -141,12 +151,6 @@ export default class Commons {
           state.environment.FILE_CUSTOMIZEDSETTINGS_NAME +
           ". Make sure its Valid JSON.",
         true
-      );
-      vscode.commands.executeCommand(
-        "vscode.open",
-        vscode.Uri.parse(
-          "http://shanalikhan.github.io/2017/02/19/Option-to-ignore-settings-folders-code-settings-sync.html"
-        )
       );
     }
     return customSettings;
