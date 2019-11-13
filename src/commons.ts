@@ -471,6 +471,8 @@ export default class Commons {
     outputChannel.appendLine(
       `GitHub Gist Type: ${syncSettings.publicGist ? "Public" : "Secret"}`
     );
+    const dateNow = new Date();
+    outputChannel.appendLine("TIMESTAMP : " + dateNow.toLocaleString());
     outputChannel.appendLine(``);
     if (!syncSettings.customConfig.token) {
       outputChannel.appendLine(
