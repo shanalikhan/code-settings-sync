@@ -131,7 +131,9 @@ export default class Commons {
         const tempObj = JSON.parse(customSettingStr);
 
         Object.assign(customSettings, tempObj);
-        customSettings.token = customSettings.token.trim();
+        if (customSettings.token) {
+          customSettings.token = customSettings.token.trim();
+        }
       }
     } catch (e) {
       customSettings = null;
@@ -351,8 +353,10 @@ export default class Commons {
         settings[key] = vscode.workspace.getConfiguration("sync").get(key);
       }
     }
+    if (settings.gist) {
+      settings.gist = settings.gist.trim();
+    }
 
-    settings.gist = settings.gist.trim();
     return settings;
   }
 
