@@ -2,7 +2,7 @@ import * as fs from "fs-extra";
 import * as vscode from "vscode";
 
 import Commons from "./commons";
-import { OsType } from "./enums";
+import { OsType } from "./enums/osType.enum";
 import localize from "./localize";
 import * as lockfile from "./lockfile";
 import { CloudSettings } from "./models/cloudSettings.model";

@@ -2,7 +2,7 @@
 
 import { normalize, resolve } from "path";
 import * as vscode from "vscode";
-import { OsType } from "./enums";
+import { OsType } from "./enums/osType.enum";
 import { state } from "./state";
 
 export const SUPPORTED_OS: string[] = Object.keys(OsType)
