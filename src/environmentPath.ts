@@ -16,16 +16,6 @@ export function osTypeFromString(osName: string): OsType {
 }
 
 export class Environment {
-  public static CURRENT_VERSION: number = 343;
-  public static getVersion(): string {
-    return (
-      Environment.CURRENT_VERSION.toString().slice(0, 1) +
-      "." +
-      Environment.CURRENT_VERSION.toString().slice(1, 2) +
-      "." +
-      Environment.CURRENT_VERSION.toString().slice(2, 3)
-    );
-  }
 
   // public isInsiders: boolean = false;
   // public isOss: boolean = false;
@@ -192,5 +182,9 @@ export class Environment {
       this.FILE_CUSTOMIZEDSETTINGS_NAME
     );
     this.FILE_SYNC_LOCK = this.USER_FOLDER.concat(this.FILE_SYNC_LOCK_NAME);
+  }
+  public getVersion(): string {
+    return vscode.extensions.getExtension("Shan.code-settings-sync").packageJSON
+      .version;
   }
 }

@@ -1,15 +1,14 @@
 "use strict";
 import * as vscode from "vscode";
-import { Environment } from "./environmentPath";
 import localize from "./localize";
 import { CustomConfig } from "./models/customConfig.model";
 import { ExtensionConfig } from "./models/extensionConfig.model";
 import { LocalConfig } from "./models/localConfig.model";
+import { IExtensionState } from "./models/state.model";
 import { AutoUploadService } from "./service/autoUpload.service";
 import { File, FileService } from "./service/file.service";
 import { ExtensionInformation } from "./service/plugin.service";
 import { WebviewService } from "./service/webview.service";
-import { state } from "./state";
 
 export default class Commons {
   public static outputChannel: vscode.OutputChannel = null;
@@ -79,7 +78,7 @@ export default class Commons {
 
   public ERROR_MESSAGE: string = localize("common.error.message");
 
-  constructor() {
+  constructor(private state: IExtensionState) {
     this.InitializeAutoUpload();
   }
 
@@ -122,17 +121,17 @@ export default class Commons {
     let customSettings = new CustomConfig();
     try {
       const customExist: boolean = await FileService.FileExists(
-        state.environment.FILE_CUSTOMIZEDSETTINGS
+        this.state.environment.FILE_CUSTOMIZEDSETTINGS
       );
       if (customExist) {
         const customSettingStr: string = await FileService.ReadFile(
-          state.environment.FILE_CUSTOMIZEDSETTINGS
+          this.state.environment.FILE_CUSTOMIZEDSETTINGS
         );
         const tempObj = JSON.parse(customSettingStr);
 
         Object.assign(customSettings, tempObj);
-        if (customSettings.token) {
-          customSettings.token = customSettings.token.trim();
+        if (customSettings.githubSettings.token) {
+          customSettings.githubSettings.token = customSettings.githubSettings.token.trim();
         }
       }
     } catch (e) {
@@ -140,7 +139,7 @@ export default class Commons {
       Commons.LogException(
         e,
         "Sync : Unable to read " +
-          state.environment.FILE_CUSTOMIZEDSETTINGS_NAME +
+          this.state.environment.FILE_CUSTOMIZEDSETTINGS_NAME +
           ". Make sure its Valid JSON.",
         true
       );
@@ -157,7 +156,7 @@ export default class Commons {
   public async SetCustomSettings(setting: CustomConfig): Promise<boolean> {
     try {
       await FileService.WriteFile(
-        state.environment.FILE_CUSTOMIZEDSETTINGS,
+        this.state.environment.FILE_CUSTOMIZEDSETTINGS,
         JSON.stringify(setting, null, 4)
       );
       return true;
@@ -165,7 +164,7 @@ export default class Commons {
       Commons.LogException(
         e,
         "Sync : Unable to write " +
-          state.environment.FILE_CUSTOMIZEDSETTINGS_NAME,
+          this.state.environment.FILE_CUSTOMIZEDSETTINGS_NAME,
         true
       );
       return false;
@@ -174,7 +173,7 @@ export default class Commons {
 
   public async StartMigrationProcess(): Promise<boolean> {
     const fileExist: boolean = await FileService.FileExists(
-      state.environment.FILE_CUSTOMIZEDSETTINGS
+      this.state.environment.FILE_CUSTOMIZEDSETTINGS
     );
     let customSettings: CustomConfig = null;
     const firstTime: boolean = !fileExist;
@@ -185,7 +184,6 @@ export default class Commons {
     } else {
       customSettings = new CustomConfig();
     }
-    // vscode.workspace.getConfiguration().update("sync.version", undefined, true);
 
     if (firstTime) {
       const openExtensionPage = localize("common.action.openExtPage");
@@ -205,26 +203,62 @@ export default class Commons {
             );
           }
         });
-    } else if (customSettings.version < Environment.CURRENT_VERSION) {
+    } else if (
+      customSettings.version <
+      Number(
+        this.state.environment
+          .getVersion()
+          .split(".")
+          .join("")
+      )
+    ) {
       fileChanged = true;
       // #TODO : Remove this in new update
-      const newIgnoredList = new CustomConfig().ignoreUploadFiles;
-      newIgnoredList.forEach(m => {
-        if (customSettings.ignoreUploadFiles.indexOf(m) === -1) {
-          customSettings.ignoreUploadFiles.push(m);
-        }
-      });
-
-      if (state.context.globalState.get("synctoken")) {
-        const token = state.context.globalState.get("synctoken");
-        if (token !== "") {
-          customSettings.token = String(token);
-          state.context.globalState.update("synctoken", "");
-          vscode.window.showInformationMessage(
-            localize("common.info.setToken")
-          );
-        }
+      if (customSettings["token"]) {
+        customSettings.githubSettings.token = customSettings["token"].trim();
       }
+
+      if (customSettings["gistDescription"]) {
+        customSettings.githubSettings.gistSettings.gistDescription =
+          customSettings["gistDescription"];
+      }
+
+      if (customSettings["downloadPublicGist"]) {
+        customSettings.githubSettings.gistSettings.downloadPublicGist =
+          customSettings["downloadPublicGist"];
+      }
+
+      if (customSettings["openTokenLink"]) {
+        customSettings.githubSettings.openTokenLink =
+          customSettings["openTokenLink"];
+      }
+
+      if (customSettings["githubEnterpriseUrl"]) {
+        customSettings.githubSettings.enterpriseUrl =
+          customSettings["githubEnterpriseUrl"];
+      }
+
+      if (customSettings["askGistDescription"]) {
+        customSettings.githubSettings.gistSettings.askGistDescription =
+          customSettings["askGistDescription"];
+      }
+      if (customSettings["lastUpload"]) {
+        customSettings.githubSettings.gistSettings.lastUpload =
+          customSettings["lastUpload"];
+      }
+      if (customSettings["lastDownload"]) {
+        customSettings.githubSettings.gistSettings.askGistDescription =
+          customSettings["lastDownload"];
+      }
+
+      delete customSettings["token"];
+      delete customSettings["gistDescription"];
+      delete customSettings["downloadPublicGist"];
+      delete customSettings["openTokenLink"];
+      delete customSettings["githubEnterpriseUrl"];
+      delete customSettings["askGistDescription"];
+      delete customSettings["lastDownload"];
+      delete customSettings["lastUpload"];
 
       const releaseNotes = localize("common.action.releaseNotes");
       const writeReview = localize("common.action.writeReview");
@@ -233,7 +267,10 @@ export default class Commons {
       if (!customSettings.disableUpdateMessage) {
         vscode.window
           .showInformationMessage(
-            localize("common.info.updateTo", Environment.getVersion()),
+            localize(
+              "common.info.updateTo",
+              this.state.environment.getVersion()
+            ),
             releaseNotes,
             writeReview,
             support,
@@ -277,7 +314,12 @@ export default class Commons {
     }
 
     if (fileChanged) {
-      customSettings.version = Environment.CURRENT_VERSION;
+      customSettings.version = Number(
+        this.state.environment
+          .getVersion()
+          .split(".")
+          .join("")
+      );
       await this.SetCustomSettings(customSettings);
     }
     return true;
@@ -301,16 +343,16 @@ export default class Commons {
 
     try {
       await Promise.all(allKeysUpdated);
-      if (state.context.globalState.get("syncCounter")) {
-        const counter = state.context.globalState.get("syncCounter");
+      if (this.state.context.globalState.get("syncCounter")) {
+        const counter = this.state.context.globalState.get("syncCounter");
         let count: number = parseInt(counter + "", 10);
         if (count % 450 === 0) {
           this.DonateMessage();
         }
         count = count + 1;
-        state.context.globalState.update("syncCounter", count);
+        this.state.context.globalState.update("syncCounter", count);
       } else {
-        state.context.globalState.update("syncCounter", 1);
+        this.state.context.globalState.update("syncCounter", 1);
       }
       return true;
     } catch (err) {
@@ -366,7 +408,7 @@ export default class Commons {
     const token = ((await vscode.window.showInputBox(opt)) || "").trim();
 
     if (token && token !== "esc") {
-      sett.token = token;
+      sett.githubSettings.token = token;
       const saved = await this.SetCustomSettings(sett);
       if (saved) {
         vscode.window.setStatusBarMessage(
@@ -458,12 +500,13 @@ export default class Commons {
     outputChannel.appendLine(
       `CODE SETTINGS SYNC ${upload ? "UPLOAD" : "DOWNLOAD"} SUMMARY`
     );
-    outputChannel.appendLine(`Version: ${Environment.getVersion()}`);
+    outputChannel.appendLine(`Version: ${this.state.environment.getVersion()}`);
     outputChannel.appendLine(`--------------------`);
     outputChannel.appendLine(
       `GitHub Token: ${
-        syncSettings.customConfig.token
-          ? syncSettings.customConfig.token.slice(0, 4) + "**********"
+        syncSettings.customConfig.githubSettings.token
+          ? syncSettings.customConfig.githubSettings.token.slice(0, 4) +
+            "**********"
           : "Anonymous"
       }`
     );
@@ -474,7 +517,7 @@ export default class Commons {
     const dateNow = new Date();
     outputChannel.appendLine("TIMESTAMP : " + dateNow.toLocaleString());
     outputChannel.appendLine(``);
-    if (!syncSettings.customConfig.token) {
+    if (!syncSettings.customConfig.githubSettings.token) {
       outputChannel.appendLine(
         `Anonymous Gist cannot be edited, the extension will always create a new one during upload.`
       );

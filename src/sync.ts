@@ -20,7 +20,7 @@ export class Sync {
    * Run when extension have been activated
    */
   public async bootstrap(): Promise<void> {
-    state.commons = new Commons();
+    state.commons = new Commons(state);
 
     await state.commons.StartMigrationProcess();
     const startUpSetting = await state.commons.GetSettings();
@@ -28,11 +28,15 @@ export class Sync {
 
     if (startUpSetting) {
       const tokenAvailable: boolean =
-        startUpCustomSetting.token != null && startUpCustomSetting.token !== "";
+        startUpCustomSetting.githubSettings.token != null &&
+        startUpCustomSetting.githubSettings.token !== "";
       const gistAvailable: boolean =
         startUpSetting.gist != null && startUpSetting.gist !== "";
 
-      if (!startUpCustomSetting.downloadPublicGist && !tokenAvailable) {
+      if (
+        !startUpCustomSetting.githubSettings.gistSettings.downloadPublicGist &&
+        !tokenAvailable
+      ) {
         if (state.commons.webviewService.IsLandingPageEnabled()) {
           state.commons.webviewService.OpenLandingPage();
           return;
@@ -71,7 +75,7 @@ export class Sync {
     let github: GitHubService = null;
     const localConfig = await state.commons.InitalizeSettings();
 
-    if (!localConfig.customConfig.token) {
+    if (!localConfig.customConfig.githubSettings.token) {
       state.commons.webviewService.OpenLandingPage("extension.updateSettings");
       return;
     }
@@ -89,8 +93,8 @@ export class Sync {
       }
 
       github = new GitHubService(
-        localConfig.customConfig.token,
-        localConfig.customConfig.githubEnterpriseUrl
+        localConfig.customConfig.githubSettings.token,
+        localConfig.customConfig.githubSettings.enterpriseUrl
       );
 
       await startGitProcess.call(
@@ -112,8 +116,11 @@ export class Sync {
         2000
       );
 
-      if (customSettings.downloadPublicGist) {
-        if (customSettings.token == null || customSettings.token === "") {
+      if (customSettings.githubSettings.gistSettings.downloadPublicGist) {
+        if (
+          customSettings.githubSettings.token == null ||
+          customSettings.githubSettings.token === ""
+        ) {
           vscode.window.showInformationMessage(
             localize("cmd.updateSettings.warning.noToken")
           );
@@ -230,13 +237,13 @@ export class Sync {
       let newGIST: boolean = false;
       try {
         if (syncSetting.gist == null || syncSetting.gist === "") {
-          if (customSettings.askGistDescription) {
-            customSettings.gistDescription = await state.commons.AskGistDescription();
+          if (customSettings.githubSettings.gistSettings.askGistDescription) {
+            customSettings.githubSettings.gistSettings.gistDescription = await state.commons.AskGistDescription();
           }
           newGIST = true;
           const gistID = await github.CreateEmptyGIST(
             localConfig.publicGist,
-            customSettings.gistDescription
+            customSettings.githubSettings.gistSettings.gistDescription
           );
           if (gistID) {
             syncSetting.gist = gistID;
@@ -315,9 +322,9 @@ export class Sync {
           // Gist files are different from the local files.
           const gistNewer = await github.IsGistNewer(
             syncSetting.gist,
-            customSettings.lastDownload
+            customSettings.githubSettings.gistSettings.lastDownload
           );
-          if (!customSettings.lastDownload) {
+          if (!customSettings.githubSettings.gistSettings.lastDownload) {
             // Unable to compare the last gist upload time with the
             // last download time, so ask user to force upload.
             const message = await vscode.window.showInformationMessage(
@@ -374,8 +381,8 @@ export class Sync {
 
       if (completed) {
         try {
-          customSettings.lastUpload = dateNow;
-          customSettings.lastDownload = dateNow;
+          customSettings.githubSettings.gistSettings.lastUpload = dateNow;
+          customSettings.githubSettings.gistSettings.lastDownload = dateNow;
           await state.commons.SaveSettings(syncSetting);
           await state.commons.SetCustomSettings(customSettings);
           if (newGIST) {
@@ -426,9 +433,10 @@ export class Sync {
     const localSettings: LocalConfig = await state.commons.InitalizeSettings();
 
     if (
-      localSettings.customConfig.downloadPublicGist
+      localSettings.customConfig.githubSettings.gistSettings.downloadPublicGist
         ? !localSettings.extConfig.gist
-        : !localSettings.customConfig.token || !localSettings.extConfig.gist
+        : !localSettings.customConfig.githubSettings.token ||
+          !localSettings.extConfig.gist
     ) {
       state.commons.webviewService.OpenLandingPage(
         "extension.downloadSettings"
@@ -450,8 +458,8 @@ export class Sync {
       customSettings: CustomConfig
     ) {
       const github = new GitHubService(
-        customSettings.token,
-        customSettings.githubEnterpriseUrl
+        customSettings.githubSettings.token,
+        customSettings.githubSettings.enterpriseUrl
       );
       vscode.window.setStatusBarMessage("").dispose();
       vscode.window.setStatusBarMessage(
@@ -485,11 +493,13 @@ export class Sync {
           cloudSettGist
         );
 
-        const lastUploadStr: string = customSettings.lastUpload
-          ? customSettings.lastUpload.toString()
+        const lastUploadStr: string = customSettings.githubSettings.gistSettings
+          .lastUpload
+          ? customSettings.githubSettings.gistSettings.lastUpload.toString()
           : "";
-        const lastDownloadStr: string = customSettings.lastDownload
-          ? customSettings.lastDownload.toString()
+        const lastDownloadStr: string = customSettings.githubSettings
+          .gistSettings.lastDownload
+          ? customSettings.githubSettings.gistSettings.lastDownload.toString()
           : "";
 
         let upToDate: boolean = false;
@@ -516,7 +526,8 @@ export class Sync {
             return;
           }
         }
-        customSettings.lastDownload = cloudSett.lastUpload;
+        customSettings.githubSettings.gistSettings.lastDownload =
+          cloudSett.lastUpload;
       }
 
       keys.forEach(gistName => {
@@ -810,7 +821,8 @@ export class Sync {
     }
     const localSetting: LocalConfig = new LocalConfig();
     const tokenAvailable: boolean =
-      customSettings.token != null && customSettings.token !== "";
+      customSettings.githubSettings.token != null &&
+      customSettings.githubSettings.token !== "";
     const gistAvailable: boolean = setting.gist != null && setting.gist !== "";
 
     const items: string[] = [
@@ -870,14 +882,14 @@ export class Sync {
           settingChanged = true;
           setting.gist = "";
           selectedItem = 1;
-          customSettings.downloadPublicGist = false;
+          customSettings.githubSettings.gistSettings.downloadPublicGist = false;
           await state.commons.SetCustomSettings(customSettings);
         }
       },
       async () => {
         // Download Settings from Public GIST
         selectedItem = 2;
-        customSettings.downloadPublicGist = true;
+        customSettings.githubSettings.gistSettings.downloadPublicGist = true;
         settingChanged = true;
         await state.commons.SetCustomSettings(customSettings);
       },
@@ -1112,8 +1124,8 @@ export class Sync {
     syncSetting: ExtensionConfig
   ): Promise<File[]> {
     const github = new GitHubService(
-      customSettings.token,
-      customSettings.githubEnterpriseUrl
+      customSettings.githubSettings.token,
+      customSettings.githubSettings.enterpriseUrl
     );
     const res = await github.ReadGist(syncSetting.gist);
     if (!res) {

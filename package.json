@@ -2,7 +2,7 @@
   "name": "code-settings-sync",
   "displayName": "Settings Sync",
   "description": "Synchronize Settings, Snippets, Themes, File Icons, Launch, Keybindings, Workspaces and Extensions Across Multiple Machines Using GitHub Gist.",
-  "version": "3.4.3",
+  "version": "3.4.4",
   "icon": "images/logo-128.png",
   "publisher": "Shan",
   "author": {
@@ -168,7 +168,7 @@
     "ts-loader": "^5.3.3",
     "tslint": "^5.15.0",
     "tslint-plugin-prettier": "^2.0.1",
-    "typescript": "^3.4.1",
+    "typescript": "^3.7.2",
     "vscode": "^1.1.33",
     "webpack": "^4.29.6",
     "webpack-cli": "^3.3.0",
