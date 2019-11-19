@@ -14,10 +14,6 @@ interface IEnv {
   HTTP_PROXY: string;
 }
 
-interface IFixGistResponse extends Omit<GitHubApi.GistsGetResponse, "files"> {
-  files: any | GitHubApi.GistsGetResponseFiles;
-}
-
 export class GitHubService {
   public userName: string = null;
   public name: string = null;
@@ -130,7 +126,7 @@ export class GitHubService {
   // This should return GitHubApi.Response<GitHubApi.GistsGetResponse> but Types are wrong
   public async ReadGist(
     GIST: string
-  ): Promise<GitHubApi.Response<IFixGistResponse>> {
+  ): Promise<GitHubApi.Response<GitHubApi.GistsGetResponse>> {
     const promise = this.github.gists.get({ gist_id: GIST });
     const res = await promise.catch(err => {
       if (String(err).includes("HttpError: Not Found")) {
@@ -153,7 +149,7 @@ export class GitHubService {
     }
     let gistCloudSetting: CloudSettings = null;
     try {
-      gistCloudSetting = JSON.parse(gist.data.files.cloudSettings.content);
+      gistCloudSetting = JSON.parse(gist.data.files["cloudSettings"].content);
       const gistLastUpload = new Date(gistCloudSetting.lastUpload);
       if (!localLastDownload) {
         return false;

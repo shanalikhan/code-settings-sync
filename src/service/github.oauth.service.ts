@@ -16,8 +16,8 @@ export class GitHubOAuthService {
 
   public async StartProcess(cmd?: string) {
     const customSettings = await state.commons.GetCustomSettings();
-    const host = customSettings.githubEnterpriseUrl
-      ? new URL(customSettings.githubEnterpriseUrl)
+    const host = customSettings.githubSettings.enterpriseUrl
+      ? new URL(customSettings.githubSettings.enterpriseUrl)
       : new URL("https://github.com");
 
     this.server = this.app.listen(this.port);
@@ -115,7 +115,7 @@ export class GitHubOAuthService {
 
   public async saveToken(token: string) {
     const currentSettings = await state.commons.GetCustomSettings();
-    currentSettings.token = token;
+    currentSettings.githubSettings.token = token;
     state.commons.SetCustomSettings(currentSettings);
   }
 

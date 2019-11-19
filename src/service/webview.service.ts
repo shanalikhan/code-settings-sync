@@ -17,13 +17,13 @@ export class WebviewService {
       name: localize("ext.globalConfig.token.name"),
       placeholder: localize("ext.globalConfig.token.placeholder"),
       type: UISettingType.TextInput,
-      correspondingSetting: "token"
+      correspondingSetting: "githubSettings.token"
     },
     {
       name: localize("ext.globalConfig.githubEnterpriseUrl.name"),
       placeholder: localize("ext.globalConfig.githubEnterpriseUrl.placeholder"),
       type: UISettingType.TextInput,
-      correspondingSetting: "githubEnterpriseUrl"
+      correspondingSetting: "githubSettings.enterpriseUrl"
     },
 
     {
@@ -62,7 +62,7 @@ export class WebviewService {
       name: localize("ext.globalConfig.gistDescription.name"),
       placeholder: localize("ext.globalConfig.gistDescription.placeholder"),
       type: UISettingType.TextInput,
-      correspondingSetting: "gistDescription"
+      correspondingSetting: "githubSettings.gistSettings.gistDescription"
     },
     {
       name: localize("ext.globalConfig.autoUploadDelay.name"),
@@ -74,19 +74,19 @@ export class WebviewService {
       name: localize("ext.globalConfig.askGistDescription.name"),
       placeholder: "",
       type: UISettingType.Checkbox,
-      correspondingSetting: "askGistDescription"
+      correspondingSetting: "githubSettings.gistSettings.askGistDescription"
     },
     {
       name: localize("ext.globalConfig.downloadPublicGist.name"),
       placeholder: "",
       type: UISettingType.Checkbox,
-      correspondingSetting: "downloadPublicGist"
+      correspondingSetting: "githubSettings.gistSettings.downloadPublicGist"
     },
     {
       name: localize("ext.globalConfig.openTokenLink.name"),
       placeholder: "",
       type: UISettingType.Checkbox,
-      correspondingSetting: "openTokenLink"
+      correspondingSetting: "githubSettings.openTokenLink"
     }
   ];
 
@@ -246,11 +246,11 @@ export class WebviewService {
           state.commons.GetCustomSettings(),
           state.commons.GetSettings()
         ]);
-        const host = customConfig.githubEnterpriseUrl
-          ? new URL(customConfig.githubEnterpriseUrl)
+        const host = customConfig.githubSettings.enterpriseUrl
+          ? new URL(customConfig.githubSettings.enterpriseUrl)
           : new URL("https://github.com");
         const username = await new GitHubOAuthService(0).getUser(
-          customConfig.token,
+          customConfig.githubSettings.token,
           host
         );
         if (!username) {
@@ -347,13 +347,15 @@ export class WebviewService {
         case "loginWithGitHub":
           new GitHubOAuthService(54321).StartProcess(cmd);
           const customSettings = await state.commons.GetCustomSettings();
-          const host = customSettings.githubEnterpriseUrl
-            ? new URL(customSettings.githubEnterpriseUrl)
+          const host = customSettings.githubSettings.enterpriseUrl
+            ? new URL(customSettings.githubSettings.enterpriseUrl)
             : new URL("https://github.com");
           vscode.commands.executeCommand(
             "vscode.open",
             vscode.Uri.parse(
-              `https://${host.hostname}/login/oauth/authorize?scope=gist%20read:user&client_id=cfd96460d8b110e2351b&redirect_uri=http://localhost:54321/callback`
+              `https://${
+                host.hostname
+              }/login/oauth/authorize?scope=gist%20read:user&client_id=cfd96460d8b110e2351b&redirect_uri=http://localhost:54321/callback`
             )
           );
           break;
@@ -375,10 +377,8 @@ export class WebviewService {
           if (!publicGist) {
             break;
           }
-          await state.commons.SetCustomSettings({
-            ...customConfig,
-            downloadPublicGist: true
-          });
+          customConfig.githubSettings.gistSettings.downloadPublicGist = true;
+          await state.commons.SetCustomSettings(customConfig);
           await state.commons.SaveSettings({
             ...extConfig,
             gist: publicGist

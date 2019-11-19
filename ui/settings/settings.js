@@ -141,7 +141,7 @@ envMap.forEach(envMap => {
   let disabledStatus = "";
   if (isInputGroup) {
     template = textInputGroupTemplate;
-    if (!_.get(envData, "gist") || !_.get(globalData, "token")) {
+    if (!_.get(envData, "gist") || !_.get(globalData, "githubSettings.token")) {
       disabledStatus = "disabled";
     }
   }

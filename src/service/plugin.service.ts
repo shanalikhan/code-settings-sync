@@ -179,7 +179,9 @@ export class PluginService {
           return selectedExtension;
         } catch (err) {
           throw new Error(
-            `Sync : Unable to delete extension ${selectedExtension.name} ${selectedExtension.version}: ${err}`
+            `Sync : Unable to delete extension ${selectedExtension.name} ${
+              selectedExtension.version
+            }: ${err}`
           );
         }
       })

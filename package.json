@@ -2,7 +2,7 @@
   "name": "code-settings-sync",
   "displayName": "Settings Sync",
   "description": "Synchronize Settings, Snippets, Themes, File Icons, Launch, Keybindings, Workspaces and Extensions Across Multiple Machines Using GitHub Gist.",
-  "version": "3.4.3",
+  "version": "3.4.4",
   "icon": "images/logo-128.png",
   "publisher": "Shan",
   "author": {
@@ -16,7 +16,7 @@
     "theme": "dark"
   },
   "engines": {
-    "vscode": "^1.35.1"
+    "vscode": "^1.40.1"
   },
   "badges": [
     {
@@ -154,38 +154,38 @@
   },
   "devDependencies": {
     "@types/chai": "4.2.5",
-    "@types/express": "^4.16.1",
-    "@types/lodash": "^4.14.123",
-    "@types/node-fetch": "^2.3.3",
-    "@types/fs-extra": "^8.0.0",
-    "@types/mocha": "^5.2.6",
-    "@types/node": "^12.0.9",
+    "@types/express": "^4.17.2",
+    "@types/lodash": "^4.14.147",
+    "@types/node-fetch": "^2.5.3",
+    "@types/fs-extra": "^8.0.1",
+    "@types/mocha": "^5.2.7",
+    "@types/node": "^12.12.7",
     "@types/recursive-readdir": "^2.2.0",
     "chai": "^4.2.0",
     "clean-webpack-plugin": "^3.0.0",
-    "mocha": "^6.0.2",
-    "prettier": "^1.16.4",
-    "ts-loader": "^5.3.3",
-    "tslint": "^5.15.0",
+    "mocha": "^6.2.2",
+    "prettier": "^1.19.1",
+    "ts-loader": "^6.2.1",
+    "tslint": "^5.20.1",
     "tslint-plugin-prettier": "^2.0.1",
-    "typescript": "^3.4.1",
-    "vscode": "^1.1.33",
-    "webpack": "^4.29.6",
-    "webpack-cli": "^3.3.0",
-    "webpack-merge": "^4.2.1"
+    "typescript": "^3.7.2",
+    "vscode": "^1.1.36",
+    "webpack": "^4.41.2",
+    "webpack-cli": "^3.3.10",
+    "webpack-merge": "^4.2.2"
   },
   "dependencies": {
-    "@octokit/rest": "^16.23.2",
+    "@octokit/rest": "^16.35.0",
     "adm-zip": "^0.4.13",
     "const": "^1.0.0",
-    "express": "^4.16.4",
-    "fs-extra": "^8.0.1",
-    "https-proxy-agent": "^2.2.1",
+    "express": "^4.17.1",
+    "fs-extra": "^8.1.0",
+    "https-proxy-agent": "^3.0.1",
     "lockfile": "^1.0.4",
     "lodash": "^4.17.15",
-    "node-fetch": "^2.5.0",
+    "node-fetch": "^2.6.0",
     "recursive-readdir": "^2.2.2",
-    "temp": "^0.9.0",
-    "vscode-chokidar": "^2.1.6"
+    "temp": "^0.9.1",
+    "vscode-chokidar": "^2.1.7"
   }
 }
