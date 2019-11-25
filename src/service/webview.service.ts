@@ -9,7 +9,7 @@ import { ExtensionConfig } from "../models/extensionConfig.model";
 import { UISettingType } from "../models/settingType.model";
 import { IWebview } from "../models/webview.model";
 import { state } from "../state";
-import { GitHubOAuthService } from "./github.oauth.service";
+import { GitHubOAuthService } from "./github/github.oauth.service";
 
 export class WebviewService {
   private globalSettings = [

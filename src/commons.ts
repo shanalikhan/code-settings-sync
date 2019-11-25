@@ -5,9 +5,9 @@ import { CustomConfig } from "./models/customConfig.model";
 import { ExtensionConfig } from "./models/extensionConfig.model";
 import { LocalConfig } from "./models/localConfig.model";
 import { IExtensionState } from "./models/state.model";
-import { AutoUploadService } from "./service/autoUpload.service";
 import { File, FileService } from "./service/file.service";
 import { ExtensionInformation } from "./service/plugin.service";
+import { AutoUploadService } from "./service/watcher/autoUpload.service";
 import { WebviewService } from "./service/webview.service";
 
 export default class Commons {
@@ -79,32 +79,7 @@ export default class Commons {
   public ERROR_MESSAGE: string = localize("common.error.message");
 
   constructor(private state: IExtensionState) {
-    this.InitializeAutoUpload();
-  }
-
-  public async InitializeAutoUpload() {
-    const ignored = AutoUploadService.GetIgnoredItems(
-      await this.GetCustomSettings()
-    );
-    this.autoUploadService = new AutoUploadService(ignored);
-  }
-
-  public async HandleStartWatching() {
-    if (this.autoUploadService) {
-      this.autoUploadService.StartWatching();
-    } else {
-      await this.InitializeAutoUpload();
-      this.HandleStartWatching();
-    }
-  }
-
-  public async HandleStopWatching() {
-    if (this.autoUploadService) {
-      this.autoUploadService.StopWatching();
-    } else {
-      await this.InitializeAutoUpload();
-      this.HandleStopWatching();
-    }
+    // state.watcher.InitializeAutoUpload();
   }
 
   public async InitalizeSettings(): Promise<LocalConfig> {

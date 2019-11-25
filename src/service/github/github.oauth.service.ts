@@ -2,8 +2,8 @@ import * as express from "express";
 import { Server } from "http";
 import fetch from "node-fetch";
 import { URL, URLSearchParams } from "url";
-import Commons from "../commons";
-import { state } from "../state";
+import Commons from "../../commons";
+import { state } from "../../state";
 
 export class GitHubOAuthService {
   public app: express.Express;

@@ -1,11 +1,11 @@
 import * as vscode from "vscode";
 import { watch } from "vscode-chokidar";
-import localize from "../localize";
-import lockfile from "../lockfile";
-import { CustomConfig } from "../models/customConfig.model";
-import { state } from "../state";
-import { Util } from "../util";
-import { FileService } from "./file.service";
+import localize from "../../localize";
+import { CustomConfig } from "../../models/customConfig.model";
+import { state } from "../../state";
+import { Util } from "../../util";
+import { FileService } from "../file.service";
+import lockfile from "./lockfile";
 
 export class AutoUploadService {
   public static GetIgnoredItems(customSettings: CustomConfig) {

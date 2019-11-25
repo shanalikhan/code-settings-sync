@@ -3,10 +3,10 @@
 import * as GitHubApi from "@octokit/rest";
 import * as HttpsProxyAgent from "https-proxy-agent";
 import * as vscode from "vscode";
-import Commons from "../commons";
-import { CloudSettings } from "../models/cloudSettings.model";
-import { state } from "../state";
-import { File } from "./file.service";
+import Commons from "../../commons";
+import { CloudSettings } from "../../models/cloudSettings.model";
+import { state } from "../../state";
+import { File } from "../file.service";
 
 interface IEnv {
   [key: string]: string | undefined;
