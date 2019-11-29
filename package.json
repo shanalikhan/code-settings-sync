@@ -59,7 +59,7 @@
     "workspace-sync",
     "multi-root ready"
   ],
-  "extensionKind": "ui",
+  "extensionKind": ["ui"],
   "activationEvents": [
     "*"
   ],
