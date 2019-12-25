@@ -353,9 +353,7 @@ export class WebviewService {
           vscode.commands.executeCommand(
             "vscode.open",
             vscode.Uri.parse(
-              `https://${
-                host.hostname
-              }/login/oauth/authorize?scope=gist%20read:user&client_id=cfd96460d8b110e2351b&redirect_uri=http://localhost:54321/callback`
+              `https://${host.hostname}/login/oauth/authorize?scope=gist%20read:user&client_id=cfd96460d8b110e2351b&redirect_uri=http://localhost:54321/callback`
             )
           );
           break;

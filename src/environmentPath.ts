@@ -16,7 +16,6 @@ export function osTypeFromString(osName: string): OsType {
 }
 
 export class Environment {
-
   // public isInsiders: boolean = false;
   // public isOss: boolean = false;
   // public isCoderCom: boolean = false;
