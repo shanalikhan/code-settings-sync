@@ -124,10 +124,10 @@
           "default": false,
           "description": "%ext.config.forceUpload%"
         },
-        "sync.quietsync": {
+        "sync.quietSync": {
           "type": "boolean",
           "default": false,
-          "description": "%ext.config.quietsync%"
+          "description": "%ext.config.quietSync%"
         },
         "sync.removeExtensions": {
           "type": "boolean",
