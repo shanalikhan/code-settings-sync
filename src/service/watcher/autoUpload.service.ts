@@ -1,11 +1,11 @@
 import * as vscode from "vscode";
 import { watch } from "vscode-chokidar";
-import localize from "../localize";
-import lockfile from "../lockfile";
-import { CustomConfig } from "../models/customConfig.model";
-import { state } from "../state";
-import { Util } from "../util";
-import { FileService } from "./file.service";
+import localize from "../../localize";
+import { CustomConfig } from "../../models/customConfig.model";
+import { state } from "../../state";
+import { Util } from "../../util";
+import { FileService } from "../file.service";
+import lockfile from "./lockfile";
 
 export class AutoUploadService {
   public static GetIgnoredItems(customSettings: CustomConfig) {
@@ -32,7 +32,7 @@ export class AutoUploadService {
           await lockfile.Lock(state.environment.FILE_SYNC_LOCK);
         }
         const customConfig = await state.commons.GetCustomSettings();
-        if (!customConfig.downloadPublicGist) {
+        if (!customConfig.githubSettings.gistSettings.downloadPublicGist) {
           await this.InitiateAutoUpload();
         }
         await lockfile.Unlock(state.environment.FILE_SYNC_LOCK);
@@ -62,7 +62,7 @@ export class AutoUploadService {
             .slice(1);
           if (
             customConfig.supportedFileExtensions.includes(fileType) &&
-            !customConfig.downloadPublicGist
+            !customConfig.githubSettings.gistSettings.downloadPublicGist
           ) {
             await this.InitiateAutoUpload();
           }
