@@ -1,0 +1,203 @@
+{"lastUpload":"2019-12-09T05:43:10.183Z","extensionVersion":"v3.4.3"}
+[
+  {
+    "metadata": {
+      "id": "f583eafd-aa0d-4ccb-8f44-d1e610389660",
+      "publisherId": "CoenraadS.bracket-pair-colorizer",
+      "publisherDisplayName": "CoenraadS"
+    },
+    "name": "bracket-pair-colorizer",
+    "publisher": "CoenraadS",
+    "version": "1.0.61"
+  },
+  {
+    "metadata": {
+      "id": "e337c67b-55c2-4fef-8949-eb260e7fb7fd",
+      "publisherId": "Shan.code-settings-sync",
+      "publisherDisplayName": "Shan"
+    },
+    "name": "code-settings-sync",
+    "publisher": "Shan",
+    "version": "3.4.3"
+  },
+  {
+    "metadata": {
+      "id": "dd7e0ff7-9eb5-45fe-8b21-00e79b632b7f",
+      "publisherId": "dunstontc.dark-plus-syntax",
+      "publisherDisplayName": "dunstontc"
+    },
+    "name": "dark-plus-syntax",
+    "publisher": "dunstontc",
+    "version": "0.0.159"
+  },
+  {
+    "metadata": {
+      "id": "1ec62ca5-d7f9-4ddb-a882-e8d018c0aefd",
+      "publisherId": "msjsdiag.debugger-for-chrome",
+      "publisherDisplayName": "msjsdiag"
+    },
+    "name": "debugger-for-chrome",
+    "publisher": "msjsdiag",
+    "version": "4.12.3"
+  },
+  {
+    "metadata": {
+      "id": "26a529c9-2654-4b95-a63f-02f6a52429e6",
+      "publisherId": "zhuangtongfa.material-theme",
+      "publisherDisplayName": "zhuangtongfa"
+    },
+    "name": "material-theme",
+    "publisher": "zhuangtongfa",
+    "version": "3.2.0"
+  },
+  {
+    "metadata": {
+      "id": "96fa4707-6983-4489-b7c5-d5ffdfdcce90",
+      "publisherId": "esbenp.prettier-vscode",
+      "publisherDisplayName": "esbenp"
+    },
+    "name": "prettier-vscode",
+    "publisher": "esbenp",
+    "version": "3.11.0"
+  },
+  {
+    "metadata": {
+      "id": "b5eaebe8-c8c7-495a-80c5-3ba4a7a91c35",
+      "publisherId": "andischerer.theme-atom-one-dark",
+      "publisherDisplayName": "andischerer"
+    },
+    "name": "theme-atom-one-dark",
+    "publisher": "andischerer",
+    "version": "0.0.1"
+  },
+  {
+    "metadata": {
+      "id": "4e44877c-1c8d-4f9c-ba86-1372d0fbeeb1",
+      "publisherId": "dracula-theme.theme-dracula",
+      "publisherDisplayName": "dracula-theme"
+    },
+    "name": "theme-dracula",
+    "publisher": "dracula-theme",
+    "version": "2.19.0"
+  },
+  {
+    "metadata": {
+      "id": "15de929b-c739-49db-86bc-b968cc6b7a5b",
+      "publisherId": "AdamCaviness.theme-monokai-dark-soda",
+      "publisherDisplayName": "AdamCaviness"
+    },
+    "name": "theme-monokai-dark-soda",
+    "publisher": "AdamCaviness",
+    "version": "0.0.5"
+  },
+  {
+    "metadata": {
+      "id": "cc1b9e15-8d4e-43ed-8a31-b81683af6bc4",
+      "publisherId": "azemoh.theme-onedark",
+      "publisherDisplayName": "azemoh"
+    },
+    "name": "theme-onedark",
+    "publisher": "azemoh",
+    "version": "0.5.2"
+  },
+  {
+    "metadata": {
+      "id": "38583aca-2ba1-417f-80fc-68ca8d717fb4",
+      "publisherId": "rbbit.typescript-hero",
+      "publisherDisplayName": "rbbit"
+    },
+    "name": "typescript-hero",
+    "publisher": "rbbit",
+    "version": "3.0.0"
+  },
+  {
+    "metadata": {
+      "id": "d96e79c6-8b25-4be3-8545-0e0ecefcae03",
+      "publisherId": "vscodevim.vim",
+      "publisherDisplayName": "vscodevim"
+    },
+    "name": "vim",
+    "publisher": "vscodevim",
+    "version": "1.11.3"
+  },
+  {
+    "metadata": {
+      "id": "0479fc1c-3d67-49f9-b087-fb9069afe48f",
+      "publisherId": "ms-azuretools.vscode-docker",
+      "publisherDisplayName": "ms-azuretools"
+    },
+    "name": "vscode-docker",
+    "publisher": "ms-azuretools",
+    "version": "0.9.0"
+  },
+  {
+    "metadata": {
+      "id": "344c4c0e-58d1-4c96-a8ec-7332addc037c",
+      "publisherId": "sallar.vscode-duotone-dark",
+      "publisherDisplayName": "sallar"
+    },
+    "name": "vscode-duotone-dark",
+    "publisher": "sallar",
+    "version": "0.3.3"
+  },
+  {
+    "metadata": {
+      "id": "583b2b34-2c1e-4634-8c0b-0b82e283ea3a",
+      "publisherId": "dbaeumer.vscode-eslint",
+      "publisherDisplayName": "dbaeumer"
+    },
+    "name": "vscode-eslint",
+    "publisher": "dbaeumer",
+    "version": "1.9.1"
+  },
+  {
+    "metadata": {
+      "id": "daf8b44d-8aae-4da2-80c5-1f770219f643",
+      "publisherId": "DavidAnson.vscode-markdownlint",
+      "publisherDisplayName": "DavidAnson"
+    },
+    "name": "vscode-markdownlint",
+    "publisher": "DavidAnson",
+    "version": "0.32.0"
+  },
+  {
+    "metadata": {
+      "id": "9b2c953d-6ad4-46d1-b18e-7e5992d1d8a6",
+      "publisherId": "akamud.vscode-theme-onedark",
+      "publisherDisplayName": "akamud"
+    },
+    "name": "vscode-theme-onedark",
+    "publisher": "akamud",
+    "version": "2.1.0"
+  },
+  {
+    "metadata": {
+      "id": "15305aca-2588-4ca0-8147-ab2c64730b82",
+      "publisherId": "ms-vscode.vscode-typescript-next",
+      "publisherDisplayName": "ms-vscode"
+    },
+    "name": "vscode-typescript-next",
+    "publisher": "ms-vscode",
+    "version": "3.8.20191207"
+  },
+  {
+    "metadata": {
+      "id": "90a37ca1-92a2-488a-b196-7a8c0b0127ea",
+      "publisherId": "ms-vscode.vscode-typescript-tslint-plugin",
+      "publisherDisplayName": "ms-vscode"
+    },
+    "name": "vscode-typescript-tslint-plugin",
+    "publisher": "ms-vscode",
+    "version": "1.2.3"
+  },
+  {
+    "metadata": {
+      "id": "2061917f-f76a-458a-8da9-f162de22b97e",
+      "publisherId": "redhat.vscode-yaml",
+      "publisherDisplayName": "redhat"
+    },
+    "name": "vscode-yaml",
+    "publisher": "redhat",
+    "version": "0.6.1"
+  }
+]
