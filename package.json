@@ -175,7 +175,7 @@
     "webpack-merge": "^4.2.1"
   },
   "dependencies": {
-    "@octokit/rest": "^16.23.2",
+    "@octokit/rest": "^17.0.0",
     "adm-zip": "^0.4.13",
     "const": "^1.0.0",
     "express": "^4.16.4",
