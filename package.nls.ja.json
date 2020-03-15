@@ -116,7 +116,7 @@
   "ext.globalConfig.githubEnterpriseUrl.name": "GitHub Enterprise の URL (オプション)",
   "ext.globalConfig.githubEnterpriseUrl.placeholder": "GitHub Enterprise の URL を入力してください",
   "ext.globalConfig.ignoreUploadFolders.name": "フォルダを無視",
-  "ext.globalConfig.ignoredUploadFolders.placeholder": "1行に1つのフォルダ名を入力してください",
+  "ext.globalConfig.ignoreUploadFolders.placeholder": "1行に1つのフォルダ名を入力してください",
   "ext.globalConfig.ignoreExtensions.name": "拡張子を無視",
   "ext.globalConfig.ignoreExtensions.placeholder": "1行に1つの拡張機能名をフルネームで入力してください",
   "ext.globalConfig.hostName.name": "ホスト名 (オプション)",

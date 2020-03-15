@@ -116,7 +116,7 @@
   "ext.globalConfig.githubEnterpriseUrl.name": "GitHub Enterprise URL (optional)",
   "ext.globalConfig.githubEnterpriseUrl.placeholder": "Enter GitHub Enterprise URL",
   "ext.globalConfig.ignoreUploadFolders.name": "Ignored Folders",
-  "ext.globalConfig.ignoredUploadFolders.placeholder": "Enter one folder per line",
+  "ext.globalConfig.ignoreUploadFolders.placeholder": "Enter one folder per line",
   "ext.globalConfig.ignoreExtensions.name": "Ignored Extensions",
   "ext.globalConfig.ignoreExtensions.placeholder": "Enter one extension per line (full name)",
   "ext.globalConfig.hostName.name": "Hostname (optional)",

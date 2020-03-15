@@ -134,7 +134,7 @@
   "ext.globalConfig.ignoreExtensions.placeholder": "Adjon meg egy kiterjesztés soronként (teljes név)",
   "ext.globalConfig.ignoreUploadFiles.placeholder": "Adjon meg egy fájl soronként",
   "ext.globalConfig.ignoreUploadFolders.name": "Figyelmen Kívül Mappák",
-  "ext.globalConfig.ignoredUploadFolders.placeholder": "Adjon meg egy mappát, soronként",
+  "ext.globalConfig.ignoreUploadFolders.placeholder": "Adjon meg egy mappát, soronként",
   "ext.globalConfig.openTokenLink.name": "Nyitva Token Link",
   "ext.globalConfig.supportedFileExtensions.name": "Támogatott Fájl Kiterjesztések",
   "ext.globalConfig.supportedFileExtensions.placeholder": "Adja meg a fájl kiterjesztését soronként",

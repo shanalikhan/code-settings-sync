@@ -135,7 +135,7 @@
   "ext.globalConfig.ignoreUploadFiles.name": "忽略的檔案",
   "ext.globalConfig.ignoreUploadFiles.placeholder": "每行輸入一個檔案",
   "ext.globalConfig.ignoreUploadFolders.name": "忽略資料夾",
-  "ext.globalConfig.ignoredUploadFolders.placeholder": "每行輸入一個資料夾",
+  "ext.globalConfig.ignoreUploadFolders.placeholder": "每行輸入一個資料夾",
   "ext.globalConfig.openTokenLink.name": "打開令牌連結",
   "ext.globalConfig.supportedFileExtensions.name": "支援的檔案延伸模組",
   "ext.globalConfig.supportedFileExtensions.placeholder": "每行輸入一個檔案延伸模組",

@@ -135,7 +135,7 @@
   "ext.globalConfig.ignoreUploadFiles.name": "Archivos Ignorados",
   "ext.globalConfig.ignoreUploadFiles.placeholder": "Introduzca un archivo por línea",
   "ext.globalConfig.ignoreUploadFolders.name": "Ignorado Carpetas",
-  "ext.globalConfig.ignoredUploadFolders.placeholder": "Entrar en una carpeta por cada línea",
+  "ext.globalConfig.ignoreUploadFolders.placeholder": "Entrar en una carpeta por cada línea",
   "ext.globalConfig.openTokenLink.name": "Abierto Token De Enlace",
   "ext.globalConfig.supportedFileExtensions.name": "Las Extensiones De Archivo",
   "ext.globalConfig.supportedFileExtensions.placeholder": "Introduzca una extensión de archivo por línea",

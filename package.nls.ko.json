@@ -117,7 +117,7 @@
     "ext.globalConfig.githubEnterpriseUrl.name": "GitHub Enterpirse URL(선택사항)",
     "ext.globalConfig.githubEnterpriseUrl.placeholder": "GitHub Enterprise URL을 입력하세요",
     "ext.globalConfig.ignoreUploadFolders.name": "무시할 폴더",
-    "ext.globalConfig.ignoredUploadFolders.placeholder": "한 줄에 하나의 폴더를 입력하세요",
+    "ext.globalConfig.ignoreUploadFolders.placeholder": "한 줄에 하나의 폴더를 입력하세요",
     "ext.globalConfig.ignoreExtensions.name": "무시할 확장(extension)",
     "ext.globalConfig.ignoreExtensions.placeholder": "한 줄에 하나의 확장(extension)을 풀네임으로 입력하세요.",
     "ext.globalConfig.hostName.name": "호스트명 (선택사항)",
