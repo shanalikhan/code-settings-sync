@@ -164,7 +164,7 @@
     "chai": "^4.2.0",
     "clean-webpack-plugin": "^3.0.0",
     "mocha": "^6.0.2",
-    "prettier": "^1.16.4",
+    "prettier": "^2.0.5",
     "ts-loader": "^5.3.3",
     "tslint": "^5.15.0",
     "tslint-plugin-prettier": "^2.0.1",
