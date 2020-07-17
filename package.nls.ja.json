@@ -109,7 +109,7 @@
   "common.prompt.restartCode": "拡張機能と設定を適用するためにリロードしますか？",
   "common.prompt.gistForceUpload": "Sync: アップロードにより、GitHub Gistの設定が置き換えられます。 設定をダウンロードするか、強制アップロードを行うことを検討してください。 それでも強制的にアップロードしますか？",
   "common.prompt.gistNewer": "Sync: Gistの設定は、最後にダウンロードしてから変更されています。 とにかく、現在のローカル設定をGistにアップロードしますか？",
-  "common.button.no": "番号",
+  "common.button.no": "いいえ",
   "common.button.yes": "はい",
   "ext.globalConfig.token.name": "アクセストークン",
   "ext.globalConfig.token.placeholder": "トークンを入力してください",
