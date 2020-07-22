@@ -5,6 +5,7 @@
   ],
   "rules": {
     "prefer-for-of": false,
+    "no-string-literal": false,
     "prettier": [
       true,
       {

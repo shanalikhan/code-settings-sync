@@ -1,4 +1,4 @@
-import { OsType } from "./enums";
+import { OsType } from "./enums/osType.enum";
 import { osTypeFromString, SUPPORTED_OS } from "./environmentPath";
 import localize from "./localize";
 
