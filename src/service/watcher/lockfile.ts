@@ -1,5 +1,5 @@
 import * as lockfile from "lockfile";
-import { Util } from "./util";
+import { Util } from "../../util";
 
 interface IOptions {
   wait?: number;

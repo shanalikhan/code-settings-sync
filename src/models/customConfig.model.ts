@@ -1,4 +1,5 @@
-import { Environment } from "../environmentPath";
+import { state } from "../state";
+import { GitHubConfig } from "./github/github.model";
 
 export class CustomConfig {
   public ignoreUploadFiles: string[] = [
@@ -13,19 +14,18 @@ export class CustomConfig {
     "gpm_projects.json",
     "gpm-recentItems.json"
   ];
-  public ignoreUploadFolders: string[] = ["workspaceStorage"];
+  public ignoreUploadFolders: string[] = ["workspaceStorage", "globalStorage"];
   public ignoreExtensions: string[] = [];
-  public gistDescription: string = "Visual Studio Code Settings Sync Gist";
-  public version: number = Environment.CURRENT_VERSION;
-  public token: string = "";
-  public downloadPublicGist: boolean = false;
+  public githubSettings: GitHubConfig = new GitHubConfig();
+
+  public version: number = Number(
+    state.environment
+      .getVersion()
+      .split(".")
+      .join("")
+  );
   public supportedFileExtensions: string[] = ["json", "code-snippets"];
-  public openTokenLink: boolean = true;
   public disableUpdateMessage: boolean = false;
-  public lastUpload: Date = null;
-  public lastDownload: Date = null;
-  public githubEnterpriseUrl: string = null;
-  public askGistDescription: boolean = false;
   public customFiles: { [key: string]: string } = {};
   public hostName: string = null;
   public universalKeybindings: boolean = false;
