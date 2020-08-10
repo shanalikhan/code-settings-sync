@@ -345,19 +345,12 @@ export class WebviewService {
     landingPanel.webview.onDidReceiveMessage(async message => {
       switch (message.command) {
         case "loginWithGitHub":
-          new GitHubOAuthService(54321).StartProcess(cmd);
           const customSettings = await state.commons.GetCustomSettings();
           const host = customSettings.githubSettings.enterpriseUrl
             ? new URL(customSettings.githubSettings.enterpriseUrl)
             : new URL("https://github.com");
-          vscode.commands.executeCommand(
-            "vscode.open",
-            vscode.Uri.parse(
-              `https://${
-                host.hostname
-              }/login/oauth/authorize?scope=gist%20read:user&client_id=cfd96460d8b110e2351b&redirect_uri=http://localhost:54321/callback`
-            )
-          );
+          const url = `https://${host.hostname}/login/oauth/authorize?scope=gist%20read:user&client_id=cfd96460d8b110e2351b&redirect_uri=http://localhost:54321/callback`;
+          new GitHubOAuthService(54321).StartProcess(url, cmd);
           break;
         case "editConfiguration":
           this.OpenSettingsPage(

@@ -16,13 +16,19 @@ export class GitHubOAuthService {
     this.app.use(express.json(), express.urlencoded({ extended: false }));
   }
 
-  public async StartProcess(cmd?: string) {
+  public async StartProcess(url: string, cmd?: string) {
     const customSettings = await state.commons.GetCustomSettings();
     const host = customSettings.githubSettings.enterpriseUrl
       ? new URL(customSettings.githubSettings.enterpriseUrl)
       : new URL("https://github.com");
 
     this.server = http.createServer(this.app);
+    this.server.on("listening", () => {
+      vscode.commands.executeCommand(
+        "vscode.open",
+        vscode.Uri.parse(url)
+      );
+    });
     this.server.on("error", (err: NodeJS.ErrnoException) => {
       const message = err.code === "EADDRINUSE"
         ? localize("common.error.oauthPortConflict", this.port)
