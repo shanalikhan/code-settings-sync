@@ -1,13 +1,15 @@
 import * as express from "express";
-import { Server } from "http";
+import * as http from "http";
+import * as vscode from "vscode";
 import fetch from "node-fetch";
 import { URL, URLSearchParams } from "url";
 import Commons from "../../commons";
 import { state } from "../../state";
+import localize from "../../localize";
 
 export class GitHubOAuthService {
   public app: express.Express;
-  public server: Server;
+  public server: http.Server;
 
   constructor(public port: number) {
     this.app = express();
@@ -20,7 +22,22 @@ export class GitHubOAuthService {
       ? new URL(customSettings.githubSettings.enterpriseUrl)
       : new URL("https://github.com");
 
-    this.server = this.app.listen(this.port);
+    this.server = http.createServer(this.app);
+    this.server.on("error", (err: NodeJS.ErrnoException) => {
+      const message = err.code === "EADDRINUSE"
+        ? localize("common.error.oauthPortConflict", this.port)
+        : localize("common.error.oauthError", err.code, err.message);
+      const troubleshooting = localize("common.button.troubleshooting");
+      vscode.window.showErrorMessage(message, troubleshooting).then((selected) => {
+        if (selected !== troubleshooting) return;
+        vscode.commands.executeCommand(
+          "vscode.open",
+          vscode.Uri.parse("https://github.com/shanalikhan/code-settings-sync/wiki/Troubleshooting")
+        );
+      });
+    });
+    this.server.listen(this.port);
+
     this.app.get("/callback", async (req, res) => {
       try {
         const params = new URLSearchParams(
