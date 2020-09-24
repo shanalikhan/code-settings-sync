@@ -222,7 +222,7 @@ export default class Commons {
           customSettings["lastUpload"];
       }
       if (customSettings["lastDownload"]) {
-        customSettings.githubSettings.gistSettings.askGistDescription =
+        customSettings.githubSettings.gistSettings.lastDownload =
           customSettings["lastDownload"];
       }
 
