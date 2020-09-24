@@ -1,21 +1,17 @@
 "use strict";
 
-import * as GitHubApi from "@octokit/rest";
+import { Octokit as GitHubApi } from "@octokit/rest";
 import * as HttpsProxyAgent from "https-proxy-agent";
 import * as vscode from "vscode";
-import Commons from "../commons";
-import { CloudSettings } from "../models/cloudSettings.model";
-import { state } from "../state";
-import { File } from "./file.service";
+import Commons from "../../commons";
+import { CloudSettings } from "../../models/cloudSettings.model";
+import { state } from "../../state";
+import { File } from "../file.service";
 
 interface IEnv {
   [key: string]: string | undefined;
   http_proxy: string;
   HTTP_PROXY: string;
-}
-
-interface IFixGistResponse extends Omit<GitHubApi.GistsGetResponse, "files"> {
-  files: any | GitHubApi.GistsGetResponseFiles;
 }
 
 export class GitHubService {
@@ -130,7 +126,7 @@ export class GitHubService {
   // This should return GitHubApi.Response<GitHubApi.GistsGetResponse> but Types are wrong
   public async ReadGist(
     GIST: string
-  ): Promise<GitHubApi.Response<IFixGistResponse>> {
+  ): Promise<GitHubApi.Response<GitHubApi.GistsGetResponse>> {
     const promise = this.github.gists.get({ gist_id: GIST });
     const res = await promise.catch(err => {
       if (String(err).includes("HttpError: Not Found")) {
@@ -153,7 +149,7 @@ export class GitHubService {
     }
     let gistCloudSetting: CloudSettings = null;
     try {
-      gistCloudSetting = JSON.parse(gist.data.files.cloudSettings.content);
+      gistCloudSetting = JSON.parse(gist.data.files["cloudSettings"].content);
       const gistLastUpload = new Date(gistCloudSetting.lastUpload);
       if (!localLastDownload) {
         return false;

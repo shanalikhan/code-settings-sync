@@ -4,7 +4,7 @@
   "cmd.downloadSettings.info.downloaded": "Sync: Téléchargement terminé.",
   "cmd.downloadSettings.info.gotLatestVersion": "Sync: Vous avez déjà la dernière version des paramètres enregistrés.",
   "cmd.downloadSettings.info.readdingOnline": "Sync: Lecture des paramètres en ligne.",
-  "cmd.downloadSettings.title": "Sync: Paramètres de téléchargement",
+  "cmd.downloadSettings.title": "Sync: Télécharger vos paramètres",
   "cmd.howSetting.title": "Sync: Comment configurer",
   "cmd.otherOptions.customizedSync": "Sync: Ajouter un chemin d'accès au fichier de synchronisation personnalisé",
   "cmd.otherOptions.customizedSync.done": "Sync: {0} a été enregistré.",
