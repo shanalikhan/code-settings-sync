@@ -180,7 +180,7 @@
     "webpack-merge": "^4.2.2"
   },
   "dependencies": {
-    "@octokit/rest": "^16.35.0",
+    "@octokit/rest": "^16.43.2",
     "adm-zip": "^0.4.13",
     "const": "^1.0.0",
     "express": "^4.17.1",

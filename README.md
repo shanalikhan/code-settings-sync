@@ -8,7 +8,7 @@
 
 ## Support
 
-While being free and open source, if you find it useful, please consider supporting it by donating via PayPal or Open Collective. If you are using it in office as a team, please ask your company to support us via Open Collective from just 2\$ per month!
+While being free and open source, if you find it useful, please consider supporting it by donating via PayPal or Open Collective. If you are using it in office as a team, please ask your company to support us via Open Collective from just \$2 per month!
 
 <table align="center" width="60%" border="0">
   <tr>
@@ -23,7 +23,7 @@ While being free and open source, if you find it useful, please consider support
             <img src="https://opencollective.com/webpack/donate/button.png?color=blue" width=200 />
         </a>
           <br>
-          *2$ Per Month
+          $2 per Month
       </td>
   </tr>
 </table>
@@ -34,114 +34,112 @@ While being free and open source, if you find it useful, please consider support
 <br>
 <br>
 
-**Type Sync in command Palette in order to view all commands.**
+> _Type **">Sync"** in the Command Palette in order to view all commands._
 
 ## Key Features
 
-```
-1. Use your GitHub account token and Gist.
+1. Use your GitHub account token and gist.
 2. Easy to Upload and Download on one click.
 3. Show a summary page at the end with details about config and extensions effected.
 4. Auto download Latest Settings on Startup.
 5. Auto upload Settings on file change.
-6. Share the Gist with other users and let them download your settings.
-7. Supports GitHub Enterprise
+6. Share the gist with other users and let them download your settings.
+7. Supports GitHub Enterprise.
 8. Support pragmas with @sync keywords: host, os and env are supported.
-9. GUI for changing settings / logging in
+9. GUI for changing settings / logging in.
 10. Allows you to Sync any file across your machines.
-```
 
 ## It Syncs
 
-```
-All extensions and complete User Folder that Contains
+All extensions and complete User Folder that contains:
+
 1. Settings File
 2. Keybinding File
 3. Launch File
 4. Snippets Folder
 5. VSCode Extensions & Extensions Configurations
 6. Workspaces Folder
-```
 
 ## Shortcuts
 
-```
-1. Upload Key : Shift + Alt + U
-2. Download Key : Shift + Alt + D
-
-(on macOS: Shift + Option + U / Shift + Option + D)
-```
+1. Upload Key: `Shift` + `Alt` + `U` (macOS: `Shift` + `Option` + `U`)
+2. Download Key: `Shift` + `Alt` + `D` (macOS: `Shift` + `Option` + `D`)
 
 ## Configure Settings Sync
 
 Settings Sync Configuration page will be opened automatically on code start and requires two things to setup:
 
-1. GitHub Token
-2. GitHub Gist Id
+1. GitHub token
+2. GitHub gist ID
 
-GitHub Token needs to be retrived by your GitHub account while Settings Sync creates GIST if you are first time user.
+GitHub token needs to be retrieved by your GitHub account while Settings Sync creates a gist if you are first time user.
 
-Following are the steps you need to perform to configure.
+Follow these steps to configure:
 
-- Click on `Login with GitHub` .
-- Login GitHub on Browser and close the browser tab once you get Success message.
-- If you are using Settings Sync first time GIST will be created automatically when you upload your settings.
-- If you already have GitHub Gist, new window will be opened to allow you to select the GitHub Gist or `Skip` to create new Gist.
+- Click on `Login with GitHub`.
+- Login to GitHub in the browser and close the browser tab once you get the success message.
+- If you are using Settings Sync for the first time, a gist will be created automatically when you upload your settings.
+- If you already have a GitHub gist, a new window will be opened to allow you to select the GitHub gist or `Skip` to create a new gist.
 
 ![Setup the extension](images/setup.gif)
 
-You can always **verify created gist** by going to `https://gist.github.com` and checking for a gist named `cloudSettings`
+
+You can always **verify the created gist** by going to `https://gist.github.com` and checking for a gist named `cloudSettings`.
+
 
 ## Upload Your Settings
 
-**Press Shift + Alt + U** (macOS: Shift + Option + U)
+**Press `Shift` + `Alt` + `U`** (macOS: `Shift` + `Option` + `U`)
 
-> Type ">Sync" In Command Palette into order download / upload
+> Select **">Sync: Update/Upload Settings"** in the Command Palette to upload your settings.
 
 When downloading or uploading for the first time, the welcome page will automatically open, where you can configure the Settings Sync.
 
-Once you select upload, after uploading the settings. You will see the Summary details with the list of each files and extensions uploaded.
+Once you select upload, after uploading the settings, you will see a summary containing a list of each of the files and extensions uploaded.
 
 ![Upload your settings](images/upload.gif)
 
 ## Download your Settings
 
-**Press Shift + Alt + D** (macOS: Shift + Option + D)
+**Press `Shift` + `Alt` + `D`** (macOS: `Shift` + `Option` + `D`)
 
-> Type ">Sync" In Command Palette into order download / upload
+> Select **">Sync: Download Settings"** in the Command Palette to download your settings.
 
 When downloading or uploading for the first time, the welcome page will automatically open, where you can configure the Settings Sync.
 
-Once you select download, after downloading. Settings Sync will display you Summary containing the list of each files and extension being downloaded.
+Once you select download, after downloading the settings, you will see a summary containing a list of each of the files and extension downloaded.
 
-New popup will be opened to allow you to restart the code to apply the settings.
+A popup will be opened to allow you to restart Code to apply the settings.
 
 ![Download your settings](images/download.gif)
 
 ## Reset Extension Settings
 
-> Select **"> Sync : Reset Extension Settings"** in the Command Palette to reset your settings
+
+> Select **">Sync: Reset Extension Settings"** in the Command Palette to reset your settings.
+
 
 ## Settings
 
-Settings can be changed through the settings page, which can be accessed through **"> Sync : Advanced Options > Open Settings Page"**
+> Select **">Sync: Advanced Options > Open Settings"** in the Command Palette to open the settings page.
 
 There are two types of settings in Settings Sync.
-I will recommend you to read the configurations details [here](https://dev.to/shanalikhan/visual-studio-code-settings-sync-configurations-mn0).
+
+I recommend that you read the configurations details [here](https://dev.to/shanalikhan/visual-studio-code-settings-sync-configurations-mn0).
+
 
 ### Gist Settings
 
-Gist Settings are stored in `settings.json` file of Code.
-You can customize the settings in gist settings like:
+Gist settings are stored in the `settings.json` file of Code.
 
-```
-1. Configure Gist Id (Environment)
-2. Configure auto upload / download for GitHub Gist
+You can customize gist settings as follows:
+
+1. Configure gist ID (environment)
+2. Configure auto upload / download for GitHub gist
 3. Configure extension sync behaviour
 4. Configure force download
-4. Configure force upload
+5. Configure force upload
 6. Configure quiet sync
-```
 
 ```json
     "sync.gist": "0c929b1a6c51015cdc9e0fe2e369ea4c",
@@ -157,17 +155,17 @@ You can customize the settings in gist settings like:
 
 ### Global Settings
 
-Global settings are present in `syncLocalSettings.json` inside `User` folder. These settings will be shared across multiple Gist Environments.
 
-You can customize the sync:
+Global settings are stored in `syncLocalSettings.json` inside the `User` folder. These settings will be shared across multiple gist environments.
 
-```
+You can customize the sync as follows:
+
+
 1. Options by which files / folders and settings to exclude from upload.
-2. Configure default Gist Environment name.
+2. Configure default gist environment name.
 3. Replace the code settings after downloading.
-4. Change the Gist description while creating new one in github.
-5. Configure GitHub Enterprise Url
-```
+4. Change the gist description while creating new one in GitHub.
+5. Configure GitHub Enterprise Url.
 
 ```json
 {
@@ -203,93 +201,94 @@ You can customize the sync:
 }
 ```
 
-I will recommend you to read the configurations details [here](https://dev.to/shanalikhan/visual-studio-code-settings-sync-configurations-mn0).
+
+I recommend you read the configurations details [here](https://dev.to/shanalikhan/visual-studio-code-settings-sync-configurations-mn0).
 
 ## Features
 
 ### Toggle Auto-Upload on change
 
-Auto-upload is **disabled by default**. When the settings are changed and saved this feature will automatically start the upload process and save the settings online.
+Auto-Upload is **disabled by default**. When the settings are changed and saved this feature will automatically start the upload process and save the settings online.
 
-Please make sure you have valid github Token and Gist available to make it work properly.
+Please make sure you have a valid GitHub token and gist available to make it work properly.
 
-Select Command **"Sync : Advanced Options > Toggle Auto-Upload on Settings Change"** command to Turn ON / OFF the auto-upload.
+> Select **"Sync: Advanced Options > Toggle Auto-Upload on Settings Change"** in the Command Palette to turn Auto-Upload ON / OFF.
 
 ### Toggle Auto Download
 
-Auto Download is **disabled by default**. It will sync all the setting by default when the editor starts.
-Please make sure you have valid github Token and Gist available to make it work properly.
+Auto-Download is **disabled by default**. It will sync all the setting by default when the editor starts.
+Please make sure you have a valid GitHub token and gist available to make it work properly.
 
-Select Command **"Sync : Advanced Options > Toggle Auto-Download On Startup"** command to Turn ON / OFF the auto download.
+> Select **"Sync: Advanced Options > Toggle Auto-Download On Startup"** in the Command Palette to turn Auto-Download ON / OFF.
 
 ### Toggle Force Download
 
-Force Download is **disabled by default**. By default, extension won't download the latest settings if you already have the latest downloaded version, but sometimes when you delete some extension locally and don't upload the settings it will still show that you have latest versions by date or time checks, by turning this ON it will always download the cloud settings on startup.
+Force Download is **disabled by default**. By default, the extension won't download the latest settings if you already have the latest version downloaded, but sometimes when you delete an extension locally and don't upload the settings it will still show that you have the latest versions by date or time checks, by turning this ON it will always download the cloud settings on startup.
 
-Please make sure you have valid github Token and Gist available to make it work properly.
+Please make sure you have a valid GitHub token and gist available to make it work properly.
 
-Select Command **"Sync : Advanced Options > Toggle Force Download"** command to Turn ON / OFF the force download.
+> Select **"Sync: Advanced Options > Toggle Force Download"** in the Command Palette to turn  Force Download ON / OFF.
 
 ### Toggle Force Upload
 
-Force Upload is **disabled by default**. By default, extension won't upload the settings if the gist has newer or identical content. By turning this ON it will always upload without checking for newer settings in the gist.
+Force Upload is **disabled by default**. By default, this extension won't upload the settings if the gist has newer or identical content. By turning this ON it will always upload without checking for newer settings in the gist.
 
-Please make sure you have valid github Token and Gist available to make it work properly.
+Please make sure you have a valid GitHub token and gist available to make it work properly.
 
-Select Command **"Sync : Advanced Options > Toggle Force Upload"** command to Turn ON / OFF the force upload.
+> Select **"Sync: Advanced Options > Toggle Force Upload"** in the Command Palette to turn Force Upload ON / OFF.
 
 ### Toggle Summary
 
-Summary is **enabled by default** which shows all files and extensions that are added or deleted on a single page.
-You may turn it off in order to make a upload and download process clean and quiet.
+Summary is **enabled by default**. It shows all files and extensions that are added or deleted on a single page.
+You may turn it off in order to make the upload and download processes clean and quiet.
 
-Select Command **"Sync : Advanced Options > Show Summary Page On Upload / Download"** command to Turn ON / OFF the auto download.
+
+> Select **"Sync: Advanced Options > Show Summary Page On Upload / Download"** in the Command Palette to turn Auto Download ON / OFF.
+
 
 ### Custom Sync
 
-Settings Sync allows you to sync the files other from `User` folder. For example, your workspace settings and much more. Its upon you to utilize the full potential of Settings Sync across your machines or your teams machines. Read about custom sync [here](https://github.com/shanalikhan/code-settings-sync/wiki/Custom-Sync).
+Settings Sync allows you to sync the files other from `User` folder. For example, your workspace settings and much more. It's upon you to utilize the full potential of Settings Sync across your machines or your team's machines. Read about custom sync [here](https://github.com/shanalikhan/code-settings-sync/wiki/Custom-Sync).
 
 ### Sync Pragmas
 
-You can even manage which settings you want to ignore from being upload or download. Settings Sync even allows you to manage your `home` and `office` computer specific settings even OS related settings in single GitHub Gist. Read details about [Sync Pragmas here](https://github.com/shanalikhan/code-settings-sync/wiki/Sync-Pragmas).
+You can even manage which settings you want to ignore from being uploaded or downloaded. Settings Sync even allows you to manage your `home` and `office` computer specific settings, even OS related settings, in a single GitHub gist. Read details about [Sync Pragmas here](https://github.com/shanalikhan/code-settings-sync/wiki/Sync-Pragmas).
 
 ### Share Settings Across Teams & Users
 
-If you are looking to share your settings. Read the details [here](https://dev.to/shanalikhan/how-to-share-your-visual-studio-code-settings-and-extensions-39k). Settings Sync needs to create new Public GitHub Gist to share your settings with other users.
+If you are looking to share your settings. Read the details [here](https://dev.to/shanalikhan/how-to-share-your-visual-studio-code-settings-and-extensions-39k). Settings Sync needs to create new public GitHub gist to share your settings with other users.
 
 ### Troubleshooting
 
-If you ever get into problem while setting up the Settings Sync. You can check our troubleshooting guide that cover those scenarios [here](https://github.com/shanalikhan/code-settings-sync/wiki/Troubleshooting), you can also add your solution there if its not available there to help other users.
+If you ever run into problems while setting up the Settings Sync. You can check our troubleshooting guide that cover those scenarios [here](https://github.com/shanalikhan/code-settings-sync/wiki/Troubleshooting), you can also add your solution there if it's not available there to help other users.
 
 ## How To Contribute
 
-You can contribute in different ways. Read the details [here](https://github.com/shanalikhan/code-settings-sync/blob/master/CONTRIBUTING.md)
+You can contribute in different ways, read the details [here](https://github.com/shanalikhan/code-settings-sync/blob/master/CONTRIBUTING.md).
 
-**Fix and Earn** - You can also earn money by fixing the issues - Check the issues under bounty program [here](https://github.com/shanalikhan/code-settings-sync/labels/bounty).
+**Fix and Earn** - You can also earn money by fixing the issues, check the issues under bounty program [here](https://github.com/shanalikhan/code-settings-sync/labels/bounty).
 
 ## Credits
 
-### Contributors
+### [Contributors](https://github.com/shanalikhan/code-settings-sync/graphs/contributors)
 
 Thank you to all the people who have already contributed to Settings Sync!
 <a href="https://github.com/shanalikhan/code-settings-sync/graphs/contributors"><img src="https://opencollective.com/code-settings-sync/contributors.svg?width=890" /></a>
 
 ### Backers
 
-Thank you to all our backers! [[Become a backer](https://opencollective.com/code-settings-sync#backer)]
+Thank you to all our backers! ([Become a backer](https://opencollective.com/code-settings-sync#backer))
 
 <a href="https://opencollective.com/code-settings-sync#backers" target="_blank"><img src="https://opencollective.com/code-settings-sync/backers.svg?width=890"></a>
 [<img src="https://www.paypalobjects.com/en_US/i/btn/btn_donateCC_LG.gif">](https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=4W3EWHHBSYMM8&lc=IE&item_name=Code%20Settings%20Sync&item_number=visual%20studio%20code%20settings%20sync&currency_code=USD&bn=PP%2dDonationsBF%3abtn_donate_SM%2egif%3aNonHosted)
 
 ### Sponsors
 
-Thank you to all our sponsors! (please ask your company to also support this open source project by [becoming a sponsor](https://opencollective.com/code-settings-sync))
+Thank you to all our sponsors! (Please ask your company to also support this open source project by [becoming a sponsor](https://opencollective.com/code-settings-sync))
 
-## [Contributors](https://github.com/shanalikhan/code-settings-sync/graphs/contributors)
+## [Release Notes](https://shanalikhan.github.io/2016/05/14/Visual-studio-code-sync-settings-release-notes.html)
 
-# [Release Notes](https://shanalikhan.github.io/2016/05/14/Visual-studio-code-sync-settings-release-notes.html)
-
-# License
+## License
 
 [![Version](https://img.shields.io/badge/license-MIT-green.svg)](https://github.com/shanalikhan/code-settings-sync/blob/master/LICENSE)
 

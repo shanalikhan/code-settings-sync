@@ -6,7 +6,10 @@ import { ExtensionConfig } from "./models/extensionConfig.model";
 import { LocalConfig } from "./models/localConfig.model";
 import { IExtensionState } from "./models/state.model";
 import { File, FileService } from "./service/file.service";
-import { ExtensionInformation } from "./service/plugin.service";
+import {
+  ExtensionInformation,
+  InstalledExtensionsSummary
+} from "./service/plugin.service";
 import { AutoUploadService } from "./service/watcher/autoUpload.service";
 import { WebviewService } from "./service/webview.service";
 
@@ -222,7 +225,7 @@ export default class Commons {
           customSettings["lastUpload"];
       }
       if (customSettings["lastDownload"]) {
-        customSettings.githubSettings.gistSettings.askGistDescription =
+        customSettings.githubSettings.gistSettings.lastDownload =
           customSettings["lastDownload"];
       }
 
@@ -461,7 +464,7 @@ export default class Commons {
     upload: boolean,
     files: File[],
     removedExtensions: ExtensionInformation[],
-    addedExtensions: ExtensionInformation[],
+    extensionsInstallSummary: InstalledExtensionsSummary,
     ignoredExtensions: ExtensionInformation[],
     syncSettings: LocalConfig
   ) {
@@ -535,15 +538,25 @@ export default class Commons {
       }
     }
 
-    if (addedExtensions) {
+    if (extensionsInstallSummary) {
       outputChannel.appendLine(``);
       outputChannel.appendLine(`Extensions Added:`);
 
-      if (addedExtensions.length === 0) {
+      if (extensionsInstallSummary.addedExtensions.length === 0) {
         outputChannel.appendLine(`  No extensions installed.`);
       }
 
-      addedExtensions.forEach(extn => {
+      extensionsInstallSummary.addedExtensions.forEach(extn => {
+        outputChannel.appendLine(`  ${extn.name} v${extn.version}`);
+      });
+
+      if (extensionsInstallSummary.failedExtensions.length !== 0) {
+        outputChannel.appendLine(
+          `  ${extensionsInstallSummary.failedExtensions.length} extensions failed to install.`
+        );
+      }
+
+      extensionsInstallSummary.failedExtensions.forEach(extn => {
         outputChannel.appendLine(`  ${extn.name} v${extn.version}`);
       });
     }
