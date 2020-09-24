@@ -1,6 +1,6 @@
 "use strict";
 
-import * as GitHubApi from "@octokit/rest";
+import { Octokit as GitHubApi } from "@octokit/rest";
 import * as HttpsProxyAgent from "https-proxy-agent";
 import * as vscode from "vscode";
 import Commons from "../../commons";

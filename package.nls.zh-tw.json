@@ -100,7 +100,7 @@
   "common.prompt.restartCode": "你是否要重新啟動 VSCode 以應用延伸模組和設定？",
   "ext.config.autoDownload": "設定為 true 在編輯器打開時自動下載線上設定。[需要重啟]",
   "ext.config.autoDownload.name": "自動下載",
-  "ext.config.autoUpload": "設定為 true 在編輯器打開時自動上傳本機設定。[需要重啟]",
+  "ext.config.autoUpload": "設定為 true 在設定更新後自動上傳本機設定。[需要重啟]",
   "ext.config.autoUpload.name": "自動上傳",
   "ext.config.forceDownload": "設定為 true 將會下載線上設定，即便本機已有更新的設定。",
   "ext.config.forceDownload.name": "強制下載",
