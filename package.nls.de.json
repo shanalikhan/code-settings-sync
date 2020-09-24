@@ -135,7 +135,7 @@
   "ext.globalConfig.ignoreUploadFiles.name": "Ignorierte Dateien",
   "ext.globalConfig.ignoreUploadFiles.placeholder": "Geben Sie einen Dateinamen pro Zeile ein",
   "ext.globalConfig.ignoreUploadFolders.name": "Ignorierte Ordner",
-  "ext.globalConfig.ignoredUploadFolders.placeholder": "Geben Sie einen Ordner pro Zeile ein",
+  "ext.globalConfig.ignoreUploadFolders.placeholder": "Geben Sie einen Ordner pro Zeile ein",
   "ext.globalConfig.openTokenLink.name": "Öffnen des Token Link",
   "ext.globalConfig.supportedFileExtensions.name": "Unterstützte Datei-Erweiterungen",
   "ext.globalConfig.supportedFileExtensions.placeholder": "Geben Sie eine Datei-Erweiterung pro Zeile an",

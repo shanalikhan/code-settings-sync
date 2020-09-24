@@ -135,7 +135,7 @@
   "ext.globalConfig.ignoreUploadFiles.name": "忽略的文件",
   "ext.globalConfig.ignoreUploadFiles.placeholder": "每行输入一个文件",
   "ext.globalConfig.ignoreUploadFolders.name": "忽略文件夹",
-  "ext.globalConfig.ignoredUploadFolders.placeholder": "每行输入一个文件夹",
+  "ext.globalConfig.ignoreUploadFolders.placeholder": "每行输入一个文件夹",
   "ext.globalConfig.openTokenLink.name": "打开令牌链接",
   "ext.globalConfig.supportedFileExtensions.name": "支持的文件扩展",
   "ext.globalConfig.supportedFileExtensions.placeholder": "每行输入一个文件扩展",

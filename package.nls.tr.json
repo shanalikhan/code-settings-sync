@@ -135,7 +135,7 @@
   "ext.globalConfig.ignoreUploadFiles.name": "Göz Ardı Edilen Dosyalar",
   "ext.globalConfig.ignoreUploadFiles.placeholder": "Satır başına bir dosya girin",
   "ext.globalConfig.ignoreUploadFolders.name": "Göz Ardı Edilen Klasörler",
-  "ext.globalConfig.ignoredUploadFolders.placeholder": "Satır başına bir klasör girin",
+  "ext.globalConfig.ignoreUploadFolders.placeholder": "Satır başına bir klasör girin",
   "ext.globalConfig.openTokenLink.name": "Token Linkini Aç",
   "ext.globalConfig.supportedFileExtensions.name": "Desteklenen Dosya Uzantıları",
   "ext.globalConfig.supportedFileExtensions.placeholder": "Satır başına bir dosya uzantısı girin",
