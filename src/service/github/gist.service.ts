@@ -11,7 +11,11 @@ import { LocalConfig } from "../../models/localConfig.model";
 import { IExtensionState } from "../../models/state.model";
 import PragmaUtil from "../../pragmaUtil";
 import { File, FileService } from "../file.service";
-import { ExtensionInformation, PluginService } from "../plugin.service";
+import {
+  ExtensionInformation,
+  InstalledExtensionsSummary,
+  PluginService
+} from "../plugin.service";
 import { GitHubService } from "./github.service";
 
 export class GistService implements ISyncService {
@@ -62,7 +66,7 @@ export class GistService implements ISyncService {
         return;
       }
 
-      let addedExtensions: ExtensionInformation[] = [];
+      let extensionsInstallSummary: InstalledExtensionsSummary;
       let deletedExtensions: ExtensionInformation[] = [];
       const ignoredExtensions: string[] =
         customSettings.ignoreExtensions || new Array<string>();
@@ -203,7 +207,7 @@ export class GistService implements ISyncService {
                   Commons.outputChannel.show();
                 }
 
-                addedExtensions = await PluginService.InstallExtensions(
+                extensionsInstallSummary = await PluginService.InstallExtensions(
                   content,
                   ignoredExtensions,
                   (message: string, dispose: boolean) => {
@@ -306,11 +310,14 @@ export class GistService implements ISyncService {
             false,
             updatedFiles,
             deletedExtensions,
-            addedExtensions,
+            extensionsInstallSummary,
             null,
             localSettings
           );
-          if (deletedExtensions.length > 0 || addedExtensions.length > 0) {
+          if (
+            deletedExtensions.length > 0 ||
+            extensionsInstallSummary.addedExtensions.length > 0
+          ) {
             const message = await vscode.window.showInformationMessage(
               localize("common.prompt.restartCode"),
               "Yes"
@@ -662,7 +669,7 @@ export class GistService implements ISyncService {
               true,
               allSettingFiles,
               null,
-              uploadedExtensions,
+              { addedExtensions: uploadedExtensions, failedExtensions: [] },
               ignoredExtensions,
               localConfig
             );
