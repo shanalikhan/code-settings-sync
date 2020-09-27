@@ -2,9 +2,14 @@ root: true
 parser: '@typescript-eslint/parser'
 parserOptions:
   project: ./tsconfig.json
+settings:
+  import/core-modules: [vscode]
 
 extends:
   - eslint:recommended
+  - plugin:import/errors
+  - plugin:import/warnings
+  - plugin:import/typescript
   - plugin:@typescript-eslint/eslint-recommended
   - plugin:@typescript-eslint/recommended
   - plugin:@typescript-eslint/recommended-requiring-type-checking

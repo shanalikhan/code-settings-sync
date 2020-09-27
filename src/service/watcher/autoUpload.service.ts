@@ -6,6 +6,7 @@ import { state } from "../../state";
 import { Util } from "../../util";
 import { FileService } from "../file.service";
 import lockfile from "./lockfile";
+/* eslint-disable import/no-named-as-default-member */
 
 export class AutoUploadService {
   public static GetIgnoredItems(customSettings: CustomConfig) {
