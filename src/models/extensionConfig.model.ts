@@ -1,5 +1,5 @@
 export class ExtensionConfig {
-  public gist = null;
+  public gist: string = null;
   public quietSync = false;
   public removeExtensions = true;
   public syncExtensions = true;

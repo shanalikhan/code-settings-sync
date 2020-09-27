@@ -24,7 +24,7 @@ export class Sync {
     state.watcher = new WatcherService(state);
 
     await state.commons.StartMigrationProcess();
-    const startUpSetting = await state.commons.GetSettings();
+    const startUpSetting = state.commons.GetSettings();
     const startUpCustomSetting = await state.commons.GetCustomSettings();
 
     if (startUpSetting) {
@@ -71,7 +71,6 @@ export class Sync {
    * Upload setting to github gist
    */
   public async upload(optArgument?: string): Promise<void> {
-    // @ts-ignore
     // const args = arguments;
     try {
       const service: ISyncService = FactoryService.CreateSyncService(
@@ -165,7 +164,7 @@ export class Sync {
     );
   }
   public async advance() {
-    const setting: ExtensionConfig = await state.commons.GetSettings();
+    const setting: ExtensionConfig = state.commons.GetSettings();
     const customSettings: CustomConfig = await state.commons.GetCustomSettings();
     if (customSettings == null) {
       vscode.window
@@ -202,8 +201,8 @@ export class Sync {
       "cmd.otherOptions.releaseNotes"
     ].map(localize);
 
-    let selectedItem: number = 0;
-    let settingChanged: boolean = false;
+    let selectedItem = 0;
+    let settingChanged = false;
 
     const item = await vscode.window.showQuickPick(items);
 
@@ -457,6 +456,7 @@ export class Sync {
               };
 
               if (callbackMap[selectedItem]) {
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-return
                 return callbackMap[selectedItem]();
               }
             } else {

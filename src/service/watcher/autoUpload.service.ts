@@ -46,6 +46,7 @@ export class AutoUploadService {
 
     this.watching = true;
 
+    // eslint-disable-next-line @typescript-eslint/no-misused-promises
     this.watcher.addListener("change", async (path: string) => {
       if (this.watching && vscode.window.state.focused) {
         console.log(`Sync: ${FileService.ExtractFileName(path)} changed`);

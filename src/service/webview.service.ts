@@ -321,6 +321,7 @@ export class WebviewService {
 
   public OpenLandingPage(cmd?: string) {
     const webview = this.webviews[0];
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
     const releaseNotes = require("../../release-notes.json");
     const content: string = this.GenerateContent({
       content: webview.htmlContent,
@@ -344,7 +345,7 @@ export class WebviewService {
     );
     landingPanel.webview.onDidReceiveMessage(async message => {
       switch (message.command) {
-        case "loginWithGitHub":
+        case "loginWithGitHub": {
           new GitHubOAuthService(54321).StartProcess(cmd);
           const customSettings = await state.commons.GetCustomSettings();
           const host = customSettings.githubSettings.enterpriseUrl
@@ -353,19 +354,18 @@ export class WebviewService {
           vscode.commands.executeCommand(
             "vscode.open",
             vscode.Uri.parse(
-              `https://${
-                host.hostname
-              }/login/oauth/authorize?scope=gist%20read:user&client_id=cfd96460d8b110e2351b&redirect_uri=http://localhost:54321/callback`
+              `https://${host.hostname}/login/oauth/authorize?scope=gist%20read:user&client_id=cfd96460d8b110e2351b&redirect_uri=http://localhost:54321/callback`
             )
           );
           break;
+        }
         case "editConfiguration":
           this.OpenSettingsPage(
             await state.commons.GetCustomSettings(),
-            await state.commons.GetSettings()
+            state.commons.GetSettings()
           );
           break;
-        case "downloadPublicGist":
+        case "downloadPublicGist": {
           const [extConfig, customConfig] = await Promise.all([
             state.commons.GetSettings(),
             state.commons.GetCustomSettings()
@@ -388,6 +388,7 @@ export class WebviewService {
           );
           vscode.commands.executeCommand("extension.downloadSettings");
           break;
+        }
         case "dontShowThisAgain":
           await state.context.globalState.update(
             "landingPage.dontShowThisAgain",
@@ -430,7 +431,7 @@ export class WebviewService {
     gistSelectionPanel.webview.html = content;
     gistSelectionPanel.webview.onDidReceiveMessage(async message => {
       if (!message.close) {
-        const extSettings = await state.commons.GetSettings();
+        const extSettings = state.commons.GetSettings();
         extSettings.gist = message.id;
         state.commons.SaveSettings(extSettings);
       } else {
@@ -448,7 +449,7 @@ export class WebviewService {
   }
 
   private GenerateContent(options: any) {
-    const toReplace: Array<{}> = [];
+    const toReplace: Array<Record<string, unknown>> = [];
     options.items.forEach(option => {
       if (typeof option.replace === "string") {
         toReplace.push({
@@ -462,8 +463,10 @@ export class WebviewService {
         });
       }
     });
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-return
     return toReplace
       .reduce(
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-return
         (acc, cur: any) => acc.replace(new RegExp(cur.find, "g"), cur.replace),
         options.content
       )
