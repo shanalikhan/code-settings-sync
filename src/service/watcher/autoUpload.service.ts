@@ -6,7 +6,6 @@ import { state } from "../../state";
 import { Util } from "../../util";
 import { FileService } from "../file.service";
 import lockfile from "./lockfile";
-/* eslint-disable import/no-named-as-default-member */
 
 export class AutoUploadService {
   public static GetIgnoredItems(customSettings: CustomConfig) {
@@ -24,6 +23,7 @@ export class AutoUploadService {
   });
 
   constructor(private ignored: string[]) {
+    /* eslint-disable import/no-named-as-default-member */
     vscode.extensions.onDidChange(async () => {
       if (this.watching && vscode.window.state.focused) {
         console.log("Sync: Extensions changed");
@@ -40,6 +40,7 @@ export class AutoUploadService {
         return;
       }
     });
+    /* eslint-enable import/no-named-as-default-member */
   }
 
   public async StartWatching() {
@@ -47,6 +48,7 @@ export class AutoUploadService {
 
     this.watching = true;
 
+    /* eslint-disable import/no-named-as-default-member */
     // eslint-disable-next-line @typescript-eslint/no-misused-promises
     this.watcher.addListener("change", async (path: string) => {
       if (this.watching && vscode.window.state.focused) {
@@ -73,6 +75,7 @@ export class AutoUploadService {
         return;
       }
     });
+    /* eslint-enable import/no-named-as-default-member */
   }
 
   public StopWatching() {
