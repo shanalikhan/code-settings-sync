@@ -60,7 +60,7 @@ export class FileService {
       ? pathFromUser.split("/")
       : pathFromUser.split(path.sep);
 
-    let gistName: string = "";
+    let gistName = "";
 
     arr.forEach((element, index) => {
       if (index < arr.length - 1) {

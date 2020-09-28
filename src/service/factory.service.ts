@@ -8,6 +8,7 @@ export class FactoryService {
     state: IExtensionState,
     method: string
   ): ISyncService {
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-return
     return new this.syncMethods[method](state);
   }
   private static syncMethods = {

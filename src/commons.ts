@@ -154,7 +154,7 @@ export default class Commons {
       this.state.environment.FILE_CUSTOMIZEDSETTINGS
     );
     let customSettings: CustomConfig = null;
-    const firstTime: boolean = !fileExist;
+    const firstTime = !fileExist;
     let fileChanged: boolean = firstTime;
 
     if (fileExist) {
@@ -308,6 +308,8 @@ export default class Commons {
     const allKeysUpdated = new Array<Thenable<void>>();
 
     const keys = Object.keys(setting);
+
+    // eslint-disable-next-line @typescript-eslint/no-misused-promises
     keys.forEach(async keyName => {
       if (setting[keyName] == null) {
         setting[keyName] = "";
@@ -323,6 +325,7 @@ export default class Commons {
       await Promise.all(allKeysUpdated);
       if (this.state.context.globalState.get("syncCounter")) {
         const counter = this.state.context.globalState.get("syncCounter");
+        // eslint-disable-next-line @typescript-eslint/restrict-plus-operands
         let count: number = parseInt(counter + "", 10);
         if (count % 450 === 0) {
           this.DonateMessage();
@@ -416,6 +419,8 @@ export default class Commons {
     }
   }
 
+  // TODO: Remove eslint-disable/enable statements
+  /* eslint-disable @typescript-eslint/ban-types */
   /**
    * IgnoreSettings
    */
@@ -448,6 +453,7 @@ export default class Commons {
       keysUpdated.push(config.update(key, ignoredSettings[key], true));
     }
   }
+  /* eslint-enable @typescript-eslint/ban-types */
 
   /**
    * AskGistDescription

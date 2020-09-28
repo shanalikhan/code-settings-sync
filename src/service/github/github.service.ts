@@ -92,6 +92,7 @@ export class GitHubService {
         GIST_JSON_B.files[file.gistName].content = file.content;
       }
     }
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-return
     return GIST_JSON_B;
   }
 
@@ -177,12 +178,12 @@ export class GitHubService {
     }
 
     gistObject.data = this.AddFile(files, gistObject.data);
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-return
     return gistObject;
   }
 
   public async SaveGIST(gistObject: any): Promise<boolean> {
     gistObject.gist_id = gistObject.id;
-    // tslint:disable-next-line:comment-format
     //TODO : use github.gists.update when issue is fixed.
     const promise = this.github.request("PATCH /gists/:gist_id", gistObject);
     const res = await promise.catch(err => {

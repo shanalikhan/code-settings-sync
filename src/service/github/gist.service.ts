@@ -78,7 +78,7 @@ export class GistService implements ISyncService {
       }
       const keys = Object.keys(res.data.files);
       if (keys.indexOf(this.state.environment.FILE_CLOUDSETTINGS_NAME) > -1) {
-        const cloudSettGist: object = JSON.parse(
+        const cloudSettGist: Record<string, unknown> = JSON.parse(
           res.data.files[this.state.environment.FILE_CLOUDSETTINGS_NAME].content
         );
         const cloudSett: CloudSettings = Object.assign(
@@ -95,7 +95,7 @@ export class GistService implements ISyncService {
           ? customSettings.githubSettings.gistSettings.lastDownload.toString()
           : "";
 
-        let upToDate: boolean = false;
+        let upToDate = false;
         if (lastDownloadStr !== "") {
           upToDate =
             new Date(lastDownloadStr).getTime() ===
@@ -174,7 +174,7 @@ export class GistService implements ISyncService {
       });
 
       for (const file of updatedFiles) {
-        let writeFile: boolean = false;
+        let writeFile = false;
         let content: string = file.content;
 
         if (content !== "") {
@@ -235,7 +235,7 @@ export class GistService implements ISyncService {
                 this.state.environment.FILE_KEYBINDING_DEFAULT ||
               file.gistName === this.state.environment.FILE_KEYBINDING_MAC
             ) {
-              let test: string = "";
+              let test = "";
               this.state.environment.OsType === OsType.Mac &&
               !customSettings.universalKeybindings
                 ? (test = this.state.environment.FILE_KEYBINDING_MAC)
@@ -250,7 +250,7 @@ export class GistService implements ISyncService {
               ) {
                 file.fileName = this.state.environment.FILE_KEYBINDING_DEFAULT;
               }
-              let filePath: string = "";
+              let filePath = "";
               if (file.filePath !== null) {
                 filePath = await FileService.CreateCustomDirTree(file.filePath);
               } else {
@@ -507,8 +507,8 @@ export class GistService implements ISyncService {
       const fileContent: string = JSON.stringify(extProp);
       const file: File = new File(fileName, fileContent, "", fileName);
       allSettingFiles.push(file);
-      let completed: boolean = false;
-      let newGIST: boolean = false;
+      let completed = false;
+      let newGIST = false;
       try {
         if (syncSetting.gist == null || syncSetting.gist === "") {
           if (customSettings.githubSettings.gistSettings.askGistDescription) {
