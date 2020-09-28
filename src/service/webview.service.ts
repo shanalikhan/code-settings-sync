@@ -346,7 +346,6 @@ export class WebviewService {
     landingPanel.webview.onDidReceiveMessage(async message => {
       switch (message.command) {
         case "loginWithGitHub": {
-          new GitHubOAuthService(54321).StartProcess(cmd);
           const customSettings = await state.commons.GetCustomSettings();
           const host = customSettings.githubSettings.enterpriseUrl
             ? new URL(customSettings.githubSettings.enterpriseUrl)
