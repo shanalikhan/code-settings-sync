@@ -12,17 +12,17 @@ export const SUPPORTED_OS: string[] = Object.keys(OsType)
 export function osTypeFromString(osName: string): OsType {
   const capitalized: string =
     osName[0].toUpperCase() + osName.substr(1).toLowerCase();
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-return
   return OsType[capitalized];
 }
 
 export class Environment {
-
   // public isInsiders: boolean = false;
   // public isOss: boolean = false;
   // public isCoderCom: boolean = false;
   // public homeDir: string | null = null;
 
-  public isPortable: boolean = false;
+  public isPortable = false;
   public USER_FOLDER: string = null;
 
   public CODE_BIN: string;
@@ -39,19 +39,19 @@ export class Environment {
   public FILE_CLOUDSETTINGS: string = null;
   public FILE_SYNC_LOCK: string = null;
 
-  public FILE_CUSTOMIZEDSETTINGS_NAME: string = "syncLocalSettings.json";
+  public FILE_CUSTOMIZEDSETTINGS_NAME = "syncLocalSettings.json";
   public FILE_CUSTOMIZEDSETTINGS: string = null;
 
-  public FILE_SETTING_NAME: string = "settings.json";
-  public FILE_LAUNCH_NAME: string = "launch.json";
-  public FILE_KEYBINDING_NAME: string = "keybindings.json";
-  public FILE_KEYBINDING_MAC: string = "keybindingsMac.json";
-  public FILE_KEYBINDING_DEFAULT: string = "keybindings.json";
-  public FILE_EXTENSION_NAME: string = "extensions.json";
-  public FILE_LOCALE_NAME: string = "locale.json";
-  public FILE_SYNC_LOCK_NAME: string = "sync.lock";
+  public FILE_SETTING_NAME = "settings.json";
+  public FILE_LAUNCH_NAME = "launch.json";
+  public FILE_KEYBINDING_NAME = "keybindings.json";
+  public FILE_KEYBINDING_MAC = "keybindingsMac.json";
+  public FILE_KEYBINDING_DEFAULT = "keybindings.json";
+  public FILE_EXTENSION_NAME = "extensions.json";
+  public FILE_LOCALE_NAME = "locale.json";
+  public FILE_SYNC_LOCK_NAME = "sync.lock";
 
-  public FILE_CLOUDSETTINGS_NAME: string = "cloudSettings";
+  public FILE_CLOUDSETTINGS_NAME = "cloudSettings";
 
   public FOLDER_SNIPPETS: string = null;
 
@@ -184,6 +184,7 @@ export class Environment {
     this.FILE_SYNC_LOCK = this.USER_FOLDER.concat(this.FILE_SYNC_LOCK_NAME);
   }
   public getVersion(): string {
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-return
     return vscode.extensions.getExtension("Shan.code-settings-sync").packageJSON
       .version;
   }

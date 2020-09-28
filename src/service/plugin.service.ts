@@ -75,6 +75,13 @@ export class ExtensionMetadata {
   ) {}
 }
 
+export class InstalledExtensionsSummary {
+  constructor(
+    public addedExtensions: ExtensionInformation[] = [],
+    public failedExtensions: ExtensionInformation[] = []
+  ) {}
+}
+
 export class PluginService {
   public static GetMissingExtensions(
     remoteExt: string,
@@ -179,6 +186,7 @@ export class PluginService {
           return selectedExtension;
         } catch (err) {
           throw new Error(
+            // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
             `Sync : Unable to delete extension ${selectedExtension.name} ${selectedExtension.version}: ${err}`
           );
         }
@@ -190,30 +198,30 @@ export class PluginService {
     extensions: string,
     ignoredExtensions: string[],
     notificationCallBack: (...data: any[]) => void
-  ): Promise<ExtensionInformation[]> {
-    let addedExtensions: ExtensionInformation[] = [];
+  ): Promise<InstalledExtensionsSummary> {
     const missingExtensions = PluginService.GetMissingExtensions(
       extensions,
       ignoredExtensions
     );
     if (missingExtensions.length === 0) {
       notificationCallBack("Sync : No Extensions needs to be installed.");
-      return [];
+      return new InstalledExtensionsSummary();
     }
-    addedExtensions = await PluginService.InstallWithAPI(
+    const extensionsInstallSummary = await PluginService.InstallWithAPI(
       missingExtensions,
       notificationCallBack
     );
-    return addedExtensions;
+    return extensionsInstallSummary;
   }
 
   public static async InstallWithAPI(
     missingExtensions: ExtensionInformation[],
     notificationCallBack: (...data: any[]) => void
-  ): Promise<ExtensionInformation[]> {
+  ): Promise<InstalledExtensionsSummary> {
     const addedExtensions: ExtensionInformation[] = [];
+    const failedExtensions: ExtensionInformation[] = [];
     const missingExtensionsCount = missingExtensions.length;
-    notificationCallBack("TOTAL EXTENSIONS : " + missingExtensionsCount);
+    notificationCallBack(`TOTAL EXTENSIONS : ${missingExtensionsCount}`);
     notificationCallBack("");
     notificationCallBack("");
     for (const ext of missingExtensions) {
@@ -235,9 +243,14 @@ export class PluginService {
         notificationCallBack("");
         addedExtensions.push(ext);
       } catch (err) {
-        throw new Error(err);
+        notificationCallBack("");
+        notificationCallBack(`[x] - EXTENSION: ${ext.name} NOT INSTALLED.`);
+        // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
+        notificationCallBack(`ERROR: ${err}`);
+        notificationCallBack("");
+        failedExtensions.push(ext);
       }
     }
-    return addedExtensions;
+    return { addedExtensions, failedExtensions };
   }
 }

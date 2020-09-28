@@ -6,7 +6,10 @@ import { ExtensionConfig } from "./models/extensionConfig.model";
 import { LocalConfig } from "./models/localConfig.model";
 import { IExtensionState } from "./models/state.model";
 import { File, FileService } from "./service/file.service";
-import { ExtensionInformation } from "./service/plugin.service";
+import {
+  ExtensionInformation,
+  InstalledExtensionsSummary
+} from "./service/plugin.service";
 import { AutoUploadService } from "./service/watcher/autoUpload.service";
 import { WebviewService } from "./service/webview.service";
 
@@ -151,7 +154,7 @@ export default class Commons {
       this.state.environment.FILE_CUSTOMIZEDSETTINGS
     );
     let customSettings: CustomConfig = null;
-    const firstTime: boolean = !fileExist;
+    const firstTime = !fileExist;
     let fileChanged: boolean = firstTime;
 
     if (fileExist) {
@@ -222,7 +225,7 @@ export default class Commons {
           customSettings["lastUpload"];
       }
       if (customSettings["lastDownload"]) {
-        customSettings.githubSettings.gistSettings.askGistDescription =
+        customSettings.githubSettings.gistSettings.lastDownload =
           customSettings["lastDownload"];
       }
 
@@ -305,6 +308,8 @@ export default class Commons {
     const allKeysUpdated = new Array<Thenable<void>>();
 
     const keys = Object.keys(setting);
+
+    // eslint-disable-next-line @typescript-eslint/no-misused-promises
     keys.forEach(async keyName => {
       if (setting[keyName] == null) {
         setting[keyName] = "";
@@ -320,6 +325,7 @@ export default class Commons {
       await Promise.all(allKeysUpdated);
       if (this.state.context.globalState.get("syncCounter")) {
         const counter = this.state.context.globalState.get("syncCounter");
+        // eslint-disable-next-line @typescript-eslint/restrict-plus-operands
         let count: number = parseInt(counter + "", 10);
         if (count % 450 === 0) {
           this.DonateMessage();
@@ -413,6 +419,8 @@ export default class Commons {
     }
   }
 
+  // TODO: Remove eslint-disable/enable statements
+  /* eslint-disable @typescript-eslint/ban-types */
   /**
    * IgnoreSettings
    */
@@ -445,6 +453,7 @@ export default class Commons {
       keysUpdated.push(config.update(key, ignoredSettings[key], true));
     }
   }
+  /* eslint-enable @typescript-eslint/ban-types */
 
   /**
    * AskGistDescription
@@ -461,7 +470,7 @@ export default class Commons {
     upload: boolean,
     files: File[],
     removedExtensions: ExtensionInformation[],
-    addedExtensions: ExtensionInformation[],
+    extensionsInstallSummary: InstalledExtensionsSummary,
     ignoredExtensions: ExtensionInformation[],
     syncSettings: LocalConfig
   ) {
@@ -535,15 +544,25 @@ export default class Commons {
       }
     }
 
-    if (addedExtensions) {
+    if (extensionsInstallSummary) {
       outputChannel.appendLine(``);
       outputChannel.appendLine(`Extensions Added:`);
 
-      if (addedExtensions.length === 0) {
+      if (extensionsInstallSummary.addedExtensions.length === 0) {
         outputChannel.appendLine(`  No extensions installed.`);
       }
 
-      addedExtensions.forEach(extn => {
+      extensionsInstallSummary.addedExtensions.forEach(extn => {
+        outputChannel.appendLine(`  ${extn.name} v${extn.version}`);
+      });
+
+      if (extensionsInstallSummary.failedExtensions.length !== 0) {
+        outputChannel.appendLine(
+          `  ${extensionsInstallSummary.failedExtensions.length} extensions failed to install.`
+        );
+      }
+
+      extensionsInstallSummary.failedExtensions.forEach(extn => {
         outputChannel.appendLine(`  ${extn.name} v${extn.version}`);
       });
     }

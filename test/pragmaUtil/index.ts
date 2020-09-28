@@ -63,7 +63,6 @@ describe("Process before upload", function() {
 
   it("should leave only settings that matches with os=mac host=mac2 env=TEST_ENV", async () => {
     const processed = await PragmaUtil.processBeforeUpload(testSettings);
-    // tslint:disable-next-line:no-string-literal
     process.env["TEST_ENV"] = "1";
     await expect(
       PragmaUtil.processBeforeWrite(processed, processed, OsType.Mac, "mac2")

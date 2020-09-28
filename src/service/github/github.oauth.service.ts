@@ -133,6 +133,7 @@ export class GitHubOAuthService {
 
     const res = await promise;
     const gists = await res.json();
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-return
     return gists;
   }
 
@@ -142,7 +143,7 @@ export class GitHubOAuthService {
     state.commons.SetCustomSettings(currentSettings);
   }
 
-  public async getUser(token: string, host: URL) {
+  public async getUser(token: string, host: URL): Promise<string> {
     const promise = fetch(`https://api.${host.hostname}/user`, {
       method: "GET",
       headers: { Authorization: `token ${token}` }
@@ -154,6 +155,7 @@ export class GitHubOAuthService {
 
     const res = await promise;
     const json = await res.json();
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-return
     return json.login;
   }
 }

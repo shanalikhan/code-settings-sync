@@ -23,6 +23,7 @@ export class AutoUploadService {
   });
 
   constructor(private ignored: string[]) {
+    /* eslint-disable import/no-named-as-default-member */
     vscode.extensions.onDidChange(async () => {
       if (this.watching && vscode.window.state.focused) {
         console.log("Sync: Extensions changed");
@@ -39,6 +40,7 @@ export class AutoUploadService {
         return;
       }
     });
+    /* eslint-enable import/no-named-as-default-member */
   }
 
   public async StartWatching() {
@@ -46,6 +48,8 @@ export class AutoUploadService {
 
     this.watching = true;
 
+    /* eslint-disable import/no-named-as-default-member */
+    // eslint-disable-next-line @typescript-eslint/no-misused-promises
     this.watcher.addListener("change", async (path: string) => {
       if (this.watching && vscode.window.state.focused) {
         console.log(`Sync: ${FileService.ExtractFileName(path)} changed`);
@@ -71,6 +75,7 @@ export class AutoUploadService {
         return;
       }
     });
+    /* eslint-enable import/no-named-as-default-member */
   }
 
   public StopWatching() {

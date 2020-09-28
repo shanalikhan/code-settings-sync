@@ -116,7 +116,7 @@
   "ext.globalConfig.githubEnterpriseUrl.name": "URL do GitHub Enterprise (opcional)",
   "ext.globalConfig.githubEnterpriseUrl.placeholder": "Insira a URL do GitHub Enterprise",
   "ext.globalConfig.ignoreUploadFolders.name": "Pastas ignoradas",
-  "ext.globalConfig.ignoredUploadFolders.placeholder": "Insira uma pasta por linha",
+  "ext.globalConfig.ignoreUploadFolders.placeholder": "Insira uma pasta por linha",
   "ext.globalConfig.ignoreExtensions.name": "Extensões ignoradas",
   "ext.globalConfig.ignoreExtensions.placeholder": "Insira uma extensão por linha (nome completo)",
   "ext.globalConfig.hostName.name": "Hostname (opcional)",
