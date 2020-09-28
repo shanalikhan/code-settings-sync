@@ -81,7 +81,7 @@ export class Sync {
       if (optArgument && optArgument === "publicGIST") {
         args.push("publicGIST");
       }
-      service.Export(args);
+      await service.Export(args);
     } catch (err) {
       Commons.LogException(err, state.commons.ERROR_MESSAGE, true);
       return;
@@ -96,7 +96,7 @@ export class Sync {
         state,
         SyncMethod.GitHubGist
       );
-      service.Import();
+      await service.Import();
     } catch (err) {
       Commons.LogException(err, state.commons.ERROR_MESSAGE, true);
       return;
