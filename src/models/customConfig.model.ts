@@ -12,17 +12,14 @@ export class CustomConfig {
     "projects_cache_git.json",
     "projects_cache_svn.json",
     "gpm_projects.json",
-    "gpm-recentItems.json"
+    "gpm-recentItems.json",
   ];
   public ignoreUploadFolders: string[] = ["workspaceStorage", "globalStorage"];
   public ignoreExtensions: string[] = [];
   public githubSettings: GitHubConfig = new GitHubConfig();
 
   public version: number = Number(
-    state.environment
-      .getVersion()
-      .split(".")
-      .join("")
+    state.environment.getVersion().split(".").join("")
   );
   public supportedFileExtensions: string[] = ["json", "code-snippets"];
   public disableUpdateMessage: boolean = false;
@@ -30,4 +27,5 @@ export class CustomConfig {
   public hostName: string = null;
   public universalKeybindings: boolean = false;
   public autoUploadDelay: number = 20;
+  public sortAlphabetically: boolean = false;
 }

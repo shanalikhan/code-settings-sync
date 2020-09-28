@@ -134,11 +134,6 @@
           "default": true,
           "description": "%ext.config.removeExtensions%"
         },
-        "sync.sortAlphabetically": {
-          "type": "boolean",
-          "default": false,
-          "description": ""
-        },
         "sync.syncExtensions": {
           "type": "boolean",
           "default": true,
