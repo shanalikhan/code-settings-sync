@@ -83,7 +83,9 @@ Follow these steps to configure:
 
 ![Setup the extension](images/setup.gif)
 
+
 You can always **verify the created gist** by going to `https://gist.github.com` and checking for a gist named `cloudSettings`.
+
 
 ## Upload Your Settings
 
@@ -113,14 +115,18 @@ A popup will be opened to allow you to restart Code to apply the settings.
 
 ## Reset Extension Settings
 
+
 > Select **">Sync: Reset Extension Settings"** in the Command Palette to reset your settings.
+
 
 ## Settings
 
 > Select **">Sync: Advanced Options > Open Settings"** in the Command Palette to open the settings page.
 
 There are two types of settings in Settings Sync.
+
 I recommend that you read the configurations details [here](https://dev.to/shanalikhan/visual-studio-code-settings-sync-configurations-mn0).
+
 
 ### Gist Settings
 
@@ -142,15 +148,18 @@ You can customize gist settings as follows:
     "sync.forceDownload": false,
     "sync.forceUpload": false,
     "sync.quietSync": false,
+    "sync.sortAlphabetically": false,
     "sync.removeExtensions": true,
     "sync.syncExtensions": true
 ```
 
 ### Global Settings
 
+
 Global settings are stored in `syncLocalSettings.json` inside the `User` folder. These settings will be shared across multiple gist environments.
 
 You can customize the sync as follows:
+
 
 1. Options by which files / folders and settings to exclude from upload.
 2. Configure default gist environment name.
@@ -160,39 +169,38 @@ You can customize the sync as follows:
 
 ```json
 {
-    "ignoreUploadFiles": [
-        "state.*",
-        "syncLocalSettings.json",
-        ".DS_Store",
-        "sync.lock",
-        "projects.json",
-        "projects_cache_vscode.json",
-        "projects_cache_git.json",
-        "projects_cache_svn.json",
-        "gpm_projects.json",
-        "gpm-recentItems.json"
-    ],
-    "ignoreUploadFolders": [
-        "workspaceStorage"
-    ],
-    "ignoreExtensions": [],
-    "gistDescription": "Visual Studio Code Settings Sync Gist",
-    "version": 340,
-    "token": "YOUR_GITHUB_TOKEN",
-    "downloadPublicGist": false,
-    "supportedFileExtensions": [ "json", "code-snippets" ],
-    "openTokenLink": true,
-    "disableUpdateMessage": false,
-    "lastUpload": null,
-    "lastDownload": null,
-    "githubEnterpriseUrl": null,
-    "askGistDescription": false,
-    "customFiles": {},
-    "hostName": null,
-    "universalKeybindings": false,
-    "autoUploadDelay": 20
+  "ignoreUploadFiles": [
+    "state.*",
+    "syncLocalSettings.json",
+    ".DS_Store",
+    "sync.lock",
+    "projects.json",
+    "projects_cache_vscode.json",
+    "projects_cache_git.json",
+    "projects_cache_svn.json",
+    "gpm_projects.json",
+    "gpm-recentItems.json"
+  ],
+  "ignoreUploadFolders": ["workspaceStorage"],
+  "ignoreExtensions": [],
+  "gistDescription": "Visual Studio Code Settings Sync Gist",
+  "version": 340,
+  "token": "YOUR_GITHUB_TOKEN",
+  "downloadPublicGist": false,
+  "supportedFileExtensions": ["json", "code-snippets"],
+  "openTokenLink": true,
+  "disableUpdateMessage": false,
+  "lastUpload": null,
+  "lastDownload": null,
+  "githubEnterpriseUrl": null,
+  "askGistDescription": false,
+  "customFiles": {},
+  "hostName": null,
+  "universalKeybindings": false,
+  "autoUploadDelay": 20
 }
 ```
+
 
 I recommend you read the configurations details [here](https://dev.to/shanalikhan/visual-studio-code-settings-sync-configurations-mn0).
 
@@ -234,7 +242,9 @@ Please make sure you have a valid GitHub token and gist available to make it wor
 Summary is **enabled by default**. It shows all files and extensions that are added or deleted on a single page.
 You may turn it off in order to make the upload and download processes clean and quiet.
 
+
 > Select **"Sync: Advanced Options > Show Summary Page On Upload / Download"** in the Command Palette to turn Auto Download ON / OFF.
+
 
 ### Custom Sync
 

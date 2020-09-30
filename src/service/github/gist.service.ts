@@ -212,6 +212,21 @@ export class GistService implements ISyncService {
       let completed = false;
       let newGIST = false;
       try {
+        if (syncSetting.sortAlphabetically) {
+          for (const settingFile of allSettingFiles) {
+            const content = await FileService.ReadFile(settingFile.fileName);
+            const jsonFile = JSON.parse(content);
+            const sortedJSONFile = {};
+            const sortedData = Object.keys(content).sort();
+
+            sortedData.map(data => (sortedJSONFile[data] = jsonFile[data]));
+            await FileService.WriteFile(
+              settingFile.fileName,
+              JSON.stringify(sortedJSONFile)
+            );
+          }
+        }
+
         if (syncSetting.gist == null || syncSetting.gist === "") {
           if (customSettings.githubSettings.gistSettings.askGistDescription) {
             customSettings.githubSettings.gistSettings.gistDescription = await this.state.commons.AskGistDescription();

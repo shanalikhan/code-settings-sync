@@ -350,8 +350,10 @@ export class WebviewService {
           const host = customSettings.githubSettings.enterpriseUrl
             ? new URL(customSettings.githubSettings.enterpriseUrl)
             : new URL("https://github.com");
+
           const url = `https://${host.hostname}/login/oauth/authorize?scope=gist%20read:user&client_id=cfd96460d8b110e2351b&redirect_uri=http://localhost:54321/callback`;
           new GitHubOAuthService(54321).StartProcess(url, cmd);
+
           break;
         }
         case "editConfiguration":
