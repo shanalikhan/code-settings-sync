@@ -1,0 +1,31 @@
+root: true
+parser: '@typescript-eslint/parser'
+parserOptions:
+  project: ./tsconfig.json
+settings:
+  import/core-modules: [vscode]
+
+extends:
+  - eslint:recommended
+  - plugin:eslint-comments/recommended
+  - plugin:import/errors
+  - plugin:import/warnings
+  - plugin:import/typescript
+  - plugin:@typescript-eslint/eslint-recommended
+  - plugin:@typescript-eslint/recommended
+  - plugin:@typescript-eslint/recommended-requiring-type-checking
+  - plugin:prettier/recommended
+
+rules:
+  '@typescript-eslint/array-type':
+    - error
+    - default: array-simple
+
+  # TODO: remove and fix next issues
+  '@typescript-eslint/no-explicit-any': off
+  '@typescript-eslint/no-unsafe-member-access': off
+  '@typescript-eslint/no-unsafe-call': off
+  '@typescript-eslint/no-unsafe-assignment': off
+  '@typescript-eslint/no-floating-promises': off
+  '@typescript-eslint/require-await': off
+  '@typescript-eslint/explicit-module-boundary-types': off

@@ -13,8 +13,8 @@
     {
       "label": "test_build",
       "type": "shell",
-      "command": "tsc",
-      "args": ["-p", "./"]
+      "command": "npx",
+      "args": ["tsc", "-p", "./"]
     }
   ]
 }

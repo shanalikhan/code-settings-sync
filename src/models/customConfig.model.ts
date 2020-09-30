@@ -18,11 +18,15 @@ export class CustomConfig {
   public ignoreExtensions: string[] = [];
   public githubSettings: GitHubConfig = new GitHubConfig();
 
-  public version: number = Number(
-    state.environment.getVersion().split(".").join("")
+
+  public version = Number(
+    state.environment
+      .getVersion()
+      .split(".")
+      .join("")
   );
   public supportedFileExtensions: string[] = ["json", "code-snippets"];
-  public disableUpdateMessage: boolean = false;
+  public disableUpdateMessage = false;
   public customFiles: { [key: string]: string } = {};
   public hostName: string = null;
   public universalKeybindings: boolean = false;

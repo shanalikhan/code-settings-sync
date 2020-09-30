@@ -186,6 +186,7 @@ export class PluginService {
           return selectedExtension;
         } catch (err) {
           throw new Error(
+            // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
             `Sync : Unable to delete extension ${selectedExtension.name} ${selectedExtension.version}: ${err}`
           );
         }
@@ -220,7 +221,7 @@ export class PluginService {
     const addedExtensions: ExtensionInformation[] = [];
     const failedExtensions: ExtensionInformation[] = [];
     const missingExtensionsCount = missingExtensions.length;
-    notificationCallBack("TOTAL EXTENSIONS : " + missingExtensionsCount);
+    notificationCallBack(`TOTAL EXTENSIONS : ${missingExtensionsCount}`);
     notificationCallBack("");
     notificationCallBack("");
     for (const ext of missingExtensions) {
@@ -244,6 +245,7 @@ export class PluginService {
       } catch (err) {
         notificationCallBack("");
         notificationCallBack(`[x] - EXTENSION: ${ext.name} NOT INSTALLED.`);
+        // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
         notificationCallBack(`ERROR: ${err}`);
         notificationCallBack("");
         failedExtensions.push(ext);
