@@ -11,6 +11,5 @@ node_modules
 .github
 debug.log
 scripts
-tslint.json
 webpack.config.js
 *.log

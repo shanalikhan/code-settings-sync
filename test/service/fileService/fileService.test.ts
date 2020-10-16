@@ -1,3 +1,5 @@
+import { sep as pathSeparatop } from "path";
+
 import { expect } from "chai";
 
 import { File, FileService } from "../../../src/service/file.service";
@@ -31,6 +33,7 @@ describe("FileService", () => {
       "hoge/piyo",
       "hoge.txt"
     );
-    expect(actual).to.be.equals("/User/path/to/hoge/piyo/hoge.txt");
+    expect(actual).to.be.equals(
+      `/User/path/to${pathSeparatop}hoge/piyo${pathSeparatop}hoge.txt`);
   });
 });

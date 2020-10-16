@@ -1,6 +1,6 @@
 import { expect } from "chai";
 import fs = require("fs");
-import { OsType } from "../../src/enums";
+import { OsType } from "../../src/enums/osType.enum";
 import PragmaUtil from "../../src/pragmaUtil";
 
 let testSettings = null;
@@ -63,7 +63,6 @@ describe("Process before upload", function() {
 
   it("should leave only settings that matches with os=mac host=mac2 env=TEST_ENV", async () => {
     const processed = await PragmaUtil.processBeforeUpload(testSettings);
-    // tslint:disable-next-line:no-string-literal
     process.env["TEST_ENV"] = "1";
     await expect(
       PragmaUtil.processBeforeWrite(processed, processed, OsType.Mac, "mac2")

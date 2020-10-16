@@ -1,5 +1,5 @@
 import * as lockfile from "lockfile";
-import { Util } from "./util";
+import { Util } from "../../util";
 
 interface IOptions {
   wait?: number;
@@ -19,6 +19,7 @@ export function Check(
   filepath: string,
   options: IOptions = {}
 ): Promise<boolean> {
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-return
   return Util.promisify(lockfile.check)(filepath, options);
 }
 
@@ -26,9 +27,11 @@ export function Lock(
   filepath: string,
   options: IOptions = {}
 ): Promise<boolean> {
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-return
   return Util.promisify(lockfile.lock)(filepath, options);
 }
 
 export function Unlock(filepath: string): Promise<boolean> {
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-return
   return Util.promisify(lockfile.unlock)(filepath);
 }

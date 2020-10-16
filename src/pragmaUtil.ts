@@ -1,4 +1,4 @@
-import { OsType } from "./enums";
+import { OsType } from "./enums/osType.enum";
 import { osTypeFromString, SUPPORTED_OS } from "./environmentPath";
 import localize from "./localize";
 
@@ -34,7 +34,7 @@ export default class PragmaUtil {
 
     let envMatch: RegExpMatchArray;
     let envFromPragma: string;
-    let currentLine: string = "";
+    let currentLine = "";
 
     for (let index = 0; index < lines.length; index++) {
       let shouldComment = false;
@@ -42,7 +42,7 @@ export default class PragmaUtil {
       if (this.PragmaRegExp.test(currentLine)) {
         try {
           // check OS pragma
-          osMatch = currentLine.match(/os=(\w+)/);
+          osMatch = /os=(\w+)/.exec(currentLine);
           if (osMatch !== null) {
             osFromPragma = osMatch[1].toLowerCase();
 
@@ -54,7 +54,7 @@ export default class PragmaUtil {
             }
           }
           // check host pragma
-          hostMatch = currentLine.match(/host=(\S+)/);
+          hostMatch = /host=(\S+)/.exec(currentLine);
           if (hostMatch !== null) {
             hostFromPragma = hostMatch[1];
             if (
@@ -67,7 +67,7 @@ export default class PragmaUtil {
           }
 
           // check env pragma
-          envMatch = currentLine.match(/env=(\S+)/);
+          envMatch = /env=(\S+)/.exec(currentLine);
           if (envMatch !== null) {
             envFromPragma = envMatch[1];
             if (process.env[envFromPragma.toUpperCase()] === undefined) {
@@ -146,7 +146,7 @@ export default class PragmaUtil {
         index = this.checkNextLines(lines, parsedLines, index, true);
       } else if (this.PragmaRegExp.test(currentLine)) {
         // alert not supported OS
-        osMatch = currentLine.match(this.OSPragmaWhiteSpacesSupportRegExp);
+        osMatch = this.OSPragmaWhiteSpacesSupportRegExp.exec(currentLine);
         if (osMatch !== null) {
           osFromPragma = osMatch[1] || osMatch[2] || osMatch[3];
 
@@ -170,7 +170,7 @@ export default class PragmaUtil {
           }
         }
 
-        hostMatch = currentLine.match(this.HostPragmaWhiteSpacesSupportRegExp);
+        hostMatch = this.HostPragmaWhiteSpacesSupportRegExp.exec(currentLine);
         if (hostMatch !== null) {
           hostFromPragma = hostMatch[1] || hostMatch[2] || hostMatch[3];
           if (hostFromPragma !== "" && /\s/.test(hostFromPragma)) {
@@ -181,7 +181,7 @@ export default class PragmaUtil {
           }
         }
 
-        envMatch = currentLine.match(this.EnvPragmaWhiteSpacesSupportRegExp);
+        envMatch = this.EnvPragmaWhiteSpacesSupportRegExp.exec(currentLine);
         if (envMatch !== null) {
           envFromPragma = envMatch[1] || envMatch[2] || envMatch[3];
           if (envFromPragma !== "" && /\s/.test(envFromPragma)) {
@@ -202,6 +202,8 @@ export default class PragmaUtil {
   }
 
   public static getIgnoredBlocks(content: string): string {
+    // FIXME: test eslint(no-useless-escape)
+    // eslint-disable-next-line no-useless-escape
     content = content.replace(/\@sync ignore/g, "@sync-ignore");
     const ignoredLines: string[] = [];
     const lines = content.split("\n");
@@ -227,11 +229,17 @@ export default class PragmaUtil {
     return text.replace(/(?<!["'].*)\s*(\/\/.+)|(\/\*.+\*\/)(?!["'].*)/g, "");
   }
 
+  // FIXME: test eslint(no-useless-escape)
+  // eslint-disable-next-line no-useless-escape
   private static readonly PragmaRegExp: RegExp = /\/{2}[\s\t]*\@sync[\s\t]+(?:os=.+[\s\t]*)?(?:host=.+[\s\t]*)?(?:env=.+[\s\t]*)?/;
+  // FIXME: test eslint(no-useless-escape)
+  // eslint-disable-next-line no-useless-escape
   private static readonly IgnorePragmaRegExp: RegExp = /\/{2}[\s\t]*\@sync-ignore/;
   private static readonly HostPragmaWhiteSpacesSupportRegExp = /(?:host=(.+)os=)|(?:host=(.+)env=)|host=(.+)\n?/;
   private static readonly OSPragmaWhiteSpacesSupportRegExp = /(?:os=(.+)host=)|(?:os=(.+)env=)|os=(.+)\n?/;
   private static readonly EnvPragmaWhiteSpacesSupportRegExp = /(?:env=(.+)host=)|(?:env=(.+)os=)|env=(.+)\n?/;
+  // FIXME: test eslint(no-useless-escape)
+  // eslint-disable-next-line no-useless-escape
   private static readonly OpenBlockRegExp = /['"]\s*?:\s*[{\[]+\n*/;
   // Use negative lookahead/behind to avoid errors with strings containing closing brackets
   private static readonly CloseBlockRegExp = /(?<!["'].*)[}\]]+(?!["'].*)/;
@@ -255,8 +263,8 @@ export default class PragmaUtil {
     parsedLines: string[],
     currentIndex: number,
     shouldIgnore: boolean,
-    shouldComment: boolean = false,
-    checkTrailingComma: boolean = false
+    shouldComment = false,
+    checkTrailingComma = false
   ): number {
     let currentLine = lines[++currentIndex]; // check the next line for comments
 
