@@ -137,7 +137,7 @@
   "ext.globalConfig.ignoreUploadFolders.name": "Pastas Ignoradas",
   "ext.globalConfig.ignoredUploadFolders.placeholder": "Insira uma pasta por linha",
   "ext.globalConfig.openTokenLink.name": "Abrir Token Link",
-  "ext.globalConfig.supportedFileExtensions.name": "Extensões De Arquivo Suportadas",
+  "ext.globalConfig.supportedFileExtensions.name": "Extensões de Arquivos suportadas",
   "ext.globalConfig.supportedFileExtensions.placeholder": "Digite uma extensão de arquivo por linha",
   "ext.globalConfig.token.name": "Token de Acesso",
   "ext.globalConfig.token.placeholder": "Digite o Token"
