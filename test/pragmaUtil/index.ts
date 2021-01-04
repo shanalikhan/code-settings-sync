@@ -101,4 +101,44 @@ describe("Process before upload", function() {
       .and.to.match(/\/{2}\s+},/)
       .and.to.match(/\s+"mac"/);
   });
+
+  it("should parse multi-line settings with nested array objects", () => {
+    const commentedSettings = `{
+      // @sync os=linux
+      "multi": {
+            "setting": false,
+            "settingWithBrackets": "{} []",
+            "multi": {
+            },
+            "nested": [
+                {
+                    "nestedSettingItemProp1": 1
+                },
+                {
+                    "nestedSettingItemProp2": 2
+                },
+                {
+                    "nestedSettingItemProp3": 3
+                }
+            ]
+      },
+      // @sync os=mac
+      "mac": 1
+    }`;
+    const processed = PragmaUtil.processBeforeWrite(
+      commentedSettings,
+      commentedSettings,
+      OsType.Mac,
+      null
+    );
+    expect(processed)
+      .to.match(/\/{2}\s+"multi"/)
+      .and.to.match(/\/{2}\s+"setting"/)
+      .and.to.match(/\/{2}\s+"settingWithBrackets"/)
+      .and.to.match(/\/{2}\s+"nestedSettingItemProp1"/)
+      .and.to.match(/\/{2}\s+"nestedSettingItemProp2"/)
+      .and.to.match(/\/{2}\s+"nestedSettingItemProp3"/)
+      .and.to.match(/\/{2}\s+},/)
+      .and.to.match(/\s+"mac"/);
+  });
 });
