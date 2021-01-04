@@ -226,7 +226,7 @@ export default class PragmaUtil {
   }
 
   public static removeAllComments(text: string): string {
-    return text.replace(/(?<!["'].*)\s*(\/\/.+)|(\/\*.+\*\/)(?!["'].*)/g, "");
+    return text.replace(/(?<!["'].*)\s*(\/\/.+)|(?<!["'].*)(\/\*(.|\n)+?\*\/)(?!["'].*)(?!["'].*)/g, "");
   }
 
   // FIXME: test eslint(no-useless-escape)
@@ -240,7 +240,7 @@ export default class PragmaUtil {
   private static readonly EnvPragmaWhiteSpacesSupportRegExp = /(?:env=(.+)host=)|(?:env=(.+)os=)|env=(.+)\n?/;
   // FIXME: test eslint(no-useless-escape)
   // eslint-disable-next-line no-useless-escape
-  private static readonly OpenBlockRegExp = /['"]\s*?:\s*[{\[]+\n*/;
+  private static readonly OpenBlockRegExp = /[{\[]\s*\n*$/;
   // Use negative lookahead/behind to avoid errors with strings containing closing brackets
   private static readonly CloseBlockRegExp = /(?<!["'].*)[}\]]+(?!["'].*)/;
 
