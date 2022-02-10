@@ -6,7 +6,7 @@
   "cmd.downloadSettings.info.readdingOnline": "Sync: Lettura delle impostazioni online.",
   "cmd.downloadSettings.title": "Sync: Scarica le impostazioni",
   "cmd.howSetting.title": "Sync: Come configurare l'estensione",
-  "cmd.otherOptions.customizedSync": "Sync: Aggiungi un percorso per il file personalizzato di Sync'",
+  "cmd.otherOptions.customizedSync": "Sync: Aggiungi il percorso per il file personalizzato di Sync",
   "cmd.otherOptions.customizedSync.done": "Sync: {0} è stato registrato.",
   "cmd.otherOptions.customizedSync.placeholder": "Immettere il percorso assoluto dei file addizionali caricati.",
   "cmd.otherOptions.customizedSync.prompt": "(es. /path/to/.eslintrc) saranno caricati e scaricati nel percorso specificato.",
