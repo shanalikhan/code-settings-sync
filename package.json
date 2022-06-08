@@ -126,7 +126,7 @@
         },
         "sync.quietSync": {
           "type": "boolean",
-          "default": false,
+          "default": true,
           "description": "%ext.config.quietSync%"
         },
         "sync.removeExtensions": {
