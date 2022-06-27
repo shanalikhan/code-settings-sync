@@ -13,7 +13,12 @@ export class CustomConfig {
     "gpm_projects.json",
     "gpm-recentItems.json"
   ];
-  public ignoreUploadFolders: string[] = ["workspaceStorage"];
+  public ignoreUploadFolders: string[] = [
+    "workspaceStorage",
+    "globalStorage",
+    "History",
+    "node_modules"
+  ];
   public ignoreExtensions: string[] = [];
   public gistDescription: string = "Visual Studio Code Settings Sync Gist";
   public version: number = Environment.CURRENT_VERSION;
