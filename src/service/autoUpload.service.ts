@@ -1,5 +1,5 @@
 import * as vscode from "vscode";
-import { watch } from "vscode-chokidar";
+import { watch } from "chokidar";
 import localize from "../localize";
 import lockfile from "../lockfile";
 import { CustomConfig } from "../models/customConfig.model";
