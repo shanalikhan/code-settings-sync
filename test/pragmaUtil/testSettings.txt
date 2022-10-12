@@ -30,6 +30,11 @@
     // @sync-ignore
     "test4": 12,
 
+    /*
+    "test6": 12,
+    "test7": 12,
+    */
+
     // @sync ignore
     "test5": 12
 }

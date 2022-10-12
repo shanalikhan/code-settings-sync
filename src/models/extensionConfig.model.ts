@@ -1,5 +1,5 @@
 export class ExtensionConfig {
-  public gist = null;
+  public gist: string = null;
   public quietSync = false;
   public removeExtensions = true;
   public syncExtensions = true;
@@ -7,4 +7,5 @@ export class ExtensionConfig {
   public autoUpload = false;
   public forceDownload = false;
   public forceUpload = false;
+  public sortAlphabetically: boolean = false;
 }
