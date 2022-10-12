@@ -14,7 +14,12 @@ export class CustomConfig {
     "gpm_projects.json",
     "gpm-recentItems.json",
   ];
-  public ignoreUploadFolders: string[] = ["workspaceStorage", "globalStorage"];
+  public ignoreUploadFolders: string[] = [
+    "workspaceStorage",
+    "globalStorage",
+    "History",
+    "node_modules"
+  ];
   public ignoreExtensions: string[] = [];
   public githubSettings: GitHubConfig = new GitHubConfig();
 
