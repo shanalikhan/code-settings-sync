@@ -9,7 +9,7 @@ import { ExtensionConfig } from "../models/extensionConfig.model";
 import { UISettingType } from "../models/settingType.model";
 import { IWebview } from "../models/webview.model";
 import { state } from "../state";
-import { GitHubOAuthService } from "./github.oauth.service";
+import { GitHubOAuthService } from "./github/github.oauth.service";
 
 export class WebviewService {
   private globalSettings = [
@@ -17,13 +17,13 @@ export class WebviewService {
       name: localize("ext.globalConfig.token.name"),
       placeholder: localize("ext.globalConfig.token.placeholder"),
       type: UISettingType.TextInput,
-      correspondingSetting: "token"
+      correspondingSetting: "githubSettings.token"
     },
     {
       name: localize("ext.globalConfig.githubEnterpriseUrl.name"),
       placeholder: localize("ext.globalConfig.githubEnterpriseUrl.placeholder"),
       type: UISettingType.TextInput,
-      correspondingSetting: "githubEnterpriseUrl"
+      correspondingSetting: "githubSettings.enterpriseUrl"
     },
 
     {
@@ -62,7 +62,7 @@ export class WebviewService {
       name: localize("ext.globalConfig.gistDescription.name"),
       placeholder: localize("ext.globalConfig.gistDescription.placeholder"),
       type: UISettingType.TextInput,
-      correspondingSetting: "gistDescription"
+      correspondingSetting: "githubSettings.gistSettings.gistDescription"
     },
     {
       name: localize("ext.globalConfig.autoUploadDelay.name"),
@@ -74,19 +74,19 @@ export class WebviewService {
       name: localize("ext.globalConfig.askGistDescription.name"),
       placeholder: "",
       type: UISettingType.Checkbox,
-      correspondingSetting: "askGistDescription"
+      correspondingSetting: "githubSettings.gistSettings.askGistDescription"
     },
     {
       name: localize("ext.globalConfig.downloadPublicGist.name"),
       placeholder: "",
       type: UISettingType.Checkbox,
-      correspondingSetting: "downloadPublicGist"
+      correspondingSetting: "githubSettings.gistSettings.downloadPublicGist"
     },
     {
       name: localize("ext.globalConfig.openTokenLink.name"),
       placeholder: "",
       type: UISettingType.Checkbox,
-      correspondingSetting: "openTokenLink"
+      correspondingSetting: "githubSettings.openTokenLink"
     }
   ];
 
@@ -246,11 +246,11 @@ export class WebviewService {
           state.commons.GetCustomSettings(),
           state.commons.GetSettings()
         ]);
-        const host = customConfig.githubEnterpriseUrl
-          ? new URL(customConfig.githubEnterpriseUrl)
+        const host = customConfig.githubSettings.enterpriseUrl
+          ? new URL(customConfig.githubSettings.enterpriseUrl)
           : new URL("https://github.com");
         const username = await new GitHubOAuthService(0).getUser(
-          customConfig.token,
+          customConfig.githubSettings.token,
           host
         );
         if (!username) {
@@ -321,6 +321,7 @@ export class WebviewService {
 
   public OpenLandingPage(cmd?: string) {
     const webview = this.webviews[0];
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
     const releaseNotes = require("../../release-notes.json");
     const content: string = this.GenerateContent({
       content: webview.htmlContent,
@@ -344,26 +345,24 @@ export class WebviewService {
     );
     landingPanel.webview.onDidReceiveMessage(async message => {
       switch (message.command) {
-        case "loginWithGitHub":
-          new GitHubOAuthService(54321).StartProcess(cmd);
+        case "loginWithGitHub": {
           const customSettings = await state.commons.GetCustomSettings();
-          const host = customSettings.githubEnterpriseUrl
-            ? new URL(customSettings.githubEnterpriseUrl)
+          const host = customSettings.githubSettings.enterpriseUrl
+            ? new URL(customSettings.githubSettings.enterpriseUrl)
             : new URL("https://github.com");
-          vscode.commands.executeCommand(
-            "vscode.open",
-            vscode.Uri.parse(
-              `https://${host.hostname}/login/oauth/authorize?scope=gist%20read:user&client_id=cfd96460d8b110e2351b&redirect_uri=http://localhost:54321/callback`
-            )
-          );
+
+          const url = `https://${host.hostname}/login/oauth/authorize?scope=gist%20read:user&client_id=cfd96460d8b110e2351b&redirect_uri=http://localhost:54321/callback`;
+          new GitHubOAuthService(54321).StartProcess(url, cmd);
+
           break;
+        }
         case "editConfiguration":
           this.OpenSettingsPage(
             await state.commons.GetCustomSettings(),
-            await state.commons.GetSettings()
+            state.commons.GetSettings()
           );
           break;
-        case "downloadPublicGist":
+        case "downloadPublicGist": {
           const [extConfig, customConfig] = await Promise.all([
             state.commons.GetSettings(),
             state.commons.GetCustomSettings()
@@ -375,10 +374,8 @@ export class WebviewService {
           if (!publicGist) {
             break;
           }
-          await state.commons.SetCustomSettings({
-            ...customConfig,
-            downloadPublicGist: true
-          });
+          customConfig.githubSettings.gistSettings.downloadPublicGist = true;
+          await state.commons.SetCustomSettings(customConfig);
           await state.commons.SaveSettings({
             ...extConfig,
             gist: publicGist
@@ -388,6 +385,7 @@ export class WebviewService {
           );
           vscode.commands.executeCommand("extension.downloadSettings");
           break;
+        }
         case "dontShowThisAgain":
           await state.context.globalState.update(
             "landingPage.dontShowThisAgain",
@@ -430,7 +428,7 @@ export class WebviewService {
     gistSelectionPanel.webview.html = content;
     gistSelectionPanel.webview.onDidReceiveMessage(async message => {
       if (!message.close) {
-        const extSettings = await state.commons.GetSettings();
+        const extSettings = state.commons.GetSettings();
         extSettings.gist = message.id;
         state.commons.SaveSettings(extSettings);
       } else {
@@ -448,7 +446,7 @@ export class WebviewService {
   }
 
   private GenerateContent(options: any) {
-    const toReplace: Array<{}> = [];
+    const toReplace: Array<Record<string, unknown>> = [];
     options.items.forEach(option => {
       if (typeof option.replace === "string") {
         toReplace.push({
@@ -462,8 +460,10 @@ export class WebviewService {
         });
       }
     });
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-return
     return toReplace
       .reduce(
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-return
         (acc, cur: any) => acc.replace(new RegExp(cur.find, "g"), cur.replace),
         options.content
       )

@@ -1,11 +1,11 @@
 import * as vscode from "vscode";
 import { watch } from "chokidar";
-import localize from "../localize";
-import lockfile from "../lockfile";
-import { CustomConfig } from "../models/customConfig.model";
-import { state } from "../state";
-import { Util } from "../util";
-import { FileService } from "./file.service";
+import localize from "../../localize";
+import { CustomConfig } from "../../models/customConfig.model";
+import { state } from "../../state";
+import { Util } from "../../util";
+import { FileService } from "../file.service";
+import lockfile from "./lockfile";
 
 export class AutoUploadService {
   public static GetIgnoredItems(customSettings: CustomConfig) {
@@ -23,6 +23,7 @@ export class AutoUploadService {
   });
 
   constructor(private ignored: string[]) {
+    /* eslint-disable import/no-named-as-default-member */
     vscode.extensions.onDidChange(async () => {
       if (this.watching && vscode.window.state.focused) {
         console.log("Sync: Extensions changed");
@@ -32,13 +33,14 @@ export class AutoUploadService {
           await lockfile.Lock(state.environment.FILE_SYNC_LOCK);
         }
         const customConfig = await state.commons.GetCustomSettings();
-        if (!customConfig.downloadPublicGist) {
+        if (!customConfig.githubSettings.gistSettings.downloadPublicGist) {
           await this.InitiateAutoUpload();
         }
         await lockfile.Unlock(state.environment.FILE_SYNC_LOCK);
         return;
       }
     });
+    /* eslint-enable import/no-named-as-default-member */
   }
 
   public async StartWatching() {
@@ -46,6 +48,8 @@ export class AutoUploadService {
 
     this.watching = true;
 
+    /* eslint-disable import/no-named-as-default-member */
+    // eslint-disable-next-line @typescript-eslint/no-misused-promises
     this.watcher.addListener("change", async (path: string) => {
       if (this.watching && vscode.window.state.focused) {
         console.log(`Sync: ${FileService.ExtractFileName(path)} changed`);
@@ -62,7 +66,7 @@ export class AutoUploadService {
             .slice(1);
           if (
             customConfig.supportedFileExtensions.includes(fileType) &&
-            !customConfig.downloadPublicGist
+            !customConfig.githubSettings.gistSettings.downloadPublicGist
           ) {
             await this.InitiateAutoUpload();
           }
@@ -71,6 +75,7 @@ export class AutoUploadService {
         return;
       }
     });
+    /* eslint-enable import/no-named-as-default-member */
   }
 
   public StopWatching() {
