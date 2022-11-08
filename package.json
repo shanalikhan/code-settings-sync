@@ -185,6 +185,7 @@
   "dependencies": {
     "@octokit/rest": "^16.43.2",
     "adm-zip": "^0.4.13",
+    "chokidar": "^3.5.3",
     "const": "^1.0.0",
     "express": "^4.17.1",
     "fs-extra": "^8.1.0",

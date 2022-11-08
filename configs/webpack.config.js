@@ -30,12 +30,16 @@ const config = {
       {
         test: /\.ts$/,
         exclude: /node_modules/,
-        loader: "ts-loader"
+        loader: "ts-loader",
+        options: {
+          transpileOnly: true
+        }
       }
     ]
   },
   externals: {
     vscode: "commonjs vscode",
+    chokidar: "commonjs chokidar",
     "vscode-fsevents": "commonjs vscode-fsevents",
     "original-fs": "commonjs original-fs"
   },
