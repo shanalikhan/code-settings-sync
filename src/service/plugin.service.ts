@@ -75,6 +75,16 @@ export class ExtensionMetadata {
   ) {}
 }
 
+export interface ExtensionsInstallInfo {
+  addedExtensions: ExtensionInformation[];
+  failedToAddExtensions: ExtensionInformation[];
+}
+
+export const getDefaultExtensionsInstallInfo = (): ExtensionsInstallInfo => ({
+  addedExtensions: [],
+  failedToAddExtensions: [],
+});
+
 export class PluginService {
   public static GetMissingExtensions(
     remoteExt: string,
@@ -190,28 +200,28 @@ export class PluginService {
     extensions: string,
     ignoredExtensions: string[],
     notificationCallBack: (...data: any[]) => void
-  ): Promise<ExtensionInformation[]> {
-    let addedExtensions: ExtensionInformation[] = [];
+  ): Promise<ExtensionsInstallInfo> {
     const missingExtensions = PluginService.GetMissingExtensions(
       extensions,
       ignoredExtensions
     );
     if (missingExtensions.length === 0) {
       notificationCallBack("Sync : No Extensions needs to be installed.");
-      return [];
+      return getDefaultExtensionsInstallInfo();
     }
-    addedExtensions = await PluginService.InstallWithAPI(
+    const installInfo: ExtensionsInstallInfo = await PluginService.InstallWithAPI(
       missingExtensions,
       notificationCallBack
     );
-    return addedExtensions;
+    return installInfo;
   }
 
   public static async InstallWithAPI(
     missingExtensions: ExtensionInformation[],
     notificationCallBack: (...data: any[]) => void
-  ): Promise<ExtensionInformation[]> {
+  ): Promise<ExtensionsInstallInfo> {
     const addedExtensions: ExtensionInformation[] = [];
+    const failedToAddExtensions: ExtensionInformation[] = [];
     const missingExtensionsCount = missingExtensions.length;
     notificationCallBack("TOTAL EXTENSIONS : " + missingExtensionsCount);
     notificationCallBack("");
@@ -221,23 +231,37 @@ export class PluginService {
       try {
         notificationCallBack("");
         notificationCallBack(`[x] - EXTENSION: ${ext.name} - INSTALLING`);
-        await vscode.commands.executeCommand(
-          "workbench.extensions.installExtension",
-          name
-        );
-        notificationCallBack("");
-        notificationCallBack(`[x] - EXTENSION: ${ext.name} INSTALLED.`);
-        notificationCallBack(
-          `      ${missingExtensions.indexOf(ext) +
-            1} OF ${missingExtensionsCount} INSTALLED`,
-          true
-        );
-        notificationCallBack("");
-        addedExtensions.push(ext);
+
+        let success = true;
+        try {
+          await vscode.commands.executeCommand(
+            "workbench.extensions.installExtension",
+            name
+          );
+        } catch (err) {
+          notificationCallBack("");
+          notificationCallBack(`[x] - EXTENSION: ${ext.name} FAILED TO INSTALL:`);
+          notificationCallBack(err);
+
+          success = false;
+          failedToAddExtensions.push(ext);
+        }
+
+        if (success) {
+          notificationCallBack("");
+          notificationCallBack(`[x] - EXTENSION: ${ext.name} INSTALLED.`);
+          notificationCallBack(
+            `      ${missingExtensions.indexOf(ext) +
+              1} OF ${missingExtensionsCount} INSTALLED`,
+            true
+          );
+          notificationCallBack("");
+          addedExtensions.push(ext);
+        }
       } catch (err) {
         throw new Error(err);
       }
     }
-    return addedExtensions;
+    return { addedExtensions, failedToAddExtensions };
   }
 }
