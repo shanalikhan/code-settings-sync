@@ -399,6 +399,7 @@ export class Sync {
               allSettingFiles,
               null,
               uploadedExtensions,
+              null,
               ignoredExtensions,
               localConfig
             );
@@ -466,6 +467,7 @@ export class Sync {
       }
 
       let addedExtensions: ExtensionInformation[] = [];
+      let failedToAddExtensions: ExtensionInformation[] = [];
       let deletedExtensions: ExtensionInformation[] = [];
       const ignoredExtensions: string[] =
         customSettings.ignoreExtensions || new Array<string>();
@@ -603,7 +605,7 @@ export class Sync {
                   Commons.outputChannel.show();
                 }
 
-                addedExtensions = await PluginService.InstallExtensions(
+                ({ addedExtensions, failedToAddExtensions } = await PluginService.InstallExtensions(
                   content,
                   ignoredExtensions,
                   (message: string, dispose: boolean) => {
@@ -619,7 +621,7 @@ export class Sync {
                       }
                     }
                   }
-                );
+                ));
               } catch (err) {
                 throw new Error(err);
               }
@@ -702,6 +704,7 @@ export class Sync {
             updatedFiles,
             deletedExtensions,
             addedExtensions,
+            failedToAddExtensions,
             null,
             localSettings
           );

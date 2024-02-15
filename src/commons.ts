@@ -441,6 +441,7 @@ export default class Commons {
     files: File[],
     removedExtensions: ExtensionInformation[],
     addedExtensions: ExtensionInformation[],
+    failedToAddExtensions: ExtensionInformation[],
     ignoredExtensions: ExtensionInformation[],
     syncSettings: LocalConfig
   ) {
@@ -520,6 +521,19 @@ export default class Commons {
       }
 
       addedExtensions.forEach(extn => {
+        outputChannel.appendLine(`  ${extn.name} v${extn.version}`);
+      });
+    }
+
+    if (failedToAddExtensions) {
+      outputChannel.appendLine(``);
+      outputChannel.appendLine(`Extensions Failed to be Added:`);
+
+      if (addedExtensions.length === 0) {
+        outputChannel.appendLine(`  No extensions failed to add.`);
+      }
+
+      failedToAddExtensions.forEach(extn => {
         outputChannel.appendLine(`  ${extn.name} v${extn.version}`);
       });
     }
