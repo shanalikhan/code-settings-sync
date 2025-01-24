@@ -1,13 +1,30 @@
 // @ts-nocheck
 
 function appendHTML(parent, html) {
-  var div = document.createElement("div");
-  div.innerHTML = html;
-  while (div.children.length > 0) {
-    parent.appendChild(div.children[0]);
+  // Create a temporary container for the HTML string
+  const tempDiv = document.createElement("div");
+  tempDiv.innerHTML = html;
+
+  // Move all child elements from the temporary container to the parent
+  while (tempDiv.children.length > 0) {
+    parent.appendChild(tempDiv.children[0]);
   }
-  div.remove();
+
+  // Remove the temporary container to clean up the DOM
+  tempDiv.remove();
+
+  // Destroy all existing tooltips to prevent duplication
+  const tooltipElements = document.querySelectorAll('[data-toggle="tooltip"]');
+  tooltipElements.forEach((tooltip) => {
+    if ($(tooltip).data("bs.tooltip")) {
+      $(tooltip).tooltip("dispose");
+    }
+  });
+
+  // Reinitialize tooltips for the updated elements
+  $('[data-toggle="tooltip"]').tooltip({ container: "body" });
 }
+
 
 const vscode = acquireVsCodeApi();
 
