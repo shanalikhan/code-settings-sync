@@ -691,6 +691,29 @@ export class Sync {
       }
 
       await Promise.all(actionList);
+      
+      // Restore disabled extension states after all files are processed
+      if (addedExtensions.length > 0) {
+        try {
+          await PluginService.RestoreDisabledExtensions(
+            addedExtensions,
+            (message: string) => {
+              if (!syncSetting.quietSync) {
+                Commons.outputChannel.appendLine(message);
+              } else {
+                console.log(message);
+              }
+            }
+          );
+        } catch (err) {
+          Commons.LogException(
+            err,
+            "Sync : Unable to restore disabled extension states. Error Logged on console.",
+            true
+          );
+        }
+      }
+      
       const settingsUpdated = await state.commons.SaveSettings(syncSetting);
       const customSettingsUpdated = await state.commons.SetCustomSettings(
         customSettings

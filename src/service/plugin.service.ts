@@ -20,6 +20,10 @@ export class ExtensionInformation {
       item.name = obj.name;
       item.publisher = obj.publisher;
       item.version = obj.version;
+      // Support for disabled extensions
+      item.disabled = obj.disabled || false;
+      item.disabledGlobally = obj.disabledGlobally || false;
+      item.disabledInWorkspace = obj.disabledInWorkspace || false;
       return item;
     } catch (err) {
       throw new Error(err);
@@ -46,6 +50,10 @@ export class ExtensionInformation {
         item.name = obj.name;
         item.publisher = obj.publisher;
         item.version = obj.version;
+        // Support for disabled extensions
+        item.disabled = obj.disabled || false;
+        item.disabledGlobally = obj.disabledGlobally || false;
+        item.disabledInWorkspace = obj.disabledInWorkspace || false;
 
         if (item.name !== "code-settings-sync") {
           extList.push(item);
@@ -62,6 +70,10 @@ export class ExtensionInformation {
   public name: string;
   public version: string;
   public publisher: string;
+  // New properties for disabled extension support
+  public disabled?: boolean; // Legacy support - true if disabled in any way
+  public disabledGlobally?: boolean; // True if disabled globally
+  public disabledInWorkspace?: boolean; // True if disabled in current workspace
 }
 
 export class ExtensionMetadata {
@@ -123,7 +135,15 @@ export class PluginService {
   }
 
   public static CreateExtensionList() {
-    return vscode.extensions.all
+    // Import the DisabledExtensionService
+    const { DisabledExtensionService } = require("./disabledExtension.service");
+    
+    // Get disabled extensions info
+    const disabledInfo = DisabledExtensionService.getAllDisabledExtensions();
+    const allDisabledIds = [...disabledInfo.global, ...disabledInfo.workspace];
+    
+    // Get enabled extensions from VSCode API
+    const enabledExtensions = vscode.extensions.all
       .filter(ext => !ext.packageJSON.isBuiltin)
       .map(ext => {
         const meta = ext.packageJSON.__metadata || {
@@ -144,8 +164,51 @@ export class PluginService {
         info.name = ext.packageJSON.name;
         info.publisher = ext.packageJSON.publisher;
         info.version = ext.packageJSON.version;
+        
+        // Check if this extension is disabled
+        const extensionId = `${ext.packageJSON.publisher}.${ext.packageJSON.name}`;
+        info.disabledGlobally = disabledInfo.global.includes(extensionId);
+        info.disabledInWorkspace = disabledInfo.workspace.includes(extensionId);
+        info.disabled = info.disabledGlobally || info.disabledInWorkspace;
+        
         return info;
       });
+    
+    // Create entries for disabled extensions that are not in the enabled list
+    // This handles extensions that are completely disabled and don't appear in vscode.extensions.all
+    const disabledExtensions = allDisabledIds
+      .filter(extensionId => {
+        // Only include if not already in enabled extensions list
+        return !enabledExtensions.some(ext => 
+          `${ext.publisher}.${ext.name}` === extensionId
+        );
+      })
+      .map(extensionId => {
+        const [publisher, name] = extensionId.split('.');
+        const info = new ExtensionInformation();
+        
+        // Create minimal metadata for disabled extension
+        info.metadata = new ExtensionMetadata(
+          "", // galleryApiUrl - will be empty for disabled extensions
+          extensionId, // id
+          "", // downloadUrl
+          publisher, // publisherId
+          publisher, // publisherDisplayName
+          "" // date
+        );
+        
+        info.name = name;
+        info.publisher = publisher;
+        info.version = "unknown"; // Version unknown for disabled extensions
+        info.disabledGlobally = disabledInfo.global.includes(extensionId);
+        info.disabledInWorkspace = disabledInfo.workspace.includes(extensionId);
+        info.disabled = true;
+        
+        return info;
+      });
+    
+    // Combine enabled and disabled extensions
+    return [...enabledExtensions, ...disabledExtensions];
   }
 
   public static async DeleteExtension(
@@ -239,5 +302,49 @@ export class PluginService {
       }
     }
     return addedExtensions;
+  }
+
+  /**
+   * Restore disabled extension states after sync
+   */
+  public static async RestoreDisabledExtensions(
+    extensions: ExtensionInformation[],
+    notificationCallBack: (...data: any[]) => void
+  ): Promise<void> {
+    const { DisabledExtensionService } = require("./disabledExtension.service");
+    
+    const globallyDisabled: string[] = [];
+    const workspaceDisabled: string[] = [];
+    
+    // Collect disabled extensions
+    extensions.forEach(ext => {
+      const extensionId = `${ext.publisher}.${ext.name}`;
+      if (ext.disabledGlobally) {
+        globallyDisabled.push(extensionId);
+      }
+      if (ext.disabledInWorkspace) {
+        workspaceDisabled.push(extensionId);
+      }
+    });
+    
+    if (globallyDisabled.length === 0 && workspaceDisabled.length === 0) {
+      notificationCallBack("Sync : No disabled extensions to restore.");
+      return;
+    }
+    
+    notificationCallBack(`Sync : Restoring ${globallyDisabled.length} globally disabled and ${workspaceDisabled.length} workspace disabled extensions.`);
+    
+    try {
+      // Restore disabled states
+      await DisabledExtensionService.restoreDisabledExtensions(
+        globallyDisabled,
+        workspaceDisabled
+      );
+      
+      notificationCallBack("Sync : Disabled extension states restored successfully.");
+    } catch (error) {
+      notificationCallBack(`Sync : Error restoring disabled extensions: ${error.message}`);
+      throw error;
+    }
   }
 }
