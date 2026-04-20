@@ -1,16 +1,15 @@
 {
-  "name": "code-settings-sync",
-  "displayName": "Settings Sync",
-  "description": "Synchronize Settings, Snippets, Themes, File Icons, Launch, Keybindings, Workspaces and Extensions Across Multiple Machines Using GitHub Gist.",
-  "version": "3.4.3",
+  "name": "code-settings-sync-fork",
+  "displayName": "Settings Sync (Kiro compatible)",
+  "description": "[UNOFFICIAL FORK] Synchronize Settings, Snippets, Themes, File Icons, Launch, Keybindings, Workspaces and Extensions Across Multiple Machines Using GitHub Gist. Forked from Shan Khan's Settings Sync with bug fixes.",
+  "version": "3.5.2",
   "icon": "images/logo-128.png",
-  "publisher": "Shan",
+  "publisher": "princelundgren",
   "author": {
-    "name": "Shan Khan",
-    "url": "http://shanalikhan.github.io",
-    "email": "shanalikhan@hotmail.com"
+    "name": "princelundgren (fork)",
+    "url": "https://github.com/princelundgren"
   },
-  "homepage": "https://shanalikhan.github.io",
+  "homepage": "https://github.com/princelundgren/code-settings-sync",
   "galleryBanner": {
     "color": "#3B4859",
     "theme": "dark"
@@ -18,35 +17,13 @@
   "engines": {
     "vscode": "^1.35.1"
   },
-  "badges": [
-    {
-      "url": "https://vsmarketplacebadge.apphb.com/version/Shan.code-settings-sync.svg",
-      "description": "Latest Version",
-      "href": "https://marketplace.visualstudio.com/items?itemName=Shan.code-settings-sync"
-    },
-    {
-      "url": "https://vsmarketplacebadge.apphb.com/installs/Shan.code-settings-sync.svg",
-      "description": "Total Downloads",
-      "href": "https://marketplace.visualstudio.com/items?itemName=Shan.code-settings-sync"
-    },
-    {
-      "url": "https://vsmarketplacebadge.apphb.com/rating/Shan.code-settings-sync.svg",
-      "description": "Ratings",
-      "href": "https://marketplace.visualstudio.com/items?itemName=Shan.code-settings-sync"
-    },
-    {
-      "url": "https://img.shields.io/badge/Join%20Community-slack-green.svg",
-      "description": "Join Slack Community",
-      "href": "https://join.slack.com/t/codesettingssync/shared_invite/enQtNzQyODMzMzI5MDQ3LWNmZjVkZjE2YTg0MzY1Y2EyYzVmYThmNzg2YjZkNjhhZWY3ZTEzN2I3ZTAxMjkwNWU0ZjMyZGFhMjdiZDI3ODU"
-    }
-  ],
+  "badges": [],
   "repository": {
     "type": "git",
-    "url": "https://github.com/shanalikhan/code-settings-sync.git"
+    "url": "https://github.com/princelundgren/code-settings-sync.git"
   },
   "bugs": {
-    "url": "https://github.com/shanalikhan/code-settings-sync/issues",
-    "email": "shanalikhan@hotmail.com"
+    "url": "https://github.com/princelundgren/code-settings-sync/issues"
   },
   "categories": [
     "Other"
@@ -59,7 +36,7 @@
     "workspace-sync",
     "multi-root ready"
   ],
-  "extensionKind": "ui",
+  "extensionKind": ["ui"],
   "activationEvents": [
     "*"
   ],
@@ -154,12 +131,13 @@
   },
   "devDependencies": {
     "@types/chai": "4.2.1",
-    "@types/express": "^4.16.1",
-    "@types/lodash": "^4.14.123",
-    "@types/node-fetch": "^2.3.3",
+    "@types/express": "^4.17.2",
+    "@types/express-serve-static-core": "^4.17.2",
     "@types/fs-extra": "^8.0.0",
+    "@types/lodash": "^4.14.149",
     "@types/mocha": "^5.2.6",
     "@types/node": "^12.0.9",
+    "@types/node-fetch": "^2.3.3",
     "@types/recursive-readdir": "^2.2.0",
     "chai": "^4.2.0",
     "clean-webpack-plugin": "^3.0.0",

@@ -182,12 +182,13 @@ export class Sync {
           }
         }
       } else {
-        Commons.LogException(null, state.commons.ERROR_MESSAGE, true);
-        return;
+        // syncLocalSettings.json doesn't exist yet — create it with defaults
+        // so future uploads work, but continue with the current upload.
+        await state.commons.SetCustomSettings(customSettings);
       }
       for (const snippetFile of contentFiles) {
         if (snippetFile.fileName !== state.environment.FILE_KEYBINDING_MAC) {
-          if (snippetFile.content !== "") {
+          if (snippetFile.content != null) {
             if (
               snippetFile.fileName === state.environment.FILE_KEYBINDING_NAME
             ) {
@@ -286,7 +287,10 @@ export class Sync {
 
         if (
           !allSettingFiles.some(fileToUpload => {
-            if (fileToUpload.gistName === "cloudSettings") {
+            if (
+              fileToUpload.gistName ===
+              state.environment.FILE_CLOUDSETTINGS_NAME
+            ) {
               return false;
             }
             if (!gistObj.data.files[fileToUpload.gistName]) {
@@ -313,42 +317,46 @@ export class Sync {
           // Fall through to upload code for forced upload case.
         } else {
           // Gist files are different from the local files.
-          const gistNewer = await github.IsGistNewer(
-            syncSetting.gist,
-            customSettings.lastDownload
-          );
-          if (!customSettings.lastDownload) {
-            // Unable to compare the last gist upload time with the
-            // last download time, so ask user to force upload.
-            const message = await vscode.window.showInformationMessage(
-              localize("common.prompt.gistForceUpload"),
-              localize("common.button.yes"),
-              localize("common.button.no")
+          if (newGIST) {
+            // Just created this gist, skip all checks and upload directly.
+          } else {
+            const gistNewer = await github.IsGistNewer(
+              syncSetting.gist,
+              customSettings.lastDownload
             );
-            if (message !== localize("common.button.yes")) {
-              vscode.window.setStatusBarMessage(
-                localize("cmd.updateSettings.info.uploadCanceled"),
-                3000
+            if (!customSettings.lastDownload) {
+              // Unable to compare the last gist upload time with the
+              // last download time, so ask user to force upload.
+              const message = await vscode.window.showInformationMessage(
+                localize("common.prompt.gistForceUpload"),
+                localize("common.button.yes"),
+                localize("common.button.no")
               );
-              return;
-            }
-            // Fall through to upload code for one-time forced upload.
-          } else if (gistNewer && !localConfig.extConfig.forceUpload) {
-            // Last local download is prior to the last gist upload, so
-            // the local settings may be out of date.
-            const message = await vscode.window.showInformationMessage(
-              localize("common.prompt.gistNewer"),
-              localize("common.button.yes"),
-              localize("common.button.no")
-            );
-            if (message !== localize("common.button.yes")) {
-              vscode.window.setStatusBarMessage(
-                localize("cmd.updateSettings.info.uploadCanceled"),
-                3000
+              if (message !== localize("common.button.yes")) {
+                vscode.window.setStatusBarMessage(
+                  localize("cmd.updateSettings.info.uploadCanceled"),
+                  3000
+                );
+                return;
+              }
+              // Fall through to upload code for one-time forced upload.
+            } else if (gistNewer && !localConfig.extConfig.forceUpload) {
+              // Last local download is prior to the last gist upload, so
+              // the local settings may be out of date.
+              const message = await vscode.window.showInformationMessage(
+                localize("common.prompt.gistNewer"),
+                localize("common.button.yes"),
+                localize("common.button.no")
               );
-              return;
+              if (message !== localize("common.button.yes")) {
+                vscode.window.setStatusBarMessage(
+                  localize("cmd.updateSettings.info.uploadCanceled"),
+                  3000
+                );
+                return;
+              }
+              // Fall through to upload code for one-time forced upload.
             }
-            // Fall through to upload code for one-time forced upload.
           }
           // !gistNewer: Last local download is later or the same as last Gist upload,
           // so OK to upload - fall through to upload code below.
@@ -573,7 +581,7 @@ export class Sync {
         let writeFile: boolean = false;
         let content: string = file.content;
 
-        if (content !== "") {
+        if (content != null && content !== "") {
           if (file.gistName === state.environment.FILE_EXTENSION_NAME) {
             if (syncSetting.syncExtensions) {
               if (syncSetting.removeExtensions) {
@@ -593,7 +601,7 @@ export class Sync {
               try {
                 if (!syncSetting.quietSync) {
                   Commons.outputChannel = vscode.window.createOutputChannel(
-                    "Code Settings Sync"
+                    "Code Settings Sync — PrinceLundgren"
                   );
                   Commons.outputChannel.clear();
                   Commons.outputChannel.appendLine(
@@ -789,7 +797,7 @@ export class Sync {
     return vscode.commands.executeCommand(
       "vscode.open",
       vscode.Uri.parse(
-        "http://shanalikhan.github.io/2015/12/15/Visual-Studio-Code-Sync-Settings.html"
+        "https://github.com/princelundgren/code-settings-sync#readme"
       )
     );
   }
@@ -998,7 +1006,7 @@ export class Sync {
         vscode.commands.executeCommand(
           "vscode.open",
           vscode.Uri.parse(
-            "https://join.slack.com/t/codesettingssync/shared_invite/enQtNzQyODMzMzI5MDQ3LWNmZjVkZjE2YTg0MzY1Y2EyYzVmYThmNzg2YjZkNjhhZWY3ZTEzN2I3ZTAxMjkwNWU0ZjMyZGFhMjdiZDI3ODU"
+            "https://github.com/princelundgren/code-settings-sync/discussions"
           )
         );
       },
@@ -1006,7 +1014,7 @@ export class Sync {
         vscode.commands.executeCommand(
           "vscode.open",
           vscode.Uri.parse(
-            "https://github.com/shanalikhan/code-settings-sync/issues/new"
+            "https://github.com/princelundgren/code-settings-sync/issues/new"
           )
         );
       },
@@ -1014,7 +1022,7 @@ export class Sync {
         vscode.commands.executeCommand(
           "vscode.open",
           vscode.Uri.parse(
-            "http://shanalikhan.github.io/2016/05/14/Visual-studio-code-sync-settings-release-notes.html"
+            "https://github.com/princelundgren/code-settings-sync/blob/master/CHANGELOG.md"
           )
         );
       }

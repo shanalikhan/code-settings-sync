@@ -219,14 +219,15 @@ export class WebviewService {
     extSettings: ExtensionConfig
   ): vscode.WebviewPanel {
     const webview = this.webviews[1];
-    const content: string = this.GenerateContent({
-      content: webview.htmlContent,
-      items: webview.replaceables,
-      customSettings,
-      extSettings
-    });
     if (webview.webview) {
-      webview.webview.webview.html = content;
+      const html: string = this.GenerateContent({
+        content: webview.htmlContent,
+        items: webview.replaceables,
+        customSettings,
+        extSettings,
+        webview: webview.webview.webview
+      });
+      webview.webview.webview.html = html;
       webview.webview.reveal();
       return webview.webview;
     }
@@ -239,6 +240,13 @@ export class WebviewService {
         enableScripts: true
       }
     );
+    const content: string = this.GenerateContent({
+      content: webview.htmlContent,
+      items: webview.replaceables,
+      customSettings,
+      extSettings,
+      webview: settingsPanel.webview
+    });
     settingsPanel.webview.html = content;
     settingsPanel.webview.onDidReceiveMessage(async message => {
       if (message === "openGist") {
@@ -284,7 +292,8 @@ export class WebviewService {
         content: webview.htmlContent,
         items: webview.replaceables,
         customSettings,
-        extSettings
+        extSettings,
+        webview: webview.webview.webview
       });
     }
   }
@@ -322,14 +331,15 @@ export class WebviewService {
   public OpenLandingPage(cmd?: string) {
     const webview = this.webviews[0];
     const releaseNotes = require("../../release-notes.json");
-    const content: string = this.GenerateContent({
-      content: webview.htmlContent,
-      items: webview.replaceables,
-      releaseNotes,
-      checked: this.IsLandingPageEnabled()
-    });
     if (webview.webview) {
-      webview.webview.webview.html = content;
+      const html: string = this.GenerateContent({
+        content: webview.htmlContent,
+        items: webview.replaceables,
+        releaseNotes,
+        checked: this.IsLandingPageEnabled(),
+        webview: webview.webview.webview
+      });
+      webview.webview.webview.html = html;
       webview.webview.reveal();
       return webview.webview;
     }
@@ -342,6 +352,13 @@ export class WebviewService {
         enableScripts: true
       }
     );
+    const content: string = this.GenerateContent({
+      content: webview.htmlContent,
+      items: webview.replaceables,
+      releaseNotes,
+      checked: this.IsLandingPageEnabled(),
+      webview: landingPanel.webview
+    });
     landingPanel.webview.onDidReceiveMessage(async message => {
       switch (message.command) {
         case "loginWithGitHub":
@@ -353,7 +370,7 @@ export class WebviewService {
           vscode.commands.executeCommand(
             "vscode.open",
             vscode.Uri.parse(
-              `https://${host.hostname}/login/oauth/authorize?scope=gist%20read:user&client_id=cfd96460d8b110e2351b&redirect_uri=http://localhost:54321/callback`
+              `https://${host.hostname}/login/oauth/authorize?scope=gist%20read:user&client_id=Ov23lizLfzOGrAVArP4Y&redirect_uri=http://localhost:54321/callback`
             )
           );
           break;
@@ -404,17 +421,19 @@ export class WebviewService {
 
   public OpenGistSelectionpage(gists: any, cmd?: string) {
     const webview = this.webviews[2];
-    const content: string = this.GenerateContent({
-      content: webview.htmlContent,
-      items: webview.replaceables,
-      gists,
-      skip:
-        cmd !== "extension.downloadSettings"
-          ? `<a href="#" onclick="vscode.postMessage({close: true});" title="Skip (new one will be created upon first upload)" class="btn btn-primary mt-4">Skip (new one will be created upon first upload)</a>`
-          : ""
-    });
+    const skipHtml =
+      cmd !== "extension.downloadSettings"
+        ? `<a href="#" onclick="vscode.postMessage({close: true});" title="Skip (new one will be created upon first upload)" class="btn btn-primary mt-4">Skip (new one will be created upon first upload)</a>`
+        : "";
     if (webview.webview) {
-      webview.webview.webview.html = content;
+      const html: string = this.GenerateContent({
+        content: webview.htmlContent,
+        items: webview.replaceables,
+        gists,
+        skip: skipHtml,
+        webview: webview.webview.webview
+      });
+      webview.webview.webview.html = html;
       webview.webview.reveal();
       return webview.webview;
     }
@@ -427,6 +446,13 @@ export class WebviewService {
         enableScripts: true
       }
     );
+    const content: string = this.GenerateContent({
+      content: webview.htmlContent,
+      items: webview.replaceables,
+      gists,
+      skip: skipHtml,
+      webview: gistSelectionPanel.webview
+    });
     gistSelectionPanel.webview.html = content;
     gistSelectionPanel.webview.onDidReceiveMessage(async message => {
       if (!message.close) {
@@ -462,18 +488,18 @@ export class WebviewService {
         });
       }
     });
+    const extensionUri = vscode.Uri.file(state.context.extensionPath);
+    let baseUri: string;
+    if (options.webview) {
+      baseUri = options.webview.asWebviewUri(extensionUri).toString();
+    } else {
+      baseUri = extensionUri.with({ scheme: "vscode-resource" }).toString();
+    }
     return toReplace
       .reduce(
         (acc, cur: any) => acc.replace(new RegExp(cur.find, "g"), cur.replace),
         options.content
       )
-      .replace(
-        new RegExp("@PWD", "g"),
-        vscode.Uri.file(state.context.extensionPath)
-          .with({
-            scheme: "vscode-resource"
-          })
-          .toString()
-      );
+      .replace(new RegExp("@PWD", "g"), baseUri);
   }
 }

@@ -1,6 +1,30 @@
-out
-node_modules
+# Build output
+out/
+dist/
+
+# Dependencies
+node_modules/
+
+# Package lock (regenerated on install)
 package-lock.json
+
+# Packaged extension
 *.vsix
+
+# Lock files
 *.lock
+
+# Logs
 *.log
+debug.log
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE settings (keep .vscode for shared config)
+.idea/
+
+# Environment
+.env
+.env.local

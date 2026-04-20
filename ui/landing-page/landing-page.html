@@ -8,7 +8,7 @@
     />
     <meta
       http-equiv="Content-Security-Policy"
-      content="default-src vscode-resource:; script-src 'unsafe-inline' vscode-resource:; style-src 'unsafe-inline' vscode-resource:; img-src data: vscode-resource:;"
+      content="default-src 'none'; script-src 'unsafe-inline' vscode-resource: https:; style-src 'unsafe-inline' vscode-resource: https:; img-src data: vscode-resource: https:; font-src vscode-resource: https:;"
     />
     <link
       rel="stylesheet"
@@ -36,7 +36,7 @@
           <b>
             <a
               id="current-version"
-              href="https://github.com/shanalikhan/code-settings-sync/blob/master/CHANGELOG.md"
+              href="https://github.com/princelundgren/code-settings-sync/blob/master/CHANGELOG.md"
               >vX.X.X
             </a>
           </b>
@@ -90,39 +90,24 @@
           </h3>
           <p class="mx-auto mt-2 mb-3 text-white-50a text-left">
             While being free and open source, if you find
-            <b>Settings Sync</b>
-            useful, please consider supporting it by donating via PayPal or Open
-            Collective.
+            <b>Settings Sync (Fork)</b>
+            useful, please consider starring the project on GitHub.
           </p>
           <div class="container p-0 mb-3">
             <div class="row">
               <div class="col">
                 <a
-                  href="https://opencollective.com/code-settings-sync"
-                  title="Become a Sponsor"
+                  href="https://github.com/princelundgren/code-settings-sync"
+                  title="Star on GitHub"
                   class="btn btn-primary font-weight-bold"
-                  >Become a Sponsor</a
-                >
-              </div>
-              <div class="col">
-                <a
-                  href="https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=4W3EWHHBSYMM8&lc=IE&item_name=Code%20Settings%20Sync&item_number=visual%20studio%20code%20settings%20sync&currency_code=USD&bn=PP%2dDonationsBF%3abtn_donate_SM%2egif%3aNonHosted"
-                  title="Donate via PayPal"
-                  class="btn btn-primary font-weight-bold"
-                  >Donate via PayPal</a
+                  >Star on GitHub</a
                 >
               </div>
             </div>
           </div>
           <div class="text-left mt-2">
-            <a
-              href="https://marketplace.visualstudio.com/items?itemName=Shan.code-settings-sync&ssr=false#review-details"
-              >Write a Review</a
-            ><br />
-            <a href="https://github.com/shanalikhan/code-settings-sync"
-              >Star or Fork Settings Sync on GitHub</a
-            ><br />
-            <a href="https://twitter.com/itsShanKhan">Follow me on Twitter</a
+            <a href="https://github.com/princelundgren/code-settings-sync"
+              >Star or Fork on GitHub</a
             ><br />
           </div>
         </div>
@@ -133,23 +118,25 @@
         <h3 class="mx-auto mb-3 text-white-50a">
           Need Help?
         </h3>
-        <a href="https://shanalikhan.github.io/">Homepage</a><br />
-        <a href="https://github.com/shanalikhan/code-settings-sync/issues"
+        <a href="https://github.com/princelundgren/code-settings-sync">Homepage</a><br />
+        <a href="https://github.com/princelundgren/code-settings-sync/issues"
           >Questions & Issues</a
         >
         <br />
         <a
-          href="https://github.com/shanalikhan/code-settings-sync/blob/master/CONTRIBUTING.md"
+          href="https://github.com/princelundgren/code-settings-sync/blob/master/CONTRIBUTING.md"
           >Contribute</a
         >
         <br />
       </div>
       <div class="col col-two">
-        <h3 class="mb-3">Sponsors</h3>
+        <h3 class="mb-3">Credits</h3>
         <p class="mx-auto mt-2 mb-3 text-white-50a">
-          Contact me on
-          <a href="https://twitter.com/itsShanKhan">Twitter</a> or
-          <a href="https://github.com/shanalikhan">GitHub</a>
+          Forked from
+          <a href="https://github.com/shanalikhan/code-settings-sync">Settings Sync</a>
+          by <a href="https://github.com/shanalikhan">Shan Khan</a>.
+          Original extension available on the
+          <a href="https://marketplace.visualstudio.com/items?itemName=Shan.code-settings-sync">VS Code Marketplace</a>.
         </p>
       </div>
     </footer>

@@ -13,9 +13,14 @@ export class CustomConfig {
     "gpm_projects.json",
     "gpm-recentItems.json"
   ];
-  public ignoreUploadFolders: string[] = ["workspaceStorage"];
+  public ignoreUploadFolders: string[] = [
+    "workspaceStorage",
+    "History",
+    "globalStorage"
+  ];
   public ignoreExtensions: string[] = [];
-  public gistDescription: string = "Visual Studio Code Settings Sync Gist";
+  public gistDescription: string =
+    "Settings Sync (Kiro Compatible) by PrinceLundgren";
   public version: number = Environment.CURRENT_VERSION;
   public token: string = "";
   public downloadPublicGist: boolean = false;
@@ -26,7 +31,10 @@ export class CustomConfig {
   public lastDownload: Date = null;
   public githubEnterpriseUrl: string = null;
   public askGistDescription: boolean = false;
-  public customFiles: { [key: string]: string } = {};
+  public customFiles: { [key: string]: string } = {
+    "mcp.json": "~/.kiro/settings/mcp.json",
+    "installed-powers.json": "~/.kiro/powers/installed.json"
+  };
   public hostName: string = null;
   public universalKeybindings: boolean = false;
   public autoUploadDelay: number = 20;

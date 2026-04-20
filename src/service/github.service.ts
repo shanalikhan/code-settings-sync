@@ -14,16 +14,12 @@ interface IEnv {
   HTTP_PROXY: string;
 }
 
-interface IFixGistResponse extends Omit<GitHubApi.GistsGetResponse, "files"> {
-  files: any | GitHubApi.GistsGetResponseFiles;
-}
-
 export class GitHubService {
   public userName: string = null;
   public name: string = null;
-  private github: GitHubApi = null;
+  private github: any = null;
   private GIST_JSON_EMPTY: any = {
-    description: "Visual Studio Code Sync Settings Gist",
+    description: "Settings Sync (Kiro Compatible) by PrinceLundgren",
     public: false,
     files: {
       "settings.json": {
@@ -44,14 +40,14 @@ export class GitHubService {
       "keybindingsMac.json": {
         content: "// Empty"
       },
-      cloudSettings: {
+      "0-settingsSyncKiro": {
         content: "// Empty"
       }
     }
   };
 
   constructor(userToken: string, basePath: string) {
-    const githubApiConfig: GitHubApi.Options = {};
+    const githubApiConfig: any = {};
 
     const proxyURL: string =
       vscode.workspace.getConfiguration("http").get("proxy") ||
@@ -69,7 +65,7 @@ export class GitHubService {
       githubApiConfig.auth = `token ${userToken}`;
     }
     try {
-      this.github = new GitHubApi(githubApiConfig);
+      this.github = new (GitHubApi as any)(githubApiConfig);
     } catch (err) {
       console.error(err);
     }
@@ -91,7 +87,7 @@ export class GitHubService {
 
   public AddFile(list: File[], GIST_JSON_B: any) {
     for (const file of list) {
-      if (file.content !== "") {
+      if (file.content != null) {
         GIST_JSON_B.files[file.gistName] = {};
         GIST_JSON_B.files[file.gistName].content = file.content;
       }
@@ -127,10 +123,7 @@ export class GitHubService {
     }
   }
 
-  // This should return GitHubApi.Response<GitHubApi.GistsGetResponse> but Types are wrong
-  public async ReadGist(
-    GIST: string
-  ): Promise<GitHubApi.Response<IFixGistResponse>> {
+  public async ReadGist(GIST: string): Promise<any> {
     const promise = this.github.gists.get({ gist_id: GIST });
     const res = await promise.catch(err => {
       if (String(err).includes("HttpError: Not Found")) {
@@ -153,7 +146,11 @@ export class GitHubService {
     }
     let gistCloudSetting: CloudSettings = null;
     try {
-      gistCloudSetting = JSON.parse(gist.data.files.cloudSettings.content);
+      const syncFile =
+        gist.data.files["0-settingsSyncKiro"] ||
+        gist.data.files.settingsSyncKiro ||
+        gist.data.files.cloudSettings;
+      gistCloudSetting = JSON.parse(syncFile.content);
       const gistLastUpload = new Date(gistCloudSetting.lastUpload);
       if (!localLastDownload) {
         return false;

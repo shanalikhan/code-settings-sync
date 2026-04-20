@@ -145,7 +145,7 @@ export default class Commons {
       vscode.commands.executeCommand(
         "vscode.open",
         vscode.Uri.parse(
-          "http://shanalikhan.github.io/2017/02/19/Option-to-ignore-settings-folders-code-settings-sync.html"
+          "https://github.com/princelundgren/code-settings-sync#readme"
         )
       );
     }
@@ -198,7 +198,7 @@ export default class Commons {
             vscode.commands.executeCommand(
               "vscode.open",
               vscode.Uri.parse(
-                "https://marketplace.visualstudio.com/items?itemName=Shan.code-settings-sync"
+                "https://github.com/princelundgren/code-settings-sync"
               )
             );
           }
@@ -212,6 +212,20 @@ export default class Commons {
           customSettings.ignoreUploadFiles.push(m);
         }
       });
+
+      const newIgnoredFolders = new CustomConfig().ignoreUploadFolders;
+      newIgnoredFolders.forEach(m => {
+        if (customSettings.ignoreUploadFolders.indexOf(m) === -1) {
+          customSettings.ignoreUploadFolders.push(m);
+        }
+      });
+
+      const defaultCustomFiles = new CustomConfig().customFiles;
+      for (const key of Object.keys(defaultCustomFiles)) {
+        if (!(key in customSettings.customFiles)) {
+          customSettings.customFiles[key] = defaultCustomFiles[key];
+        }
+      }
 
       if (state.context.globalState.get("synctoken")) {
         const token = state.context.globalState.get("synctoken");
@@ -242,7 +256,7 @@ export default class Commons {
               vscode.commands.executeCommand(
                 "vscode.open",
                 vscode.Uri.parse(
-                  "http://shanalikhan.github.io/2016/05/14/Visual-studio-code-sync-settings-release-notes.html"
+                  "https://github.com/princelundgren/code-settings-sync/blob/master/CHANGELOG.md"
                 )
               );
             }
@@ -250,7 +264,7 @@ export default class Commons {
               vscode.commands.executeCommand(
                 "vscode.open",
                 vscode.Uri.parse(
-                  "https://marketplace.visualstudio.com/items?itemName=Shan.code-settings-sync#review-details"
+                  "https://github.com/princelundgren/code-settings-sync"
                 )
               );
             }
@@ -258,7 +272,7 @@ export default class Commons {
               vscode.commands.executeCommand(
                 "vscode.open",
                 vscode.Uri.parse(
-                  "https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=4W3EWHHBSYMM8&lc=IE&item_name=Code%20Settings%20Sync&item_number=visual%20studio%20code%20settings%20sync&currency_code=USD&bn=PP-DonationsBF:btn_donate_SM.gif:NonHosted"
+                  "https://github.com/princelundgren/code-settings-sync"
                 )
               );
             }
@@ -266,7 +280,7 @@ export default class Commons {
               vscode.commands.executeCommand(
                 "vscode.open",
                 vscode.Uri.parse(
-                  "https://join.slack.com/t/codesettingssync/shared_invite/enQtNzQyODMzMzI5MDQ3LWNmZjVkZjE2YTg0MzY1Y2EyYzVmYThmNzg2YjZkNjhhZWY3ZTEzN2I3ZTAxMjkwNWU0ZjMyZGFhMjdiZDI3ODU"
+                  "https://github.com/princelundgren/code-settings-sync/discussions"
                 )
               );
             }
@@ -329,16 +343,12 @@ export default class Commons {
     if (res === donateNow) {
       vscode.commands.executeCommand(
         "vscode.open",
-        vscode.Uri.parse(
-          "https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=4W3EWHHBSYMM8&lc=IE&item_name=Code%20Settings%20Sync&item_number=visual%20studio%20code%20settings%20sync&currency_code=USD&bn=PP-DonationsBF:btn_donate_SM.gif:NonHosted"
-        )
+        vscode.Uri.parse("https://github.com/princelundgren/code-settings-sync")
       );
     } else if (res === writeReview) {
       vscode.commands.executeCommand(
         "vscode.open",
-        vscode.Uri.parse(
-          "https://marketplace.visualstudio.com/items?itemName=Shan.code-settings-sync#review-details"
-        )
+        vscode.Uri.parse("https://github.com/princelundgren/code-settings-sync")
       );
     }
   }
@@ -446,13 +456,13 @@ export default class Commons {
   ) {
     if (Commons.outputChannel === null) {
       Commons.outputChannel = vscode.window.createOutputChannel(
-        "Code Settings Sync"
+        "Code Settings Sync — PrinceLundgren"
       );
     }
 
     const outputChannel = Commons.outputChannel;
     outputChannel.appendLine(
-      `CODE SETTINGS SYNC ${upload ? "UPLOAD" : "DOWNLOAD"} SUMMARY`
+      `SETTINGS SYNC (PrinceLundgren) ${upload ? "UPLOAD" : "DOWNLOAD"} SUMMARY`
     );
     outputChannel.appendLine(`Version: ${Environment.getVersion()}`);
     outputChannel.appendLine(`--------------------`);

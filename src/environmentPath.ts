@@ -16,7 +16,7 @@ export function osTypeFromString(osName: string): OsType {
 }
 
 export class Environment {
-  public static CURRENT_VERSION: number = 343;
+  public static CURRENT_VERSION: number = 347;
   public static getVersion(): string {
     return (
       Environment.CURRENT_VERSION.toString().slice(0, 1) +
@@ -61,7 +61,7 @@ export class Environment {
   public FILE_LOCALE_NAME: string = "locale.json";
   public FILE_SYNC_LOCK_NAME: string = "sync.lock";
 
-  public FILE_CLOUDSETTINGS_NAME: string = "cloudSettings";
+  public FILE_CLOUDSETTINGS_NAME: string = "0-settingsSyncKiro";
 
   public FOLDER_SNIPPETS: string = null;
 

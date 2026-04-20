@@ -1,6 +1,7 @@
 "use strict";
 
 import * as fs from "fs-extra";
+import * as os from "os";
 import * as path from "path";
 import * as recursiveRead from "recursive-readdir";
 import { CustomConfig } from "../models/customConfig.model";
@@ -78,7 +79,7 @@ export class FileService {
     filePath: string,
     data: string
   ): Promise<boolean> {
-    if (!data) {
+    if (data == null) {
       console.error(
         new Error(
           "Unable to write file. FilePath :" + filePath + " Data :" + data
@@ -195,17 +196,25 @@ export class FileService {
     }
   }
 
+  public static ResolvePath(filePath: string): string {
+    if (filePath && filePath.startsWith("~")) {
+      return path.join(os.homedir(), filePath.slice(1));
+    }
+    return filePath;
+  }
+
   public static async GetCustomFile(
     filePath: string,
     fileName: string
   ): Promise<File> {
-    const fileExists: boolean = await FileService.FileExists(filePath);
+    const resolved = FileService.ResolvePath(filePath);
+    const fileExists: boolean = await FileService.FileExists(resolved);
 
     if (!fileExists) {
       return null;
     }
 
-    const content = await FileService.ReadFile(filePath);
+    const content = await FileService.ReadFile(resolved);
 
     if (content === null) {
       return null;
@@ -214,12 +223,13 @@ export class FileService {
     // for identifing Customized Sync file
     const gistName: string = FileService.CUSTOMIZED_SYNC_PREFIX + fileName;
 
-    const file: File = new File(fileName, content, filePath, gistName);
+    const file: File = new File(fileName, content, resolved, gistName);
     return file;
   }
 
   public static async CreateCustomDirTree(filePath: string): Promise<string> {
-    const dir = path.dirname(filePath);
+    const resolved = FileService.ResolvePath(filePath);
+    const dir = path.dirname(resolved);
     const fileExists = await FileService.FileExists(dir);
 
     if (!fileExists) {
@@ -227,7 +237,7 @@ export class FileService {
       await fs.mkdirs(dir);
     }
 
-    return filePath;
+    return resolved;
   }
 
   public static ExtractFileName(fullPath: string): string {

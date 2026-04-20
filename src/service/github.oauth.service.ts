@@ -1,6 +1,8 @@
 import * as express from "express";
 import { Server } from "http";
-import fetch from "node-fetch";
+// tslint:disable-next-line:no-var-requires
+const nodeFetch = require("node-fetch");
+const fetch = nodeFetch.default || nodeFetch;
 import { URL, URLSearchParams } from "url";
 import Commons from "../commons";
 import { state } from "../state";
@@ -82,8 +84,8 @@ export class GitHubOAuthService {
 
   public getToken(code: string, host: URL) {
     const params = new URLSearchParams();
-    params.append("client_id", "cfd96460d8b110e2351b");
-    params.append("client_secret", "ed46bd3a0f736e0da57308e86ca5fa3cf8688582");
+    params.append("client_id", "Ov23lizLfzOGrAVArP4Y");
+    params.append("client_secret", "b01dc1b10ea6dc9872f327ad6417823df12dae22");
     params.append("code", code);
 
     const promise = fetch(`https://${host.hostname}/login/oauth/access_token`, {

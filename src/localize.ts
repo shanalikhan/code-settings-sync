@@ -38,8 +38,9 @@ export class Localize {
     const languageFormat = "package.nls{0}.json";
     const defaultLanguage = languageFormat.replace("{0}", "");
 
-    const rootPath = extensions.getExtension("Shan.code-settings-sync")
-      .extensionPath;
+    const rootPath = extensions.getExtension(
+      "princelundgren.code-settings-sync-fork"
+    ).extensionPath;
 
     const resolvedLanguage = this.recurseCandidates(
       rootPath,

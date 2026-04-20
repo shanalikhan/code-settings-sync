@@ -47,7 +47,7 @@ export class ExtensionInformation {
         item.publisher = obj.publisher;
         item.version = obj.version;
 
-        if (item.name !== "code-settings-sync") {
+        if (item.name !== "code-settings-sync-fork") {
           extList.push(item);
         }
       });
@@ -116,7 +116,7 @@ export class PluginService {
 
     return localExtensions.filter(
       ext =>
-        ext.name !== "code-settings-sync" &&
+        ext.name !== "code-settings-sync-fork" &&
         !remoteExtensions.map(e => e.name).includes(ext.name) &&
         !ignoredExtensions.includes(ext.name)
     );
@@ -132,9 +132,9 @@ export class PluginService {
           publisherDisplayName: ext.packageJSON.publisher
         };
         const data = new ExtensionMetadata(
-          meta.galleryApiUrl,
+          "",
           meta.id,
-          meta.downloadUrl,
+          "",
           meta.publisherId,
           meta.publisherDisplayName,
           meta.date
