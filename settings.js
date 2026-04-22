@@ -1,0 +1,1 @@
+exports.settings = { /* VRAI code */ };
