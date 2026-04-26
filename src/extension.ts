@@ -45,4 +45,22 @@ export async function activate(context: vscode.ExtensionContext) {
       sync.advance.bind(sync)
     )
   );
+  context.subscriptions.push(
+    vscode.commands.registerCommand(
+      "extension.exportSettings",
+      sync.upload.bind(sync)
+    )
+  );
+  context.subscriptions.push(
+    vscode.commands.registerCommand(
+      "extension.importSettings",
+      sync.download.bind(sync)
+    )
+  );
+  context.subscriptions.push(
+    vscode.commands.registerCommand(
+      "extension.toggleSyncMethod",
+      sync.toggleSyncMethod.bind(sync)
+    )
+  );
 }

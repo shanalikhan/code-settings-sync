@@ -11,3 +11,8 @@ export enum SettingType {
   Locale,
   Extensions
 }
+
+export enum SyncMethod {
+  Gist = "gist",
+  File = "file"
+}

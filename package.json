@@ -85,6 +85,18 @@
       {
         "command": "extension.otherOptions",
         "title": "%cmd.otherOptions.title%"
+      },
+      {
+        "command": "extension.exportSettings",
+        "title": "%cmd.exportSettings.title%"
+      },
+      {
+        "command": "extension.importSettings",
+        "title": "%cmd.importSettings.title%"
+      },
+      {
+        "command": "extension.toggleSyncMethod",
+        "title": "%cmd.toggleSyncMethod.title%"
       }
     ],
     "keybindings": [

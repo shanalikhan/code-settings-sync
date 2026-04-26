@@ -1,4 +1,5 @@
 import { Environment } from "../environmentPath";
+import { SyncMethod } from "../enums";
 
 export class CustomConfig {
   public ignoreUploadFiles: string[] = [
@@ -30,4 +31,6 @@ export class CustomConfig {
   public hostName: string = null;
   public universalKeybindings: boolean = false;
   public autoUploadDelay: number = 20;
+  public syncMethod: SyncMethod = SyncMethod.Gist;
+  public exportPath: string = "";
 }
