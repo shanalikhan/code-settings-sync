@@ -1,4 +1,8 @@
 import { expect } from "chai";
+import * as fs from "fs-extra";
+import * as os from "os";
+import * as path from "path";
+import * as vscode from "vscode";
 
 import { File, FileService } from "../../../src/service/file.service";
 
@@ -32,5 +36,22 @@ describe("FileService", () => {
       "hoge.txt"
     );
     expect(actual).to.be.equals("/User/path/to/hoge/piyo/hoge.txt");
+  });
+
+  it("should close an open editor for a file path", async () => {
+    const directory = fs.mkdtempSync(path.join(os.tmpdir(), "settings-sync-"));
+    const filePath = path.join(directory, "settings.json");
+    fs.writeFileSync(filePath, "{}");
+
+    const document = await vscode.workspace.openTextDocument(filePath);
+    await vscode.window.showTextDocument(document);
+
+    await FileService.CloseOpenFile(filePath);
+
+    const openEditor = vscode.window.visibleTextEditors.find(editor => {
+      return editor.document.uri.fsPath === filePath;
+    });
+
+    expect(openEditor).to.be.equals(undefined);
   });
 });

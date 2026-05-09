@@ -671,6 +671,8 @@ export class Sync {
                 }
               }
 
+              await FileService.CloseOpenFile(filePath);
+
               actionList.push(
                 FileService.WriteFile(filePath, content)
                   .then(() => {
