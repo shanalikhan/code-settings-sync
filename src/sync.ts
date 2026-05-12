@@ -228,6 +228,7 @@ export class Sync {
       let completed: boolean = false;
 
       let newGIST: boolean = false;
+      let uploadedSettingFiles: File[] = allSettingFiles;
       try {
         if (syncSetting.gist == null || syncSetting.gist === "") {
           if (customSettings.askGistDescription) {
@@ -284,23 +285,39 @@ export class Sync {
           localConfig.publicGist = true;
         }
 
-        if (
-          !allSettingFiles.some(fileToUpload => {
-            if (fileToUpload.gistName === "cloudSettings") {
+        const cloudSettingsFile = allSettingFiles.find(
+          fileToUpload => fileToUpload.gistName === "cloudSettings"
+        );
+        const changedSettingFiles = allSettingFiles.filter(fileToUpload => {
+          if (fileToUpload.gistName === "cloudSettings") {
+            return false;
+          }
+          if (!gistObj.data.files[fileToUpload.gistName]) {
+            return true;
+          }
+          if (
+            gistObj.data.files[fileToUpload.gistName].content !==
+            fileToUpload.content
+          ) {
+            console.info(`Sync: file ${fileToUpload.gistName} has changed`);
+            return true;
+          }
+          return false;
+        });
+        const deletedGistFileNames = Object.keys(gistObj.data.files).filter(
+          gistFileName => {
+            if (gistFileName.startsWith("keybindings")) {
               return false;
             }
-            if (!gistObj.data.files[fileToUpload.gistName]) {
-              return true;
-            }
-            if (
-              gistObj.data.files[fileToUpload.gistName].content !==
-              fileToUpload.content
-            ) {
-              console.info(`Sync: file ${fileToUpload.gistName} has changed`);
-              return true;
-            }
-          })
-        ) {
+            return !allSettingFiles.some(
+              fileToUpload => fileToUpload.gistName === gistFileName
+            );
+          }
+        );
+        const hasSettingChanges =
+          changedSettingFiles.length > 0 || deletedGistFileNames.length > 0;
+
+        if (!hasSettingChanges) {
           // Gist files are the same as the local files.
           if (!localConfig.extConfig.forceUpload) {
             vscode.window.setStatusBarMessage(
@@ -359,7 +376,18 @@ export class Sync {
           3000
         );
 
-        gistObj = github.UpdateGIST(gistObj, allSettingFiles);
+        if (!newGIST && !localConfig.extConfig.forceUpload) {
+          uploadedSettingFiles = cloudSettingsFile
+            ? [...changedSettingFiles, cloudSettingsFile]
+            : changedSettingFiles;
+          gistObj = github.UpdateChangedFiles(
+            gistObj,
+            uploadedSettingFiles,
+            deletedGistFileNames
+          );
+        } else {
+          gistObj = github.UpdateGIST(gistObj, allSettingFiles);
+        }
         completed = await github.SaveGIST(gistObj.data);
         if (!completed) {
           vscode.window.showErrorMessage(
@@ -396,7 +424,7 @@ export class Sync {
           if (!syncSetting.quietSync) {
             state.commons.ShowSummaryOutput(
               true,
-              allSettingFiles,
+              uploadedSettingFiles,
               null,
               uploadedExtensions,
               ignoredExtensions,

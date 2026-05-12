@@ -184,6 +184,21 @@ export class GitHubService {
     return gistObject;
   }
 
+  public UpdateChangedFiles(
+    gistObject: any,
+    files: File[],
+    deletedFileNames: string[]
+  ): any {
+    gistObject.data.files = {};
+    gistObject.data = this.AddFile(files, gistObject.data);
+
+    for (const fileName of deletedFileNames) {
+      gistObject.data.files[fileName] = null;
+    }
+
+    return gistObject;
+  }
+
   public async SaveGIST(gistObject: any): Promise<boolean> {
     gistObject.gist_id = gistObject.id;
     // tslint:disable-next-line:comment-format
