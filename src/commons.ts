@@ -442,7 +442,8 @@ export default class Commons {
     removedExtensions: ExtensionInformation[],
     addedExtensions: ExtensionInformation[],
     ignoredExtensions: ExtensionInformation[],
-    syncSettings: LocalConfig
+    syncSettings: LocalConfig,
+    deletedFiles?: string[]
   ) {
     if (Commons.outputChannel === null) {
       Commons.outputChannel = vscode.window.createOutputChannel(
@@ -479,11 +480,24 @@ export default class Commons {
     outputChannel.appendLine(`--------------------`);
 
     outputChannel.appendLine(`Files ${upload ? "Upload" : "Download"}ed:`);
-    files
-      .filter(item => item.fileName.indexOf(".") > 0)
-      .forEach(item => {
+    const summaryFiles = files.filter(item => item.fileName.indexOf(".") > 0);
+    if (summaryFiles.length === 0) {
+      outputChannel.appendLine(
+        `  No files ${upload ? "upload" : "download"}ed.`
+      );
+    } else {
+      summaryFiles.forEach(item => {
         outputChannel.appendLine(`  ${item.fileName} > ${item.gistName}`);
       });
+    }
+
+    if (upload && deletedFiles && deletedFiles.length > 0) {
+      outputChannel.appendLine(``);
+      outputChannel.appendLine(`Files Deleted From Gist:`);
+      deletedFiles.forEach(fileName => {
+        outputChannel.appendLine(`  ${fileName}`);
+      });
+    }
 
     outputChannel.appendLine(``);
     outputChannel.appendLine(`Extensions Ignored:`);
