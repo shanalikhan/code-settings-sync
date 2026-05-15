@@ -226,7 +226,8 @@ export class Sync {
       allSettingFiles.push(file);
 
       let completed: boolean = false;
-
+      let uploadedSettingFiles: File[] = [];
+      let deletedGistFileNames: string[] = [];
       let newGIST: boolean = false;
       try {
         if (syncSetting.gist == null || syncSetting.gist === "") {
@@ -284,22 +285,29 @@ export class Sync {
           localConfig.publicGist = true;
         }
 
+        const changedSettingFiles: File[] = github.GetChangedFiles(
+          gistObj,
+          allSettingFiles
+        );
+        deletedGistFileNames = github.GetDeletedFileNames(
+          gistObj,
+          allSettingFiles
+        );
+        uploadedSettingFiles = changedSettingFiles.filter(fileToUpload => {
+          return (
+            fileToUpload.gistName !== state.environment.FILE_CLOUDSETTINGS_NAME
+          );
+        });
+        uploadedSettingFiles.forEach(fileToUpload => {
+          console.info(`Sync: file ${fileToUpload.gistName} has changed`);
+        });
+        deletedGistFileNames.forEach(fileName => {
+          console.info(`Sync: file ${fileName} has been deleted locally`);
+        });
+
         if (
-          !allSettingFiles.some(fileToUpload => {
-            if (fileToUpload.gistName === "cloudSettings") {
-              return false;
-            }
-            if (!gistObj.data.files[fileToUpload.gistName]) {
-              return true;
-            }
-            if (
-              gistObj.data.files[fileToUpload.gistName].content !==
-              fileToUpload.content
-            ) {
-              console.info(`Sync: file ${fileToUpload.gistName} has changed`);
-              return true;
-            }
-          })
+          uploadedSettingFiles.length === 0 &&
+          deletedGistFileNames.length === 0
         ) {
           // Gist files are the same as the local files.
           if (!localConfig.extConfig.forceUpload) {
@@ -396,11 +404,12 @@ export class Sync {
           if (!syncSetting.quietSync) {
             state.commons.ShowSummaryOutput(
               true,
-              allSettingFiles,
+              uploadedSettingFiles,
               null,
               uploadedExtensions,
               ignoredExtensions,
-              localConfig
+              localConfig,
+              deletedGistFileNames
             );
             vscode.window.setStatusBarMessage("").dispose();
           } else {

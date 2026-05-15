@@ -165,23 +165,49 @@ export class GitHubService {
   }
 
   public UpdateGIST(gistObject: any, files: File[]): any {
-    const allFiles: string[] = Object.keys(gistObject.data.files);
-    for (const fileName of allFiles) {
-      let exists = false;
+    const changedFiles: File[] = this.GetChangedFiles(gistObject, files);
+    const deletedFileNames: string[] = this.GetDeletedFileNames(
+      gistObject,
+      files
+    );
+    const gistFilesPatch: any = {};
 
-      for (const settingFile of files) {
-        if (settingFile.gistName === fileName) {
-          exists = true;
-        }
-      }
-
-      if (!exists && !fileName.startsWith("keybindings")) {
-        gistObject.data.files[fileName] = null;
-      }
+    for (const file of changedFiles) {
+      gistFilesPatch[file.gistName] = {};
+      gistFilesPatch[file.gistName].content = file.content;
     }
 
-    gistObject.data = this.AddFile(files, gistObject.data);
+    for (const fileName of deletedFileNames) {
+      gistFilesPatch[fileName] = null;
+    }
+
+    gistObject.data.files = gistFilesPatch;
     return gistObject;
+  }
+
+  public GetChangedFiles(gistObject: any, files: File[]): File[] {
+    const gistFiles = gistObject.data.files || {};
+
+    return files.filter(file => {
+      if (file.content === "") {
+        return false;
+      }
+      if (!gistFiles[file.gistName]) {
+        return true;
+      }
+      return gistFiles[file.gistName].content !== file.content;
+    });
+  }
+
+  public GetDeletedFileNames(gistObject: any, files: File[]): string[] {
+    const gistFiles: string[] = Object.keys(gistObject.data.files || {});
+
+    return gistFiles.filter(fileName => {
+      if (fileName.startsWith("keybindings")) {
+        return false;
+      }
+      return !files.some(settingFile => settingFile.gistName === fileName);
+    });
   }
 
   public async SaveGIST(gistObject: any): Promise<boolean> {
