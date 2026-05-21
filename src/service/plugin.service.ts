@@ -1,5 +1,7 @@
 "use strict";
 import * as vscode from "vscode";
+import { state } from "../state";
+import { InstalledExtensionsService } from "./installedExtensions.service";
 
 export class ExtensionInformation {
   public static fromJSON(text: string) {
@@ -123,29 +125,28 @@ export class PluginService {
   }
 
   public static CreateExtensionList() {
-    return vscode.extensions.all
+    const extensions = vscode.extensions.all
       .filter(ext => !ext.packageJSON.isBuiltin)
       .map(ext => {
-        const meta = ext.packageJSON.__metadata || {
-          id: ext.packageJSON.uuid,
-          publisherId: ext.id,
-          publisherDisplayName: ext.packageJSON.publisher
-        };
-        const data = new ExtensionMetadata(
-          meta.galleryApiUrl,
-          meta.id,
-          meta.downloadUrl,
-          meta.publisherId,
-          meta.publisherDisplayName,
-          meta.date
+        const extension = InstalledExtensionsService.CreateExtensionFromPackageJSON(
+          ext.packageJSON
+        );
+        const data = Object.assign(
+          new ExtensionMetadata("", "", "", "", "", ""),
+          extension.metadata
         );
         const info = new ExtensionInformation();
         info.metadata = data;
-        info.name = ext.packageJSON.name;
-        info.publisher = ext.packageJSON.publisher;
-        info.version = ext.packageJSON.version;
+        info.name = extension.name;
+        info.publisher = extension.publisher;
+        info.version = extension.version;
         return info;
       });
+
+    return InstalledExtensionsService.MergeFromExtensionFolder(
+      extensions,
+      state.environment.EXTENSION_FOLDER
+    );
   }
 
   public static async DeleteExtension(
