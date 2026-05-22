@@ -164,12 +164,16 @@ export class GitHubService {
     }
   }
 
-  public UpdateGIST(gistObject: any, files: File[]): any {
+  public UpdateGIST(
+    gistObject: any,
+    files: File[],
+    localFiles: File[] = files
+  ): any {
     const allFiles: string[] = Object.keys(gistObject.data.files);
     for (const fileName of allFiles) {
       let exists = false;
 
-      for (const settingFile of files) {
+      for (const settingFile of localFiles) {
         if (settingFile.gistName === fileName) {
           exists = true;
         }

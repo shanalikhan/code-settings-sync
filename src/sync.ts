@@ -11,6 +11,7 @@ import { ExtensionConfig } from "./models/extensionConfig.model";
 import { LocalConfig } from "./models/localConfig.model";
 import PragmaUtil from "./pragmaUtil";
 import { File, FileService } from "./service/file.service";
+import { GistChangeService } from "./service/gistChange.service";
 import { GitHubService } from "./service/github.service";
 import { ExtensionInformation, PluginService } from "./service/plugin.service";
 import { state } from "./state";
@@ -226,6 +227,7 @@ export class Sync {
       allSettingFiles.push(file);
 
       let completed: boolean = false;
+      let filesToUpload: File[] = allSettingFiles;
 
       let newGIST: boolean = false;
       try {
@@ -284,23 +286,26 @@ export class Sync {
           localConfig.publicGist = true;
         }
 
-        if (
-          !allSettingFiles.some(fileToUpload => {
-            if (fileToUpload.gistName === "cloudSettings") {
-              return false;
-            }
-            if (!gistObj.data.files[fileToUpload.gistName]) {
-              return true;
-            }
-            if (
-              gistObj.data.files[fileToUpload.gistName].content !==
-              fileToUpload.content
-            ) {
-              console.info(`Sync: file ${fileToUpload.gistName} has changed`);
-              return true;
-            }
-          })
-        ) {
+        const changedSettingFiles = GistChangeService.GetChangedSettingFiles(
+          allSettingFiles,
+          gistObj.data.files
+        );
+
+        changedSettingFiles.forEach(fileToUpload => {
+          if (!gistObj.data.files[fileToUpload.gistName]) {
+            console.info(`Sync: file ${fileToUpload.gistName} is new`);
+          } else {
+            console.info(`Sync: file ${fileToUpload.gistName} has changed`);
+          }
+        });
+
+        filesToUpload = GistChangeService.GetFilesToUpload(
+          allSettingFiles,
+          gistObj.data.files,
+          localConfig.extConfig.forceUpload
+        );
+
+        if (changedSettingFiles.length === 0) {
           // Gist files are the same as the local files.
           if (!localConfig.extConfig.forceUpload) {
             vscode.window.setStatusBarMessage(
@@ -359,7 +364,7 @@ export class Sync {
           3000
         );
 
-        gistObj = github.UpdateGIST(gistObj, allSettingFiles);
+        gistObj = github.UpdateGIST(gistObj, filesToUpload, allSettingFiles);
         completed = await github.SaveGIST(gistObj.data);
         if (!completed) {
           vscode.window.showErrorMessage(
@@ -396,7 +401,7 @@ export class Sync {
           if (!syncSetting.quietSync) {
             state.commons.ShowSummaryOutput(
               true,
-              allSettingFiles,
+              filesToUpload,
               null,
               uploadedExtensions,
               ignoredExtensions,
