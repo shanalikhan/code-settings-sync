@@ -7,6 +7,7 @@ import Commons from "../commons";
 import { CloudSettings } from "../models/cloudSettings.model";
 import { state } from "../state";
 import { File } from "./file.service";
+import { buildGistPatchFiles } from "./gistUpdate";
 
 interface IEnv {
   [key: string]: string | undefined;
@@ -164,23 +165,15 @@ export class GitHubService {
     }
   }
 
-  public UpdateGIST(gistObject: any, files: File[]): any {
-    const allFiles: string[] = Object.keys(gistObject.data.files);
-    for (const fileName of allFiles) {
-      let exists = false;
-
-      for (const settingFile of files) {
-        if (settingFile.gistName === fileName) {
-          exists = true;
-        }
-      }
-
-      if (!exists && !fileName.startsWith("keybindings")) {
-        gistObject.data.files[fileName] = null;
-      }
-    }
-
-    gistObject.data = this.AddFile(files, gistObject.data);
+  public UpdateGIST(
+    gistObject: any,
+    changedFiles: File[],
+    deletedFileNames: string[] = []
+  ): any {
+    gistObject.data.files = buildGistPatchFiles(
+      changedFiles,
+      deletedFileNames
+    );
     return gistObject;
   }
 

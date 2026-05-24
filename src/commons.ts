@@ -439,6 +439,7 @@ export default class Commons {
   public ShowSummaryOutput(
     upload: boolean,
     files: File[],
+    deletedFiles: string[],
     removedExtensions: ExtensionInformation[],
     addedExtensions: ExtensionInformation[],
     ignoredExtensions: ExtensionInformation[],
@@ -484,6 +485,18 @@ export default class Commons {
       .forEach(item => {
         outputChannel.appendLine(`  ${item.fileName} > ${item.gistName}`);
       });
+
+    if (upload) {
+      outputChannel.appendLine(``);
+      outputChannel.appendLine(`Files Deleted From Gist:`);
+      if (!deletedFiles || deletedFiles.length === 0) {
+        outputChannel.appendLine(`  No gist files deleted.`);
+      } else {
+        deletedFiles.forEach(fileName => {
+          outputChannel.appendLine(`  ${fileName}`);
+        });
+      }
+    }
 
     outputChannel.appendLine(``);
     outputChannel.appendLine(`Extensions Ignored:`);
