@@ -620,6 +620,18 @@ export class Sync {
                     }
                   }
                 );
+
+                await PluginService.ApplyExtensionEnablement(
+                  content,
+                  ignoredExtensions,
+                  (message: string) => {
+                    if (!syncSetting.quietSync) {
+                      Commons.outputChannel.appendLine(message);
+                    } else {
+                      console.log(message);
+                    }
+                  }
+                );
               } catch (err) {
                 throw new Error(err);
               }
