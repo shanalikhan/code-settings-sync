@@ -2,6 +2,7 @@ import * as fs from "fs-extra";
 import * as vscode from "vscode";
 
 import Commons from "./commons";
+import { Environment } from "./environmentPath";
 import { OsType } from "./enums";
 import localize from "./localize";
 import * as lockfile from "./lockfile";
@@ -225,6 +226,82 @@ export class Sync {
       const file: File = new File(fileName, fileContent, "", fileName);
       allSettingFiles.push(file);
 
+      // Issue #508: Compare local files with remote Gist, collect only changed ones for diff preview
+      const changedFiles: File[] = [];
+      const unchangedFiles: File[] = [];
+      let remoteGist: any = null;
+      try {
+        remoteGist = await github.ReadGist(syncSetting.gist);
+        if (remoteGist && remoteGist.data && remoteGist.data.files) {
+          for (const f of allSettingFiles) {
+            // cloudSettings is always updated, never "unchanged"
+            if (f.gistName === state.environment.FILE_CLOUDSETTINGS_NAME) {
+              changedFiles.push(f);
+              continue;
+            }
+            const remoteFile = remoteGist.data.files[f.gistName];
+            if (!remoteFile || remoteFile.content !== f.content) {
+              changedFiles.push(f);
+            } else {
+              unchangedFiles.push(f);
+            }
+          }
+        } else {
+          changedFiles.push(...allSettingFiles);
+        }
+      } catch (e) {
+        // On error, upload all
+        changedFiles.push(...allSettingFiles);
+      }
+
+      // Show diff preview before uploading
+      if (!syncSetting.quietSync) {
+        const diffChannel = vscode.window.createOutputChannel("Code Settings Sync - Diff Preview");
+        diffChannel.appendLine("CODE SETTINGS SYNC - DIFF PREVIEW");
+        diffChannel.appendLine(`Version: ${Environment.getVersion()}`);
+        diffChannel.appendLine("--------------------");
+        diffChannel.appendLine("Files with changes (will be uploaded):");
+        const changedForDisplay = changedFiles.filter(f => f.gistName !== state.environment.FILE_CLOUDSETTINGS_NAME);
+        if (changedForDisplay.length === 0) {
+          diffChannel.appendLine("  (none - all files unchanged)");
+        } else {
+          changedForDisplay.forEach(f => {
+            const remoteFile = remoteGist && remoteGist.data && remoteGist.data.files
+              ? remoteGist.data.files[f.gistName]
+              : null;
+            diffChannel.appendLine(`  ${f.gistName}`);
+            if (remoteFile) {
+              diffChannel.appendLine(`    LOCAL lines: ${(f.content.match(/\n/g) || []).length + 1}`);
+              diffChannel.appendLine(`    REMOTE lines: ${(remoteFile.content.match(/\n/g) || []).length + 1}`);
+            } else {
+              diffChannel.appendLine(`    (new file)`);
+            }
+          });
+        }
+        diffChannel.appendLine("");
+        diffChannel.appendLine("Files unchanged (skipping upload):");
+        if (unchangedFiles.length === 0) {
+          diffChannel.appendLine("  (none)");
+        } else {
+          unchangedFiles.forEach(f => {
+            diffChannel.appendLine(`  ${f.gistName}`);
+          });
+        }
+        diffChannel.appendLine("--------------------");
+        diffChannel.appendLine("Press 'Upload' to continue, or cancel to abort.");
+        diffChannel.show(true);
+
+        const proceed = await vscode.window.showInformationMessage(
+          "Code Settings Sync: Changes detected. Do you want to upload?",
+          "Upload",
+          "Cancel"
+        );
+        if (proceed !== "Upload") {
+          vscode.window.setStatusBarMessage("Sync cancelled.", 3000);
+          return;
+        }
+      }
+
       let completed: boolean = false;
 
       let newGIST: boolean = false;
@@ -396,7 +473,7 @@ export class Sync {
           if (!syncSetting.quietSync) {
             state.commons.ShowSummaryOutput(
               true,
-              allSettingFiles,
+              changedFiles,
               null,
               uploadedExtensions,
               ignoredExtensions,
