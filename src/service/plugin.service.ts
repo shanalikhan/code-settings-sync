@@ -1,4 +1,7 @@
 "use strict";
+import { execFileSync } from "child_process";
+import * as fs from "fs";
+import * as path from "path";
 import * as vscode from "vscode";
 
 export class ExtensionInformation {
@@ -20,6 +23,7 @@ export class ExtensionInformation {
       item.name = obj.name;
       item.publisher = obj.publisher;
       item.version = obj.version;
+      item.disabled = !!obj.disabled;
       return item;
     } catch (err) {
       throw new Error(err);
@@ -46,6 +50,7 @@ export class ExtensionInformation {
         item.name = obj.name;
         item.publisher = obj.publisher;
         item.version = obj.version;
+        item.disabled = !!obj.disabled;
 
         if (item.name !== "code-settings-sync") {
           extList.push(item);
@@ -62,6 +67,11 @@ export class ExtensionInformation {
   public name: string;
   public version: string;
   public publisher: string;
+  public disabled: boolean = false;
+
+  public get extensionId(): string {
+    return `${this.publisher}.${this.name}`;
+  }
 }
 
 export class ExtensionMetadata {
@@ -76,6 +86,63 @@ export class ExtensionMetadata {
 }
 
 export class PluginService {
+  public static GetEnabledExtensionIds(): string[] {
+    return vscode.extensions.all
+      .filter(ext => !ext.packageJSON.isBuiltin)
+      .map(ext => ext.id);
+  }
+
+  public static GetCodeCliCandidates(): string[] {
+    const candidates: string[] = [];
+    try {
+      const codeCliName = process.platform === "win32" ? "code.cmd" : "code";
+      // vscode.env.appRoot is usually ".../resources/app"
+      const bundledCli = path.join(vscode.env.appRoot, "bin", codeCliName);
+      candidates.push(bundledCli);
+    } catch (err) {
+      // ignore
+    }
+
+    candidates.push("code");
+    candidates.push("code-insiders");
+    return candidates;
+  }
+
+  public static TryGetInstalledExtensionIds(): string[] {
+    for (const candidate of PluginService.GetCodeCliCandidates()) {
+      try {
+        if (candidate.includes(path.sep) && !fs.existsSync(candidate)) {
+          continue;
+        }
+
+        const stdout = execFileSync(candidate, ["--list-extensions"], {
+          encoding: "utf8",
+          windowsHide: true,
+          timeout: 15000
+        });
+
+        return stdout
+          .split(/\r?\n/)
+          .map(l => l.trim())
+          .filter(Boolean);
+      } catch (err) {
+        // try next candidate
+      }
+    }
+
+    return [];
+  }
+
+  public static GetDisabledExtensionIds(): string[] {
+    const installed = PluginService.TryGetInstalledExtensionIds();
+    if (installed.length === 0) {
+      return [];
+    }
+
+    const enabled = new Set(PluginService.GetEnabledExtensionIds());
+    return installed.filter(id => !enabled.has(id));
+  }
+
   public static GetMissingExtensions(
     remoteExt: string,
     ignoredExtensions: string[]
@@ -123,6 +190,7 @@ export class PluginService {
   }
 
   public static CreateExtensionList() {
+    const disabled = new Set(PluginService.GetDisabledExtensionIds());
     return vscode.extensions.all
       .filter(ext => !ext.packageJSON.isBuiltin)
       .map(ext => {
@@ -144,8 +212,51 @@ export class PluginService {
         info.name = ext.packageJSON.name;
         info.publisher = ext.packageJSON.publisher;
         info.version = ext.packageJSON.version;
+        info.disabled = disabled.has(ext.id);
         return info;
       });
+  }
+
+  public static async ApplyExtensionEnablement(
+    extensionsJson: string,
+    ignoredExtensions: string[],
+    notificationCallBack: (...data: any[]) => void
+  ): Promise<void> {
+    const remoteExtensions = ExtensionInformation.fromJSONList(extensionsJson);
+    const ignored = new Set(ignoredExtensions || []);
+
+    for (const ext of remoteExtensions) {
+      if (ext.name === "code-settings-sync") {
+        continue;
+      }
+      if (ignored.has(ext.name)) {
+        continue;
+      }
+
+      try {
+        if (ext.disabled) {
+          notificationCallBack(
+            `[ ] - EXTENSION: ${ext.extensionId} - DISABLING`,
+            false
+          );
+          await vscode.commands.executeCommand(
+            "workbench.extensions.action.disableExtension",
+            ext.extensionId
+          );
+        } else {
+          notificationCallBack(
+            `[ ] - EXTENSION: ${ext.extensionId} - ENABLING`,
+            false
+          );
+          await vscode.commands.executeCommand(
+            "workbench.extensions.action.enableExtension",
+            ext.extensionId
+          );
+        }
+      } catch (err) {
+        // Best-effort: do not fail full sync if enablement canÃ¢â‚¬â„¢t be applied.
+      }
+    }
   }
 
   public static async DeleteExtension(
