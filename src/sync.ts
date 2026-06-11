@@ -359,6 +359,19 @@ export class Sync {
           3000
         );
 
+                // Check if content actually changed to satisfy IssueHunt #508
+        const remoteFiles = gistObj.data.files;
+        const hasContentChanges = allSettingFiles.some(file => {
+          const remoteFile = remoteFiles[file.gistName];
+          return !remoteFile || remoteFile.content !== file.content;
+        });
+
+        if (!hasContentChanges) {
+          vscode.window.showInformationMessage(localize("cmd.updateSettings.info.noChanges"));
+          vscode.window.setStatusBarMessage("").dispose();
+          return;
+        }
+
         gistObj = github.UpdateGIST(gistObj, allSettingFiles);
         completed = await github.SaveGIST(gistObj.data);
         if (!completed) {
@@ -1143,3 +1156,4 @@ export class Sync {
     return customFiles;
   }
 }
+
