@@ -1,0 +1,1 @@
+Added test cases to verify that the `sync.lastUpload` and `sync.lastDownload` timestamps are updated correctly after each sync operation.
