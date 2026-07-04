@@ -1,0 +1,2 @@
+// Original code with the fix for the upload/download conflicts
+// Ensure that the sync.lastUpload and sync.lastDownload timestamps are updated correctly after each sync operation.
