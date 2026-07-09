@@ -1,5 +1,9 @@
 "use strict";
+import * as fs from "fs-extra";
+import * as path from "path";
 import * as vscode from "vscode";
+
+import { state } from "../state";
 
 export class ExtensionInformation {
   public static fromJSON(text: string) {
@@ -20,6 +24,7 @@ export class ExtensionInformation {
       item.name = obj.name;
       item.publisher = obj.publisher;
       item.version = obj.version;
+      item.disabled = obj.disabled || false;
       return item;
     } catch (err) {
       throw new Error(err);
@@ -46,6 +51,7 @@ export class ExtensionInformation {
         item.name = obj.name;
         item.publisher = obj.publisher;
         item.version = obj.version;
+        item.disabled = obj.disabled || false;
 
         if (item.name !== "code-settings-sync") {
           extList.push(item);
@@ -62,6 +68,8 @@ export class ExtensionInformation {
   public name: string;
   public version: string;
   public publisher: string;
+  /** Whether the extension is currently disabled by the user */
+  public disabled: boolean = false;
 }
 
 export class ExtensionMetadata {
@@ -96,24 +104,6 @@ export class PluginService {
   ) {
     const localExtensions = this.CreateExtensionList();
 
-    // for (var i = 0; i < remoteList.length; i++) {
-
-    //     var ext = remoteList[i];
-    //     var found: boolean = false;
-
-    //     for (var j = 0; j < localList.length; j++) {
-    //         var localExt = localList[j];
-    //         if (ext.name == localExt.name) {
-    //             found = true;
-    //             break;
-    //         }
-    //     }
-    //     if (!found) {
-    //         deletedList.push(localExt);
-    //     }
-
-    // }
-
     return localExtensions.filter(
       ext =>
         ext.name !== "code-settings-sync" &&
@@ -122,8 +112,67 @@ export class PluginService {
     );
   }
 
+  /**
+   * Scan the VS Code extensions directory on disk for ALL installed extensions,
+   * including disabled ones that vscode.extensions.all does not return.
+   * Extension folder names follow the pattern: publisher.name-version
+   */
+  public static ScanExtensionsFolder(): string[] {
+    const extFolder = state.environment.EXTENSION_FOLDER;
+    if (!extFolder || !fs.existsSync(extFolder)) {
+      return [];
+    }
+    try {
+      return fs.readdirSync(extFolder).filter(name => {
+        // Filter out non-extension entries (dotfiles, .obsolete, etc.)
+        if (name.startsWith(".")) return false;
+        // Must contain a publisher and name separated by a dot
+        if (!name.includes(".")) return false;
+        const dirPath = path.join(extFolder, name);
+        return fs.statSync(dirPath).isDirectory();
+      });
+    } catch {
+      return [];
+    }
+  }
+
+  /**
+   * Parse an extension folder name (publisher.name-version) into components.
+   * The version is separated from the name by a dash.
+   * E.g. "shan.code-settings-sync-3.4.3" → publisher:"shan", name:"code-settings-sync", version:"3.4.3"
+   */
+  public static ParseExtensionFolderName(
+    folderName: string
+  ): { publisher: string; name: string; version: string } | null {
+    const firstDot = folderName.indexOf(".");
+    if (firstDot === -1) return null;
+
+    const publisher = folderName.substring(0, firstDot);
+    const rest = folderName.substring(firstDot + 1);
+
+    // The version is the part after the last dash (e.g., code-settings-sync-3.4.3)
+    const lastDash = rest.lastIndexOf("-");
+    if (lastDash === -1) {
+      // No dash at all — folder is just "publisher.name"
+      return { publisher, name: rest, version: "" };
+    }
+
+    const candidateVersion = rest.substring(lastDash + 1);
+
+    // Check if the candidate looks like a version (contains a digit).
+    // Extensions like "vscode-eslint" have a dash in the name but no version suffix.
+    if (!/[0-9]/.test(candidateVersion)) {
+      // Not a version — treat the entire rest as the name
+      return { publisher, name: rest, version: "" };
+    }
+
+    const name = rest.substring(0, lastDash);
+    return { publisher, name, version: candidateVersion };
+  }
+
   public static CreateExtensionList() {
-    return vscode.extensions.all
+    // Get enabled extensions via VS Code API
+    const enabledExtensions = vscode.extensions.all
       .filter(ext => !ext.packageJSON.isBuiltin)
       .map(ext => {
         const meta = ext.packageJSON.__metadata || {
@@ -144,8 +193,45 @@ export class PluginService {
         info.name = ext.packageJSON.name;
         info.publisher = ext.packageJSON.publisher;
         info.version = ext.packageJSON.version;
+        info.disabled = false;
         return info;
       });
+
+    // Get disabled extensions by scanning the extensions directory on disk
+    // and finding extensions NOT returned by vscode.extensions.all
+    const enabledNames = new Set(
+      enabledExtensions.map(e => `${e.publisher}.${e.name}`)
+    );
+    const folderNames = this.ScanExtensionsFolder();
+
+    for (const folderName of folderNames) {
+      const parsed = this.ParseExtensionFolderName(folderName);
+      if (!parsed) continue;
+
+      const extKey = `${parsed.publisher}.${parsed.name}`;
+      // Skip if already in enabled list
+      if (enabledNames.has(extKey)) continue;
+      // Skip self
+      if (parsed.name === "code-settings-sync") continue;
+
+      // This extension is on disk but NOT in vscode.extensions.all → it's disabled
+      const info = new ExtensionInformation();
+      info.name = parsed.name;
+      info.publisher = parsed.publisher;
+      info.version = parsed.version;
+      info.disabled = true;
+      info.metadata = new ExtensionMetadata(
+        "",            // galleryApiUrl
+        "",            // id
+        "",            // downloadUrl
+        "",            // publisherId
+        parsed.publisher, // publisherDisplayName
+        ""             // date
+      );
+      enabledExtensions.push(info);
+    }
+
+    return enabledExtensions;
   }
 
   public static async DeleteExtension(
