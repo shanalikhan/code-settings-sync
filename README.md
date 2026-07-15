@@ -164,6 +164,27 @@ You can customize the settings in gist settings like:
 
 Global settings are present in `syncLocalSettings.json` inside `User` folder. These settings will be shared across multiple Gist Environments.
 
+### Git Repository Sync
+
+Settings Sync can use a regular Git repository instead of a GitHub Gist. Open
+the extension settings page and set the following global settings:
+
+```json
+{
+    "exportType": "git",
+    "gitRemote": "git@github.com:your-account/vscode-settings.git",
+    "gitBranch": "master"
+}
+```
+
+The remote may point to GitHub, GitLab, an enterprise server, or a local bare
+repository. Upload commits the current User folder and pushes the selected
+branch. Download fetches the branch and replaces the working tree with the
+remote version. Use separate branches such as `master` and `office` as sync
+profiles. `syncLocalSettings.json`, `sync.lock`, ignored files and ignored
+folders are stored in `.git/info/exclude`, so tokens and local metadata are not
+committed. Set `exportType` back to `githubGist` to use the existing Gist flow.
+
 
 You can customize the sync:
 
@@ -190,7 +211,8 @@ You can customize the sync:
         "gpm-recentItems.json"
     ],
     "ignoreUploadFolders": [
-        "workspaceStorage"
+        "workspaceStorage",
+        ".git"
     ],
     "ignoreExtensions": [],
     "gistDescription": "Visual Studio Code Settings Sync Gist",
@@ -207,7 +229,10 @@ You can customize the sync:
     "customFiles": {},
     "hostName": null,
     "universalKeybindings": false,
-    "autoUploadDelay": 20
+    "autoUploadDelay": 20,
+    "exportType": "githubGist",
+    "gitRemote": "",
+    "gitBranch": "master"
 }
 ```
 
