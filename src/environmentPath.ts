@@ -76,12 +76,22 @@ export class Environment {
         normalize("/")
       );
       this.USER_FOLDER = resolve(this.PATH, "User").concat(normalize("/"));
-      this.EXTENSION_FOLDER = resolve(
-        vscode.extensions.all.filter(
-          extension => !extension.packageJSON.isBuiltin
-        )[0].extensionPath,
-        ".."
-      ).concat(normalize("/")); // Gets first non-builtin extension's path
+      const nonBuiltin = vscode.extensions.all.filter(
+        extension => !extension.packageJSON.isBuiltin
+      );
+      if (nonBuiltin.length > 0) {
+        this.EXTENSION_FOLDER = resolve(
+          nonBuiltin[0].extensionPath,
+          ".."
+        ).concat(normalize("/")); // Gets first non-builtin extension's path
+      } else {
+        const homeDir = process.env.HOME || process.env.USERPROFILE || "";
+        this.EXTENSION_FOLDER = resolve(
+          homeDir,
+          ".vscode",
+          "extensions"
+        ).concat(normalize("/"));
+      }
     } else {
       this.PATH = process.env.VSCODE_PORTABLE;
       this.USER_FOLDER = resolve(this.PATH, "user-data/User").concat(

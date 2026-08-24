@@ -7,7 +7,9 @@
     "sourceMap": true,
     "rootDir": ".",
     "noUnusedLocals": true,
-    "noUnusedParameters": true
+    "noUnusedParameters": true,
+    "skipLibCheck": true,
+    "allowSyntheticDefaultImports": true
   },
   "exclude": ["node_modules", ".vscode-test"]
 }
