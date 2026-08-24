@@ -154,11 +154,21 @@ export class GitHubService {
     let gistCloudSetting: CloudSettings = null;
     try {
       gistCloudSetting = JSON.parse(gist.data.files.cloudSettings.content);
+      if (!gistCloudSetting || !gistCloudSetting.lastUpload) {
+        return false;
+      }
       const gistLastUpload = new Date(gistCloudSetting.lastUpload);
       if (!localLastDownload) {
         return false;
       }
-      return gistLastUpload > new Date(localLastDownload);
+      const localDownloadDate = new Date(localLastDownload);
+      if (
+        isNaN(gistLastUpload.getTime()) ||
+        isNaN(localDownloadDate.getTime())
+      ) {
+        return false;
+      }
+      return gistLastUpload.getTime() > localDownloadDate.getTime();
     } catch (err) {
       return false;
     }

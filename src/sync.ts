@@ -671,6 +671,8 @@ export class Sync {
                 }
               }
 
+              await FileService.CloseOpenFile(filePath);
+
               actionList.push(
                 FileService.WriteFile(filePath, content)
                   .then(() => {
@@ -983,6 +985,7 @@ export class Sync {
             vscode.workspace.rootPath,
             selected.fileName
           );
+          await FileService.CloseOpenFile(downloadPath);
           const done = await FileService.WriteFile(
             downloadPath,
             selected.content
