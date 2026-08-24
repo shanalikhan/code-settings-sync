@@ -11,6 +11,7 @@ import { ExtensionConfig } from "./models/extensionConfig.model";
 import { LocalConfig } from "./models/localConfig.model";
 import PragmaUtil from "./pragmaUtil";
 import { File, FileService } from "./service/file.service";
+import { GitSyncService } from "./service/git-sync.service";
 import { GitHubService } from "./service/github.service";
 import { ExtensionInformation, PluginService } from "./service/plugin.service";
 import { state } from "./state";
@@ -27,6 +28,15 @@ export class Sync {
     const startUpCustomSetting = await state.commons.GetCustomSettings();
 
     if (startUpSetting) {
+      if (GitSyncService.IsEnabled(startUpCustomSetting)) {
+        if (startUpSetting.autoDownload) {
+          await vscode.commands.executeCommand("extension.downloadSettings");
+        } else if (startUpSetting.autoUpload) {
+          await state.commons.HandleStartWatching();
+        }
+        return;
+      }
+
       const tokenAvailable: boolean =
         startUpCustomSetting.token != null && startUpCustomSetting.token !== "";
       const gistAvailable: boolean =
@@ -70,6 +80,11 @@ export class Sync {
     // const args = arguments;
     let github: GitHubService = null;
     const localConfig = await state.commons.InitalizeSettings();
+
+    if (GitSyncService.IsEnabled(localConfig.customConfig)) {
+      await this.uploadToGitRepository(localConfig);
+      return;
+    }
 
     if (!localConfig.customConfig.token) {
       state.commons.webviewService.OpenLandingPage("extension.updateSettings");
@@ -425,6 +440,11 @@ export class Sync {
   public async download(): Promise<void> {
     const localSettings: LocalConfig = await state.commons.InitalizeSettings();
 
+    if (GitSyncService.IsEnabled(localSettings.customConfig)) {
+      await this.downloadFromGitRepository(localSettings);
+      return;
+    }
+
     if (
       localSettings.customConfig.downloadPublicGist
         ? !localSettings.extConfig.gist
@@ -670,6 +690,8 @@ export class Sync {
                   );
                 }
               }
+
+              await FileService.CloseOpenFile(filePath);
 
               actionList.push(
                 FileService.WriteFile(filePath, content)
@@ -983,6 +1005,7 @@ export class Sync {
             vscode.workspace.rootPath,
             selected.fileName
           );
+          await FileService.CloseOpenFile(downloadPath);
           const done = await FileService.WriteFile(
             downloadPath,
             selected.content
@@ -1141,5 +1164,71 @@ export class Sync {
       }
     });
     return customFiles;
+  }
+
+  private createGitSyncService(customSettings: CustomConfig): GitSyncService {
+    return new GitSyncService(
+      state.environment.USER_FOLDER,
+      (customSettings.gitRemote || "").trim(),
+      (customSettings.gitBranch || "master").trim(),
+      customSettings.ignoreUploadFiles || [],
+      customSettings.ignoreUploadFolders || []
+    );
+  }
+
+  private async uploadToGitRepository(localConfig: LocalConfig): Promise<void> {
+    await state.commons.HandleStopWatching();
+    try {
+      vscode.window.setStatusBarMessage(
+        localize("cmd.updateSettings.info.uploadingGit"),
+        2000
+      );
+      const result = await this.createGitSyncService(
+        localConfig.customConfig
+      ).upload();
+      localConfig.customConfig.lastUpload = new Date();
+      await state.commons.SetCustomSettings(localConfig.customConfig);
+      vscode.window.setStatusBarMessage(
+        localize(
+          result.pushed
+            ? "cmd.updateSettings.info.gitPushed"
+            : result.changed
+            ? "cmd.updateSettings.info.gitCommitted"
+            : "cmd.updateSettings.info.gitUnchanged"
+        ),
+        5000
+      );
+    } catch (error) {
+      Commons.LogException(error, state.commons.ERROR_MESSAGE, true);
+    } finally {
+      if (localConfig.extConfig.autoUpload) {
+        await state.commons.HandleStartWatching();
+      }
+    }
+  }
+
+  private async downloadFromGitRepository(
+    localConfig: LocalConfig
+  ): Promise<void> {
+    await state.commons.HandleStopWatching();
+    try {
+      vscode.window.setStatusBarMessage(
+        localize("cmd.downloadSettings.info.downloadingGit"),
+        2000
+      );
+      await this.createGitSyncService(localConfig.customConfig).download();
+      localConfig.customConfig.lastDownload = new Date();
+      await state.commons.SetCustomSettings(localConfig.customConfig);
+      vscode.window.setStatusBarMessage(
+        localize("cmd.downloadSettings.info.gitDownloaded"),
+        5000
+      );
+    } catch (error) {
+      Commons.LogException(error, state.commons.ERROR_MESSAGE, true);
+    } finally {
+      if (localConfig.extConfig.autoUpload) {
+        await state.commons.HandleStartWatching();
+      }
+    }
   }
 }

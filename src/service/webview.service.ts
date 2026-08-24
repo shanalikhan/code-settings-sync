@@ -14,6 +14,24 @@ import { GitHubOAuthService } from "./github.oauth.service";
 export class WebviewService {
   private globalSettings = [
     {
+      name: localize("ext.globalConfig.exportType.name"),
+      placeholder: localize("ext.globalConfig.exportType.placeholder"),
+      type: UISettingType.TextInput,
+      correspondingSetting: "exportType"
+    },
+    {
+      name: localize("ext.globalConfig.gitRemote.name"),
+      placeholder: localize("ext.globalConfig.gitRemote.placeholder"),
+      type: UISettingType.TextInput,
+      correspondingSetting: "gitRemote"
+    },
+    {
+      name: localize("ext.globalConfig.gitBranch.name"),
+      placeholder: localize("ext.globalConfig.gitBranch.placeholder"),
+      type: UISettingType.TextInput,
+      correspondingSetting: "gitBranch"
+    },
+    {
       name: localize("ext.globalConfig.token.name"),
       placeholder: localize("ext.globalConfig.token.placeholder"),
       type: UISettingType.TextInput,
