@@ -3,6 +3,7 @@
 import * as fs from "fs-extra";
 import * as path from "path";
 import * as recursiveRead from "recursive-readdir";
+import * as vscode from "vscode";
 import { CustomConfig } from "../models/customConfig.model";
 
 export class File {
@@ -232,6 +233,43 @@ export class FileService {
 
   public static ExtractFileName(fullPath: string): string {
     return path.basename(fullPath);
+  }
+
+  public static async CloseOpenFile(filePath: string): Promise<void> {
+    if (!filePath) {
+      return;
+    }
+    const matchingEditors = vscode.window.visibleTextEditors.filter(editor => {
+      return (
+        editor.document &&
+        editor.document.uri &&
+        FileService.IsSamePath(editor.document.uri.fsPath, filePath)
+      );
+    });
+
+    for (const editor of matchingEditors) {
+      await vscode.window.showTextDocument(
+        editor.document,
+        editor.viewColumn,
+        false
+      );
+      await vscode.commands.executeCommand(
+        "workbench.action.closeActiveEditor"
+      );
+    }
+  }
+
+  public static IsSamePath(firstPath: string, secondPath: string): boolean {
+    const first = FileService.NormalizePath(firstPath);
+    const second = FileService.NormalizePath(secondPath);
+    return first === second;
+  }
+
+  public static NormalizePath(filePath: string): string {
+    const normalizedPath = path.normalize(path.resolve(filePath));
+    return process.platform === "win32"
+      ? normalizedPath.toLowerCase()
+      : normalizedPath;
   }
 
   public static ConcatPath(...filePaths: string[]): string {

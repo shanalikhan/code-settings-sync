@@ -154,6 +154,9 @@ export default class Commons {
 
   public async SetCustomSettings(setting: CustomConfig): Promise<boolean> {
     try {
+      await FileService.CloseOpenFile(
+        state.environment.FILE_CUSTOMIZEDSETTINGS
+      );
       await FileService.WriteFile(
         state.environment.FILE_CUSTOMIZEDSETTINGS,
         JSON.stringify(setting, null, 4)
