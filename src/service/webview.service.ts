@@ -14,6 +14,28 @@ import { GitHubOAuthService } from "./github.oauth.service";
 export class WebviewService {
   private globalSettings = [
     {
+      name: localize("ext.globalConfig.syncMode.name"),
+      placeholder: localize("ext.globalConfig.syncMode.placeholder"),
+      type: UISettingType.Select,
+      correspondingSetting: "syncMode",
+      options: [
+        {
+          value: "gist",
+          label: localize("ext.globalConfig.syncMode.option.gist")
+        },
+        {
+          value: "fileSystem",
+          label: localize("ext.globalConfig.syncMode.option.fileSystem")
+        }
+      ]
+    },
+    {
+      name: localize("ext.globalConfig.folderPath.name"),
+      placeholder: localize("ext.globalConfig.folderPath.placeholder"),
+      type: UISettingType.TextInput,
+      correspondingSetting: "folderPath"
+    },
+    {
       name: localize("ext.globalConfig.token.name"),
       placeholder: localize("ext.globalConfig.token.placeholder"),
       type: UISettingType.TextInput,
@@ -241,6 +263,20 @@ export class WebviewService {
     );
     settingsPanel.webview.html = content;
     settingsPanel.webview.onDidReceiveMessage(async message => {
+      if (message === "browseFolderPath") {
+        const selected = await vscode.window.showOpenDialog({
+          canSelectFiles: false,
+          canSelectFolders: true,
+          canSelectMany: false,
+          openLabel: localize("ext.globalConfig.folderPath.browse")
+        });
+        if (selected && selected[0]) {
+          customSettings.folderPath = selected[0].fsPath;
+          await state.commons.SetCustomSettings(customSettings);
+          this.UpdateSettingsPage(customSettings, extSettings);
+        }
+        return;
+      }
       if (message === "openGist") {
         const [customConfig, extConfig] = await Promise.all([
           state.commons.GetCustomSettings(),
@@ -363,6 +399,26 @@ export class WebviewService {
             await state.commons.GetSettings()
           );
           break;
+        case "useFileSystemSync": {
+          const current = await state.commons.GetCustomSettings();
+          const selected = await vscode.window.showOpenDialog({
+            canSelectFiles: false,
+            canSelectFolders: true,
+            canSelectMany: false,
+            openLabel: localize("ext.globalConfig.folderPath.browse")
+          });
+          if (!selected || !selected[0]) {
+            break;
+          }
+          current.syncMode = "fileSystem";
+          current.folderPath = selected[0].fsPath;
+          await state.commons.SetCustomSettings(current);
+          vscode.window.showInformationMessage(
+            localize("common.info.fileSystemConfigured", current.folderPath)
+          );
+          this.OpenSettingsPage(current, await state.commons.GetSettings());
+          break;
+        }
         case "downloadPublicGist":
           const [extConfig, customConfig] = await Promise.all([
             state.commons.GetSettings(),

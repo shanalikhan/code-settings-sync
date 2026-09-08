@@ -92,6 +92,21 @@ const textareaTemplate = `<div class="form-group mb-3">
             ></textarea>
           </div>`;
 
+const selectTemplate = `<div class="form-group mb-4">
+            <label for="setting:@correspondingSetting" class="text-white-50a"
+              >@name</label
+            >
+            @tooltip
+            <select
+              class="form-control select"
+              id="setting:@correspondingSetting"
+              setting="@correspondingSetting"
+              settingType="@settingType"
+            >
+              @options
+            </select>
+          </div>`;
+
 const globalParent = document.getElementById("globalSettings");
 const envParent = document.getElementById("environmentSettings");
 const saveStatus = document.getElementById("saveStatus");
@@ -111,8 +126,20 @@ globalMap.forEach(settingMap => {
     case "textarea":
       template = textareaTemplate;
       break;
+    case "select":
+      template = selectTemplate;
+      break;
   }
-  const html = template
+  let optionsHtml = "";
+  if (settingMap.type === "select" && settingMap.options) {
+    optionsHtml = settingMap.options
+      .map(
+        option =>
+          `<option value="${option.value}">${option.label}</option>`
+      )
+      .join("");
+  }
+  let html = template
     .replace(new RegExp("@name", "g"), settingMap.name)
     .replace(new RegExp("@placeholder", "g"), settingMap.placeholder)
     .replace(
@@ -120,7 +147,23 @@ globalMap.forEach(settingMap => {
       settingMap.correspondingSetting
     )
     .replace(new RegExp("@tooltip"), "")
-    .replace(new RegExp("@settingType", "g"), "global");
+    .replace(new RegExp("@settingType", "g"), "global")
+    .replace(new RegExp("@options", "g"), optionsHtml);
+
+  if (settingMap.correspondingSetting === "folderPath") {
+    html = textInputGroupTemplate
+      .replace(new RegExp("@name", "g"), settingMap.name)
+      .replace(new RegExp("@placeholder", "g"), settingMap.placeholder)
+      .replace(
+        new RegExp("@correspondingSetting", "g"),
+        settingMap.correspondingSetting
+      )
+      .replace(new RegExp("@tooltip"), "")
+      .replace(new RegExp("@settingType", "g"), "global")
+      .replace(new RegExp("@action", "g"), "inputGroupAction('folderPath')")
+      .replace(new RegExp("@disabled", "g"), "")
+      .replace(">View<", ">Browse<");
+  }
   appendHTML(globalParent, html);
 });
 
@@ -251,6 +294,23 @@ $(document).ready(function() {
         type: "global"
       });
     });
+  $(".select")
+    .each((i, el) => {
+      if ($(el).attr("settingType") === "global") {
+        $(el).val(_.get(globalData, $(el).attr("setting")));
+      } else {
+        $(el).val(envData[$(el).attr("setting")]);
+      }
+    })
+    .change(function() {
+      save();
+      let val = $(this).val();
+      vscode.postMessage({
+        command: $(this).attr("setting"),
+        text: val,
+        type: $(this).attr("settingType")
+      });
+    });
 });
 
 function save() {
@@ -265,5 +325,8 @@ function save() {
 function inputGroupAction(setting) {
   if (setting === "gist") {
     vscode.postMessage("openGist");
+  }
+  if (setting === "folderPath") {
+    vscode.postMessage("browseFolderPath");
   }
 }
