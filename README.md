@@ -303,3 +303,57 @@ Thank you to all our sponsors! (Please ask your company to also support this ope
 <a href="https://join.slack.com/t/codesettingssync/shared_invite/enQtNzQyODMzMzI5MDQ3LWNmZjVkZjE2YTg0MzY1Y2EyYzVmYThmNzg2YjZkNjhhZWY3ZTEzN2I3ZTAxMjkwNWU0ZjMyZGFhMjdiZDI3ODU">
 <img src="https://shanalikhan.github.io/img/slack.PNG" alt="Drawing" style="width: 150px;"/>
 </a>
+
+
+## Sync through a local folder
+
+In **Sync: Advanced Options → Open Settings**, select **File System** under
+**Sync storage** and set **Filesystem sync folder** to an absolute path outside
+VS Code's user settings folder. The same values live in `syncLocalSettings.json`:
+
+```json
+{
+  "syncMethod": "FileSystem",
+  "fileSystemPath": "/home/me/Dropbox/editor-backup"
+}
+```
+
+Use **Sync: Export Settings** and **Sync: Import Settings**. Their existing
+command IDs and Alt+Shift+U / Alt+Shift+D shortcuts are preserved. Export creates
+one portable, readable `settings-sync.json` document in that folder; copy or
+email that document, or let your usual folder-sync application transfer it.
+Import reads the same document. GitHub credentials and a Gist ID are not needed
+for filesystem mode. Select **GitHub Gist** to return to the existing backend;
+its credentials and ID are retained locally.
+
+The snapshot includes supported settings, nested snippets, launch/workspace
+files, platform-specific keybindings, the optional extension inventory, and
+explicitly configured custom files. Existing ignore lists and `@sync` directives
+apply. `syncLocalSettings.json` and its credentials are never included by the
+normal settings export. Custom files are imported only to mappings configured
+on the receiving machine; paths from another machine are not trusted.
+
+Existing snapshots and matching local files require confirmation before
+replacement. `sync.forceUpload` and `sync.forceDownload` explicitly suppress
+those respective prompts. Unchanged exports do not rewrite the snapshot.
+Automatic export and startup import also use the selected backend. Unrelated
+files in the backup folder and local files absent from a snapshot are retained.
+Extension installation still needs Marketplace access; disable `sync.syncExtensions`
+for a completely offline settings transfer.
+
+The exporter stages its document and renames it into place while holding
+`.settings-sync.lock`. If an export process crashes, first close every VS Code
+instance using that backup folder, verify no export is running, and remove the
+stale lock file before retrying. Do not remove a lock while an export is active.
+Imports validate all names and destinations before writing. A later filesystem
+or extension-installation error can leave some settings imported; correct the
+error and retry. A snapshot should be treated with the same care as any settings
+file you choose to import.
+
+### Filesystem backend tests
+
+`npm run test:filesystem` runs the existing tests and filesystem regressions.
+Only the VS Code UI/command host is substituted; the production sync entry
+points, backend, filesystem, pragma handling and extension inventory code run
+against temporary directories. A desktop extension-host smoke test remains
+useful for native dialogs, extension installation and OS-specific behavior.

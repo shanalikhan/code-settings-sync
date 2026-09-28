@@ -58,10 +58,10 @@
     <script defer src="@PWD/ui/shared/fonts.js"></script>
     <font-injector></font-injector>
     <script defer>
-      const globalData = JSON.parse(`@GLOBAL_DATA`);
-      const envData = JSON.parse(`@ENV_DATA`);
-      const globalMap = JSON.parse(`@GLOBAL_MAP`);
-      const envMap = JSON.parse(`@ENV_MAP`);
+      const globalData = JSON.parse(decodeURIComponent("@GLOBAL_DATA"));
+      const envData = JSON.parse(decodeURIComponent("@ENV_DATA"));
+      const globalMap = JSON.parse(decodeURIComponent("@GLOBAL_MAP"));
+      const envMap = JSON.parse(decodeURIComponent("@ENV_MAP"));
     </script>
     <script defer src="@PWD/ui/settings/settings.js"></script>
   </body>
