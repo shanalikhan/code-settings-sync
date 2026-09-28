@@ -7,6 +7,7 @@ import { LocalConfig } from "../../models/localConfig.model";
 import { IExtensionState } from "../../models/state.model";
 import PragmaUtil from "../../pragmaUtil";
 import { FileService } from "../file.service";
+import { preserveLocalSyncSettings } from "../syncSettings";
 import { ExtensionInformation, PluginService } from "../plugin.service";
 import {
   destinationKey,
@@ -143,6 +144,9 @@ export class FileSystemService implements ISyncService {
     const writes: Array<{ target: string; content: string }> = [];
     let extensions: string;
     const userRoot = await fs.realpath(env.USER_FOLDER);
+    const settingsTarget = destinationKey(
+      await realDestination(path.join(userRoot, env.FILE_SETTING_NAME))
+    );
     const seenTargets = new Set<string>();
     for (const name of Object.keys(snapshot.files)) {
       if (name === env.FILE_EXTENSION_NAME) {
@@ -204,6 +208,9 @@ export class FileSystemService implements ISyncService {
           env.OsType,
           custom.hostName
         );
+      }
+      if (canonicalTarget === settingsTarget) {
+        content = preserveLocalSyncSettings(content, config.extConfig);
       }
       writes.push({ target, content });
     }

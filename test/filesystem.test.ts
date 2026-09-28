@@ -117,13 +117,19 @@ describe("Filesystem sync", () => {
       "{}"
     );
     await new Sync().download();
-    assert.strictEqual(
+    const restoredSettings = JSON.parse(
       await fs.readFile(
         path.join(state.environment.USER_FOLDER, "settings.json"),
         "utf8"
-      ),
-      '{"editor.fontSize":19}'
+      )
     );
+    assert.strictEqual(restoredSettings["editor.fontSize"], 19);
+    for (const key of Object.keys(config.extConfig)) {
+      assert.strictEqual(
+        restoredSettings["sync." + key],
+        config.extConfig[key] == null ? "" : config.extConfig[key]
+      );
+    }
     assert.deepStrictEqual(host.errors, []);
     assert.strictEqual(saved, 1);
     assert.strictEqual(started, 2);
@@ -207,10 +213,10 @@ describe("Filesystem sync", () => {
   });
 
   it("cancels import before changing any local file or extension", async () => {
-    await store.write(snapshot({ "settings.json": "new" }), null);
+    await store.write(snapshot({ "settings.json": '{"remote":true}' }), null);
     await fs.writeFile(
       path.join(state.environment.USER_FOLDER, "settings.json"),
-      "old"
+      '{"local":true}'
     );
     config.extConfig.forceDownload = false;
     await service.Import();
@@ -219,7 +225,7 @@ describe("Filesystem sync", () => {
         path.join(state.environment.USER_FOLDER, "settings.json"),
         "utf8"
       ),
-      "old"
+      '{"local":true}'
     );
     assert.strictEqual(stopped, 0);
     assert.deepStrictEqual(host.commands, []);
@@ -472,5 +478,45 @@ describe("Filesystem sync", () => {
       type: "global"
     });
     assert.strictEqual(config.customConfig.syncMethod, SyncMethod.GitHubGist);
+  });
+
+  it("preserves local sync options when a custom file maps to settings.json", async () => {
+    config.customConfig.customFiles.profile = path.join(
+      state.environment.USER_FOLDER,
+      "settings.json"
+    );
+    config.extConfig.gist = "local-profile";
+    config.extConfig.quietSync = false;
+    const files = {
+      "|customized_sync|profile":
+        '{"editor.fontSize":23,"sync.gist":"remote","sync.quietSync":true}'
+    };
+    await store.write(snapshot(files), null);
+    await service.Import();
+    const settings = JSON.parse(
+      await fs.readFile(
+        path.join(state.environment.USER_FOLDER, "settings.json"),
+        "utf8"
+      )
+    );
+    assert.strictEqual(settings["editor.fontSize"], 23);
+    assert.strictEqual(settings["sync.gist"], "local-profile");
+    assert.strictEqual(settings["sync.quietSync"], false);
+  });
+
+  it("rejects invalid imported settings before writing any destination", async () => {
+    const snippet = path.join(
+      state.environment.USER_FOLDER,
+      "snippets",
+      "before.json"
+    );
+    await fs.outputFile(snippet, "original");
+    const files = {
+      "snippets|before.json": "changed",
+      "settings.json": '{"sync.gist":'
+    };
+    await store.write(snapshot(files), null);
+    await assert.rejects(service.Import(), /valid JSONC object/);
+    assert.strictEqual(await fs.readFile(snippet, "utf8"), "original");
   });
 });
