@@ -1,7 +1,17 @@
+import { SyncMethod } from "../enums/syncMethod.enum";
 import { state } from "../state";
 import { GitHubConfig } from "./github/github.model";
 
 export class CustomConfig {
+  public syncMethod: SyncMethod = SyncMethod.GitHubGist;
+  public gitRepository = {
+    provider: "github",
+    apiUrl: "https://api.github.com",
+    remote: "",
+    branch: "master",
+    name: "vscode-settings",
+    token: ""
+  };
   public ignoreUploadFiles: string[] = [
     "state.*",
     "syncLocalSettings.json",
@@ -12,9 +22,10 @@ export class CustomConfig {
     "projects_cache_git.json",
     "projects_cache_svn.json",
     "gpm_projects.json",
-    "gpm-recentItems.json",
+    "gpm-recentItems.json"
   ];
   public ignoreUploadFolders: string[] = [
+    ".git",
     "workspaceStorage",
     "globalStorage",
     "History",
@@ -22,7 +33,6 @@ export class CustomConfig {
   ];
   public ignoreExtensions: string[] = [];
   public githubSettings: GitHubConfig = new GitHubConfig();
-
 
   public version = Number(
     state.environment
@@ -34,7 +44,7 @@ export class CustomConfig {
   public disableUpdateMessage = false;
   public customFiles: { [key: string]: string } = {};
   public hostName: string = null;
-  public universalKeybindings: boolean = false;
-  public autoUploadDelay: number = 20;
-  public sortAlphabetically: boolean = false;
+  public universalKeybindings = false;
+  public autoUploadDelay = 20;
+  public sortAlphabetically = false;
 }

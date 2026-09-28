@@ -303,3 +303,22 @@ Thank you to all our sponsors! (Please ask your company to also support this ope
 <a href="https://join.slack.com/t/codesettingssync/shared_invite/enQtNzQyODMzMzI5MDQ3LWNmZjVkZjE2YTg0MzY1Y2EyYzVmYThmNzg2YjZkNjhhZWY3ZTEzN2I3ZTAxMjkwNWU0ZjMyZGFhMjdiZDI3ODU">
 <img src="https://shanalikhan.github.io/img/slack.PNG" alt="Drawing" style="width: 150px;"/>
 </a>
+
+## Sync to a Git repository
+
+In **Sync: Advanced Options → Open Settings**, choose **Git Repository** as Sync storage. Install Git 2.31 or newer on PATH. Existing Gist users retain their current storage selection until they change it.
+
+- Enter an existing HTTPS/SSH repository URL, or an absolute path to a local bare repository. Use a dedicated private repository for your settings.
+- To create a new private repository in your own account, choose GitHub or GitLab, enter a provider token and repository name, and click **Create private repository**. Confirm the displayed destination. GitHub uses `https://api.github.com`; GitLab uses `https://gitlab.com/api/v4`. For enterprise installations, enter their HTTPS API base, such as `https://git.example/api/v3` for GitHub Enterprise or `https://git.example/api/v4` for GitLab. Existing group/organization repositories can be used by URL.
+- HTTPS tokens need permission to create/write the chosen repository (GitHub repository permissions; GitLab `api` scope for creation). Tokens remain in local `syncLocalSettings.json`, which is excluded from normal export. They are sent only to the matching provider host and never inserted into the repository URL or Git command arguments. SSH uses your configured keys/agent without an interactive password prompt; local repositories need no token. The extension does not inherit global Git credential helpers or configuration for this backend.
+- Select a branch/profile, for example `master`, `office`, or `home`. The selection is stored in Sync Global Settings. Upload creates a missing branch. Download requires an existing settings snapshot on that branch.
+
+The existing Upload/Download commands and automatic sync options use the selected storage. Each Git branch stores one readable `settings-sync.json` containing settings, snippets, platform keybindings, optional extension inventory and explicitly mapped custom files. Snapshots are limited to 8 MiB; exclude large custom files before uploading. Git history supports reviewing or reverting earlier snapshots. Unrelated repository files and other branches are preserved. `.git` folders are excluded when using either Git Repository or Gist storage.
+
+Download fetches the remote branch afresh and replaces matching local settings after confirmation, unless Force Download is enabled. Unrelated local files remain. Upload replaces that branch's settings snapshot after confirmation, unless Force Upload is enabled. Git updates use `--force-with-lease`: if another machine changes the branch during an upload, retry after reviewing/downloading its changes. Unchanged exports create no commit. Repository hooks, filters and remote worktree files are never checked out or executed; temporary Git object databases are removed after each operation.
+
+Import validates snapshot contents and destinations before writing. A later filesystem or extension-install failure can still leave a partial import; correct the reported problem and retry. Extension installation requires access to the configured extension marketplace. Switching storage or resetting Git configuration does not delete a remote repository.
+
+### Repository backend tests
+
+`npm run test:repository` runs the existing tests plus real temporary bare-Git integration tests and a local HTTPS provider fixture. `test/fixtures/provider-key.pem` and `provider-cert.pem` are public, test-only localhost TLS fixtures; they are not production credentials. The tests substitute only the VS Code host boundary. Actual desktop dialogs, enterprise credentials and hosted repository permissions still require a VS Code integration check.

@@ -152,7 +152,8 @@
     "postinstall": "node ./node_modules/vscode/bin/install",
     "lint-eslint": "eslint --max-warnings 0 --ignore-path .gitignore --ext .js,.jsx,.ts,.tsx src",
     "format-eslint": "npm run lint-eslint --fix",
-    "test": "npm run lint-eslint && tsc -p ./ && mocha --recursive \"./out/test/**/*.js\""
+    "test": "npm run lint-eslint && tsc -p ./ && mocha --recursive \"./out/test/**/*.js\"",
+    "test:repository": "tsc -p ./ && mocha --require ./out/test/filesystem-host.js --recursive \"./out/test/**/*.js\""
   },
   "devDependencies": {
     "@types/chai": "4.2.5",
@@ -195,6 +196,7 @@
     "node-fetch": "^2.6.0",
     "recursive-readdir": "^2.2.2",
     "temp": "^0.9.1",
-    "vscode-chokidar": "^2.1.7"
+    "vscode-chokidar": "^2.1.7",
+    "jsonc-parser": "2.2.1"
   }
 }

@@ -99,8 +99,24 @@ const saveStatus = document.getElementById("saveStatus");
 globalMap.forEach(settingMap => {
   let template;
   switch (settingMap.type) {
+    case "select":
+      template = `<div class="form-group mb-4"><label for="setting:@correspondingSetting">@name</label>
+        <select class="form-control text" id="setting:@correspondingSetting" setting="@correspondingSetting" settingType="@settingType">
+          ${
+            settingMap.correspondingSetting === "syncMethod"
+              ? '<option value="GitHubGist">GitHub Gist</option><option value="GitRepository">Git Repository</option>'
+              : '<option value="github">GitHub / Enterprise</option><option value="gitlab">GitLab / Self-managed</option>'
+          }
+        </select></div>`;
+      break;
     case "textinput":
-      template = textInputTemplate;
+      template =
+        settingMap.correspondingSetting === "gitRepository.token"
+          ? textInputTemplate.replace(
+              'type="text"',
+              'type="password" autocomplete="off"'
+            )
+          : textInputTemplate;
       break;
     case "numberinput":
       template = numberInputTemplate;
@@ -123,6 +139,14 @@ globalMap.forEach(settingMap => {
     .replace(new RegExp("@settingType", "g"), "global");
   appendHTML(globalParent, html);
 });
+
+appendHTML(
+  globalParent,
+  `<div class="mb-4"><button class="btn btn-primary" type="button" id="createRepository">Create private repository</button><p>Creates a new repository under your provider account. For an existing repository, enter its URL above. Upload/Download use the selected branch; other branches are preserved.</p></div>`
+);
+document
+  .getElementById("createRepository")
+  .addEventListener("click", () => vscode.postMessage("createRepository"));
 
 envMap.forEach(envMap => {
   let template;
