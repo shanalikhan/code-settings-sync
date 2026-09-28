@@ -152,7 +152,8 @@
     "postinstall": "node ./node_modules/vscode/bin/install",
     "lint-eslint": "eslint --max-warnings 0 --ignore-path .gitignore --ext .js,.jsx,.ts,.tsx src",
     "format-eslint": "npm run lint-eslint --fix",
-    "test": "npm run lint-eslint && tsc -p ./ && mocha --recursive \"./out/test/**/*.js\""
+    "test": "npm run lint-eslint && tsc -p ./ && mocha --recursive \"./out/test/**/*.js\"",
+    "test:filesystem": "tsc -p ./ && mocha --require ./out/test/filesystem-host.js --recursive \"./out/test/**/*.js\""
   },
   "devDependencies": {
     "@types/chai": "4.2.5",

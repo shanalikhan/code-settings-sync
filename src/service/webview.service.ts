@@ -2,6 +2,7 @@ import { readFileSync } from "fs-extra";
 import { has, set } from "lodash";
 import { URL } from "url";
 import * as vscode from "vscode";
+import { SyncMethod } from "../enums/syncMethod.enum";
 import Commons from "../commons";
 import localize from "../localize";
 import { CustomConfig } from "../models/customConfig.model";
@@ -13,6 +14,18 @@ import { GitHubOAuthService } from "./github/github.oauth.service";
 
 export class WebviewService {
   private globalSettings = [
+    {
+      name: "Sync storage",
+      placeholder: "",
+      type: UISettingType.Select,
+      correspondingSetting: "syncMethod"
+    },
+    {
+      name: "Filesystem sync folder (absolute path)",
+      placeholder: "A folder outside the VS Code user folder",
+      type: UISettingType.TextInput,
+      correspondingSetting: "fileSystemPath"
+    },
     {
       name: localize("ext.globalConfig.token.name"),
       placeholder: localize("ext.globalConfig.token.placeholder"),
@@ -303,6 +316,12 @@ export class WebviewService {
       value = message.text === "true";
     }
     if (message.type === "global") {
+      if (
+        message.command === "syncMethod" &&
+        ![SyncMethod.GitHubGist, SyncMethod.FileSystem].includes(value)
+      ) {
+        return;
+      }
       if (has(customSettings, message.command)) {
         set(customSettings, message.command, value);
         state.commons.SetCustomSettings(customSettings);
@@ -374,6 +393,7 @@ export class WebviewService {
           if (!publicGist) {
             break;
           }
+          customConfig.syncMethod = SyncMethod.GitHubGist;
           customConfig.githubSettings.gistSettings.downloadPublicGist = true;
           await state.commons.SetCustomSettings(customConfig);
           await state.commons.SaveSettings({
@@ -445,18 +465,27 @@ export class WebviewService {
     return gistSelectionPanel;
   }
 
+  private EncodeSettingsData(placeholder: string, value: unknown): string {
+    const json = JSON.stringify(value);
+    return ["@GLOBAL_DATA", "@ENV_DATA", "@GLOBAL_MAP", "@ENV_MAP"].includes(
+      placeholder
+    )
+      ? encodeURIComponent(json)
+      : json;
+  }
+
   private GenerateContent(options: any) {
     const toReplace: Array<Record<string, unknown>> = [];
     options.items.forEach(option => {
       if (typeof option.replace === "string") {
         toReplace.push({
           ...option,
-          replace: JSON.stringify(options[option.replace])
+          replace: this.EncodeSettingsData(option.find, options[option.replace])
         });
       } else {
         toReplace.push({
           find: option.find,
-          replace: JSON.stringify(option.replace)
+          replace: this.EncodeSettingsData(option.find, option.replace)
         });
       }
     });

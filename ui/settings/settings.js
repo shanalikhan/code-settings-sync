@@ -99,6 +99,12 @@ const saveStatus = document.getElementById("saveStatus");
 globalMap.forEach(settingMap => {
   let template;
   switch (settingMap.type) {
+    case "select":
+      template = `<div class="form-group mb-4"><label for="setting:@correspondingSetting">@name</label>
+        <select class="form-control text" id="setting:@correspondingSetting" setting="@correspondingSetting" settingType="@settingType">
+          <option value="GitHubGist">GitHub Gist</option><option value="FileSystem">File System</option>
+        </select></div>`;
+      break;
     case "textinput":
       template = textInputTemplate;
       break;

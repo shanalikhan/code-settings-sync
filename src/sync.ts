@@ -27,6 +27,26 @@ export class Sync {
     const startUpSetting = state.commons.GetSettings();
     const startUpCustomSetting = await state.commons.GetCustomSettings();
 
+    if (startUpCustomSetting.syncMethod === SyncMethod.FileSystem) {
+      const service = FactoryService.CreateSyncService(
+        state,
+        SyncMethod.FileSystem
+      );
+      if (!(await service.IsConfigured())) {
+        state.commons.webviewService.OpenSettingsPage(
+          startUpCustomSetting,
+          startUpSetting
+        );
+        return;
+      }
+      if (startUpSetting.autoDownload) {
+        await this.download();
+      } else if (startUpSetting.autoUpload) {
+        await state.watcher.HandleStartWatching();
+      }
+      return;
+    }
+
     if (startUpSetting) {
       const tokenAvailable: boolean =
         startUpCustomSetting.githubSettings.token != null &&
@@ -73,9 +93,12 @@ export class Sync {
   public async upload(optArgument?: string): Promise<void> {
     // const args = arguments;
     try {
+      const config = await state.commons.GetCustomSettings();
       const service: ISyncService = FactoryService.CreateSyncService(
         state,
-        SyncMethod.GitHubGist
+        optArgument === "publicGIST"
+          ? SyncMethod.GitHubGist
+          : config.syncMethod || SyncMethod.GitHubGist
       );
       const args = new Array<string>();
       if (optArgument && optArgument === "publicGIST") {
@@ -83,7 +106,11 @@ export class Sync {
       }
       await service.Export(args);
     } catch (err) {
-      Commons.LogException(err, state.commons.ERROR_MESSAGE, true);
+      Commons.LogException(
+        err,
+        err.message || state.commons.ERROR_MESSAGE,
+        true
+      );
       return;
     }
   }
@@ -92,13 +119,18 @@ export class Sync {
    */
   public async download(): Promise<void> {
     try {
+      const config = await state.commons.GetCustomSettings();
       const service: ISyncService = FactoryService.CreateSyncService(
         state,
-        SyncMethod.GitHubGist
+        config.syncMethod || SyncMethod.GitHubGist
       );
       await service.Import();
     } catch (err) {
-      Commons.LogException(err, state.commons.ERROR_MESSAGE, true);
+      Commons.LogException(
+        err,
+        err.message || state.commons.ERROR_MESSAGE,
+        true
+      );
       return;
     }
   }
@@ -179,10 +211,14 @@ export class Sync {
         });
     }
     const localSetting: LocalConfig = new LocalConfig();
+    const localSync = customSettings.syncMethod === SyncMethod.FileSystem;
     const tokenAvailable: boolean =
-      customSettings.githubSettings.token != null &&
-      customSettings.githubSettings.token !== "";
-    const gistAvailable: boolean = setting.gist != null && setting.gist !== "";
+      localSync ||
+      (customSettings.githubSettings.token != null &&
+        customSettings.githubSettings.token !== "");
+    const gistAvailable: boolean = localSync
+      ? !!customSettings.fileSystemPath
+      : setting.gist != null && setting.gist !== "";
 
     const items: string[] = [
       "cmd.otherOptions.openSettingsPage",
@@ -237,6 +273,7 @@ export class Sync {
         );
 
         if (answer === "Yes") {
+          customSettings.syncMethod = SyncMethod.GitHubGist;
           localSetting.publicGist = true;
           settingChanged = true;
           setting.gist = "";
@@ -247,6 +284,7 @@ export class Sync {
       },
       async () => {
         // Download Settings from Public GIST
+        customSettings.syncMethod = SyncMethod.GitHubGist;
         selectedItem = 2;
         customSettings.githubSettings.gistSettings.downloadPublicGist = true;
         settingChanged = true;
