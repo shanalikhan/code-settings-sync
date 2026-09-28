@@ -156,10 +156,19 @@ describe("Git repository sync", function() {
     await fs.writeFile(userFile("settings.json"), "{}");
     await fs.remove(userFile("snippets"));
     await new Sync().download();
-    assert.strictEqual(
-      await fs.readFile(userFile("settings.json"), "utf8"),
-      '{"editor.fontSize":19}'
+    const restoredSettings = JSON.parse(
+      await fs.readFile(
+        path.join(state.environment.USER_FOLDER, "settings.json"),
+        "utf8"
+      )
     );
+    assert.strictEqual(restoredSettings["editor.fontSize"], 19);
+    for (const key of Object.keys(config.extConfig)) {
+      assert.strictEqual(
+        restoredSettings["sync." + key],
+        config.extConfig[key] == null ? "" : config.extConfig[key]
+      );
+    }
     assert.strictEqual(
       await fs.readFile(userFile("snippets/typescript.json"), "utf8"),
       ""
@@ -184,8 +193,8 @@ describe("Git repository sync", function() {
     config.customConfig.gitRepository.branch = "master";
     await service.Import();
     assert.strictEqual(
-      await fs.readFile(userFile("settings.json"), "utf8"),
-      '{"profile":"home"}'
+      JSON.parse(await fs.readFile(userFile("settings.json"), "utf8")).profile,
+      "home"
     );
     assert.strictEqual(current(), home);
   });
@@ -663,5 +672,45 @@ describe("Git repository sync", function() {
     );
     config.customConfig.gitRepository.branch = "--bad";
     await assert.rejects(service.Export(), /valid branch/);
+  });
+
+  it("preserves local sync options when a custom file maps to settings.json", async () => {
+    config.customConfig.customFiles.profile = path.join(
+      state.environment.USER_FOLDER,
+      "settings.json"
+    );
+    config.extConfig.gist = "local-profile";
+    config.extConfig.quietSync = false;
+    const files = {
+      "|customized_sync|profile":
+        '{"editor.fontSize":23,"sync.gist":"remote","sync.quietSync":true}'
+    };
+    await publish(document(files));
+    await service.Import();
+    const settings = JSON.parse(
+      await fs.readFile(
+        path.join(state.environment.USER_FOLDER, "settings.json"),
+        "utf8"
+      )
+    );
+    assert.strictEqual(settings["editor.fontSize"], 23);
+    assert.strictEqual(settings["sync.gist"], "local-profile");
+    assert.strictEqual(settings["sync.quietSync"], false);
+  });
+
+  it("rejects invalid imported settings before writing any destination", async () => {
+    const snippet = path.join(
+      state.environment.USER_FOLDER,
+      "snippets",
+      "before.json"
+    );
+    await fs.outputFile(snippet, "original");
+    const files = {
+      "snippets|before.json": "changed",
+      "settings.json": '{"sync.gist":'
+    };
+    await publish(document(files));
+    await assert.rejects(service.Import(), /valid JSONC object/);
+    assert.strictEqual(await fs.readFile(snippet, "utf8"), "original");
   });
 });

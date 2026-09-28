@@ -196,6 +196,7 @@
     "node-fetch": "^2.6.0",
     "recursive-readdir": "^2.2.2",
     "temp": "^0.9.1",
-    "vscode-chokidar": "^2.1.7"
+    "vscode-chokidar": "^2.1.7",
+    "jsonc-parser": "2.2.1"
   }
 }
