@@ -11,6 +11,7 @@ import { ExtensionConfig } from "./models/extensionConfig.model";
 import { LocalConfig } from "./models/localConfig.model";
 import PragmaUtil from "./pragmaUtil";
 import { File, FileService } from "./service/file.service";
+import { DownloadChangeService, IDownloadFileChange } from "./service/download-change.service";
 import { GitHubService } from "./service/github.service";
 import { ExtensionInformation, PluginService } from "./service/plugin.service";
 import { state } from "./state";
@@ -569,125 +570,193 @@ export class Sync {
         }
       });
 
+      const fileChanges: IDownloadFileChange[] = [];
+      let extensionsToInstall: ExtensionInformation[] = [];
+      let extensionsToRemove: ExtensionInformation[] = [];
+
       for (const file of updatedFiles) {
-        let writeFile: boolean = false;
         let content: string = file.content;
 
-        if (content !== "") {
-          if (file.gistName === state.environment.FILE_EXTENSION_NAME) {
-            if (syncSetting.syncExtensions) {
-              if (syncSetting.removeExtensions) {
-                try {
-                  deletedExtensions = await PluginService.DeleteExtensions(
-                    content,
-                    ignoredExtensions
-                  );
-                } catch (err) {
-                  vscode.window.showErrorMessage(
-                    localize("cmd.downloadSettings.error.removeExtFail")
-                  );
-                  throw new Error(err);
-                }
-              }
+        if (content === "") {
+          continue;
+        }
 
-              try {
-                if (!syncSetting.quietSync) {
-                  Commons.outputChannel = vscode.window.createOutputChannel(
-                    "Code Settings Sync"
-                  );
-                  Commons.outputChannel.clear();
-                  Commons.outputChannel.appendLine(
-                    `Realtime Extension Download Summary`
-                  );
-                  Commons.outputChannel.appendLine(`--------------------`);
-                  Commons.outputChannel.show();
-                }
-
-                addedExtensions = await PluginService.InstallExtensions(
-                  content,
-                  ignoredExtensions,
-                  (message: string, dispose: boolean) => {
-                    if (!syncSetting.quietSync) {
-                      Commons.outputChannel.appendLine(message);
-                    } else {
-                      console.log(message);
-                      if (dispose) {
-                        vscode.window.setStatusBarMessage(
-                          "Sync : " + message,
-                          3000
-                        );
-                      }
-                    }
-                  }
-                );
-              } catch (err) {
-                throw new Error(err);
-              }
-            }
-          } else {
-            writeFile = true;
-            if (
-              file.gistName === state.environment.FILE_KEYBINDING_DEFAULT ||
-              file.gistName === state.environment.FILE_KEYBINDING_MAC
-            ) {
-              let test: string = "";
-              state.environment.OsType === OsType.Mac &&
-              !customSettings.universalKeybindings
-                ? (test = state.environment.FILE_KEYBINDING_MAC)
-                : (test = state.environment.FILE_KEYBINDING_DEFAULT);
-              if (file.gistName !== test) {
-                writeFile = false;
-              }
-            }
-            if (writeFile) {
-              if (file.gistName === state.environment.FILE_KEYBINDING_MAC) {
-                file.fileName = state.environment.FILE_KEYBINDING_DEFAULT;
-              }
-              let filePath: string = "";
-              if (file.filePath !== null) {
-                filePath = await FileService.CreateCustomDirTree(file.filePath);
-              } else {
-                filePath = await FileService.CreateDirTree(
-                  state.environment.USER_FOLDER,
-                  file.fileName
-                );
-              }
-
-              if (
-                file.gistName === state.environment.FILE_SETTING_NAME ||
-                file.gistName === state.environment.FILE_KEYBINDING_MAC ||
-                file.gistName === state.environment.FILE_KEYBINDING_DEFAULT
-              ) {
-                const fileExists = await FileService.FileExists(filePath);
-
-                if (fileExists) {
-                  const localContent = await FileService.ReadFile(filePath);
-                  content = PragmaUtil.processBeforeWrite(
-                    localContent,
-                    content,
-                    state.environment.OsType,
-                    localSettings.customConfig.hostName
-                  );
-                }
-              }
-
-              actionList.push(
-                FileService.WriteFile(filePath, content)
-                  .then(() => {
-                    // TODO : add Name attribute in File and show information message here with name , when required.
-                  })
-                  .catch(err => {
-                    Commons.LogException(
-                      err,
-                      state.commons.ERROR_MESSAGE,
-                      true
-                    );
-                    return;
-                  })
+        if (file.gistName === state.environment.FILE_EXTENSION_NAME) {
+          if (syncSetting.syncExtensions) {
+            extensionsToInstall = PluginService.GetMissingExtensions(
+              content,
+              ignoredExtensions
+            );
+            if (syncSetting.removeExtensions) {
+              extensionsToRemove = PluginService.GetDeletedExtensions(
+                ExtensionInformation.fromJSONList(content),
+                ignoredExtensions
               );
             }
           }
+          continue;
         }
+
+        let fileName = file.fileName;
+        if (
+          file.gistName === state.environment.FILE_KEYBINDING_DEFAULT ||
+          file.gistName === state.environment.FILE_KEYBINDING_MAC
+        ) {
+          const expectedKeybinding =
+            state.environment.OsType === OsType.Mac &&
+            !customSettings.universalKeybindings
+              ? state.environment.FILE_KEYBINDING_MAC
+              : state.environment.FILE_KEYBINDING_DEFAULT;
+          if (file.gistName !== expectedKeybinding) {
+            continue;
+          }
+        }
+
+        if (file.gistName === state.environment.FILE_KEYBINDING_MAC) {
+          fileName = state.environment.FILE_KEYBINDING_DEFAULT;
+        }
+
+        const targetPath =
+          file.filePath !== null
+            ? file.filePath
+            : DownloadChangeService.ResolveFilePath(
+                state.environment.USER_FOLDER,
+                fileName
+              );
+        const fileExists = await FileService.FileExists(targetPath);
+        let localContent: string | null = null;
+
+        if (fileExists) {
+          localContent = await FileService.ReadFile(targetPath);
+        }
+
+        if (
+          fileExists &&
+          (file.gistName === state.environment.FILE_SETTING_NAME ||
+            file.gistName === state.environment.FILE_KEYBINDING_MAC ||
+            file.gistName === state.environment.FILE_KEYBINDING_DEFAULT)
+        ) {
+          content = PragmaUtil.processBeforeWrite(
+            localContent,
+            content,
+            state.environment.OsType,
+            localSettings.customConfig.hostName
+          );
+        }
+
+        const plannedFile = new File(
+          fileName,
+          file.content,
+          file.filePath,
+          file.gistName
+        );
+        const change = DownloadChangeService.CreateFileChange(
+          plannedFile,
+          targetPath,
+          content,
+          localContent
+        );
+        if (change) {
+          fileChanges.push(change);
+        }
+      }
+
+      const changePlan = DownloadChangeService.CreatePlan(
+        fileChanges,
+        extensionsToInstall,
+        extensionsToRemove
+      );
+      const confirmed = await DownloadChangeService.ConfirmPlan(
+        changePlan,
+        syncSetting.quietSync,
+        async summary => {
+          const yes = localize("common.button.yes");
+          const no = localize("common.button.no");
+          const answer = await vscode.window.showInformationMessage(
+            summary,
+            yes,
+            no
+          );
+          return answer === yes;
+        }
+      );
+
+      if (!confirmed) {
+        vscode.window.setStatusBarMessage("Sync: Download canceled.", 3000);
+        if (syncSetting.autoUpload) {
+          await state.commons.HandleStartWatching();
+        }
+        return;
+      }
+
+      if (
+        changePlan.extensionsToInstall.length > 0 ||
+        changePlan.extensionsToRemove.length > 0
+      ) {
+        if (!syncSetting.quietSync) {
+          Commons.outputChannel = vscode.window.createOutputChannel(
+            "Code Settings Sync"
+          );
+          Commons.outputChannel.clear();
+          Commons.outputChannel.appendLine(
+            `Realtime Extension Download Summary`
+          );
+          Commons.outputChannel.appendLine(`--------------------`);
+          Commons.outputChannel.show();
+        }
+
+        if (changePlan.extensionsToRemove.length > 0) {
+          try {
+            deletedExtensions = await Promise.all(
+              changePlan.extensionsToRemove.map(async selectedExtension => {
+                await PluginService.DeleteExtension(selectedExtension);
+                return selectedExtension;
+              })
+            );
+          } catch (err) {
+            vscode.window.showErrorMessage(
+              localize("cmd.downloadSettings.error.removeExtFail")
+            );
+            throw new Error(err);
+          }
+        }
+
+        if (changePlan.extensionsToInstall.length > 0) {
+          try {
+            addedExtensions = await PluginService.InstallWithAPI(
+              changePlan.extensionsToInstall,
+              (message: string, dispose: boolean) => {
+                if (!syncSetting.quietSync) {
+                  Commons.outputChannel.appendLine(message);
+                } else {
+                  console.log(message);
+                  if (dispose) {
+                    vscode.window.setStatusBarMessage(
+                      "Sync : " + message,
+                      3000
+                    );
+                  }
+                }
+              }
+            );
+          } catch (err) {
+            throw new Error(err);
+          }
+        }
+      }
+
+      for (const change of changePlan.fileChanges) {
+        await FileService.CreateCustomDirTree(change.targetPath);
+        actionList.push(
+          FileService.WriteFile(change.targetPath, change.content)
+            .then(() => {
+              // TODO : add Name attribute in File and show information message here with name , when required.
+            })
+            .catch(err => {
+              Commons.LogException(err, state.commons.ERROR_MESSAGE, true);
+              return;
+            })
+        );
       }
 
       await Promise.all(actionList);
@@ -699,7 +768,7 @@ export class Sync {
         if (!syncSetting.quietSync) {
           state.commons.ShowSummaryOutput(
             false,
-            updatedFiles,
+            changePlan.fileChanges.map(change => change.file),
             deletedExtensions,
             addedExtensions,
             null,

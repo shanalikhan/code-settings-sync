@@ -76,17 +76,23 @@ export class ExtensionMetadata {
 }
 
 export class PluginService {
+  // VS Code identifies extensions by publisher.name, not name alone.
+  private static ExtensionId(extension: ExtensionInformation): string {
+    return `${extension.publisher}.${extension.name}`.toLowerCase();
+  }
+
   public static GetMissingExtensions(
     remoteExt: string,
     ignoredExtensions: string[]
   ) {
     const remoteList = ExtensionInformation.fromJSONList(remoteExt);
     const localList = this.CreateExtensionList();
+    const installedIds = new Set(localList.map(ext => this.ExtensionId(ext)));
 
     return remoteList.filter(
       ext =>
         !ignoredExtensions.includes(ext.name) &&
-        !localList.map(e => e.name).includes(ext.name)
+        !installedIds.has(this.ExtensionId(ext))
     );
   }
 
@@ -95,6 +101,7 @@ export class PluginService {
     ignoredExtensions: string[]
   ) {
     const localExtensions = this.CreateExtensionList();
+    const remoteIds = new Set(remoteExtensions.map(ext => this.ExtensionId(ext)));
 
     // for (var i = 0; i < remoteList.length; i++) {
 
@@ -117,7 +124,7 @@ export class PluginService {
     return localExtensions.filter(
       ext =>
         ext.name !== "code-settings-sync" &&
-        !remoteExtensions.map(e => e.name).includes(ext.name) &&
+        !remoteIds.has(this.ExtensionId(ext)) &&
         !ignoredExtensions.includes(ext.name)
     );
   }
