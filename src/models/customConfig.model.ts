@@ -1,5 +1,6 @@
 import { state } from "../state";
 import { GitHubConfig } from "./github/github.model";
+import { RepositorySyncConfig } from "./repositorySyncConfig.model";
 
 export class CustomConfig {
   public ignoreUploadFiles: string[] = [
@@ -15,6 +16,7 @@ export class CustomConfig {
     "gpm-recentItems.json",
   ];
   public ignoreUploadFolders: string[] = [
+    ".git",
     "workspaceStorage",
     "globalStorage",
     "History",
@@ -22,6 +24,7 @@ export class CustomConfig {
   ];
   public ignoreExtensions: string[] = [];
   public githubSettings: GitHubConfig = new GitHubConfig();
+  public repositorySync: RepositorySyncConfig = new RepositorySyncConfig();
 
 
   public version = Number(

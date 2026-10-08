@@ -10,6 +10,7 @@ import lockfile from "./lockfile";
 export class AutoUploadService {
   public static GetIgnoredItems(customSettings: CustomConfig) {
     return [
+      "**/.git/**",
       ...customSettings.ignoreUploadFolders.map(folder => `**/${folder}/**`),
       ...customSettings.ignoreUploadFiles.map(file => `**/${file}`)
     ];

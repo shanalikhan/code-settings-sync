@@ -37,10 +37,132 @@
         <form id="environmentSettings"></form>
         <p id="saveStatus" class="text-white-50a" style="font-size: 3rem"></p>
       </div>
-      <div class="col mt-2 scrollable"  style="height: 100%;">
+      <div class="col mt-2 scrollable" style="height: 100%;">
         <h3 class="mx-auto mt-2 text-white-50a text-center">
           Global Settings
         </h3>
+        <form id="repositorySettings" class="mb-4">
+          <h4 class="text-white-50a">Sync storage</h4>
+          <div class="form-group">
+            <label for="repositoryMode" class="text-white-50a"
+              >Save settings to</label
+            >
+            <select id="repositoryMode" class="form-control">
+              <option value="gist">GitHub Gist</option>
+              <option value="repository">Git repository</option>
+            </select>
+          </div>
+          <fieldset id="repositoryFields" hidden disabled>
+            <div class="form-group">
+              <label for="repositoryAction" class="text-white-50a"
+                >Repository setup</label
+              >
+              <select id="repositoryAction" class="form-control">
+                <option value="existing">Use an existing repository</option>
+                <option value="create">Create a private repository</option>
+              </select>
+            </div>
+            <fieldset id="existingRepositoryFields">
+              <div class="form-group">
+                <label for="repositoryRemote" class="text-white-50a"
+                  >Repository remote</label
+                >
+                <input
+                  id="repositoryRemote"
+                  class="form-control"
+                  type="text"
+                  placeholder="git@github.com:you/settings.git"
+                  required
+                />
+                <small class="text-white-50a"
+                  >Use HTTPS, SSH or a local repository path. Git uses your
+                  existing credential or SSH configuration.</small
+                >
+              </div>
+            </fieldset>
+            <fieldset id="newRepositoryFields" hidden disabled>
+              <div class="form-group">
+                <label for="repositoryProvider" class="text-white-50a"
+                  >Provider</label
+                >
+                <select id="repositoryProvider" class="form-control">
+                  <option value="github">GitHub / GitHub Enterprise</option>
+                  <option value="gitlab">GitLab / GitLab Enterprise</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label for="repositoryApi" class="text-white-50a"
+                  >API URL</label
+                >
+                <input
+                  id="repositoryApi"
+                  class="form-control"
+                  type="url"
+                  required
+                />
+                <small class="text-white-50a"
+                  >For Enterprise, use your HTTPS API root, such as
+                  https://git.example/api/v3 or /api/v4.</small
+                >
+              </div>
+              <div class="form-group">
+                <label for="repositoryToken" class="text-white-50a"
+                  >API credential</label
+                >
+                <input
+                  id="repositoryToken"
+                  class="form-control"
+                  type="password"
+                  autocomplete="off"
+                  required
+                  maxlength="4096"
+                />
+                <small class="text-white-50a"
+                  >Used to create the private repository. Git upload and
+                  download use your Git credentials separately.</small
+                >
+              </div>
+              <div class="form-group">
+                <label for="repositoryName" class="text-white-50a"
+                  >New repository name</label
+                >
+                <input
+                  id="repositoryName"
+                  class="form-control"
+                  type="text"
+                  placeholder="settings-sync"
+                  pattern="[A-Za-z0-9][A-Za-z0-9._-]{0,99}"
+                  required
+                />
+                <small class="text-white-50a"
+                  >A name only, without an owner or group prefix. Created under
+                  the credential's account.</small
+                >
+              </div>
+            </fieldset>
+            <div class="form-group">
+              <label for="repositoryBranch" class="text-white-50a"
+                >Branch / profile</label
+              >
+              <input
+                id="repositoryBranch"
+                class="form-control"
+                type="text"
+                placeholder="master or office"
+                required
+              />
+            </div>
+          </fieldset>
+          <button id="saveRepository" type="submit" class="btn btn-primary">
+            Save sync storage
+          </button>
+          <p
+            id="repositoryStatus"
+            class="text-white-50a mt-2"
+            role="status"
+            aria-live="polite"
+          ></p>
+        </form>
         <form id="globalSettings"></form>
       </div>
     </div>
@@ -58,10 +180,10 @@
     <script defer src="@PWD/ui/shared/fonts.js"></script>
     <font-injector></font-injector>
     <script defer>
-      const globalData = JSON.parse(`@GLOBAL_DATA`);
-      const envData = JSON.parse(`@ENV_DATA`);
-      const globalMap = JSON.parse(`@GLOBAL_MAP`);
-      const envMap = JSON.parse(`@ENV_MAP`);
+      const globalData = @GLOBAL_DATA;
+      const envData = @ENV_DATA;
+      const globalMap = @GLOBAL_MAP;
+      const envMap = @ENV_MAP;
     </script>
     <script defer src="@PWD/ui/settings/settings.js"></script>
   </body>

@@ -101,9 +101,12 @@ export class FileService {
   ): Promise<File[]> {
     function folderMatcher(file: string, stats: fs.Stats) {
       if (stats.isDirectory()) {
-        return customSettings.ignoreUploadFolders.some(fold => {
-          return file.split(path.sep).includes(fold);
-        });
+        return (
+          file.split(path.sep).includes(".git") ||
+          customSettings.ignoreUploadFolders.some(fold => {
+            return file.split(path.sep).includes(fold);
+          })
+        );
       }
       return false;
     }

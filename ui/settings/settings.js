@@ -95,6 +95,115 @@ const textareaTemplate = `<div class="form-group mb-3">
 const globalParent = document.getElementById("globalSettings");
 const envParent = document.getElementById("environmentSettings");
 const saveStatus = document.getElementById("saveStatus");
+const repositoryForm = document.getElementById("repositorySettings");
+const repositoryStatus = document.getElementById("repositoryStatus");
+const repositoryControls = {
+  mode: document.getElementById("repositoryMode"),
+  provider: document.getElementById("repositoryProvider"),
+  apiUrl: document.getElementById("repositoryApi"),
+  token: document.getElementById("repositoryToken"),
+  repository: document.getElementById("repositoryName"),
+  remoteUrl: document.getElementById("repositoryRemote"),
+  branch: document.getElementById("repositoryBranch")
+};
+const repositoryAction = document.getElementById("repositoryAction");
+const saveRepository = document.getElementById("saveRepository");
+let repositoryPending = false;
+
+function renderRepositoryFields() {
+  const repositoryMode = repositoryControls.mode.value === "repository";
+  const creating = repositoryAction.value === "create";
+  const fields = document.getElementById("repositoryFields");
+  fields.hidden = !repositoryMode;
+  fields.disabled = repositoryPending || !repositoryMode;
+  const existingFields = document.getElementById("existingRepositoryFields");
+  existingFields.hidden = creating;
+  existingFields.disabled = creating;
+  const newFields = document.getElementById("newRepositoryFields");
+  newFields.hidden = !creating;
+  newFields.disabled = !creating;
+  repositoryControls.mode.disabled = repositoryPending;
+  saveRepository.disabled = repositoryPending;
+  saveRepository.textContent =
+    repositoryMode && creating
+      ? "Create private repository and use it"
+      : "Save sync storage";
+}
+
+function loadRepositorySettings(settings) {
+  const defaults = {
+    mode: "gist",
+    provider: "github",
+    apiUrl: "https://api.github.com",
+    token: "",
+    repository: "",
+    remoteUrl: "",
+    branch: "master"
+  };
+  Object.keys(repositoryControls).forEach(key => {
+    repositoryControls[key].value =
+      typeof settings[key] === "string" ? settings[key] : defaults[key];
+  });
+  if (!["gist", "repository"].includes(repositoryControls.mode.value)) {
+    repositoryControls.mode.value = defaults.mode;
+  }
+  if (!["github", "gitlab"].includes(repositoryControls.provider.value)) {
+    repositoryControls.provider.value = defaults.provider;
+  }
+  renderRepositoryFields();
+}
+
+loadRepositorySettings(globalData.repositorySync || {});
+repositoryControls.mode.addEventListener("change", renderRepositoryFields);
+repositoryAction.addEventListener("change", renderRepositoryFields);
+repositoryControls.provider.addEventListener("change", () => {
+  repositoryControls.token.value = "";
+  const api = repositoryControls.apiUrl;
+  if (
+    !api.value ||
+    api.value === "https://api.github.com" ||
+    api.value === "https://gitlab.com/api/v4"
+  ) {
+    api.value =
+      repositoryControls.provider.value === "gitlab"
+        ? "https://gitlab.com/api/v4"
+        : "https://api.github.com";
+  }
+});
+repositoryControls.apiUrl.addEventListener("change", () => {
+  repositoryControls.token.value = "";
+});
+repositoryForm.addEventListener("submit", event => {
+  event.preventDefault();
+  if (repositoryPending || !repositoryForm.reportValidity()) return;
+  const settings = {};
+  Object.keys(repositoryControls).forEach(key => {
+    settings[key] = repositoryControls[key].value;
+  });
+  const creating =
+    settings.mode === "repository" && repositoryAction.value === "create";
+  repositoryPending = true;
+  repositoryStatus.textContent = creating
+    ? "Creating private repository…"
+    : "Saving sync storage…";
+  renderRepositoryFields();
+  vscode.postMessage({
+    command: creating ? "createRepository" : "saveRepositorySettings",
+    settings
+  });
+});
+window.addEventListener("message", event => {
+  const message = event.data;
+  if (!message || message.command !== "repositorySettingsResult") return;
+  repositoryPending = false;
+  if (message.settings) {
+    // Also preserve the returned remote if creation succeeded but local save failed.
+    repositoryAction.value = "existing";
+    loadRepositorySettings(message.settings);
+  }
+  repositoryStatus.textContent = message.message;
+  renderRepositoryFields();
+});
 
 globalMap.forEach(settingMap => {
   let template;

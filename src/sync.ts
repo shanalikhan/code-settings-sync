@@ -28,6 +28,30 @@ export class Sync {
     const startUpCustomSetting = await state.commons.GetCustomSettings();
 
     if (startUpSetting) {
+      const repositorySelected =
+        startUpCustomSetting.repositorySync &&
+        startUpCustomSetting.repositorySync.mode === "repository";
+      if (repositorySelected) {
+        const repositoryAvailable =
+          !!startUpCustomSetting.repositorySync.remoteUrl &&
+          !!startUpCustomSetting.repositorySync.branch;
+        if (!repositoryAvailable) {
+          state.commons.webviewService.OpenSettingsPage(
+            startUpCustomSetting,
+            startUpSetting
+          );
+          return;
+        }
+        if (startUpSetting.autoDownload) {
+          await vscode.commands.executeCommand("extension.downloadSettings");
+          return;
+        }
+        if (startUpSetting.autoUpload) {
+          await state.watcher.HandleStartWatching();
+        }
+        return;
+      }
+
       const tokenAvailable: boolean =
         startUpCustomSetting.githubSettings.token != null &&
         startUpCustomSetting.githubSettings.token !== "";
@@ -75,7 +99,7 @@ export class Sync {
     try {
       const service: ISyncService = FactoryService.CreateSyncService(
         state,
-        SyncMethod.GitHubGist
+        await this.getSyncMethod()
       );
       const args = new Array<string>();
       if (optArgument && optArgument === "publicGIST") {
@@ -94,7 +118,7 @@ export class Sync {
     try {
       const service: ISyncService = FactoryService.CreateSyncService(
         state,
-        SyncMethod.GitHubGist
+        await this.getSyncMethod()
       );
       await service.Import();
     } catch (err) {
@@ -183,6 +207,11 @@ export class Sync {
       customSettings.githubSettings.token != null &&
       customSettings.githubSettings.token !== "";
     const gistAvailable: boolean = setting.gist != null && setting.gist !== "";
+    const repositoryAvailable =
+      customSettings.repositorySync &&
+      customSettings.repositorySync.mode === "repository" &&
+      !!customSettings.repositorySync.remoteUrl &&
+      !!customSettings.repositorySync.branch;
 
     const items: string[] = [
       "cmd.otherOptions.openSettingsPage",
@@ -278,7 +307,7 @@ export class Sync {
           vscode.commands.executeCommand("extension.HowSettings");
           return;
         }
-        if (!gistAvailable) {
+        if (!gistAvailable && !repositoryAvailable) {
           vscode.commands.executeCommand("extension.HowSettings");
           return;
         }
@@ -290,7 +319,7 @@ export class Sync {
         selectedItem = 7;
         settingChanged = true;
 
-        if (!tokenAvailable || !gistAvailable) {
+        if ((!tokenAvailable || !gistAvailable) && !repositoryAvailable) {
           vscode.commands.executeCommand("extension.HowSettings");
           return;
         }
@@ -477,6 +506,18 @@ export class Sync {
       Commons.LogException(err, "Error", true);
       return;
     }
+  }
+
+  private async getSyncMethod(): Promise<SyncMethod> {
+    const customSettings = await state.commons.GetCustomSettings();
+    if (
+      customSettings &&
+      customSettings.repositorySync &&
+      customSettings.repositorySync.mode === "repository"
+    ) {
+      return SyncMethod.GitRepository;
+    }
+    return SyncMethod.GitHubGist;
   }
 
   private async getCustomFilesFromGist(
