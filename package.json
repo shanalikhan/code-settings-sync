@@ -150,7 +150,7 @@
     "postinstall": "node ./node_modules/vscode/bin/install",
     "tslint-check": "tslint -c ./tslint.json ./src/**/*.ts ./src/*.ts",
     "format": "prettier --write './src/**/*.ts'",
-    "test": "npm run tslint-check && tsc -p ./ && mocha --recursive \"./out/test/**/*.js\""
+    "test": "npm run tslint-check && tsc -p ./ && mocha --require ./test/vscode-mock.js --recursive \"./out/test/**/*.js\""
   },
   "devDependencies": {
     "@types/chai": "4.2.1",
@@ -168,7 +168,7 @@
     "ts-loader": "^5.3.3",
     "tslint": "^5.15.0",
     "tslint-plugin-prettier": "^2.0.1",
-    "typescript": "^3.4.1",
+    "typescript": "^5.4.5",
     "vscode": "^1.1.33",
     "webpack": "^4.29.6",
     "webpack-cli": "^3.3.0",

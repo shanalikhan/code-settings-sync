@@ -14,14 +14,10 @@ interface IEnv {
   HTTP_PROXY: string;
 }
 
-interface IFixGistResponse extends Omit<GitHubApi.GistsGetResponse, "files"> {
-  files: any | GitHubApi.GistsGetResponseFiles;
-}
-
 export class GitHubService {
   public userName: string = null;
   public name: string = null;
-  private github: GitHubApi = null;
+  private github: any = null;
   private GIST_JSON_EMPTY: any = {
     description: "Visual Studio Code Sync Settings Gist",
     public: false,
@@ -51,7 +47,7 @@ export class GitHubService {
   };
 
   constructor(userToken: string, basePath: string) {
-    const githubApiConfig: GitHubApi.Options = {};
+    const githubApiConfig: any = {};
 
     const proxyURL: string =
       vscode.workspace.getConfiguration("http").get("proxy") ||
@@ -69,7 +65,7 @@ export class GitHubService {
       githubApiConfig.auth = `token ${userToken}`;
     }
     try {
-      this.github = new GitHubApi(githubApiConfig);
+      this.github = new (GitHubApi as any)(githubApiConfig);
     } catch (err) {
       console.error(err);
     }
@@ -128,9 +124,7 @@ export class GitHubService {
   }
 
   // This should return GitHubApi.Response<GitHubApi.GistsGetResponse> but Types are wrong
-  public async ReadGist(
-    GIST: string
-  ): Promise<GitHubApi.Response<IFixGistResponse>> {
+  public async ReadGist(GIST: string): Promise<any> {
     const promise = this.github.gists.get({ gist_id: GIST });
     const res = await promise.catch(err => {
       if (String(err).includes("HttpError: Not Found")) {

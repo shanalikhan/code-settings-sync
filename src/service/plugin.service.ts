@@ -1,5 +1,7 @@
 "use strict";
 import * as vscode from "vscode";
+import { state } from "../state";
+import { listDiskExtensionEntries } from "./extensionInventory.service";
 
 export class ExtensionInformation {
   public static fromJSON(text: string) {
@@ -20,6 +22,7 @@ export class ExtensionInformation {
       item.name = obj.name;
       item.publisher = obj.publisher;
       item.version = obj.version;
+      item.disabled = !!obj.disabled;
       return item;
     } catch (err) {
       throw new Error(err);
@@ -46,6 +49,7 @@ export class ExtensionInformation {
         item.name = obj.name;
         item.publisher = obj.publisher;
         item.version = obj.version;
+        item.disabled = !!obj.disabled;
 
         if (item.name !== "code-settings-sync") {
           extList.push(item);
@@ -62,6 +66,9 @@ export class ExtensionInformation {
   public name: string;
   public version: string;
   public publisher: string;
+  // True when the extension was installed but disabled at upload time.
+  // Absent (old cloud payloads) means enabled; never serialized as such.
+  public disabled?: boolean = false;
 }
 
 export class ExtensionMetadata {
@@ -144,8 +151,86 @@ export class PluginService {
         info.name = ext.packageJSON.name;
         info.publisher = ext.packageJSON.publisher;
         info.version = ext.packageJSON.version;
+        // API-visible extensions are enabled; disabled ones are absent
+        // from the API and merged in by CreateExtensionListWithDisabled.
+        info.disabled = false;
         return info;
       });
+  }
+
+  // Upload inventory including disabled extensions (issue #143).
+  // Anything installed on disk but invisible to the API is recorded with
+  // disabled=true so download can re-apply the state. Falls back to the
+  // plain API list when the folder is unavailable.
+  public static CreateExtensionListWithDisabled(extensionFolder?: string) {
+    const apiList = PluginService.CreateExtensionList();
+    try {
+      const folder =
+        extensionFolder ||
+        (state.environment && state.environment.EXTENSION_FOLDER) ||
+        "";
+      const diskEntries = listDiskExtensionEntries(folder);
+      const known = apiList.map(ext =>
+        `${ext.publisher}.${ext.name}`.toLowerCase()
+      );
+      for (const entry of diskEntries) {
+        const full = `${entry.publisher}.${entry.name}`;
+        if (known.includes(full.toLowerCase())) {
+          continue;
+        }
+        const info = new ExtensionInformation();
+        info.metadata = new ExtensionMetadata(
+          "",
+          "",
+          "",
+          entry.publisher,
+          entry.publisher,
+          ""
+        );
+        info.name = entry.name;
+        info.publisher = entry.publisher;
+        info.version = entry.version;
+        info.disabled = true;
+        apiList.push(info);
+        known.push(full.toLowerCase());
+      }
+    } catch (err) {
+      // Disk scan is best-effort; the API list alone still syncs.
+    }
+    return apiList;
+  }
+
+  // Re-applies the disabled state after download (issue #143).
+  // Fail-soft per extension: old clients without the disable command
+  // report `skipped` instead of failing the whole download.
+  public static async DisableExtensions(
+    extensions: ExtensionInformation[],
+    notificationCallBack: (...data: any[]) => void = () => undefined
+  ): Promise<{ disabled: string[]; skipped: string[] }> {
+    const result: { disabled: string[]; skipped: string[] } = {
+      disabled: [],
+      skipped: []
+    };
+    for (const ext of extensions) {
+      if (!ext.disabled) {
+        continue;
+      }
+      const full = `${ext.publisher}.${ext.name}`;
+      try {
+        await vscode.commands.executeCommand(
+          "workbench.extensions.disableExtension",
+          full
+        );
+        notificationCallBack(`Sync : Disabled extension ${full}.`);
+        result.disabled.push(full);
+      } catch (err) {
+        notificationCallBack(
+          `Sync : Unable to disable extension ${full} on this client: ${err}`
+        );
+        result.skipped.push(full);
+      }
+    }
+    return result;
   }
 
   public static async DeleteExtension(

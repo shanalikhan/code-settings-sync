@@ -44,7 +44,7 @@ export class Localize {
     const resolvedLanguage = this.recurseCandidates(
       rootPath,
       languageFormat,
-      this.options.locale
+      this.options.locale || "en"
     );
 
     const languageFilePath = resolve(rootPath, resolvedLanguage);

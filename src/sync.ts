@@ -130,7 +130,9 @@ export class Sync {
       // var remoteList = ExtensionInformation.fromJSONList(file.content);
       // var deletedList = PluginService.GetDeletedExtensions(uploadedExtensions);
       if (syncSetting.syncExtensions) {
-        uploadedExtensions = PluginService.CreateExtensionList();
+        // WithDisabled inventory: disabled extensions are invisible to the
+        // API, so the plain list would silently drop them (issue #143).
+        uploadedExtensions = PluginService.CreateExtensionListWithDisabled();
         if (
           customSettings.ignoreExtensions &&
           customSettings.ignoreExtensions.length > 0
@@ -620,6 +622,24 @@ export class Sync {
                     }
                   }
                 );
+                // Re-apply the disabled state recorded at upload time
+                // (issue #143). Fail-soft: clients without the disable
+                // command keep the extensions installed, never fail sync.
+                try {
+                  const remoteList = ExtensionInformation.fromJSONList(content);
+                  await PluginService.DisableExtensions(
+                    remoteList,
+                    (message: string) => {
+                      if (!syncSetting.quietSync && Commons.outputChannel) {
+                        Commons.outputChannel.appendLine(message);
+                      } else {
+                        console.log(message);
+                      }
+                    }
+                  );
+                } catch (err) {
+                  console.log(`Sync : Disable step skipped: ${err}`);
+                }
               } catch (err) {
                 throw new Error(err);
               }
