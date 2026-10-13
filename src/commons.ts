@@ -1,5 +1,6 @@
 "use strict";
 import * as vscode from "vscode";
+import { RepositoryConfig } from "./models/repositoryConfig.model";
 import localize from "./localize";
 import { CustomConfig } from "./models/customConfig.model";
 import { ExtensionConfig } from "./models/extensionConfig.model";
@@ -38,8 +39,8 @@ export default class Commons {
             msgBox = true;
             message = localize("common.error.invalidGistId");
           }
-        } catch (error) {
-          //  message = error.message;
+        } catch {
+          message = error.message;
         }
       }
     }
@@ -108,6 +109,10 @@ export default class Commons {
         const tempObj = JSON.parse(customSettingStr);
 
         Object.assign(customSettings, tempObj);
+        customSettings.repositorySettings = Object.assign(
+          new RepositoryConfig(),
+          customSettings.repositorySettings
+        );
         if (customSettings.githubSettings.token) {
           customSettings.githubSettings.token = customSettings.githubSettings.token.trim();
         }
@@ -494,10 +499,16 @@ export default class Commons {
           : "Anonymous"
       }`
     );
-    outputChannel.appendLine(`GitHub Gist: ${syncSettings.extConfig.gist}`);
-    outputChannel.appendLine(
-      `GitHub Gist Type: ${syncSettings.publicGist ? "Public" : "Secret"}`
-    );
+    if (syncSettings.customConfig.syncMethod === "GitRepository") {
+      const repository = syncSettings.customConfig.repositorySettings;
+      outputChannel.appendLine(`Git Repository: ${repository.url}`);
+      outputChannel.appendLine(`Branch / Profile: ${repository.branch}`);
+    } else {
+      outputChannel.appendLine(`GitHub Gist: ${syncSettings.extConfig.gist}`);
+      outputChannel.appendLine(
+        `GitHub Gist Type: ${syncSettings.publicGist ? "Public" : "Secret"}`
+      );
+    }
     const dateNow = new Date();
     outputChannel.appendLine("TIMESTAMP : " + dateNow.toLocaleString());
     outputChannel.appendLine(``);

@@ -10,6 +10,7 @@ import { UISettingType } from "../models/settingType.model";
 import { IWebview } from "../models/webview.model";
 import { state } from "../state";
 import { GitHubOAuthService } from "./github/github.oauth.service";
+import { handleRepositoryMessage } from "./repository/repositorySettings.service";
 
 export class WebviewService {
   private globalSettings = [
@@ -241,6 +242,9 @@ export class WebviewService {
     );
     settingsPanel.webview.html = content;
     settingsPanel.webview.onDidReceiveMessage(async message => {
+      if (await handleRepositoryMessage(message, settingsPanel)) {
+        return;
+      }
       if (message === "openGist") {
         const [customConfig, extConfig] = await Promise.all([
           state.commons.GetCustomSettings(),
@@ -267,7 +271,12 @@ export class WebviewService {
         );
         return;
       }
-      this.ReceiveSettingChange(message, customSettings, extSettings);
+      // Reload the latest settings so unrelated edits do not undo storage changes.
+      this.ReceiveSettingChange(
+        message,
+        await state.commons.GetCustomSettings(),
+        state.commons.GetSettings()
+      );
     });
     webview.webview = settingsPanel;
     settingsPanel.onDidDispose(() => (webview.webview = null));
@@ -375,6 +384,7 @@ export class WebviewService {
             break;
           }
           customConfig.githubSettings.gistSettings.downloadPublicGist = true;
+          customConfig.syncMethod = "GitHubGist";
           await state.commons.SetCustomSettings(customConfig);
           await state.commons.SaveSettings({
             ...extConfig,
@@ -446,25 +456,38 @@ export class WebviewService {
   }
 
   private GenerateContent(options: any) {
-    const toReplace: Array<Record<string, unknown>> = [];
+    if (options.customSettings && options.customSettings.repositorySettings) {
+      options.customSettings = {
+        ...options.customSettings,
+        repositorySettings: {
+          ...options.customSettings.repositorySettings,
+          token: ""
+        }
+      };
+    }
+    const serialize = (value: unknown) =>
+      JSON.stringify(value)
+        .replace(/\\/g, "\\\\")
+        .replace(/`/g, "\\`")
+        .replace(/\$/g, "\\$")
+        .replace(/</g, "\\u003c");
+    const toReplace: Array<{ find: string; replace: string }> = [];
     options.items.forEach(option => {
       if (typeof option.replace === "string") {
         toReplace.push({
           ...option,
-          replace: JSON.stringify(options[option.replace])
+          replace: serialize(options[option.replace])
         });
       } else {
         toReplace.push({
           find: option.find,
-          replace: JSON.stringify(option.replace)
+          replace: serialize(option.replace)
         });
       }
     });
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-return
     return toReplace
-      .reduce(
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-return
-        (acc, cur: any) => acc.replace(new RegExp(cur.find, "g"), cur.replace),
+      .reduce<string>(
+        (acc, cur) => acc.replace(new RegExp(cur.find, "g"), () => cur.replace),
         options.content
       )
       .replace(

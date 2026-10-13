@@ -24,26 +24,29 @@ export class GitHubOAuthService {
 
     this.server = http.createServer(this.app);
     this.server.on("listening", () => {
-      vscode.commands.executeCommand(
-        "vscode.open",
-        vscode.Uri.parse(url)
-      );
+      vscode.commands.executeCommand("vscode.open", vscode.Uri.parse(url));
     });
     this.server.on("error", (err: NodeJS.ErrnoException) => {
-      const message = err.code === "EADDRINUSE"
-        ? localize("common.error.oauthPortConflict", this.port)
-        : localize("common.error.oauthError", err.code, err.message);
+      const message =
+        err.code === "EADDRINUSE"
+          ? localize("common.error.oauthPortConflict", this.port)
+          : localize("common.error.oauthError", err.code, err.message);
       const troubleshooting = localize("common.button.troubleshooting");
-      vscode.window.showErrorMessage(message, troubleshooting).then((selected) => {
-        if (selected !== troubleshooting) return;
-        vscode.commands.executeCommand(
-          "vscode.open",
-          vscode.Uri.parse("https://github.com/shanalikhan/code-settings-sync/wiki/Troubleshooting")
-        );
-      });
+      vscode.window
+        .showErrorMessage(message, troubleshooting)
+        .then(selected => {
+          if (selected !== troubleshooting) return;
+          vscode.commands.executeCommand(
+            "vscode.open",
+            vscode.Uri.parse(
+              "https://github.com/shanalikhan/code-settings-sync/wiki/Troubleshooting"
+            )
+          );
+        });
     });
     this.server.listen(this.port);
 
+    // eslint-disable-next-line @typescript-eslint/no-misused-promises -- This route handles its own rejected requests.
     this.app.get("/callback", async (req, res) => {
       try {
         const params = new URLSearchParams(

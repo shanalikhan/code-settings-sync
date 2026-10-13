@@ -8,10 +8,17 @@ export class FactoryService {
     state: IExtensionState,
     method: string
   ): ISyncService {
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-return
-    return new this.syncMethods[method](state);
+    const Service = this.syncMethods[method];
+    if (!Service) {
+      throw new Error("Unsupported Settings Sync storage method.");
+    }
+    return new Service(state);
   }
-  private static syncMethods = {
-    [SyncMethod.GitHubGist]: GistService
+  private static syncMethods: Record<
+    string,
+    new (state: IExtensionState) => ISyncService
+  > = {
+    [SyncMethod.GitHubGist]: GistService,
+    [SyncMethod.GitRepository]: GistService
   };
 }

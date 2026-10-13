@@ -226,7 +226,10 @@ export default class PragmaUtil {
   }
 
   public static removeAllComments(text: string): string {
-    return text.replace(/(?<!["'].*)\s*(\/\/.+)|(?<!["'].*)(\/\*(.|\n)+?\*\/)(?!["'].*)(?!["'].*)/g, "");
+    return text.replace(
+      /(?<!["'].*)\s*(\/\/.+)|(?<!["'].*)(\/\*(.|\n)+?\*\/)(?!["'].*)(?!["'].*)/g,
+      ""
+    );
   }
 
   // FIXME: test eslint(no-useless-escape)

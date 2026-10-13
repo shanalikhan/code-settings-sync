@@ -11,6 +11,8 @@ import { LocalConfig } from "./models/localConfig.model";
 import { FactoryService } from "./service/factory.service";
 import { File, FileService } from "./service/file.service";
 import { GitHubService } from "./service/github/github.service";
+import { RepositoryStorage } from "./service/repository/repositoryStorage.service";
+import { ISettingsStorage } from "./service/settingsStorage.model";
 import * as lockfile from "./service/watcher/lockfile";
 import { WatcherService } from "./service/watcher/watcher.service";
 import { state } from "./state";
@@ -26,6 +28,20 @@ export class Sync {
     await state.commons.StartMigrationProcess();
     const startUpSetting = state.commons.GetSettings();
     const startUpCustomSetting = await state.commons.GetCustomSettings();
+
+    if (startUpCustomSetting.syncMethod === SyncMethod.GitRepository) {
+      if (startUpSetting.autoDownload) {
+        await this.download();
+      }
+      if (
+        startUpSetting.autoUpload &&
+        startUpCustomSetting.repositorySettings.url &&
+        startUpCustomSetting.repositorySettings.token
+      ) {
+        await state.watcher.HandleStartWatching();
+      }
+      return;
+    }
 
     if (startUpSetting) {
       const tokenAvailable: boolean =
@@ -75,7 +91,9 @@ export class Sync {
     try {
       const service: ISyncService = FactoryService.CreateSyncService(
         state,
-        SyncMethod.GitHubGist
+        optArgument === "publicGIST"
+          ? SyncMethod.GitHubGist
+          : (await state.commons.GetCustomSettings()).syncMethod
       );
       const args = new Array<string>();
       if (optArgument && optArgument === "publicGIST") {
@@ -94,7 +112,7 @@ export class Sync {
     try {
       const service: ISyncService = FactoryService.CreateSyncService(
         state,
-        SyncMethod.GitHubGist
+        (await state.commons.GetCustomSettings()).syncMethod
       );
       await service.Import();
     } catch (err) {
@@ -179,10 +197,14 @@ export class Sync {
         });
     }
     const localSetting: LocalConfig = new LocalConfig();
-    const tokenAvailable: boolean =
-      customSettings.githubSettings.token != null &&
-      customSettings.githubSettings.token !== "";
-    const gistAvailable: boolean = setting.gist != null && setting.gist !== "";
+    const repositoryMode =
+      customSettings.syncMethod === SyncMethod.GitRepository;
+    const tokenAvailable = repositoryMode
+      ? !!customSettings.repositorySettings.token
+      : !!customSettings.githubSettings.token;
+    const storageAvailable = repositoryMode
+      ? !!customSettings.repositorySettings.url
+      : !!setting.gist;
 
     const items: string[] = [
       "cmd.otherOptions.openSettingsPage",
@@ -248,6 +270,7 @@ export class Sync {
       async () => {
         // Download Settings from Public GIST
         selectedItem = 2;
+        customSettings.syncMethod = SyncMethod.GitHubGist;
         customSettings.githubSettings.gistSettings.downloadPublicGist = true;
         settingChanged = true;
         await state.commons.SetCustomSettings(customSettings);
@@ -278,7 +301,7 @@ export class Sync {
           vscode.commands.executeCommand("extension.HowSettings");
           return;
         }
-        if (!gistAvailable) {
+        if (!storageAvailable) {
           vscode.commands.executeCommand("extension.HowSettings");
           return;
         }
@@ -290,7 +313,7 @@ export class Sync {
         selectedItem = 7;
         settingChanged = true;
 
-        if (!tokenAvailable || !gistAvailable) {
+        if (!tokenAvailable || !storageAvailable) {
           vscode.commands.executeCommand("extension.HowSettings");
           return;
         }
@@ -483,10 +506,13 @@ export class Sync {
     customSettings: CustomConfig,
     syncSetting: ExtensionConfig
   ): Promise<File[]> {
-    const github = new GitHubService(
-      customSettings.githubSettings.token,
-      customSettings.githubSettings.enterpriseUrl
-    );
+    const github: ISettingsStorage =
+      customSettings.syncMethod === "GitRepository"
+        ? new RepositoryStorage(customSettings.repositorySettings)
+        : new GitHubService(
+            customSettings.githubSettings.token,
+            customSettings.githubSettings.enterpriseUrl
+          );
     const res = await github.ReadGist(syncSetting.gist);
     if (!res) {
       return [];

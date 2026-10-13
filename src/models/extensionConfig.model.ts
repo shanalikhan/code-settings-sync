@@ -7,5 +7,5 @@ export class ExtensionConfig {
   public autoUpload = false;
   public forceDownload = false;
   public forceUpload = false;
-  public sortAlphabetically: boolean = false;
+  public sortAlphabetically = false;
 }

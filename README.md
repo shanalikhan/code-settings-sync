@@ -38,6 +38,9 @@ While being free and open source, if you find it useful, please consider support
 
 ## Key Features
 
+GitHub, GitLab and Enterprise repository storage is also available. See the
+[repository sync setup and profile guide](docs/repository-sync.md).
+
 1. Use your GitHub account token and gist.
 2. Easy to Upload and Download on one click.
 3. Show a summary page at the end with details about config and extensions effected.

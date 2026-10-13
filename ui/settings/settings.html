@@ -29,6 +29,89 @@
   </head>
   <body class="container d-flex h-100 mx-auto text-center">
     <page-header></page-header>
+    <section
+      class="text-left mt-3 scrollable"
+      aria-labelledby="storage-heading"
+      style="width:100%;flex-shrink:0;max-height:55vh;padding:0 1rem"
+    >
+      <h3 id="storage-heading">Settings storage</h3>
+      <form id="repository-settings">
+        <label for="sync-method">Save settings to</label>
+        <select id="sync-method" class="form-control"
+          ><option value="GitHubGist">GitHub Gist</option
+          ><option value="GitRepository">Git Repository</option></select
+        >
+        <fieldset id="repository-fields" hidden>
+          <legend>Git Repository</legend>
+          <label for="repository-provider">Provider</label>
+          <select id="repository-provider" class="form-control"
+            ><option value="github">GitHub / GitHub Enterprise</option
+            ><option value="gitlab"
+              >GitLab / GitLab Self-Managed</option
+            ></select
+          >
+          <label for="repository-api">API URL</label>
+          <input
+            id="repository-api"
+            class="form-control"
+            type="url"
+            placeholder="https://api.github.com"
+          />
+          <label for="repository-url"
+            >Existing repository HTTPS clone URL</label
+          >
+          <input
+            id="repository-url"
+            class="form-control"
+            type="url"
+            placeholder="https://github.com/you/settings.git"
+          />
+          <label for="repository-branch">Branch / profile</label>
+          <input
+            id="repository-branch"
+            class="form-control"
+            placeholder="master or office"
+          />
+          <label for="repository-token">Personal access token</label>
+          <input
+            id="repository-token"
+            class="form-control"
+            type="password"
+            autocomplete="off"
+            placeholder="Enter token; leave blank to retain saved token"
+          />
+          <p id="repository-token-status" role="status"></p>
+          <label for="repository-name"
+            >Or create a private repository in your account</label
+          >
+          <input
+            id="repository-name"
+            class="form-control"
+            placeholder="vscode-settings"
+          />
+          <button
+            id="repository-create"
+            class="btn btn-secondary mt-2"
+            type="button"
+          >
+            Create private repository and save
+          </button>
+          <p>
+            GitHub Enterprise: https://your-server/api/v3. GitLab:
+            https://your-server/api/v4.
+          </p>
+          <p>
+            Upload replaces synced settings on the selected branch. Download
+            replaces this machine's synced settings. Disable Auto Upload before
+            switching storage or profiles.
+          </p>
+        </fieldset>
+        <button class="btn btn-primary mt-2" type="submit">
+          Save storage selection
+        </button>
+        <p id="repository-status" role="status" aria-live="polite"></p>
+      </form>
+    </section>
     <div class="row content-row text-left">
       <div class="col mt-2 scrollable" style="height: 100%;">
         <h3 class="mx-auto mt-2 text-white-50a text-center">
@@ -37,7 +120,7 @@
         <form id="environmentSettings"></form>
         <p id="saveStatus" class="text-white-50a" style="font-size: 3rem"></p>
       </div>
-      <div class="col mt-2 scrollable"  style="height: 100%;">
+      <div class="col mt-2 scrollable" style="height: 100%;">
         <h3 class="mx-auto mt-2 text-white-50a text-center">
           Global Settings
         </h3>
@@ -64,5 +147,6 @@
       const envMap = JSON.parse(`@ENV_MAP`);
     </script>
     <script defer src="@PWD/ui/settings/settings.js"></script>
+    <script defer src="@PWD/ui/settings/repository-settings.js"></script>
   </body>
 </html>

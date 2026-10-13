@@ -13,6 +13,6 @@ Settings Sync
 <h2 class="mx-auto pt-2">
 <b>Synchronize</b> settings, snippets, themes, icons, launch,
 keybindings, workspaces and extensions across machines
-using GitHub Gist.
+using GitHub Gist or a Git repository.
 </h2>
 <br/>`;

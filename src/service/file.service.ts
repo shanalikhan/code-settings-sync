@@ -56,9 +56,7 @@ export class FileService {
       filePath.length
     );
 
-    const arr: string[] = pathFromUser.indexOf("/")
-      ? pathFromUser.split("/")
-      : pathFromUser.split(path.sep);
+    const arr: string[] = pathFromUser.split(/[\\/]/);
 
     let gistName = "";
 
@@ -100,6 +98,9 @@ export class FileService {
     customSettings: CustomConfig
   ): Promise<File[]> {
     function folderMatcher(file: string, stats: fs.Stats) {
+      if (file.split(path.sep).some(part => part.toLowerCase() === ".git")) {
+        return true;
+      }
       if (stats.isDirectory()) {
         return customSettings.ignoreUploadFolders.some(fold => {
           return file.split(path.sep).includes(fold);
@@ -108,6 +109,9 @@ export class FileService {
       return false;
     }
     function fileExtensionMatcher(file: string, stats: fs.Stats) {
+      if (path.basename(file).toLowerCase() === "synclocalsettings.json") {
+        return true;
+      }
       if (stats.isDirectory()) {
         return false;
       }
@@ -199,6 +203,15 @@ export class FileService {
     filePath: string,
     fileName: string
   ): Promise<File> {
+    if (
+      filePath
+        .split(/[\\/]/)
+        .some(part => /^(\.git|syncLocalSettings\.json)$/i.test(part))
+    ) {
+      throw new Error(
+        "Git metadata and local sync credentials cannot be uploaded as custom files."
+      );
+    }
     const fileExists: boolean = await FileService.FileExists(filePath);
 
     if (!fileExists) {

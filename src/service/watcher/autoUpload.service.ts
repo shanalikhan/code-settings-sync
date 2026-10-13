@@ -33,7 +33,10 @@ export class AutoUploadService {
           await lockfile.Lock(state.environment.FILE_SYNC_LOCK);
         }
         const customConfig = await state.commons.GetCustomSettings();
-        if (!customConfig.githubSettings.gistSettings.downloadPublicGist) {
+        if (
+          customConfig.syncMethod === "GitRepository" ||
+          !customConfig.githubSettings.gistSettings.downloadPublicGist
+        ) {
           await this.InitiateAutoUpload();
         }
         await lockfile.Unlock(state.environment.FILE_SYNC_LOCK);
@@ -66,7 +69,8 @@ export class AutoUploadService {
             .slice(1);
           if (
             customConfig.supportedFileExtensions.includes(fileType) &&
-            !customConfig.githubSettings.gistSettings.downloadPublicGist
+            (customConfig.syncMethod === "GitRepository" ||
+              !customConfig.githubSettings.gistSettings.downloadPublicGist)
           ) {
             await this.InitiateAutoUpload();
           }

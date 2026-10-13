@@ -1,0 +1,2 @@
+# This existing fixture is compared against an LF string in FileService tests.
+test/service/fileService/dummyrc text eol=lf
