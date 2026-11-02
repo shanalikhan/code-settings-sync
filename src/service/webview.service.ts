@@ -25,6 +25,36 @@ export class WebviewService {
       type: UISettingType.TextInput,
       correspondingSetting: "githubEnterpriseUrl"
     },
+    {
+      name: localize("ext.globalConfig.syncMode.name"),
+      placeholder: localize("ext.globalConfig.syncMode.placeholder"),
+      type: UISettingType.TextInput,
+      correspondingSetting: "syncMode"
+    },
+    {
+      name: localize("ext.globalConfig.repoUrl.name"),
+      placeholder: localize("ext.globalConfig.repoUrl.placeholder"),
+      type: UISettingType.TextInput,
+      correspondingSetting: "repoUrl"
+    },
+    {
+      name: localize("ext.globalConfig.repoBranch.name"),
+      placeholder: localize("ext.globalConfig.repoBranch.placeholder"),
+      type: UISettingType.TextInput,
+      correspondingSetting: "repoBranch"
+    },
+    {
+      name: localize("ext.globalConfig.repoToken.name"),
+      placeholder: localize("ext.globalConfig.repoToken.placeholder"),
+      type: UISettingType.TextInput,
+      correspondingSetting: "repoToken"
+    },
+    {
+      name: localize("ext.globalConfig.gitlabUrl.name"),
+      placeholder: localize("ext.globalConfig.gitlabUrl.placeholder"),
+      type: UISettingType.TextInput,
+      correspondingSetting: "gitlabUrl"
+    },
 
     {
       name: localize("ext.globalConfig.ignoreUploadFolders.name"),

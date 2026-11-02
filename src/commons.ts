@@ -7,6 +7,7 @@ import { ExtensionConfig } from "./models/extensionConfig.model";
 import { LocalConfig } from "./models/localConfig.model";
 import { AutoUploadService } from "./service/autoUpload.service";
 import { File, FileService } from "./service/file.service";
+import { stripCredentials } from "./service/git.service";
 import { ExtensionInformation } from "./service/plugin.service";
 import { WebviewService } from "./service/webview.service";
 import { state } from "./state";
@@ -456,22 +457,32 @@ export default class Commons {
     );
     outputChannel.appendLine(`Version: ${Environment.getVersion()}`);
     outputChannel.appendLine(`--------------------`);
-    outputChannel.appendLine(
-      `GitHub Token: ${
-        syncSettings.customConfig.token
-          ? syncSettings.customConfig.token.slice(0, 4) + "**********"
-          : "Anonymous"
-      }`
-    );
-    outputChannel.appendLine(`GitHub Gist: ${syncSettings.extConfig.gist}`);
-    outputChannel.appendLine(
-      `GitHub Gist Type: ${syncSettings.publicGist ? "Public" : "Secret"}`
-    );
-    outputChannel.appendLine(``);
-    if (!syncSettings.customConfig.token) {
+    if (syncSettings.customConfig.syncMode === "repository") {
       outputChannel.appendLine(
-        `Anonymous Gist cannot be edited, the extension will always create a new one during upload.`
+        `Git Repository: ${stripCredentials(syncSettings.customConfig.repoUrl)}`
       );
+      outputChannel.appendLine(
+        `Git Branch: ${syncSettings.customConfig.repoBranch}`
+      );
+      outputChannel.appendLine(``);
+    } else {
+      outputChannel.appendLine(
+        `GitHub Token: ${
+          syncSettings.customConfig.token
+            ? syncSettings.customConfig.token.slice(0, 4) + "**********"
+            : "Anonymous"
+        }`
+      );
+      outputChannel.appendLine(`GitHub Gist: ${syncSettings.extConfig.gist}`);
+      outputChannel.appendLine(
+        `GitHub Gist Type: ${syncSettings.publicGist ? "Public" : "Secret"}`
+      );
+      outputChannel.appendLine(``);
+      if (!syncSettings.customConfig.token) {
+        outputChannel.appendLine(
+          `Anonymous Gist cannot be edited, the extension will always create a new one during upload.`
+        );
+      }
     }
     outputChannel.appendLine(
       `Restarting Visual Studio Code may be required to apply color and file icon theme.`

@@ -1,4 +1,5 @@
 import * as fs from "fs-extra";
+import * as path from "path";
 import * as vscode from "vscode";
 
 import Commons from "./commons";
@@ -11,9 +12,72 @@ import { ExtensionConfig } from "./models/extensionConfig.model";
 import { LocalConfig } from "./models/localConfig.model";
 import PragmaUtil from "./pragmaUtil";
 import { File, FileService } from "./service/file.service";
+import {
+  GitRepoService,
+  IRepoFiles,
+  stripCredentials,
+  validateBranchName,
+  validateRemoteUrl
+} from "./service/git.service";
 import { GitHubService } from "./service/github.service";
 import { ExtensionInformation, PluginService } from "./service/plugin.service";
+import { createRepository, getProxyUrl } from "./service/repoProvider.service";
 import { state } from "./state";
+
+function isRepositoryMode(customSettings: CustomConfig): boolean {
+  return customSettings.syncMode === "repository";
+}
+
+function createGitRepoService(customSettings: CustomConfig): GitRepoService {
+  return new GitRepoService({
+    repoDir: path.join(
+      path.dirname(state.environment.USER_FOLDER),
+      "SettingsSyncRepo"
+    ),
+    remoteUrl: customSettings.repoUrl,
+    branch: customSettings.repoBranch || "master",
+    token: customSettings.repoToken || customSettings.token,
+    authUser: customSettings.repoProvider === "gitlab" ? "oauth2" : undefined,
+    proxy: getProxyUrl()
+  });
+}
+
+/**
+ * Read the selected branch of the repository. The result has the same shape as
+ * a Gist response so the download code can be shared.
+ */
+async function readFromRepository(customSettings: CustomConfig): Promise<any> {
+  try {
+    const repo = createGitRepoService(customSettings);
+    await repo.ensureRepo();
+    if (!(await repo.syncFromRemote())) {
+      vscode.window.showInformationMessage(
+        localize(
+          "cmd.downloadSettings.warning.repoBranchNotFound",
+          customSettings.repoBranch || "master"
+        )
+      );
+      return null;
+    }
+    return { data: { public: false, files: await repo.readFiles() } };
+  } catch (err) {
+    Commons.LogException(
+      err,
+      err && err.message ? err.message : state.commons.ERROR_MESSAGE,
+      true
+    );
+    return null;
+  }
+}
+
+function getLastUpload(files: IRepoFiles): Date {
+  try {
+    const cloudSettings = files[state.environment.FILE_CLOUDSETTINGS_NAME];
+    return new Date(JSON.parse(cloudSettings.content).lastUpload);
+  } catch (err) {
+    return null;
+  }
+}
 
 export class Sync {
   /**
@@ -27,10 +91,16 @@ export class Sync {
     const startUpCustomSetting = await state.commons.GetCustomSettings();
 
     if (startUpSetting) {
+      const repoConfigured: boolean =
+        isRepositoryMode(startUpCustomSetting) &&
+        !!startUpCustomSetting.repoUrl;
       const tokenAvailable: boolean =
-        startUpCustomSetting.token != null && startUpCustomSetting.token !== "";
+        repoConfigured ||
+        (startUpCustomSetting.token != null &&
+          startUpCustomSetting.token !== "");
       const gistAvailable: boolean =
-        startUpSetting.gist != null && startUpSetting.gist !== "";
+        repoConfigured ||
+        (startUpSetting.gist != null && startUpSetting.gist !== "");
 
       if (!startUpCustomSetting.downloadPublicGist && !tokenAvailable) {
         if (state.commons.webviewService.IsLandingPageEnabled()) {
@@ -70,8 +140,16 @@ export class Sync {
     // const args = arguments;
     let github: GitHubService = null;
     const localConfig = await state.commons.InitalizeSettings();
+    const repoMode = isRepositoryMode(localConfig.customConfig);
 
-    if (!localConfig.customConfig.token) {
+    if (repoMode) {
+      if (!localConfig.customConfig.repoUrl) {
+        vscode.window.showInformationMessage(
+          localize("cmd.updateSettings.warning.noRepo")
+        );
+        return;
+      }
+    } else if (!localConfig.customConfig.token) {
       state.commons.webviewService.OpenLandingPage("extension.updateSettings");
       return;
     }
@@ -88,10 +166,12 @@ export class Sync {
         localConfig.publicGist = true;
       }
 
-      github = new GitHubService(
-        localConfig.customConfig.token,
-        localConfig.customConfig.githubEnterpriseUrl
-      );
+      if (!repoMode) {
+        github = new GitHubService(
+          localConfig.customConfig.token,
+          localConfig.customConfig.githubEnterpriseUrl
+        );
+      }
 
       await startGitProcess.call(
         this,
@@ -104,6 +184,7 @@ export class Sync {
     }
 
     async function startGitProcess(
+      this: Sync,
       syncSetting: ExtensionConfig,
       customSettings: CustomConfig
     ) {
@@ -112,7 +193,7 @@ export class Sync {
         2000
       );
 
-      if (customSettings.downloadPublicGist) {
+      if (!repoMode && customSettings.downloadPublicGist) {
         if (customSettings.token == null || customSettings.token === "") {
           vscode.window.showInformationMessage(
             localize("cmd.updateSettings.warning.noToken")
@@ -224,6 +305,17 @@ export class Sync {
       const fileContent: string = JSON.stringify(extProp);
       const file: File = new File(fileName, fileContent, "", fileName);
       allSettingFiles.push(file);
+
+      if (repoMode) {
+        await this.uploadToRepository(
+          localConfig,
+          allSettingFiles,
+          dateNow,
+          uploadedExtensions,
+          ignoredExtensions
+        );
+        return;
+      }
 
       let completed: boolean = false;
 
@@ -420,12 +512,19 @@ export class Sync {
     }
   }
   /**
-   * Download setting from github gist
+   * Download setting from github gist (or from the git repository)
    */
   public async download(): Promise<void> {
     const localSettings: LocalConfig = await state.commons.InitalizeSettings();
 
-    if (
+    if (isRepositoryMode(localSettings.customConfig)) {
+      if (!localSettings.customConfig.repoUrl) {
+        vscode.window.showInformationMessage(
+          localize("cmd.updateSettings.warning.noRepo")
+        );
+        return;
+      }
+    } else if (
       localSettings.customConfig.downloadPublicGist
         ? !localSettings.extConfig.gist
         : !localSettings.customConfig.token || !localSettings.extConfig.gist
@@ -449,17 +548,22 @@ export class Sync {
       syncSetting: ExtensionConfig,
       customSettings: CustomConfig
     ) {
-      const github = new GitHubService(
-        customSettings.token,
-        customSettings.githubEnterpriseUrl
-      );
       vscode.window.setStatusBarMessage("").dispose();
       vscode.window.setStatusBarMessage(
         localize("cmd.downloadSettings.info.readdingOnline"),
         2000
       );
 
-      const res = await github.ReadGist(syncSetting.gist);
+      let res: any;
+      if (isRepositoryMode(customSettings)) {
+        res = await readFromRepository(customSettings);
+      } else {
+        const github = new GitHubService(
+          customSettings.token,
+          customSettings.githubEnterpriseUrl
+        );
+        res = await github.ReadGist(syncSetting.gist);
+      }
 
       if (!res) {
         return;
@@ -809,9 +913,13 @@ export class Sync {
         });
     }
     const localSetting: LocalConfig = new LocalConfig();
+    const repoConfigured: boolean =
+      isRepositoryMode(customSettings) && !!customSettings.repoUrl;
     const tokenAvailable: boolean =
-      customSettings.token != null && customSettings.token !== "";
-    const gistAvailable: boolean = setting.gist != null && setting.gist !== "";
+      repoConfigured ||
+      (customSettings.token != null && customSettings.token !== "");
+    const gistAvailable: boolean =
+      repoConfigured || (setting.gist != null && setting.gist !== "");
 
     const items: string[] = [
       "cmd.otherOptions.openSettingsPage",
@@ -827,7 +935,8 @@ export class Sync {
       "cmd.otherOptions.downloadCustomFile",
       "cmd.otherOptions.joinCommunity",
       "cmd.otherOptions.openIssue",
-      "cmd.otherOptions.releaseNotes"
+      "cmd.otherOptions.releaseNotes",
+      "cmd.otherOptions.syncBackend"
     ].map(localize);
 
     let selectedItem: number = 0;
@@ -1017,6 +1126,30 @@ export class Sync {
             "http://shanalikhan.github.io/2016/05/14/Visual-studio-code-sync-settings-release-notes.html"
           )
         );
+      },
+      async () => {
+        // choose between Gist and Git repository
+        const gistLabel = localize("cmd.otherOptions.syncBackend.gist");
+        const backend = await vscode.window.showQuickPick(
+          [gistLabel, localize("cmd.otherOptions.syncBackend.repository")],
+          {
+            ignoreFocusOut: true,
+            placeHolder: localize("cmd.otherOptions.syncBackend.placeholder")
+          }
+        );
+        if (!backend) {
+          return;
+        }
+        if (backend === gistLabel) {
+          customSettings.syncMode = "gist";
+          if (await state.commons.SetCustomSettings(customSettings)) {
+            vscode.window.showInformationMessage(
+              localize("cmd.otherOptions.syncBackend.gistSelected")
+            );
+          }
+          return;
+        }
+        await this.configureRepository(customSettings);
       }
     ];
 
@@ -1107,15 +1240,259 @@ export class Sync {
     }
   }
 
+  /**
+   * Ask for provider, repository and branch, then switch to repository mode
+   */
+  private async configureRepository(
+    customSettings: CustomConfig
+  ): Promise<void> {
+    const githubLabel = localize("cmd.otherOptions.syncBackend.github");
+    const gitlabLabel = localize("cmd.otherOptions.syncBackend.gitlab");
+    const customLabel = localize("cmd.otherOptions.syncBackend.custom");
+    const providerLabel = await vscode.window.showQuickPick(
+      [githubLabel, gitlabLabel, customLabel],
+      {
+        ignoreFocusOut: true,
+        placeHolder: localize("cmd.otherOptions.syncBackend.provider")
+      }
+    );
+    if (!providerLabel) {
+      return;
+    }
+    const provider =
+      providerLabel === gitlabLabel
+        ? "gitlab"
+        : providerLabel === customLabel
+        ? "custom"
+        : "github";
+
+    let repoUrl = "";
+    if (provider !== "custom") {
+      const createLabel = localize("cmd.otherOptions.syncBackend.createNew");
+      const choice = await vscode.window.showQuickPick(
+        [createLabel, localize("cmd.otherOptions.syncBackend.useExisting")],
+        { ignoreFocusOut: true }
+      );
+      if (!choice) {
+        return;
+      }
+      if (choice === createLabel) {
+        let token = customSettings.repoToken || customSettings.token;
+        if (!token) {
+          token = (
+            (await vscode.window.showInputBox({
+              ignoreFocusOut: true,
+              prompt: localize("cmd.otherOptions.syncBackend.enterToken")
+            })) || ""
+          ).trim();
+          if (!token) {
+            return;
+          }
+          customSettings.repoToken = token;
+        }
+        const name = (
+          (await vscode.window.showInputBox({
+            ignoreFocusOut: true,
+            prompt: localize("cmd.otherOptions.syncBackend.repoName"),
+            value: "vscode-settings-sync"
+          })) || ""
+        ).trim();
+        if (!name) {
+          return;
+        }
+        try {
+          repoUrl = await createRepository(
+            provider,
+            token,
+            name,
+            provider === "gitlab"
+              ? customSettings.gitlabUrl
+              : customSettings.githubEnterpriseUrl
+          );
+        } catch (err) {
+          Commons.LogException(
+            err,
+            localize("cmd.otherOptions.syncBackend.createFail"),
+            true
+          );
+          return;
+        }
+      }
+    }
+
+    if (!repoUrl) {
+      repoUrl = (
+        (await vscode.window.showInputBox({
+          ignoreFocusOut: true,
+          prompt: localize("cmd.otherOptions.syncBackend.repoUrl"),
+          value: customSettings.repoUrl
+        })) || ""
+      ).trim();
+      if (!repoUrl) {
+        return;
+      }
+    }
+
+    const branch = (
+      (await vscode.window.showInputBox({
+        ignoreFocusOut: true,
+        prompt: localize("cmd.otherOptions.syncBackend.branch"),
+        value: customSettings.repoBranch || "master"
+      })) || ""
+    ).trim();
+    if (!branch) {
+      return;
+    }
+
+    try {
+      validateRemoteUrl(repoUrl);
+      validateBranchName(branch);
+    } catch (err) {
+      Commons.LogException(err, err.message, true);
+      return;
+    }
+
+    customSettings.syncMode = "repository";
+    customSettings.repoProvider = provider;
+    customSettings.repoUrl = repoUrl;
+    customSettings.repoBranch = branch;
+    if (await state.commons.SetCustomSettings(customSettings)) {
+      vscode.window.showInformationMessage(
+        localize(
+          "cmd.otherOptions.syncBackend.repoSelected",
+          stripCredentials(repoUrl),
+          branch
+        )
+      );
+    }
+  }
+
+  /**
+   * Upload setting to the selected branch of the git repository
+   */
+  private async uploadToRepository(
+    localConfig: LocalConfig,
+    files: File[],
+    dateNow: Date,
+    uploadedExtensions: ExtensionInformation[],
+    ignoredExtensions: ExtensionInformation[]
+  ): Promise<void> {
+    const syncSetting = localConfig.extConfig;
+    const customSettings = localConfig.customConfig;
+
+    try {
+      const repo = createGitRepoService(customSettings);
+      await repo.ensureRepo();
+      const branchExists = await repo.syncFromRemote();
+      const remoteFiles: IRepoFiles = branchExists
+        ? await repo.readFiles()
+        : {};
+
+      const changed = files.some(
+        file =>
+          file.gistName !== state.environment.FILE_CLOUDSETTINGS_NAME &&
+          (!remoteFiles[file.gistName] ||
+            remoteFiles[file.gistName].content !== file.content)
+      );
+
+      if (!changed) {
+        if (!syncSetting.forceUpload) {
+          vscode.window.setStatusBarMessage(
+            localize("cmd.updateSettings.info.gotLatestVersion"),
+            5000
+          );
+          return;
+        }
+      } else if (
+        branchExists &&
+        Object.keys(remoteFiles).length > 0 &&
+        !syncSetting.forceUpload
+      ) {
+        const remoteLastUpload = getLastUpload(remoteFiles);
+        let promptKey: string = null;
+        if (!customSettings.lastDownload) {
+          // Unable to compare the last upload time with the last download time.
+          promptKey = "common.prompt.repoForceUpload";
+        } else if (
+          remoteLastUpload &&
+          remoteLastUpload > new Date(customSettings.lastDownload)
+        ) {
+          promptKey = "common.prompt.repoNewer";
+        }
+        if (promptKey) {
+          const message = await vscode.window.showInformationMessage(
+            localize(promptKey),
+            localize("common.button.yes"),
+            localize("common.button.no")
+          );
+          if (message !== localize("common.button.yes")) {
+            vscode.window.setStatusBarMessage(
+              localize("cmd.updateSettings.info.uploadCanceled"),
+              3000
+            );
+            return;
+          }
+        }
+      }
+
+      vscode.window.setStatusBarMessage(
+        localize("cmd.updateSettings.info.uploadingFile"),
+        3000
+      );
+      await repo.commitAndPush(
+        files,
+        "Settings Sync upload " + dateNow.toISOString()
+      );
+
+      customSettings.lastUpload = dateNow;
+      customSettings.lastDownload = dateNow;
+      await state.commons.SaveSettings(syncSetting);
+      await state.commons.SetCustomSettings(customSettings);
+
+      if (!syncSetting.quietSync) {
+        state.commons.ShowSummaryOutput(
+          true,
+          files,
+          null,
+          uploadedExtensions,
+          ignoredExtensions,
+          localConfig
+        );
+        vscode.window.setStatusBarMessage("").dispose();
+      } else {
+        vscode.window.setStatusBarMessage("").dispose();
+        vscode.window.setStatusBarMessage(
+          localize("cmd.updateSettings.info.uploadingSuccess"),
+          5000
+        );
+      }
+    } catch (err) {
+      Commons.LogException(
+        err,
+        err && err.message ? err.message : state.commons.ERROR_MESSAGE,
+        true
+      );
+    } finally {
+      if (syncSetting.autoUpload) {
+        await state.commons.HandleStartWatching();
+      }
+    }
+  }
+
   private async getCustomFilesFromGist(
     customSettings: CustomConfig,
     syncSetting: ExtensionConfig
   ): Promise<File[]> {
-    const github = new GitHubService(
-      customSettings.token,
-      customSettings.githubEnterpriseUrl
-    );
-    const res = await github.ReadGist(syncSetting.gist);
+    let res: any;
+    if (isRepositoryMode(customSettings)) {
+      res = await readFromRepository(customSettings);
+    } else {
+      const github = new GitHubService(
+        customSettings.token,
+        customSettings.githubEnterpriseUrl
+      );
+      res = await github.ReadGist(syncSetting.gist);
+    }
     if (!res) {
       return [];
     }

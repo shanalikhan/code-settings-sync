@@ -2,6 +2,10 @@
 
 [![Version](https://vsmarketplacebadge.apphb.com/version/Shan.code-settings-sync.svg)](https://marketplace.visualstudio.com/items?itemName=Shan.code-settings-sync) [![Travis](https://img.shields.io/travis/rust-lang/rust.svg)](https://marketplace.visualstudio.com/items?itemName=Shan.code-settings-sync) [![Master course](https://img.shields.io/badge/Supported%20by-VSCode%20Power%20User%20Course%20%E2%86%92-gray.svg?colorA=444444&colorB=4F44D6)](https://t.co/8BEMyhpKU5?amp=1)
 
+#### Unreleased
+
+* Sync settings to a Git repository (GitHub, GitLab, Enterprise or any Git remote) with a selectable branch as an alternative to Gist [#413](https://github.com/shanalikhan/code-settings-sync/issues/413)
+
 #### v3.4.3 - September 23,2019
 
 * Share GitHub Gist ID message Fixed [#1033](https://github.com/shanalikhan/code-settings-sync/issues/1033) 
