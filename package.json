@@ -79,6 +79,14 @@
         "title": "%cmd.updateSettings.title%"
       },
       {
+        "command": "extension.exportSettingsToFolder",
+        "title": "%cmd.exportSettings.title%"
+      },
+      {
+        "command": "extension.importSettingsFromFolder",
+        "title": "%cmd.importSettings.title%"
+      },
+      {
         "command": "extension.resetSettings",
         "title": "%cmd.resetSettings.title%"
       },
