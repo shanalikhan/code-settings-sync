@@ -29,6 +29,18 @@ export async function activate(context: vscode.ExtensionContext) {
   );
   context.subscriptions.push(
     vscode.commands.registerCommand(
+      "extension.exportSettingsToFolder",
+      sync.exportToFolder.bind(sync)
+    )
+  );
+  context.subscriptions.push(
+    vscode.commands.registerCommand(
+      "extension.importSettingsFromFolder",
+      sync.importFromFolder.bind(sync)
+    )
+  );
+  context.subscriptions.push(
+    vscode.commands.registerCommand(
       "extension.resetSettings",
       sync.reset.bind(sync)
     )

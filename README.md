@@ -207,9 +207,12 @@ You can customize the sync:
     "customFiles": {},
     "hostName": null,
     "universalKeybindings": false,
-    "autoUploadDelay": 20
+    "autoUploadDelay": 20,
+    "syncFolderPath": null
 }
 ```
+
+`syncFolderPath` is the folder used by the **Sync: Export Settings to Folder** and **Sync: Import Settings from Folder** commands (for example a folder inside OneDrive or Dropbox). If it is empty you will be asked to pick a folder the first time.
 
 I will recommend you to read the configurations details [here](https://dev.to/shanalikhan/visual-studio-code-settings-sync-configurations-mn0).
 
