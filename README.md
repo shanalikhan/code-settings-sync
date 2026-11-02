@@ -213,6 +213,34 @@ You can customize the sync:
 
 I will recommend you to read the configurations details [here](https://dev.to/shanalikhan/visual-studio-code-settings-sync-configurations-mn0).
 
+### Sync to a Git Repository instead of a Gist
+
+Settings can be stored in a Git repository (GitHub, GitLab, their Enterprise editions, or any other Git remote) instead of a Gist. `git` must be installed and available in your `PATH`.
+
+1. Run `Sync: Advanced Options` > `Sync: Choose Gist or Git Repository` and select `Git Repository`.
+2. Pick GitHub, GitLab or an existing repository URL. For GitHub / GitLab the extension can create a new private repository for you.
+3. Enter the branch (profile) to use, for example `master` or `office`.
+
+The same options can be edited in `syncLocalSettings.json`:
+
+```json
+{
+    "syncMode": "repository",
+    "repoProvider": "github",
+    "repoUrl": "https://github.com/YOUR_USER/vscode-settings-sync.git",
+    "repoBranch": "office",
+    "repoToken": "",
+    "gitlabUrl": null
+}
+```
+
+* `Upload` commits your settings to the selected branch and pushes it. The history of the branch is kept, so you can roll back with any Git client. If the branch was changed by someone else while uploading, the push is rejected.
+* `Download` makes your settings equal to the selected branch (like a forced `git pull`).
+* Use a different `repoBranch` per environment, e.g. `master` and `office`, to keep separate profiles in one repository.
+* `https://` remotes use `repoToken` (or `token` when empty) as access token. The token needs permission to push (`repo` scope on GitHub, `api` on GitLab) and is never written to the repository configuration. `ssh` remotes and local paths use your normal Git credentials.
+* GitHub Enterprise uses `githubEnterpriseUrl`; GitLab self-managed uses `gitlabUrl` (only needed to create a repository from the extension).
+* Set `syncMode` back to `gist` to use Gists again. The local clone is kept in the `SettingsSyncRepo` folder next to `User`; nothing from a `.git` folder is ever uploaded to a Gist.
+
 
 ## Features
 

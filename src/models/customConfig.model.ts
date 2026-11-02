@@ -13,7 +13,7 @@ export class CustomConfig {
     "gpm_projects.json",
     "gpm-recentItems.json"
   ];
-  public ignoreUploadFolders: string[] = ["workspaceStorage"];
+  public ignoreUploadFolders: string[] = ["workspaceStorage", ".git"];
   public ignoreExtensions: string[] = [];
   public gistDescription: string = "Visual Studio Code Settings Sync Gist";
   public version: number = Environment.CURRENT_VERSION;
@@ -30,4 +30,10 @@ export class CustomConfig {
   public hostName: string = null;
   public universalKeybindings: boolean = false;
   public autoUploadDelay: number = 20;
+  public syncMode: "gist" | "repository" = "gist";
+  public repoProvider: "github" | "gitlab" | "custom" = "github";
+  public repoUrl: string = "";
+  public repoBranch: string = "master";
+  public repoToken: string = "";
+  public gitlabUrl: string = null;
 }
