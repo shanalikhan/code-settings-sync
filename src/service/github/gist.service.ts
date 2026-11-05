@@ -59,6 +59,11 @@ export class GistService implements ISyncService {
     return this.state.commons.SaveSettings(config);
   }
 
+  protected ValidateImportFiles(files: File[]): Promise<void> {
+    void files;
+    return Promise.resolve();
+  }
+
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   public async Import(_optArgument?: unknown[]): Promise<void> {
     const localSettings: LocalConfig = await this.state.commons.InitalizeSettings();
@@ -573,6 +578,7 @@ export class GistService implements ISyncService {
       }
     });
 
+    await this.ValidateImportFiles(updatedFiles);
     for (const file of updatedFiles) {
       let writeFile = false;
       let content: string = file.content;

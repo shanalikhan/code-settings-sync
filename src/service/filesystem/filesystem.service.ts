@@ -34,6 +34,40 @@ export class FileSystemService extends GistService {
     return Promise.resolve(true);
   }
 
+  protected async ValidateImportFiles(files: File[]): Promise<void> {
+    // Validate the entire batch before creating directories or starting writes.
+    for (const file of files) {
+      const name =
+        file.gistName === this.state.environment.FILE_KEYBINDING_MAC
+          ? this.state.environment.FILE_KEYBINDING_DEFAULT
+          : file.fileName;
+      const target =
+        file.filePath ||
+        path.join(this.state.environment.USER_FOLDER, ...name.split("|"));
+      if (!path.isAbsolute(target)) {
+        throw new Error("A filesystem import target must be an absolute path.");
+      }
+      let current = path.parse(target).root;
+      const parts = path.relative(current, target).split(path.sep);
+      for (const part of parts) {
+        current = path.join(current, part);
+        try {
+          const stat = await fs.lstat(current);
+          if (stat.isSymbolicLink()) {
+            throw new Error(
+              "A filesystem import target contains a symbolic link."
+            );
+          }
+        } catch (error) {
+          if (error.code === "ENOENT") {
+            break;
+          }
+          throw error;
+        }
+      }
+    }
+  }
+
   protected async CreateClient(
     config: LocalConfig,
     allowMissing = false

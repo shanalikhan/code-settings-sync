@@ -174,6 +174,82 @@ describe("Filesystem sync with isolated VS Code API", () => {
     assert.equal(saved, 0);
   });
 
+  it("rejects linked import directories before writing any settings", async function() {
+    await new Sync().upload();
+    assert.deepEqual(errors, []);
+    const outside = join(root, "Outside");
+    await fs.mkdir(outside);
+    await fs.writeFile(join(outside, "sample.json"), "external sentinel");
+    await fs.unlink(join(user, "snippets", "sample.json"));
+    await fs.rmdir(join(user, "snippets"));
+    try {
+      await fs.symlink(outside, join(user, "snippets"), "junction");
+    } catch (error) {
+      if (error.code === "EPERM") {
+        this.skip();
+        return;
+      }
+      throw error;
+    }
+    await fs.writeFile(join(user, "settings.json"), '{"editor.fontSize":20}');
+    const savesBeforeImport = saved;
+    const downloadBeforeImport = config.customConfig.fileSystem.lastDownload;
+    await new Sync().download();
+    assert.equal(
+      await fs.readFile(join(outside, "sample.json"), "utf8"),
+      "external sentinel"
+    );
+    assert.ok(
+      errors.some(message => /symbolic link/i.test(message)),
+      "Expected a linked-target rejection"
+    );
+    assert.equal(
+      await fs.readFile(join(user, "settings.json"), "utf8"),
+      '{"editor.fontSize":20}'
+    );
+    assert.equal(saved, savesBeforeImport);
+    assert.equal(
+      config.customConfig.fileSystem.lastDownload,
+      downloadBeforeImport
+    );
+    assert.equal(state.watcher.autoUploadService.watching, true);
+  });
+
+  it("also preflights explicitly configured custom-file destinations", async function() {
+    const outside = join(root, "Outside");
+    const alias = join(root, "CustomAlias");
+    await fs.mkdir(outside);
+    await fs.writeFile(join(outside, "custom.json"), "custom sentinel");
+    try {
+      await fs.symlink(outside, alias, "junction");
+    } catch (error) {
+      if (error.code === "EPERM") {
+        this.skip();
+        return;
+      }
+      throw error;
+    }
+    config.customConfig.customFiles["custom.json"] = join(alias, "custom.json");
+    await fs.mkdir(share);
+    await fs.writeFile(
+      join(share, "settings-sync.json"),
+      JSON.stringify({
+        version: 1,
+        files: { "|customized_sync|custom.json": { content: "replacement" } }
+      })
+    );
+    await new Sync().download();
+    assert.ok(
+      errors.some(message => /symbolic link/i.test(message)),
+      "Expected custom target rejection"
+    );
+    assert.equal(
+      await fs.readFile(join(outside, "custom.json"), "utf8"),
+      "custom sentinel"
+    );
+    assert.equal(saved, 0);
+  });
+
   it("keeps default Gist dispatch and refuses unknown providers", () => {
     const gist = FactoryService.CreateSyncService(state, SyncMethod.GitHubGist);
     assert.equal(gist.constructor.name, "GistService");

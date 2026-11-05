@@ -21,7 +21,11 @@ from Gist timestamps in `syncLocalSettings.json`.
 - Existing file-selection rules are retained. Do not place symlinks to
   private or external files in the selected settings tree or custom files.
   The filesystem provider rejects unsafe encoded bundle paths and a
-  symlink at the bundle file, but is not a hostile-filesystem sandbox.
+  symlink at the bundle file. Import preflights all existing target path
+  components, including explicitly configured custom files, and rejects
+  symbolic links before starting writes. This does not prevent a different
+  process from changing paths after validation and is not a hostile-filesystem
+  sandbox. Normal Gist transfers retain their existing behavior.
 - Export validates the bundle, acquires an exclusive local lock and replaces
   the bundle through a same-directory temporary file. A failed replacement
   preserves the previous bundle. The lock is not a distributed cloud lock.
