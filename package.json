@@ -146,6 +146,8 @@
     }
   },
   "scripts": {
+    "test-filesystem-host": "node scripts/test-filesystem-host.js",
+    "test-filesystem": "tsc -p ./ && node scripts/test-filesystem.js",
     "vscode:prepublish": "npm run lint-eslint && webpack --config configs/webpack.production.config.js",
     "compile": "webpack --config configs/webpack.development.config.js",
     "watch": "webpack --config configs/webpack.development.config.js --watch",

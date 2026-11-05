@@ -9,6 +9,7 @@ import { ExtensionConfig } from "../../models/extensionConfig.model";
 import { ISyncService } from "../../models/ISyncService.model";
 import { LocalConfig } from "../../models/localConfig.model";
 import { IExtensionState } from "../../models/state.model";
+import { SyncClient, SyncHistory } from "../../models/syncClient.model";
 import PragmaUtil from "../../pragmaUtil";
 import { File, FileService } from "../file.service";
 import {
@@ -19,21 +20,56 @@ import {
 import { GitHubService } from "./github.service";
 
 export class GistService implements ISyncService {
-  constructor(private state: IExtensionState) {}
+  protected isRemote = true;
+  constructor(protected state: IExtensionState) {}
+
+  protected async CreateClient(
+    config: LocalConfig,
+    allowMissing = false
+  ): Promise<SyncClient> {
+    void allowMissing;
+    return new GitHubService(
+      config.customConfig.githubSettings.token,
+      config.customConfig.githubSettings.enterpriseUrl
+    );
+  }
+
+  protected GetHistory(config: LocalConfig): SyncHistory {
+    return config.customConfig.githubSettings.gistSettings;
+  }
+
+  protected HasConfiguration(config: LocalConfig, importing: boolean): boolean {
+    return importing
+      ? !!config.extConfig.gist &&
+          (config.customConfig.githubSettings.gistSettings.downloadPublicGist ||
+            !!config.customConfig.githubSettings.token)
+      : !!config.customConfig.githubSettings.token;
+  }
+
+  protected OpenConfiguration(config: LocalConfig, command: string) {
+    void config;
+    this.state.commons.webviewService.OpenLandingPage(command);
+  }
+
+  protected ListSyncFiles(config: CustomConfig): Promise<File[]> {
+    return FileService.ListFiles(this.state.environment.USER_FOLDER, config);
+  }
+
+  protected SaveSyncConfiguration(config: ExtensionConfig): Promise<boolean> {
+    return this.state.commons.SaveSettings(config);
+  }
+
+  protected ValidateImportFiles(files: File[]): Promise<void> {
+    void files;
+    return Promise.resolve();
+  }
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   public async Import(_optArgument?: unknown[]): Promise<void> {
     const localSettings: LocalConfig = await this.state.commons.InitalizeSettings();
 
-    if (
-      localSettings.customConfig.githubSettings.gistSettings.downloadPublicGist
-        ? !localSettings.extConfig.gist
-        : !localSettings.customConfig.githubSettings.token ||
-          !localSettings.extConfig.gist
-    ) {
-      this.state.commons.webviewService.OpenLandingPage(
-        "extension.downloadSettings"
-      );
+    if (!this.HasConfiguration(localSettings, true)) {
+      this.OpenConfiguration(localSettings, "extension.downloadSettings");
       return;
     }
 
@@ -55,12 +91,11 @@ export class GistService implements ISyncService {
     throw new Error("Method not implemented.");
   }
   public async Export(optArgument?: unknown[]): Promise<void> {
-    let github: GitHubService = null;
+    let github: SyncClient = null;
     const localConfig = await this.state.commons.InitalizeSettings();
-    if (!localConfig.customConfig.githubSettings.token) {
-      this.state.commons.webviewService.OpenLandingPage(
-        "extension.updateSettings"
-      );
+    const history = this.GetHistory(localConfig);
+    if (!this.HasConfiguration(localConfig, false)) {
+      this.OpenConfiguration(localConfig, "extension.updateSettings");
       return;
     }
     const allSettingFiles: File[] = [];
@@ -73,10 +108,7 @@ export class GistService implements ISyncService {
       if (optArgument && optArgument[0] === "publicGIST") {
         localConfig.publicGist = true;
       }
-      github = new GitHubService(
-        localConfig.customConfig.githubSettings.token,
-        localConfig.customConfig.githubSettings.enterpriseUrl
-      );
+      github = await this.CreateClient(localConfig, true);
       await startGitProcess.call(
         this,
         localConfig.extConfig,
@@ -94,7 +126,10 @@ export class GistService implements ISyncService {
         localize("cmd.updateSettings.info.uploading"),
         2000
       );
-      if (customSettings.githubSettings.gistSettings.downloadPublicGist) {
+      if (
+        this.isRemote &&
+        customSettings.githubSettings.gistSettings.downloadPublicGist
+      ) {
         if (
           customSettings.githubSettings.token == null ||
           customSettings.githubSettings.token === ""
@@ -141,10 +176,7 @@ export class GistService implements ISyncService {
         );
         allSettingFiles.push(extensionFile);
       }
-      const contentFiles = await FileService.ListFiles(
-        this.state.environment.USER_FOLDER,
-        customSettings
-      );
+      const contentFiles = await this.ListSyncFiles(customSettings);
       const customExist: boolean = await FileService.FileExists(
         this.state.environment.FILE_CUSTOMIZEDSETTINGS
       );
@@ -227,7 +259,10 @@ export class GistService implements ISyncService {
           }
         }
 
-        if (syncSetting.gist == null || syncSetting.gist === "") {
+        if (
+          this.isRemote &&
+          (syncSetting.gist == null || syncSetting.gist === "")
+        ) {
           if (customSettings.githubSettings.gistSettings.askGistDescription) {
             customSettings.githubSettings.gistSettings.gistDescription = await this.state.commons.AskGistDescription();
           }
@@ -308,13 +343,20 @@ export class GistService implements ISyncService {
           // Gist files are different from the local files.
           const gistNewer = await github.IsGistNewer(
             syncSetting.gist,
-            customSettings.githubSettings.gistSettings.lastDownload
+            history.lastDownload
           );
-          if (!customSettings.githubSettings.gistSettings.lastDownload) {
+          if (
+            !history.lastDownload &&
+            (this.isRemote || !syncSetting.forceUpload)
+          ) {
             // Unable to compare the last gist upload time with the
             // last download time, so ask user to force upload.
             const message = await vscode.window.showInformationMessage(
-              localize("common.prompt.gistForceUpload"),
+              localize(
+                this.isRemote
+                  ? "common.prompt.gistForceUpload"
+                  : "common.prompt.filesystemForceUpload"
+              ),
               localize("common.button.yes"),
               localize("common.button.no")
             );
@@ -330,7 +372,11 @@ export class GistService implements ISyncService {
             // Last local download is prior to the last gist upload, so
             // the local settings may be out of date.
             const message = await vscode.window.showInformationMessage(
-              localize("common.prompt.gistNewer"),
+              localize(
+                this.isRemote
+                  ? "common.prompt.gistNewer"
+                  : "common.prompt.filesystemNewer"
+              ),
               localize("common.button.yes"),
               localize("common.button.no")
             );
@@ -364,9 +410,9 @@ export class GistService implements ISyncService {
       }
       if (completed) {
         try {
-          customSettings.githubSettings.gistSettings.lastUpload = dateNow;
-          customSettings.githubSettings.gistSettings.lastDownload = dateNow;
-          await this.state.commons.SaveSettings(syncSetting);
+          history.lastUpload = dateNow;
+          history.lastDownload = dateNow;
+          await this.SaveSyncConfiguration(syncSetting);
           await this.state.commons.SetCustomSettings(customSettings);
           if (newGIST) {
             vscode.window.showInformationMessage(
@@ -413,10 +459,9 @@ export class GistService implements ISyncService {
       extConfig: syncSetting,
       customConfig: customSettings
     } = localSettings;
-    const github = new GitHubService(
-      customSettings.githubSettings.token,
-      customSettings.githubSettings.enterpriseUrl
-    );
+    const github = await this.CreateClient(localSettings);
+    const history = this.GetHistory(localSettings);
+    let importedAt: Date;
     vscode.window.setStatusBarMessage("").dispose();
     vscode.window.setStatusBarMessage(
       localize("cmd.downloadSettings.info.readdingOnline"),
@@ -449,13 +494,11 @@ export class GistService implements ISyncService {
         cloudSettGist
       );
 
-      const lastUploadStr: string = customSettings.githubSettings.gistSettings
-        .lastUpload
-        ? customSettings.githubSettings.gistSettings.lastUpload.toString()
+      const lastUploadStr: string = history.lastUpload
+        ? history.lastUpload.toString()
         : "";
-      const lastDownloadStr: string = customSettings.githubSettings.gistSettings
-        .lastDownload
-        ? customSettings.githubSettings.gistSettings.lastDownload.toString()
+      const lastDownloadStr: string = history.lastDownload
+        ? history.lastDownload.toString()
         : "";
 
       let upToDate = false;
@@ -482,8 +525,7 @@ export class GistService implements ISyncService {
           return;
         }
       }
-      customSettings.githubSettings.gistSettings.lastDownload =
-        cloudSett.lastUpload;
+      importedAt = cloudSett.lastUpload;
     }
 
     keys.forEach(gistName => {
@@ -536,6 +578,7 @@ export class GistService implements ISyncService {
       }
     });
 
+    await this.ValidateImportFiles(updatedFiles);
     for (const file of updatedFiles) {
       let writeFile = false;
       let content: string = file.content;
@@ -639,26 +682,28 @@ export class GistService implements ISyncService {
             }
 
             actionList.push(
-              FileService.WriteFile(filePath, content)
-                .then(() => {
-                  // TODO : add Name attribute in File and show information message here with name , when required.
-                })
-                .catch(err => {
-                  Commons.LogException(
-                    err,
-                    this.state.commons.ERROR_MESSAGE,
-                    true
-                  );
-                  return;
-                })
+              FileService.WriteFile(filePath, content).catch(err => {
+                Commons.LogException(
+                  err,
+                  this.state.commons.ERROR_MESSAGE,
+                  true
+                );
+                return false;
+              })
             );
           }
         }
       }
     }
 
-    await Promise.all(actionList);
-    const settingsUpdated = await this.state.commons.SaveSettings(syncSetting);
+    const writes = await Promise.all(actionList);
+    if (writes.some(written => written === false)) {
+      throw new Error("Unable to import every settings file.");
+    }
+    if (importedAt) {
+      history.lastDownload = importedAt;
+    }
+    const settingsUpdated = await this.SaveSyncConfiguration(syncSetting);
     const customSettingsUpdated = await this.state.commons.SetCustomSettings(
       customSettings
     );

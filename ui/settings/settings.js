@@ -92,6 +92,11 @@ const textareaTemplate = `<div class="form-group mb-3">
             ></textarea>
           </div>`;
 
+const selectInputTemplate = `<div class="form-group mb-4">
+  <label for="setting:@correspondingSetting" class="text-white-50a">@name</label>
+  <select class="form-control text" id="setting:@correspondingSetting" setting="@correspondingSetting" settingType="@settingType"></select>
+</div>`;
+
 const globalParent = document.getElementById("globalSettings");
 const envParent = document.getElementById("environmentSettings");
 const saveStatus = document.getElementById("saveStatus");
@@ -99,6 +104,9 @@ const saveStatus = document.getElementById("saveStatus");
 globalMap.forEach(settingMap => {
   let template;
   switch (settingMap.type) {
+    case "select":
+      template = selectInputTemplate;
+      break;
     case "textinput":
       template = textInputTemplate;
       break;
@@ -122,6 +130,41 @@ globalMap.forEach(settingMap => {
     .replace(new RegExp("@tooltip"), "")
     .replace(new RegExp("@settingType", "g"), "global");
   appendHTML(globalParent, html);
+  const control = document.getElementById(
+    "setting:" + settingMap.correspondingSetting
+  );
+  if (settingMap.correspondingSetting.startsWith("githubSettings.")) {
+    control.parentElement.setAttribute("data-sync-storage", "gist");
+  }
+  if (settingMap.type === "select") {
+    const select = document.getElementById(
+      "setting:" + settingMap.correspondingSetting
+    );
+    settingMap.options.forEach(item => {
+      const option = document.createElement("option");
+      option.value = item.value;
+      option.textContent = item.label;
+      select.appendChild(option);
+    });
+  }
+  if (settingMap.correspondingSetting === "fileSystem.folder") {
+    const input = document.getElementById("setting:fileSystem.folder");
+    input.parentElement.setAttribute("data-sync-storage", "filesystem");
+    const group = document.createElement("div");
+    group.className = "input-group filesystem-folder-group";
+    input.before(group);
+    group.appendChild(input);
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = "btn btn-secondary";
+    button.title = settingMap.name;
+    button.setAttribute("aria-label", settingMap.name);
+    button.innerHTML = '<i class="fas fa-folder-open" aria-hidden="true"></i>';
+    button.addEventListener("click", () =>
+      vscode.postMessage({ command: "chooseFileSystemFolder" })
+    );
+    group.appendChild(button);
+  }
 });
 
 envMap.forEach(envMap => {
@@ -170,6 +213,11 @@ envMap.forEach(envMap => {
     )
     .replace(new RegExp("@disabled", "g"), disabledStatus);
   appendHTML(envParent, html);
+  if (isInputGroup) {
+    document
+      .getElementById("setting:gist")
+      .parentElement.parentElement.setAttribute("data-sync-storage", "gist");
+  }
 });
 
 $(document).ready(function() {
@@ -191,6 +239,7 @@ $(document).ready(function() {
         text: val,
         type: $(this).attr("settingType")
       });
+      updateStorageVisibility();
     });
   $(".number")
     .each((i, el) => {
@@ -251,7 +300,15 @@ $(document).ready(function() {
         type: "global"
       });
     });
+  updateStorageVisibility();
 });
+
+function updateStorageVisibility() {
+  const filesystem =
+    document.getElementById("setting:syncMethod").value === "FileSystem";
+  $('[data-sync-storage="gist"]').toggle(!filesystem);
+  $('[data-sync-storage="filesystem"]').toggle(filesystem);
+}
 
 function save() {
   saveStatus.innerHTML = `<i class="spinner-border dock-bottom-left"></i>`;

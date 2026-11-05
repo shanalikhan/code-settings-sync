@@ -1,6 +1,8 @@
 import { readFileSync } from "fs-extra";
 import { has, set } from "lodash";
 import { URL } from "url";
+import { isAbsolute } from "path";
+import { SyncMethod } from "../enums/syncMethod.enum";
 import * as vscode from "vscode";
 import Commons from "../commons";
 import localize from "../localize";
@@ -13,6 +15,25 @@ import { GitHubOAuthService } from "./github/github.oauth.service";
 
 export class WebviewService {
   private globalSettings = [
+    {
+      name: localize("ext.globalConfig.syncMethod.name"),
+      placeholder: "",
+      type: UISettingType.Select,
+      correspondingSetting: "syncMethod",
+      options: [
+        { value: SyncMethod.GitHubGist, label: "GitHub Gist" },
+        {
+          value: SyncMethod.FileSystem,
+          label: localize("ext.globalConfig.fileSystem.label")
+        }
+      ]
+    },
+    {
+      name: localize("ext.globalConfig.fileSystem.folder.name"),
+      placeholder: localize("ext.globalConfig.fileSystem.folder.placeholder"),
+      type: UISettingType.TextInput,
+      correspondingSetting: "fileSystem.folder"
+    },
     {
       name: localize("ext.globalConfig.token.name"),
       placeholder: localize("ext.globalConfig.token.placeholder"),
@@ -241,6 +262,22 @@ export class WebviewService {
     );
     settingsPanel.webview.html = content;
     settingsPanel.webview.onDidReceiveMessage(async message => {
+      if (message.command === "chooseFileSystemFolder") {
+        const selected = await vscode.window.showOpenDialog({
+          canSelectFiles: false,
+          canSelectFolders: true,
+          canSelectMany: false
+        });
+        if (selected && selected[0]) {
+          customSettings.fileSystem.folder = selected[0].fsPath;
+          customSettings.fileSystem.lastUpload = null;
+          customSettings.fileSystem.lastDownload = null;
+          if (await state.commons.SetCustomSettings(customSettings)) {
+            this.UpdateSettingsPage(customSettings, extSettings);
+          }
+        }
+        return;
+      }
       if (message === "openGist") {
         const [customConfig, extConfig] = await Promise.all([
           state.commons.GetCustomSettings(),
@@ -299,6 +336,28 @@ export class WebviewService {
     extSettings: ExtensionConfig
   ) {
     let value: any = message.text;
+    if (
+      message.command === "syncMethod" &&
+      ![SyncMethod.GitHubGist, SyncMethod.FileSystem].includes(value)
+    ) {
+      return;
+    }
+    if (message.command === "fileSystem.folder") {
+      if (
+        typeof value !== "string" ||
+        (value.trim() && !isAbsolute(value.trim()))
+      ) {
+        vscode.window.showErrorMessage(
+          localize("common.error.filesystemAbsoluteFolder")
+        );
+        return;
+      }
+      value = value.trim();
+      if (value !== customSettings.fileSystem.folder) {
+        customSettings.fileSystem.lastUpload = null;
+        customSettings.fileSystem.lastDownload = null;
+      }
+    }
     if (message.text === "true" || message.text === "false") {
       value = message.text === "true";
     }
@@ -446,26 +505,36 @@ export class WebviewService {
   }
 
   private GenerateContent(options: any) {
+    const serialize = (value: unknown): string => {
+      const json = JSON.stringify(value);
+      return json === undefined
+        ? "undefined"
+        : json
+            .replace(/</g, "\\u003c")
+            .replace(/\u2028/g, "\\u2028")
+            .replace(/\u2029/g, "\\u2029");
+    };
     const toReplace: Array<Record<string, unknown>> = [];
     options.items.forEach(option => {
       if (typeof option.replace === "string") {
         toReplace.push({
           ...option,
-          replace: JSON.stringify(options[option.replace])
+          replace: serialize(options[option.replace])
         });
       } else {
         toReplace.push({
           find: option.find,
-          replace: JSON.stringify(option.replace)
+          replace: serialize(option.replace)
         });
       }
     });
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-return
     return toReplace
       .reduce(
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-return
-        (acc, cur: any) => acc.replace(new RegExp(cur.find, "g"), cur.replace),
-        options.content
+        (acc: string, cur) =>
+          acc.replace(new RegExp(String(cur.find), "g"), () =>
+            String(cur.replace)
+          ),
+        String(options.content)
       )
       .replace(
         new RegExp("@PWD", "g"),

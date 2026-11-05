@@ -1,5 +1,7 @@
 import { state } from "../state";
 import { GitHubConfig } from "./github/github.model";
+import { FileSystemConfig } from "./fileSystemConfig.model";
+import { SyncMethod } from "../enums/syncMethod.enum";
 
 export class CustomConfig {
   public ignoreUploadFiles: string[] = [
@@ -12,7 +14,7 @@ export class CustomConfig {
     "projects_cache_git.json",
     "projects_cache_svn.json",
     "gpm_projects.json",
-    "gpm-recentItems.json",
+    "gpm-recentItems.json"
   ];
   public ignoreUploadFolders: string[] = [
     "workspaceStorage",
@@ -22,7 +24,8 @@ export class CustomConfig {
   ];
   public ignoreExtensions: string[] = [];
   public githubSettings: GitHubConfig = new GitHubConfig();
-
+  public syncMethod: SyncMethod = SyncMethod.GitHubGist;
+  public fileSystem: FileSystemConfig = new FileSystemConfig();
 
   public version = Number(
     state.environment
