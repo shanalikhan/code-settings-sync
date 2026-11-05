@@ -1,0 +1,79 @@
+.settings-page,
+.settings-page button {
+  letter-spacing: 0;
+}
+
+.settings-page page-header h1 {
+  font-size: 1.75rem;
+  line-height: 1.2;
+  justify-content: flex-start;
+  gap: 0.5rem;
+  padding: 1rem 0 !important;
+  margin-bottom: 1rem;
+}
+
+.settings-page page-header img {
+  width: 36px;
+  height: auto;
+}
+
+.settings-page page-header h2,
+.settings-page page-header > br {
+  display: none;
+}
+
+.settings-page .text,
+.settings-page .textarea,
+.settings-page .number {
+  padding: 0.5rem 0.75rem;
+  font-size: 0.9rem;
+}
+
+.settings-page input.text,
+.settings-page select.text {
+  height: 40px;
+}
+
+.filesystem-folder-group {
+  flex-wrap: nowrap;
+}
+
+.filesystem-folder-group > .form-control {
+  min-width: 0;
+  flex: 1 1 auto;
+  width: 1%;
+}
+
+.filesystem-folder-group > button {
+  flex: 0 0 44px;
+  width: 44px;
+  height: 40px;
+  min-height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+}
+
+.settings-page #saveStatus {
+  font-size: 1rem !important;
+  min-height: 24px;
+  margin-top: 8px;
+}
+
+.settings-page .dock-bottom-left {
+  position: static;
+}
+
+@media (max-width: 767px) {
+  .settings-page .content-row {
+    overflow-y: auto;
+    flex-wrap: wrap;
+  }
+
+  .settings-page .settings-section {
+    height: auto !important;
+    overflow-y: visible;
+    padding-bottom: 1rem;
+  }
+}

@@ -28,13 +28,25 @@ export class Sync {
     const startUpCustomSetting = await state.commons.GetCustomSettings();
 
     if (startUpSetting) {
+      const filesystem =
+        startUpCustomSetting.syncMethod === SyncMethod.FileSystem;
+      if (filesystem && !startUpCustomSetting.fileSystem.folder) {
+        state.commons.webviewService.OpenSettingsPage(
+          startUpCustomSetting,
+          startUpSetting
+        );
+        return;
+      }
       const tokenAvailable: boolean =
-        startUpCustomSetting.githubSettings.token != null &&
-        startUpCustomSetting.githubSettings.token !== "";
+        filesystem ||
+        (startUpCustomSetting.githubSettings.token != null &&
+          startUpCustomSetting.githubSettings.token !== "");
       const gistAvailable: boolean =
-        startUpSetting.gist != null && startUpSetting.gist !== "";
+        filesystem ||
+        (startUpSetting.gist != null && startUpSetting.gist !== "");
 
       if (
+        !filesystem &&
         !startUpCustomSetting.githubSettings.gistSettings.downloadPublicGist &&
         !tokenAvailable
       ) {
@@ -73,9 +85,19 @@ export class Sync {
   public async upload(optArgument?: string): Promise<void> {
     // const args = arguments;
     try {
+      const custom = await state.commons.GetCustomSettings();
+      if (
+        custom.syncMethod === SyncMethod.FileSystem &&
+        optArgument === "publicGIST"
+      ) {
+        vscode.window.showErrorMessage(
+          localize("common.error.filesystemShare")
+        );
+        return;
+      }
       const service: ISyncService = FactoryService.CreateSyncService(
         state,
-        SyncMethod.GitHubGist
+        custom.syncMethod || SyncMethod.GitHubGist
       );
       const args = new Array<string>();
       if (optArgument && optArgument === "publicGIST") {
@@ -92,9 +114,10 @@ export class Sync {
    */
   public async download(): Promise<void> {
     try {
+      const custom = await state.commons.GetCustomSettings();
       const service: ISyncService = FactoryService.CreateSyncService(
         state,
-        SyncMethod.GitHubGist
+        custom.syncMethod || SyncMethod.GitHubGist
       );
       await service.Import();
     } catch (err) {

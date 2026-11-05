@@ -26,18 +26,19 @@
       const pwd = "@PWD";
     </script>
     <link rel="stylesheet" href="@PWD/ui/shared/styles.css" />
+    <link rel="stylesheet" href="@PWD/ui/settings/settings.css" />
   </head>
-  <body class="container d-flex h-100 mx-auto text-center">
+  <body class="settings-page container d-flex h-100 mx-auto text-center">
     <page-header></page-header>
     <div class="row content-row text-left">
-      <div class="col mt-2 scrollable" style="height: 100%;">
+      <div class="settings-section col-12 col-md-6 order-2 order-md-1 mt-2 scrollable" style="height: 100%;">
         <h3 class="mx-auto mt-2 text-white-50a text-center">
           Environment Settings
         </h3>
         <form id="environmentSettings"></form>
         <p id="saveStatus" class="text-white-50a" style="font-size: 3rem"></p>
       </div>
-      <div class="col mt-2 scrollable"  style="height: 100%;">
+      <div class="settings-section col-12 col-md-6 order-1 order-md-2 mt-2 scrollable" style="height: 100%;">
         <h3 class="mx-auto mt-2 text-white-50a text-center">
           Global Settings
         </h3>
@@ -58,10 +59,10 @@
     <script defer src="@PWD/ui/shared/fonts.js"></script>
     <font-injector></font-injector>
     <script defer>
-      const globalData = JSON.parse(`@GLOBAL_DATA`);
-      const envData = JSON.parse(`@ENV_DATA`);
-      const globalMap = JSON.parse(`@GLOBAL_MAP`);
-      const envMap = JSON.parse(`@ENV_MAP`);
+      const globalData = @GLOBAL_DATA;
+      const envData = @ENV_DATA;
+      const globalMap = @GLOBAL_MAP;
+      const envMap = @ENV_MAP;
     </script>
     <script defer src="@PWD/ui/settings/settings.js"></script>
   </body>
