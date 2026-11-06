@@ -37,6 +37,7 @@ export class GistService implements ISyncService {
       return;
     }
 
+    const wasWatching = this.state.watcher.autoUploadService.watching;
     await this.state.watcher.HandleStopWatching();
 
     try {
@@ -44,6 +45,10 @@ export class GistService implements ISyncService {
     } catch (err) {
       Commons.LogException(err, this.state.commons.ERROR_MESSAGE, true);
       return;
+    } finally {
+      if (wasWatching && !this.state.watcher.autoUploadService.watching) {
+        await this.state.watcher.HandleStartWatching();
+      }
     }
   }
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -435,6 +440,7 @@ export class GistService implements ISyncService {
       customSettings.ignoreExtensions || new Array<string>();
     const updatedFiles: File[] = [];
     const actionList: Array<Promise<void | boolean>> = [];
+    let importedAt: CloudSettings["lastUpload"];
 
     if (res.data.public === true) {
       localSettings.publicGist = true;
@@ -482,8 +488,7 @@ export class GistService implements ISyncService {
           return;
         }
       }
-      customSettings.githubSettings.gistSettings.lastDownload =
-        cloudSett.lastUpload;
+      importedAt = cloudSett.lastUpload;
     }
 
     keys.forEach(gistName => {
@@ -639,25 +644,29 @@ export class GistService implements ISyncService {
             }
 
             actionList.push(
-              FileService.WriteFile(filePath, content)
-                .then(() => {
-                  // TODO : add Name attribute in File and show information message here with name , when required.
-                })
-                .catch(err => {
-                  Commons.LogException(
-                    err,
-                    this.state.commons.ERROR_MESSAGE,
-                    true
-                  );
-                  return;
-                })
+              FileService.WriteFile(filePath, content).catch(err => {
+                Commons.LogException(
+                  err,
+                  this.state.commons.ERROR_MESSAGE,
+                  true
+                );
+                return false;
+              })
             );
           }
         }
       }
     }
 
-    await Promise.all(actionList);
+    const writes = await Promise.all(actionList);
+    if (writes.some(written => written === false)) {
+      throw new Error(
+        "Some downloaded files could not be saved. Save or revert unsaved edits before syncing again."
+      );
+    }
+    if (importedAt) {
+      customSettings.githubSettings.gistSettings.lastDownload = importedAt;
+    }
     const settingsUpdated = await this.state.commons.SaveSettings(syncSetting);
     const customSettingsUpdated = await this.state.commons.SetCustomSettings(
       customSettings
