@@ -3,6 +3,7 @@
 import * as fs from "fs-extra";
 import * as path from "path";
 import * as recursiveRead from "recursive-readdir";
+import * as vscode from "vscode";
 import { CustomConfig } from "../models/customConfig.model";
 
 export class File {
@@ -87,6 +88,39 @@ export class FileService {
       return false;
     }
     try {
+      const target = path.resolve(filePath);
+      const normalize = (value: string) =>
+        process.platform === "win32" ? value.toLowerCase() : value;
+      const document = vscode.workspace.textDocuments.find(
+        item =>
+          (item.uri.scheme === "file" ||
+            item.uri.scheme === "vscode-userdata") &&
+          normalize(path.resolve(item.uri.fsPath)) === normalize(target)
+      );
+      if (document) {
+        if (document.isDirty) {
+          throw new Error(
+            "Save or revert unsaved changes before syncing " +
+              path.basename(filePath)
+          );
+        }
+        const edit = new vscode.WorkspaceEdit();
+        edit.replace(
+          document.uri,
+          new vscode.Range(
+            document.positionAt(0),
+            document.positionAt(document.getText().length)
+          ),
+          data
+        );
+        if (!(await vscode.workspace.applyEdit(edit))) return false;
+        if (document.getText() !== data) {
+          throw new Error(
+            "The document changed while syncing " + path.basename(filePath)
+          );
+        }
+        return await document.save();
+      }
       await fs.writeFile(filePath, data);
       return true;
     } catch (err) {
