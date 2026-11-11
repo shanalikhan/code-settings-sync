@@ -10,6 +10,8 @@ import { ISyncService } from "../../models/ISyncService.model";
 import { LocalConfig } from "../../models/localConfig.model";
 import { IExtensionState } from "../../models/state.model";
 import PragmaUtil from "../../pragmaUtil";
+import { EditorService } from "../editor.service";
+import { HasDirtyDocument } from "../editorMatch";
 import { File, FileService } from "../file.service";
 import {
   ExtensionInformation,
@@ -451,6 +453,18 @@ export class FileSystemService implements ISyncService {
       return;
     }
 
+    // Check every restore target before creating directories, writing files or
+    // changing extensions. Include hidden editors and configured custom files.
+    const dirtyFile = updatedFiles.find(file =>
+      HasDirtyDocument(vscode.workspace.textDocuments, file.filePath)
+    );
+    if (dirtyFile) {
+      vscode.window.showWarningMessage(
+        `Sync : ${dirtyFile.filePath} has unsaved changes in an editor. The folder import was not started. Save or revert it, then import again.`
+      );
+      return;
+    }
+
     for (const file of updatedFiles) {
       const target = await FileService.CreateCustomDirTree(file.filePath);
       let content = file.content;
@@ -467,7 +481,7 @@ export class FileSystemService implements ISyncService {
           customSettings.hostName
         );
       }
-      if (!(await FileService.WriteFile(target, content))) {
+      if (!(await EditorService.WriteFile(target, content))) {
         // Do not record the folder as imported when even one restore fails.
         // The next regular import must be able to retry the missing file.
         throw new Error(localize("cmd.downloadSettings.error.writeFile", target));

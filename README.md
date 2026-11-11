@@ -126,6 +126,8 @@ The folder holds plain files laid out like your `User` folder: `settings.json`, 
 
 When `cloudSettings` includes a completed export file list, imports restore only those declared files. An unrelated file added to the shared folder is ignored; a listed file missing from the folder is treated as an incomplete export and will not mark the import as complete. Older manually copied folders without a file list can still be imported using the existing folder rules.
 
+If any file to be restored has unsaved changes in a visible or hidden VS Code editor, the import stops before restoring files or changing extensions. Save or revert that file, then import again. Sync checks again before each file is written; if editing resumes during the import, it stops without recording the folder as fully imported so the remaining files can be retried. Files already restored before that later interruption remain restored.
+
 The choice is stored in `syncLocalSettings.json`:
 
 ```json
