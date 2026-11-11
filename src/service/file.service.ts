@@ -78,7 +78,8 @@ export class FileService {
     filePath: string,
     data: string
   ): Promise<boolean> {
-    if (!data) {
+    // An intentionally empty file is still a valid sync payload.
+    if (data === null || data === undefined) {
       console.error(
         new Error(
           "Unable to write file. FilePath :" + filePath + " Data :" + data

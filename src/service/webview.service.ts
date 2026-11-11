@@ -3,16 +3,41 @@ import { has, set } from "lodash";
 import { URL } from "url";
 import * as vscode from "vscode";
 import Commons from "../commons";
+import { SyncMethod } from "../enums/syncMethod.enum";
 import localize from "../localize";
 import { CustomConfig } from "../models/customConfig.model";
 import { ExtensionConfig } from "../models/extensionConfig.model";
+import { FileSystemConfig } from "../models/fileSystem.model";
 import { UISettingType } from "../models/settingType.model";
-import { IWebview } from "../models/webview.model";
+import { IWebview, IWebviewReplaceable } from "../models/webview.model";
 import { state } from "../state";
 import { GitHubOAuthService } from "./github/github.oauth.service";
 
 export class WebviewService {
   private globalSettings = [
+    {
+      name: localize("ext.globalConfig.syncMethod.name"),
+      placeholder: "",
+      type: UISettingType.Select,
+      correspondingSetting: "syncMethod",
+      options: [
+        {
+          value: SyncMethod.GitHubGist,
+          label: localize("ext.globalConfig.syncMethod.gist")
+        },
+        {
+          value: SyncMethod.FileSystem,
+          label: localize("ext.globalConfig.syncMethod.fileSystem")
+        }
+      ]
+    },
+    {
+      name: localize("ext.globalConfig.fileSystemPath.name"),
+      placeholder: localize("ext.globalConfig.fileSystemPath.placeholder"),
+      type: UISettingType.TextInput,
+      correspondingSetting: "fileSystemSettings.path",
+      actionLabel: localize("ext.globalConfig.fileSystemPath.browse")
+    },
     {
       name: localize("ext.globalConfig.token.name"),
       placeholder: localize("ext.globalConfig.token.placeholder"),
@@ -170,19 +195,23 @@ export class WebviewService {
       replaceables: [
         {
           find: "@GLOBAL_DATA",
-          replace: "customSettings"
+          replace: "customSettings",
+          encode: true
         },
         {
           find: "@ENV_DATA",
-          replace: "extSettings"
+          replace: "extSettings",
+          encode: true
         },
         {
           find: "@GLOBAL_MAP",
-          replace: this.globalSettings
+          replace: this.globalSettings,
+          encode: true
         },
         {
           find: "@ENV_MAP",
-          replace: this.environmentSettings
+          replace: this.environmentSettings,
+          encode: true
         }
       ]
     },
@@ -267,7 +296,25 @@ export class WebviewService {
         );
         return;
       }
-      this.ReceiveSettingChange(message, customSettings, extSettings);
+      if (message === "selectFileSystemFolder") {
+        await vscode.commands.executeCommand(
+          "extension.selectFileSystemFolder"
+        );
+        return;
+      }
+      // Read the settings again: commands (folder picker, gist selection, reset)
+      // may have changed them since this page was opened.
+      const [currentCustomSettings, currentExtSettings] = await Promise.all([
+        state.commons.GetCustomSettings(),
+        state.commons.GetSettings()
+      ]);
+      if (currentCustomSettings) {
+        this.ReceiveSettingChange(
+          message,
+          currentCustomSettings,
+          currentExtSettings
+        );
+      }
     });
     webview.webview = settingsPanel;
     settingsPanel.onDidDispose(() => (webview.webview = null));
@@ -303,6 +350,19 @@ export class WebviewService {
       value = message.text === "true";
     }
     if (message.type === "global") {
+      if (
+        message.command === "syncMethod" &&
+        !Object.values(SyncMethod).includes(value)
+      ) {
+        return;
+      }
+      if (message.command === "fileSystemSettings.path") {
+        value = typeof value === "string" ? value.trim() : "";
+        if (value !== customSettings.fileSystemSettings.path) {
+          // Timestamps belong to the previous folder.
+          customSettings.fileSystemSettings = new FileSystemConfig();
+        }
+      }
       if (has(customSettings, message.command)) {
         set(customSettings, message.command, value);
         state.commons.SetCustomSettings(customSettings);
@@ -386,6 +446,18 @@ export class WebviewService {
           vscode.commands.executeCommand("extension.downloadSettings");
           break;
         }
+        case "selectFileSystemFolder": {
+          const folder = await vscode.commands.executeCommand<string>(
+            "extension.selectFileSystemFolder"
+          );
+          if (folder) {
+            landingPanel.dispose();
+            if (cmd) {
+              vscode.commands.executeCommand(cmd);
+            }
+          }
+          break;
+        }
         case "dontShowThisAgain":
           await state.context.globalState.update(
             "landingPage.dontShowThisAgain",
@@ -446,25 +518,26 @@ export class WebviewService {
   }
 
   private GenerateContent(options: any) {
-    const toReplace: Array<Record<string, unknown>> = [];
-    options.items.forEach(option => {
-      if (typeof option.replace === "string") {
-        toReplace.push({
-          ...option,
-          replace: JSON.stringify(options[option.replace])
-        });
-      } else {
-        toReplace.push({
-          find: option.find,
-          replace: JSON.stringify(option.replace)
-        });
-      }
+    const toReplace: Array<{
+      find: string;
+      replace: string;
+    }> = options.items.map((option: IWebviewReplaceable) => {
+      const json = JSON.stringify(
+        typeof option.replace === "string"
+          ? options[option.replace]
+          : option.replace
+      );
+      return {
+        find: option.find,
+        replace: option.encode ? encodeURIComponent(json) : json
+      };
     });
     // eslint-disable-next-line @typescript-eslint/no-unsafe-return
     return toReplace
       .reduce(
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-return
-        (acc, cur: any) => acc.replace(new RegExp(cur.find, "g"), cur.replace),
+        // A replacer function keeps "$&" and similar sequences in the data literal.
+        (acc: string, cur) =>
+          acc.replace(new RegExp(cur.find, "g"), () => cur.replace),
         options.content
       )
       .replace(

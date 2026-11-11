@@ -48,6 +48,7 @@ While being free and open source, if you find it useful, please consider support
 8. Support pragmas with @sync keywords: host, os and env are supported.
 9. GUI for changing settings / logging in.
 10. Allows you to Sync any file across your machines.
+11. Export / Import your settings to a folder (OneDrive, Dropbox, network share) instead of a GitHub Gist.
 
 ## It Syncs
 
@@ -91,7 +92,7 @@ You can always **verify the created gist** by going to `https://gist.github.com`
 
 **Press `Shift` + `Alt` + `U`** (macOS: `Shift` + `Option` + `U`)
 
-> Select **">Sync: Update/Upload Settings"** in the Command Palette to upload your settings.
+> Select **">Sync: Export Settings (Upload)"** in the Command Palette to upload your settings.
 
 When downloading or uploading for the first time, the welcome page will automatically open, where you can configure the Settings Sync.
 
@@ -103,7 +104,7 @@ Once you select upload, after uploading the settings, you will see a summary con
 
 **Press `Shift` + `Alt` + `D`** (macOS: `Shift` + `Option` + `D`)
 
-> Select **">Sync: Download Settings"** in the Command Palette to download your settings.
+> Select **">Sync: Import Settings (Download)"** in the Command Palette to download your settings.
 
 When downloading or uploading for the first time, the welcome page will automatically open, where you can configure the Settings Sync.
 
@@ -112,6 +113,31 @@ Once you select download, after downloading the settings, you will see a summary
 A popup will be opened to allow you to restart Code to apply the settings.
 
 ![Download your settings](images/download.gif)
+
+## Export / Import Settings to a Folder (File System)
+
+Instead of a GitHub Gist, Settings Sync can export your settings to a folder and import them from it. Use a folder inside OneDrive, Dropbox, Google Drive, a network share or a git repository to sync without a GitHub account, or to keep a copy you can open, read and email.
+
+1. Run **">Sync: Select File System Folder"**, click **Use a Folder Instead** on the welcome page, or open **">Sync: Advanced Options > Sync: Open Settings"**, set **Sync Method** to **File System** and click **Browse**. Choosing a folder switches the sync method to File System.
+2. Run **">Sync: Export Settings (Upload)"** (`Shift` + `Alt` + `U`) to write your settings to the folder.
+3. On another machine, select the same folder and run **">Sync: Import Settings (Download)"** (`Shift` + `Alt` + `D`).
+
+The folder holds plain files laid out like your `User` folder: `settings.json`, `keybindings.json` (`keybindingsMac.json` when exported from macOS), `snippets/`, `extensions.json` (the extension list), `customized_sync/` for [custom sync](https://github.com/shanalikhan/code-settings-sync/wiki/Custom-Sync) files, and `cloudSettings` with the time of the last export. Sync pragmas, ignored files / folders / extensions, auto upload, auto download, force upload / download and the summary page work the same way as with a gist. No token or gist ID is needed.
+
+When `cloudSettings` includes a completed export file list, imports restore only those declared files. An unrelated file added to the shared folder is ignored; a listed file missing from the folder is treated as an incomplete export and will not mark the import as complete. Older manually copied folders without a file list can still be imported using the existing folder rules.
+
+If any file to be restored has unsaved changes in a visible or hidden VS Code editor, the import stops before restoring files or changing extensions. Save or revert that file, then import again. Sync checks again before each file is written; if editing resumes during the import, it stops without recording the folder as fully imported so the remaining files can be retried. Files already restored before that later interruption remain restored.
+
+The choice is stored in `syncLocalSettings.json`:
+
+```json
+"syncMethod": "FileSystem",
+"fileSystemSettings": {
+    "path": "C:\\Users\\me\\OneDrive\\vscode-settings"
+}
+```
+
+The folder must be an absolute path outside the VS Code `User` folder. Set **Sync Method** back to **GitHub Gist** to return to gist sync. Sharing or downloading a public gist from Advanced Options also switches back to the gist.
 
 ## Reset Extension Settings
 

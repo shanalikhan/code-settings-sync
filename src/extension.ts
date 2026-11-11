@@ -45,4 +45,10 @@ export async function activate(context: vscode.ExtensionContext) {
       sync.advance.bind(sync)
     )
   );
+  context.subscriptions.push(
+    vscode.commands.registerCommand(
+      "extension.selectFileSystemFolder",
+      sync.selectFileSystemFolder.bind(sync)
+    )
+  );
 }

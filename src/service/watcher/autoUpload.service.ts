@@ -1,5 +1,6 @@
 import * as vscode from "vscode";
 import { watch } from "chokidar";
+import { SyncMethod } from "../../enums/syncMethod.enum";
 import localize from "../../localize";
 import { CustomConfig } from "../../models/customConfig.model";
 import { state } from "../../state";
@@ -13,6 +14,15 @@ export class AutoUploadService {
       ...customSettings.ignoreUploadFolders.map(folder => `**/${folder}/**`),
       ...customSettings.ignoreUploadFiles.map(file => `**/${file}`)
     ];
+  }
+
+  /** A public gist someone else owns cannot be updated; a folder always can. */
+  public static CanUpload(customSettings: CustomConfig): boolean {
+    return (
+      !!customSettings &&
+      (customSettings.syncMethod === SyncMethod.FileSystem ||
+        !customSettings.githubSettings.gistSettings.downloadPublicGist)
+    );
   }
 
   public watching = false;
@@ -33,7 +43,7 @@ export class AutoUploadService {
           await lockfile.Lock(state.environment.FILE_SYNC_LOCK);
         }
         const customConfig = await state.commons.GetCustomSettings();
-        if (!customConfig.githubSettings.gistSettings.downloadPublicGist) {
+        if (AutoUploadService.CanUpload(customConfig)) {
           await this.InitiateAutoUpload();
         }
         await lockfile.Unlock(state.environment.FILE_SYNC_LOCK);
@@ -66,7 +76,7 @@ export class AutoUploadService {
             .slice(1);
           if (
             customConfig.supportedFileExtensions.includes(fileType) &&
-            !customConfig.githubSettings.gistSettings.downloadPublicGist
+            AutoUploadService.CanUpload(customConfig)
           ) {
             await this.InitiateAutoUpload();
           }

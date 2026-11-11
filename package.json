@@ -87,6 +87,10 @@
       {
         "command": "extension.otherOptions",
         "title": "%cmd.otherOptions.title%"
+      },
+      {
+        "command": "extension.selectFileSystemFolder",
+        "title": "%cmd.selectFileSystemFolder.title%"
       }
     ],
     "keybindings": [

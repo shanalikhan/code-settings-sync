@@ -1,4 +1,6 @@
+import { SyncMethod } from "../enums/syncMethod.enum";
 import { state } from "../state";
+import { FileSystemConfig } from "./fileSystem.model";
 import { GitHubConfig } from "./github/github.model";
 
 export class CustomConfig {
@@ -21,7 +23,9 @@ export class CustomConfig {
     "node_modules"
   ];
   public ignoreExtensions: string[] = [];
+  public syncMethod: SyncMethod = SyncMethod.GitHubGist;
   public githubSettings: GitHubConfig = new GitHubConfig();
+  public fileSystemSettings: FileSystemConfig = new FileSystemConfig();
 
 
   public version = Number(

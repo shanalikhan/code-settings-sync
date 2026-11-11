@@ -10,6 +10,7 @@ import { ISyncService } from "./models/ISyncService.model";
 import { LocalConfig } from "./models/localConfig.model";
 import { FactoryService } from "./service/factory.service";
 import { File, FileService } from "./service/file.service";
+import { FileSystemService } from "./service/filesystem/filesystem.service";
 import { GitHubService } from "./service/github/github.service";
 import * as lockfile from "./service/watcher/lockfile";
 import { WatcherService } from "./service/watcher/watcher.service";
@@ -26,6 +27,23 @@ export class Sync {
     await state.commons.StartMigrationProcess();
     const startUpSetting = state.commons.GetSettings();
     const startUpCustomSetting = await state.commons.GetCustomSettings();
+
+    if (
+      startUpSetting &&
+      startUpCustomSetting &&
+      startUpCustomSetting.syncMethod === SyncMethod.FileSystem
+    ) {
+      // A folder needs no GitHub token or gist, so the landing page is skipped.
+      if (startUpCustomSetting.fileSystemSettings.path) {
+        if (startUpSetting.autoDownload) {
+          await vscode.commands.executeCommand("extension.downloadSettings");
+        }
+        if (startUpSetting.autoUpload) {
+          await state.watcher.HandleStartWatching();
+        }
+      }
+      return;
+    }
 
     if (startUpSetting) {
       const tokenAvailable: boolean =
@@ -68,14 +86,14 @@ export class Sync {
     }
   }
   /**
-   * Upload setting to github gist
+   * Export (upload) settings to the GitHub Gist or the File System folder
    */
   public async upload(optArgument?: string): Promise<void> {
     // const args = arguments;
     try {
       const service: ISyncService = FactoryService.CreateSyncService(
         state,
-        SyncMethod.GitHubGist
+        await this.selectSyncMethod(optArgument)
       );
       const args = new Array<string>();
       if (optArgument && optArgument === "publicGIST") {
@@ -88,18 +106,29 @@ export class Sync {
     }
   }
   /**
-   * Download setting from github gist
+   * Import (download) settings from the GitHub Gist or the File System folder
    */
   public async download(): Promise<void> {
     try {
       const service: ISyncService = FactoryService.CreateSyncService(
         state,
-        SyncMethod.GitHubGist
+        await this.selectSyncMethod()
       );
       await service.Import();
     } catch (err) {
       Commons.LogException(err, state.commons.ERROR_MESSAGE, true);
       return;
+    }
+  }
+  /**
+   * Choose a folder for File System sync and switch to it. Resolves to the folder, or "" when cancelled
+   */
+  public async selectFileSystemFolder(): Promise<string> {
+    try {
+      return await FileSystemService.SelectFolder(state);
+    } catch (err) {
+      Commons.LogException(err, state.commons.ERROR_MESSAGE, true);
+      return "";
     }
   }
   /**
@@ -179,10 +208,14 @@ export class Sync {
         });
     }
     const localSetting: LocalConfig = new LocalConfig();
+    const fileSystemSync = customSettings.syncMethod === SyncMethod.FileSystem;
     const tokenAvailable: boolean =
-      customSettings.githubSettings.token != null &&
-      customSettings.githubSettings.token !== "";
-    const gistAvailable: boolean = setting.gist != null && setting.gist !== "";
+      fileSystemSync ||
+      (customSettings.githubSettings.token != null &&
+        customSettings.githubSettings.token !== "");
+    const gistAvailable: boolean = fileSystemSync
+      ? !!customSettings.fileSystemSettings.path
+      : setting.gist != null && setting.gist !== "";
 
     const items: string[] = [
       "cmd.otherOptions.openSettingsPage",
@@ -198,7 +231,8 @@ export class Sync {
       "cmd.otherOptions.downloadCustomFile",
       "cmd.otherOptions.joinCommunity",
       "cmd.otherOptions.openIssue",
-      "cmd.otherOptions.releaseNotes"
+      "cmd.otherOptions.releaseNotes",
+      "cmd.otherOptions.selectFileSystemFolder"
     ].map(localize);
 
     let selectedItem = 0;
@@ -237,6 +271,7 @@ export class Sync {
         );
 
         if (answer === "Yes") {
+          customSettings.syncMethod = SyncMethod.GitHubGist;
           localSetting.publicGist = true;
           settingChanged = true;
           setting.gist = "";
@@ -247,6 +282,7 @@ export class Sync {
       },
       async () => {
         // Download Settings from Public GIST
+        customSettings.syncMethod = SyncMethod.GitHubGist;
         selectedItem = 2;
         customSettings.githubSettings.gistSettings.downloadPublicGist = true;
         settingChanged = true;
@@ -388,6 +424,9 @@ export class Sync {
             "http://shanalikhan.github.io/2016/05/14/Visual-studio-code-sync-settings-release-notes.html"
           )
         );
+      },
+      async () => {
+        await this.selectFileSystemFolder();
       }
     ];
 
@@ -479,6 +518,18 @@ export class Sync {
     }
   }
 
+  /**
+   * Sharing a public gist always uses the gist; everything else follows syncMethod
+   */
+  private async selectSyncMethod(optArgument?: string): Promise<SyncMethod> {
+    if (optArgument === "publicGIST") {
+      return SyncMethod.GitHubGist;
+    }
+    const customSettings = await state.commons.GetCustomSettings();
+    return customSettings && customSettings.syncMethod === SyncMethod.FileSystem
+      ? SyncMethod.FileSystem
+      : SyncMethod.GitHubGist;
+  }
   private async getCustomFilesFromGist(
     customSettings: CustomConfig,
     syncSetting: ExtensionConfig

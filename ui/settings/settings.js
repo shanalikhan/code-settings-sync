@@ -41,10 +41,23 @@ const textInputGroupTemplate = `<div class="mb-4">
               settingType="@settingType"
             />
             <div class="input-group-append">
-              <button class="btn btn-primary" @disabled onclick="@action" type="button" id="button-addon2">View</button>
+              <button class="btn btn-primary" @disabled onclick="@action" type="button" id="button:@correspondingSetting">@actionLabel</button>
             </div>
           </div>
         </div>`;
+
+const selectTemplate = `<div class="form-group mb-4">
+            <label for="setting:@correspondingSetting" class="text-white-50a"
+              >@name</label
+            >
+            @tooltip
+            <select
+              class="form-control select"
+              id="setting:@correspondingSetting"
+              setting="@correspondingSetting"
+              settingType="@settingType"
+            >@options</select>
+          </div>`;
 
 const numberInputTemplate = `<div class="form-group mb-4">
             <label for="setting:@correspondingSetting" class="text-white-50a"
@@ -100,7 +113,12 @@ globalMap.forEach(settingMap => {
   let template;
   switch (settingMap.type) {
     case "textinput":
-      template = textInputTemplate;
+      template = settingMap.actionLabel
+        ? textInputGroupTemplate
+        : textInputTemplate;
+      break;
+    case "select":
+      template = selectTemplate;
       break;
     case "numberinput":
       template = numberInputTemplate;
@@ -120,7 +138,21 @@ globalMap.forEach(settingMap => {
       settingMap.correspondingSetting
     )
     .replace(new RegExp("@tooltip"), "")
-    .replace(new RegExp("@settingType", "g"), "global");
+    .replace(new RegExp("@settingType", "g"), "global")
+    .replace(
+      new RegExp("@options", "g"),
+      (settingMap.options || [])
+        .map(
+          option => `<option value="${option.value}">${option.label}</option>`
+        )
+        .join("")
+    )
+    .replace(new RegExp("@actionLabel", "g"), settingMap.actionLabel || "")
+    .replace(
+      new RegExp("@action", "g"),
+      `inputGroupAction('${settingMap.correspondingSetting}')`
+    )
+    .replace(new RegExp("@disabled", "g"), "");
   appendHTML(globalParent, html);
 });
 
@@ -164,6 +196,7 @@ envMap.forEach(envMap => {
       `
     )
     .replace(new RegExp("@settingType", "g"), "env")
+    .replace(new RegExp("@actionLabel", "g"), "View")
     .replace(
       new RegExp("@action", "g"),
       `inputGroupAction('${envMap.correspondingSetting}')`
@@ -189,6 +222,18 @@ $(document).ready(function() {
       vscode.postMessage({
         command: $(this).attr("setting"),
         text: val,
+        type: $(this).attr("settingType")
+      });
+    });
+  $(".select")
+    .each((i, el) => {
+      $(el).val(_.get(globalData, $(el).attr("setting")));
+    })
+    .change(function() {
+      save();
+      vscode.postMessage({
+        command: $(this).attr("setting"),
+        text: $(this).val(),
         type: $(this).attr("settingType")
       });
     });
@@ -265,5 +310,8 @@ function save() {
 function inputGroupAction(setting) {
   if (setting === "gist") {
     vscode.postMessage("openGist");
+  }
+  if (setting === "fileSystemSettings.path") {
+    vscode.postMessage("selectFileSystemFolder");
   }
 }
