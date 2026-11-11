@@ -1,10 +1,24 @@
 import { sep as pathSeparatop } from "path";
+import * as path from "path";
+import * as os from "os";
+import * as fs from "fs-extra";
 
 import { expect } from "chai";
 
 import { File, FileService } from "../../../src/service/file.service";
 
 describe("FileService", () => {
+  it("writes intentionally empty synced files instead of treating them as missing", async () => {
+    const directory = await fs.mkdtemp(path.join(os.tmpdir(), "empty-settings-"));
+    const target = path.join(directory, "settings.json");
+    try {
+      expect(await FileService.WriteFile(target, "")).to.equal(true);
+      expect(await fs.readFile(target, "utf8")).to.equal("");
+    } finally {
+      await fs.remove(directory);
+    }
+  });
+
   it("should get custom file info", async () => {
     const expected = new File(
       "dummyrc",

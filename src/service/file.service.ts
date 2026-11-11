@@ -78,7 +78,8 @@ export class FileService {
     filePath: string,
     data: string
   ): Promise<boolean> {
-    if (!data) {
+    // An intentionally empty file is still a valid download payload.
+    if (data === null || data === undefined) {
       console.error(
         new Error(
           "Unable to write file. FilePath :" + filePath + " Data :" + data
@@ -129,36 +130,26 @@ export class FileService {
     );
   }
 
+  /** Resolves an encoded Gist file name without creating directories. */
+  public static ResolveFilePath(userFolder: string, fileName: string): string {
+    let parts: string[] = null;
+    if (fileName.indexOf("|") > -1) {
+      parts = fileName.split("|");
+    } else if (fileName.indexOf("//") > -1) {
+      parts = fileName.split("//");
+    } else if (fileName.indexOf("\\") > -1) {
+      parts = fileName.split("\\");
+    }
+    return userFolder + (parts === null ? fileName : parts.join(path.sep));
+  }
+
   public static async CreateDirTree(
     userFolder: string,
     fileName: string
   ): Promise<string> {
-    let fullPath: string = userFolder;
-    let result: string;
-
-    let paths: string[] = null;
-    if (fileName.indexOf("|") > -1) {
-      paths = fileName.split("|");
-    } else if (fileName.indexOf("//") > -1) {
-      paths = fileName.split("//");
-    } else if (fileName.indexOf("\\") > -1) {
-      paths = fileName.split("\\");
-    }
-
-    if (paths != null) {
-      for (let i = 0; i < paths.length - 1; i++) {
-        const element = paths[i];
-        fullPath += element + path.sep;
-        await FileService.CreateDirectory(fullPath);
-      }
-
-      result = fullPath + paths[paths.length - 1];
-      return result;
-    } else {
-      result = fullPath + fileName;
-
-      return result;
-    }
+    return FileService.CreateCustomDirTree(
+      FileService.ResolveFilePath(userFolder, fileName)
+    );
   }
 
   public static async DeleteFile(filePath: string): Promise<boolean> {

@@ -10,6 +10,8 @@ import { ISyncService } from "../../models/ISyncService.model";
 import { LocalConfig } from "../../models/localConfig.model";
 import { IExtensionState } from "../../models/state.model";
 import PragmaUtil from "../../pragmaUtil";
+import { EditorService } from "../editor.service";
+import { HasDirtyDocument } from "../editorMatch";
 import { File, FileService } from "../file.service";
 import {
   ExtensionInformation,
@@ -43,7 +45,13 @@ export class GistService implements ISyncService {
       await this.StartDownload(localSettings);
     } catch (err) {
       Commons.LogException(err, this.state.commons.ERROR_MESSAGE, true);
-      return;
+    } finally {
+      // Even an up-to-date gist, missing remote, dirty-editor conflict, or
+      // partial write must restore background sync after we stopped it.
+      // Centralize this here so a successful download starts it only once.
+      if (localSettings.extConfig.autoUpload) {
+        await this.state.watcher.HandleStartWatching();
+      }
     }
   }
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -429,12 +437,13 @@ export class GistService implements ISyncService {
       return;
     }
 
-    let extensionsInstallSummary: InstalledExtensionsSummary;
+    let extensionsInstallSummary: InstalledExtensionsSummary = new InstalledExtensionsSummary();
     let deletedExtensions: ExtensionInformation[] = [];
     const ignoredExtensions: string[] =
       customSettings.ignoreExtensions || new Array<string>();
     const updatedFiles: File[] = [];
-    const actionList: Array<Promise<void | boolean>> = [];
+    // Commit the downloaded version only after every requested file was saved.
+    let downloadedUploadTime: Date = null;
 
     if (res.data.public === true) {
       localSettings.publicGist = true;
@@ -482,13 +491,13 @@ export class GistService implements ISyncService {
           return;
         }
       }
-      customSettings.githubSettings.gistSettings.lastDownload =
-        cloudSett.lastUpload;
+      downloadedUploadTime = cloudSett.lastUpload;
     }
 
     keys.forEach(gistName => {
       if (res.data.files[gistName]) {
-        if (res.data.files[gistName].content) {
+        // Empty text is a valid synced file; only skip missing payloads.
+        if (typeof res.data.files[gistName].content === "string") {
           const prefix = FileService.CUSTOMIZED_SYNC_PREFIX;
           if (gistName.indexOf(prefix) > -1) {
             const fileName = gistName.split(prefix).join(""); // |customized_sync|.htmlhintrc => .htmlhintrc
@@ -536,133 +545,147 @@ export class GistService implements ISyncService {
       }
     });
 
-    for (const file of updatedFiles) {
-      let writeFile = false;
-      let content: string = file.content;
+    // Resolve the complete write set before any file or extension changes.
+    // The existing selection above already applies the OS keybinding rules.
+    const filesToWrite = updatedFiles.filter(
+      file => file.gistName !== this.state.environment.FILE_EXTENSION_NAME
+    );
+    for (const file of filesToWrite) {
+      if (file.gistName === this.state.environment.FILE_KEYBINDING_MAC) {
+        file.fileName = this.state.environment.FILE_KEYBINDING_DEFAULT;
+      }
+      if (file.filePath === null) {
+        file.filePath = FileService.ResolveFilePath(
+          this.state.environment.USER_FOLDER,
+          file.fileName
+        );
+      }
+    }
+    const localSettingsFiles = [
+      this.state.environment.FILE_SETTING,
+      this.state.environment.FILE_CUSTOMIZEDSETTINGS
+    ];
+    const dirtyTarget = filesToWrite
+      .map(file => file.filePath)
+      .concat(localSettingsFiles)
+      .find(target => HasDirtyDocument(vscode.workspace.textDocuments, target));
+    if (dirtyTarget) {
+      vscode.window.showWarningMessage(
+        `Sync : ${dirtyTarget} has unsaved changes in an editor. The download was not started. Save or revert it, then download again.`
+      );
+      return;
+    }
 
-      if (content !== "") {
-        if (file.gistName === this.state.environment.FILE_EXTENSION_NAME) {
-          if (syncSetting.syncExtensions) {
-            if (syncSetting.removeExtensions) {
-              try {
-                deletedExtensions = await PluginService.DeleteExtensions(
-                  content,
-                  ignoredExtensions
-                );
-              } catch (err) {
-                void vscode.window.showErrorMessage(
-                  localize("cmd.downloadSettings.error.removeExtFail")
-                );
-                throw new Error(err);
-              }
-            }
-
-            try {
-              if (!syncSetting.quietSync) {
-                Commons.outputChannel = vscode.window.createOutputChannel(
-                  "Code Settings Sync"
-                );
-                Commons.outputChannel.clear();
-                Commons.outputChannel.appendLine(
-                  `Realtime Extension Download Summary`
-                );
-                Commons.outputChannel.appendLine(`--------------------`);
-                Commons.outputChannel.show();
-              }
-
-              extensionsInstallSummary = await PluginService.InstallExtensions(
-                content,
-                ignoredExtensions,
-                (message: string, dispose: boolean) => {
-                  if (!syncSetting.quietSync) {
-                    Commons.outputChannel.appendLine(message);
-                  } else {
-                    console.log(message);
-                    if (dispose) {
-                      vscode.window.setStatusBarMessage(
-                        "Sync : " + message,
-                        3000
-                      );
-                    }
-                  }
-                }
-              );
-            } catch (err) {
-              throw new Error(err);
-            }
-          }
-        } else {
-          writeFile = true;
-          if (
-            file.gistName === this.state.environment.FILE_KEYBINDING_DEFAULT ||
-            file.gistName === this.state.environment.FILE_KEYBINDING_MAC
-          ) {
-            let test = "";
-            this.state.environment.OsType === OsType.Mac &&
-            !customSettings.universalKeybindings
-              ? (test = this.state.environment.FILE_KEYBINDING_MAC)
-              : (test = this.state.environment.FILE_KEYBINDING_DEFAULT);
-            if (file.gistName !== test) {
-              writeFile = false;
-            }
-          }
-          if (writeFile) {
-            if (file.gistName === this.state.environment.FILE_KEYBINDING_MAC) {
-              file.fileName = this.state.environment.FILE_KEYBINDING_DEFAULT;
-            }
-            let filePath = "";
-            if (file.filePath !== null) {
-              filePath = await FileService.CreateCustomDirTree(file.filePath);
-            } else {
-              filePath = await FileService.CreateDirTree(
-                this.state.environment.USER_FOLDER,
-                file.fileName
-              );
-            }
-
-            if (
-              file.gistName === this.state.environment.FILE_SETTING_NAME ||
-              file.gistName === this.state.environment.FILE_KEYBINDING_MAC ||
-              file.gistName === this.state.environment.FILE_KEYBINDING_DEFAULT
-            ) {
-              const fileExists = await FileService.FileExists(filePath);
-
-              if (fileExists) {
-                const localContent = await FileService.ReadFile(filePath);
-                content = PragmaUtil.processBeforeWrite(
-                  localContent,
-                  content,
-                  this.state.environment.OsType,
-                  localSettings.customConfig.hostName
-                );
-              }
-            }
-
-            actionList.push(
-              FileService.WriteFile(filePath, content)
-                .then(() => {
-                  // TODO : add Name attribute in File and show information message here with name , when required.
-                })
-                .catch(err => {
-                  Commons.LogException(
-                    err,
-                    this.state.commons.ERROR_MESSAGE,
-                    true
-                  );
-                  return;
-                })
-            );
-          }
+    for (const file of filesToWrite) {
+      const filePath = await FileService.CreateCustomDirTree(file.filePath);
+      let content = file.content;
+      if (
+        file.gistName === this.state.environment.FILE_SETTING_NAME ||
+        file.gistName === this.state.environment.FILE_KEYBINDING_MAC ||
+        file.gistName === this.state.environment.FILE_KEYBINDING_DEFAULT
+      ) {
+        if (await FileService.FileExists(filePath)) {
+          content = PragmaUtil.processBeforeWrite(
+            await FileService.ReadFile(filePath),
+            content,
+            this.state.environment.OsType,
+            customSettings.hostName
+          );
         }
+      }
+      // Stop on the first refusal. Do not change more files or extensions
+      // after an editor becomes dirty while an earlier write is pending.
+      if (!(await EditorService.WriteFile(filePath, content))) {
+        throw new Error(
+          "Sync: A settings file was not saved. Resolve the conflict and retry the download."
+        );
       }
     }
 
-    await Promise.all(actionList);
+    const extensionFile = updatedFiles.find(
+      file => file.gistName === this.state.environment.FILE_EXTENSION_NAME
+    );
+    // An empty extension manifest is not an instruction to remove add-ons.
+    if (
+      extensionFile &&
+      extensionFile.content !== "" &&
+      syncSetting.syncExtensions
+    ) {
+      if (syncSetting.removeExtensions) {
+        try {
+          deletedExtensions = await PluginService.DeleteExtensions(
+            extensionFile.content,
+            ignoredExtensions
+          );
+        } catch (err) {
+          void vscode.window.showErrorMessage(
+            localize("cmd.downloadSettings.error.removeExtFail")
+          );
+          throw err;
+        }
+      }
+      if (!syncSetting.quietSync) {
+        Commons.outputChannel = vscode.window.createOutputChannel(
+          "Code Settings Sync"
+        );
+        Commons.outputChannel.clear();
+        Commons.outputChannel.appendLine("Realtime Extension Download Summary");
+        Commons.outputChannel.appendLine("--------------------");
+        Commons.outputChannel.show();
+      }
+      extensionsInstallSummary = await PluginService.InstallExtensions(
+        extensionFile.content,
+        ignoredExtensions,
+        (message: string, dispose: boolean) => {
+          if (!syncSetting.quietSync) {
+            Commons.outputChannel.appendLine(message);
+          } else {
+            console.log(message);
+            if (dispose) {
+              vscode.window.setStatusBarMessage("Sync : " + message, 3000);
+            }
+          }
+        }
+      );
+    }
+
+    // A local options save is part of the download. Do not advance its
+    // receipt when that save fails, or the next regular retry can be skipped.
+    const dirtySettings = localSettingsFiles.find(target =>
+      HasDirtyDocument(vscode.workspace.textDocuments, target)
+    );
+    if (dirtySettings) {
+      vscode.window.showWarningMessage(
+        `Sync : ${dirtySettings} has unsaved changes in an editor. Save or revert it, then download again.`
+      );
+      return;
+    }
     const settingsUpdated = await this.state.commons.SaveSettings(syncSetting);
+    if (!settingsUpdated) {
+      void vscode.window.showErrorMessage(
+        localize("cmd.downloadSettings.error.unableSave")
+      );
+      return;
+    }
+    // Saving VS Code options may yield while the local configuration is edited.
+    if (
+      HasDirtyDocument(
+        vscode.workspace.textDocuments,
+        this.state.environment.FILE_CUSTOMIZEDSETTINGS
+      )
+    ) {
+      vscode.window.showWarningMessage(
+        `Sync : ${this.state.environment.FILE_CUSTOMIZEDSETTINGS} has unsaved changes in an editor. Save or revert it, then download again.`
+      );
+      return;
+    }
+    if (downloadedUploadTime) {
+      customSettings.githubSettings.gistSettings.lastDownload = downloadedUploadTime;
+    }
     const customSettingsUpdated = await this.state.commons.SetCustomSettings(
       customSettings
     );
-    if (settingsUpdated && customSettingsUpdated) {
+    if (customSettingsUpdated) {
       if (!syncSetting.quietSync) {
         this.state.commons.ShowSummaryOutput(
           false,
@@ -694,9 +717,8 @@ export class GistService implements ISyncService {
           5000
         );
       }
-      if (syncSetting.autoUpload) {
-        await this.state.watcher.HandleStartWatching();
-      }
+      // The public Import wrapper owns the watcher restart in its finally
+      // block, including early return, conflict and partial write paths.
     } else {
       void vscode.window.showErrorMessage(
         localize("cmd.downloadSettings.error.unableSave")
