@@ -7,6 +7,7 @@ import * as path from "path";
  */
 export const recorded = {
   errors: new Array<string>(),
+  warnings: new Array<string>(),
   info: new Array<string>(),
   commands: new Array<unknown[]>()
 };
@@ -20,6 +21,9 @@ export const answers = {
 
 export function ResetStub(): void {
   recorded.errors.length = 0;
+  recorded.warnings.length = 0;
+  vscodeStub.workspace.textDocuments.length = 0;
+  vscodeStub.window.visibleTextEditors.length = 0;
   recorded.info.length = 0;
   recorded.commands.length = 0;
   answers.info.length = 0;
@@ -38,6 +42,9 @@ const outputChannel = {
 };
 
 const vscodeStub = {
+  workspace: {
+    textDocuments: new Array<{ fileName: string; isDirty: boolean }>()
+  },
   commands: {
     executeCommand: async (...args: unknown[]) => {
       recorded.commands.push(args);
@@ -57,8 +64,13 @@ const vscodeStub = {
     parse: (value: string) => ({ fsPath: value })
   },
   window: {
+    visibleTextEditors: new Array<unknown>(),
     createOutputChannel: () => outputChannel,
     setStatusBarMessage: () => disposable,
+    showWarningMessage: async (message: string) => {
+      recorded.warnings.push(message);
+      return undefined;
+    },
     showErrorMessage: async (message: string) => {
       recorded.errors.push(message);
       return undefined;
