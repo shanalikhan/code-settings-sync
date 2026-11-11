@@ -111,6 +111,8 @@ Once you select download, after downloading the settings, you will see a summary
 
 A popup will be opened to allow you to restart Code to apply the settings.
 
+Downloads check all restore targets and local sync-settings files for unsaved editor changes before starting. Save or revert a reported file and retry. If a restore target becomes dirty before it is written or a file write fails, subsequent file and extension updates stop. If saving local sync options fails or their files become dirty, the download remains pending. Files and extensions already restored remain restored. The completed-download time is saved only after the files and local sync options have been saved successfully.
+
 ![Download your settings](images/download.gif)
 
 ## Reset Extension Settings
