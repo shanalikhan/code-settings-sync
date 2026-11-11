@@ -134,11 +134,10 @@ export default class Commons {
 
   public async SetCustomSettings(setting: CustomConfig): Promise<boolean> {
     try {
-      await FileService.WriteFile(
+      return await FileService.WriteFile(
         this.state.environment.FILE_CUSTOMIZEDSETTINGS,
         JSON.stringify(setting, null, 4)
       );
-      return true;
     } catch (e) {
       Commons.LogException(
         e,
