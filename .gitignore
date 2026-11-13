@@ -5,9 +5,6 @@ dist/
 # Dependencies
 node_modules/
 
-# Package lock (regenerated on install)
-package-lock.json
-
 # Packaged extension
 *.vsix
 
